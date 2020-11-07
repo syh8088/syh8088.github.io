@@ -2,9 +2,9 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>Hexo</title>
+  <title>JenkinsGitLabConnect | Hexo</title>
   <meta name="keywords" content="">
-  <meta name="description" content="Hexo">
+  <meta name="description" content="JenkinsGitLabConnect | Hexo">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="RServer 설치리눅스 서버에 RServer 설치하는 방법을 알아보겠다. Java와 R를 연동하는 방법 경우 rJava, JRI 등 여러가지 방법이 있지만 이번에 배우게 되는 RServer는 이런 방법과 다르게 tcp&#x2F;ip 포트를 이용한 방식이다. 예를 들어, 리눅스에 RServer를 설치하고 R이 없는 JDK 설치된 서버와 통신해서 R 구현이 가능하다.">
 <meta property="og:type" content="article">
@@ -59,7 +59,7 @@
 
 
 <body>
-<aside class="nav mobile">
+<aside class="nav">
     <div class="nav-left">
         <a href="/" class="avatar_target">
     <img class="avatar" src="/img/avatar.jpg" />
@@ -478,12 +478,53 @@
         </div>
     </div>
 </aside>
-<div id="post" class="index">
+<div id="post">
     <div class="pjax">
-        <article class="index">
-            <div class="toc-ref">
+        <article id="post-CI/Jenkins/JenkinsGitLabConnect" class="article article-type-post" itemscope itemprop="blogPost">
     
-        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Why-Blog"><span class="toc-text">Why Blog</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AF%B9%E5%8D%9A%E5%AE%A2%E7%9A%84%E7%90%86%E8%A7%A3"><span class="toc-text">对博客的理解</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%B3%E4%BA%8E%E5%8F%B6%E8%90%BD%E9%98%81"><span class="toc-text">关于叶落阁</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8D%9A%E5%AE%A2%E5%B9%B3%E5%8F%B0"><span class="toc-text">博客平台</span></a></li></ol></li></ol>
+        <h1 class="article-title">JenkinsGitLabConnect</h1>
+    
+    <div class="article-meta">
+        
+        
+        
+        <span class="book">
+            <i class="iconfont icon-category"></i>
+            
+            
+            <a  data-rel="CI">CI</a> > 
+            
+            <a  data-rel="CI&lt;---&gt;Jenkins">Jenkins</a>
+            
+        </span>
+        
+        
+    </div>
+    <div class="article-meta">
+        
+            Created At : <time class="date" title='Updated At: 2020-11-07 13:58:02'>2020-11-07 13:44</time>
+        
+    </div>
+    <div class="article-meta">
+        
+        
+        <span id="busuanzi_container_page_pv">
+            Views 👀 :<span id="busuanzi_value_page_pv">
+                <span class="count-comment">
+                    <span class="spinner">
+                      <div class="cube1"></div>
+                      <div class="cube2"></div>
+                    </span>
+                </span>
+            </span>
+        </span>
+        
+        
+    </div>
+    
+    <div class="toc-ref">
+    
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Jenkins-GitLab-%EC%97%B0%EB%8F%99"><span class="toc-text">Jenkins_GitLab_연동</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-Jenkins-GitLab-%EA%B4%80%EB%A0%A8-%ED%94%8C%EB%9F%AC%EA%B7%B8%EC%9D%B8-%EC%84%A4%EC%B9%98"><span class="toc-text">1. Jenkins GitLab 관련 플러그인 설치</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-GitLab-Access-Token-%EC%83%9D%EC%84%B1"><span class="toc-text">2. GitLab Access Token 생성</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%EC%83%9D%EC%84%A0%ED%95%9C-GitLab-Access-Token%EC%9D%84-Jenkins%EC%97%90-%EC%A0%81%EC%9A%A9%ED%95%98%EA%B8%B0"><span class="toc-text">3. 생선한 GitLab Access Token을 Jenkins에 적용하기</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-Jenkins-%EC%83%88%EB%A1%9C%EC%9A%B4-Project-%EC%83%9D%EC%84%B1"><span class="toc-text">4. Jenkins 새로운 Project 생성</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-Jenkins-%EC%83%88%EB%A1%9C%EC%9A%B4-Secret-Token-%EC%83%9D%EC%84%B1"><span class="toc-text">5. Jenkins 새로운 Secret Token 생성</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-GitLab-Web-Hooks-%EC%84%A4%EC%A0%95%ED%95%98%EA%B8%B0"><span class="toc-text">6. GitLab Web Hooks 설정하기</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-Jenkins-Environment-variables-%EC%84%A4%EC%A0%95%ED%95%98%EA%B8%B0"><span class="toc-text">7. Jenkins Environment variables 설정하기</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8-%ED%95%B4%EB%8B%B9-Jenkins-Project-Build-Execute-shell-%EC%84%A4%EC%A0%95%ED%95%98%EA%B8%B0"><span class="toc-text">8. 해당 Jenkins Project Build Execute shell 설정하기</span></a></li></ol></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -496,37 +537,146 @@
     }
 </style>
 </div>
-            <h1 id="Why-Blog"><a href="#Why-Blog" class="headerlink" title="Why Blog"></a>Why Blog</h1><h2 id="对博客的理解"><a href="#对博客的理解" class="headerlink" title="对博客的理解"></a>对博客的理解</h2><p>喜欢写Blog的人，会经历三个阶段。</p>
-<blockquote>
-<p>第一阶段，刚接触Blog，觉得很新鲜，试着选择一个免费空间来写。</p>
-</blockquote>
-<blockquote>
-<p>第二阶段，发现免费空间限制太多，就自己购买域名和空间，搭建独立博客。</p>
-</blockquote>
-<blockquote>
-<p>第三阶段，觉得独立博客的管理太麻烦，最好在保留控制权的前提下，让别人来管，自己只负责写文章。</p>
-</blockquote>
-<p>我们每个人的在网络上产生的数据越来越多，这些信息是我们在互联网上存在过的痕迹，值得我们认真对待。但是它们被分散分布在各个网站上。很多时候我们很难将它们聚合在一起，而且各个网站的信息排布方式也没有办法自由控制，所以我们需要一个可以由自己主宰的空间——博客。</p>
-<p>通过博客，我们可以记录自己的生活和成长的轨迹。它不像 Twitter 那样碎片化，也不像 Facebook 那样关系化，它是私人的空间。</p>
-<h2 id="关于叶落阁"><a href="#关于叶落阁" class="headerlink" title="关于叶落阁"></a>关于叶落阁</h2><p><strong>叶落阁</strong> 是阁主（杨玉杰）的个人站。</p>
-<p>到目前为止已经写了<code class="article_number"></code>篇文章， 共<code class="site_word_count"></code>字。</p>
-<p>本站访问人数：<code class="site_uv"></code>人次 ， 访问量：<code class="site_pv"></code>次</p>
-<h2 id="博客平台"><a href="#博客平台" class="headerlink" title="博客平台"></a>博客平台</h2><p>这个博客通过 <a target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a> 生成，部署在 <a target="_blank" rel="noopener" href="https://pages.github.com/">GitHub Pages</a>主题 <a target="_blank" rel="noopener" href="https://github.com/yelog/hexo-theme-3-hexo">3-hexo</a> 已经在github上开源</p>
-<p><code>3-hexo</code> 主题使用交流可以加 Q群: <a target="_blank" href="//shang.qq.com/wpa/qunwpa?idkey=e8cf083cc097141eaf323396f1766809b8e90ff00c67bb441898f672892f6904"><img data-ignore border="0" src="//pub.idqqimg.com/wpa/images/group.png" alt="3-hexo使用交流" title="3-hexo使用交流"></a></p>
-<p>主要功能：</p>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="Jenkins-GitLab-연동"><a href="#Jenkins-GitLab-연동" class="headerlink" title="Jenkins_GitLab_연동"></a>Jenkins_GitLab_연동</h2><p>우선 해당 서버에 Jenkins가 설치가 선행되어야 한다.(Jenkins_설치)</p>
+<h3 id="1-Jenkins-GitLab-관련-플러그인-설치"><a href="#1-Jenkins-GitLab-관련-플러그인-설치" class="headerlink" title="1. Jenkins GitLab 관련 플러그인 설치"></a>1. Jenkins GitLab 관련 플러그인 설치</h3><p><img src="/img/CI/Jenkins/JenkinsGitLabConnect/0-1.PNG" alt="0-1.PNG"></p>
+<p>Jenkins 메인페이지에서 </p>
+<p>“Jenkins 관리” -&gt; “플로그인 관리” 클릭하자</p>
+<p><img src="/img/CI/Jenkins/JenkinsGitLabConnect/0-2.PNG" alt="0-2.PNG"></p>
+<p>GitLab에 필요한 플러그인을 설치하자!</p>
+<h3 id="2-GitLab-Access-Token-생성"><a href="#2-GitLab-Access-Token-생성" class="headerlink" title="2. GitLab Access Token 생성"></a>2. GitLab Access Token 생성</h3><p><img src="/img/CI/Jenkins/JenkinsGitLabConnect/1.PNG" alt="1.PNG"></p>
+<p>해당 GitLab에 접속해서<br>“User Settings” -&gt; “Access Tokens” 접속 후 각각 Name, Expires at 설정 후 “Create personal access token” 클릭하자</p>
 <ul>
-<li>搜索支持文章标题、标签(#标签)、作者(@作者)</li>
-<li>pad/手机等移动端适配</li>
-<li>页面全局快捷键 <a target="_blank" rel="noopener" href='http://yelog.org/2017/03/24/3-hexo-shortcuts/'>3-hexo快捷键说明</a></li>
+<li>Name<ul>
+<li>Access Token 생성 이름</li>
 </ul>
+</li>
+<li>Expires at<ul>
+<li>만료일</li>
+</ul>
+</li>
+</ul>
+<h3 id="3-생선한-GitLab-Access-Token을-Jenkins에-적용하기"><a href="#3-생선한-GitLab-Access-Token을-Jenkins에-적용하기" class="headerlink" title="3. 생선한 GitLab Access Token을 Jenkins에 적용하기"></a>3. 생선한 GitLab Access Token을 Jenkins에 적용하기</h3><p><img src="/img/CI/Jenkins/JenkinsGitLabConnect/2.PNG" alt="2.PNG"></p>
+<p>Jenkins 페이지에 돌아가서 젠키스 관리 페이지에 들어가서 좌측 메뉴에 보면<br>“Credentials” -&gt; “System” -&gt; “Global credentials (unrestricted)” 클릭하자!</p>
+<p><img src="/img/CI/Jenkins/JenkinsGitLabConnect/3.PNG" alt="3.PNG"></p>
+<ul>
+<li>Kind<ul>
+<li>인증 방식을 선택하는 Select Box입니다. “GitLab API token” 선택하자!</li>
+</ul>
+</li>
+<li>API token<ul>
+<li>GItLab에서 생성한 Access Token을 붙여넣기 하자!</li>
+</ul>
+</li>
+<li>ID<ul>
+<li>생성할 자격증 이름</li>
+</ul>
+</li>
+<li>Description<ul>
+<li>생성할 자격증 설명</li>
+</ul>
+</li>
+</ul>
+<p><img src="/img/CI/Jenkins/JenkinsGitLabConnect/4.PNG" alt="4.PNG"></p>
+<p>Jenkins 메인페이지에서 “Jenkins 관리” -&gt; “시스템 설정” 들어가자</p>
+<p><img src="/img/CI/Jenkins/JenkinsGitLabConnect/5.PNG" alt="5.PNG"></p>
+<ul>
+<li>Connection name<ul>
+<li>해당 설정 이름</li>
+</ul>
+</li>
+<li>host URL<ul>
+<li>GItLab 해당 Repository URL</li>
+</ul>
+</li>
+<li>credentials<ul>
+<li>방금 만들었던 자격증을 선택하자</li>
+</ul>
+</li>
+</ul>
+<h3 id="4-Jenkins-새로운-Project-생성"><a href="#4-Jenkins-새로운-Project-생성" class="headerlink" title="4. Jenkins 새로운 Project 생성"></a>4. Jenkins 새로운 Project 생성</h3><p><img src="/img/CI/Jenkins/JenkinsGitLabConnect/6.PNG" alt="6.PNG"></p>
+<p>다시 Jenkins 메인페이지에서 “새로운 Item” 클릭하자</p>
+<p><img src="/img/CI/Jenkins/JenkinsGitLabConnect/7.PNG" alt="7.PNG"></p>
+<p>생성할 Project 이름 하고 “Freestyle project” 클릭 후 “OK” 버튼 클릭</p>
+<p><img src="/img/CI/Jenkins/JenkinsGitLabConnect/8-1.PNG" alt="8-1.PNG"></p>
+<p>생성한 Project 들어가서 좌측 메뉴에 “구성” 클릭!</p>
+<h3 id="5-Jenkins-새로운-Secret-Token-생성"><a href="#5-Jenkins-새로운-Secret-Token-생성" class="headerlink" title="5. Jenkins 새로운 Secret Token 생성"></a>5. Jenkins 새로운 Secret Token 생성</h3><p><img src="/img/CI/Jenkins/JenkinsGitLabConnect/8-2.PNG" alt="8-2.PNG"></p>
+<p>빌드 유발에 Build when a change is pushed to Gitlab 클릭 후 “고급”을 클릭하자</p>
+<p><img src="/img/CI/Jenkins/JenkinsGitLabConnect/9.PNG" alt="9.PNG"></p>
+<p>secret token을 생성한다.</p>
+<h3 id="6-GitLab-Web-Hooks-설정하기"><a href="#6-GitLab-Web-Hooks-설정하기" class="headerlink" title="6. GitLab Web Hooks 설정하기"></a>6. GitLab Web Hooks 설정하기</h3><p><img src="/img/CI/Jenkins/JenkinsGitLabConnect/10.PNG" alt="10.PNG"></p>
+<p>GitLab 해당 Repository에 들어가서 </p>
+<p>“Settings” -&gt; “Integrations” 클릭 후</p>
+<ul>
+<li>URL<ul>
+<li>http://{Jenkins 서버 IP 및 도메인}/project/{Jenkins 생성한 Project Name}</li>
+</ul>
+</li>
+<li>Secret Token<ul>
+<li>방금 생성한 Secret Token을 붙여넣기 하자!</li>
+</ul>
+</li>
+</ul>
+<h3 id="7-Jenkins-Environment-variables-설정하기"><a href="#7-Jenkins-Environment-variables-설정하기" class="headerlink" title="7. Jenkins Environment variables 설정하기"></a>7. Jenkins Environment variables 설정하기</h3><p><img src="/img/CI/Jenkins/JenkinsGitLabConnect/11.PNG" alt="11.PNG"></p>
+<p>Jenkins 메인페이지에서 “Jenkins 관리” -&gt; “시스템 설정” 들어가서 “Global properties” 탭으로 이동하자</p>
+<ul>
+<li>GIT_NAME<ul>
+<li>git 통해 저장된 저장소 패스</li>
+<li>ex) /home/jojoldu/spring-batch/batch.jar 등</li>
+</ul>
+</li>
+<li>JAR_NAME<ul>
+<li>실행할 Jar 위치가 저장된 변수입니다.</li>
+<li>ex) /home/jojoldu/spring-batch/batch.jar 등</li>
+</ul>
+</li>
+<li>JVM_OPTS<ul>
+<li>G1GC 등의 JVM 옵션 항목이 저장된 변수입니다.</li>
+<li>xmx, xms 등의 옵션도 필요에 따라 추가하시면 됩니다.</li>
+</ul>
+</li>
+<li>JAR_OPTS<ul>
+<li>위에서 언급한 설정들을 모두 모아 저장된 변수입니다.</li>
+<li>젠킨스 환경 설정들간에 참조가 가능합니다.</li>
+</ul>
+</li>
+<li>PROFILES_ACTIVE<ul>
+<li>SPRING BATCH Profile 항목 관련 변수입니다.</li>
+<li>eal이라는 값만 저장하지 않고, 시스템 변수 설정까지 (-Dspring.profiles.active) 저장합니다.</li>
+</ul>
+</li>
+<li>REPOSITORY_NAME<ul>
+<li>app 저장된 위치입니다.</li>
+</ul>
+</li>
+</ul>
+<h3 id="8-해당-Jenkins-Project-Build-Execute-shell-설정하기"><a href="#8-해당-Jenkins-Project-Build-Execute-shell-설정하기" class="headerlink" title="8. 해당 Jenkins Project Build Execute shell 설정하기"></a>8. 해당 Jenkins Project Build Execute shell 설정하기</h3><p><img src="/img/CI/Jenkins/JenkinsGitLabConnect/12.PNG" alt="12.PNG"></p>
+<p>Jenkins 메인페이지에서 해당 Project의 “구성”을 클릭합시다.</p>
+<p>“빌드 환경” 필드에서 “Command”에 실행 할 shell 코드를 입력 합시다. (설정한 Jenkins Environment variables를 활용하자)</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">cd $GIT<span class="emphasis">_NAME</span></span><br><span class="line"><span class="emphasis">git pull</span></span><br><span class="line"><span class="emphasis">./gradlew clean build -x test</span></span><br><span class="line"><span class="emphasis"></span></span><br><span class="line"><span class="emphasis"></span></span><br><span class="line"><span class="emphasis">java -jar $&#123;JAR_</span>OPTS&#125; $&#123;JAR<span class="emphasis">_NAME&#125; \</span></span><br><span class="line"><span class="emphasis">--job.name=ShopMallAllSetAccessTokenUsingRefreshTokenJob \</span></span><br><span class="line"><span class="emphasis">version=$&#123;BUILD_</span>NUMBER&#125;</span><br></pre></td></tr></table></figure>
 
-        </article>
-        
-        <p>
-            <a  class="dashang" onclick="dashangToggle()">赏</a>
-        </p>
-        
-        
+      
+       <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。可以在下面评论区评论，也可以邮件至 jaytp@qq.com </span>
+    </div>
+</article>
+
+
+<p>
+    <a  class="dashang" onclick="dashangToggle()">💰</a>
+</p>
+
+
+
+
+
+
+    
+
+
+
+
     </div>
     <div class="copyright">
         <p class="footer-entry">
@@ -535,11 +685,11 @@
 <p class="footer-entry">Built with <a href="https://hexo.io/" target="_blank">Hexo</a> and <a href="https://github.com/yelog/hexo-theme-3-hexo" target="_blank">3-hexo</a> theme</p>
 
     </div>
-</div>
-<div class="full-toc">
-    <button class="full" data-title="切换全屏 快捷键 s"><span class="min "></span></button>
+    <div class="full-toc">
+        <button class="full" data-title="切换全屏 快捷键 s"><span class="min "></span></button>
 <a class="" id="rocket" ></a>
 
+    </div>
 </div>
 
 <div class="hide_box" onclick="dashangToggle()"></div>

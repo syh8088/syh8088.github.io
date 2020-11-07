@@ -2,9 +2,9 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>Hexo</title>
+  <title>devtool | Hexo</title>
   <meta name="keywords" content="">
-  <meta name="description" content="Hexo">
+  <meta name="description" content="devtool | Hexo">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="RServer 설치리눅스 서버에 RServer 설치하는 방법을 알아보겠다. Java와 R를 연동하는 방법 경우 rJava, JRI 등 여러가지 방법이 있지만 이번에 배우게 되는 RServer는 이런 방법과 다르게 tcp&#x2F;ip 포트를 이용한 방식이다. 예를 들어, 리눅스에 RServer를 설치하고 R이 없는 JDK 설치된 서버와 통신해서 R 구현이 가능하다.">
 <meta property="og:type" content="article">
@@ -59,7 +59,7 @@
 
 
 <body>
-<aside class="nav mobile">
+<aside class="nav">
     <div class="nav-left">
         <a href="/" class="avatar_target">
     <img class="avatar" src="/img/avatar.jpg" />
@@ -478,12 +478,53 @@
         </div>
     </div>
 </aside>
-<div id="post" class="index">
+<div id="post">
     <div class="pjax">
-        <article class="index">
-            <div class="toc-ref">
+        <article id="post-JAVASCRIPT/Webpack/devtool" class="article article-type-post" itemscope itemprop="blogPost">
     
-        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Why-Blog"><span class="toc-text">Why Blog</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AF%B9%E5%8D%9A%E5%AE%A2%E7%9A%84%E7%90%86%E8%A7%A3"><span class="toc-text">对博客的理解</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%B3%E4%BA%8E%E5%8F%B6%E8%90%BD%E9%98%81"><span class="toc-text">关于叶落阁</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8D%9A%E5%AE%A2%E5%B9%B3%E5%8F%B0"><span class="toc-text">博客平台</span></a></li></ol></li></ol>
+        <h1 class="article-title">devtool</h1>
+    
+    <div class="article-meta">
+        
+        
+        
+        <span class="book">
+            <i class="iconfont icon-category"></i>
+            
+            
+            <a  data-rel="JAVASCRIPT">JAVASCRIPT</a> > 
+            
+            <a  data-rel="JAVASCRIPT&lt;---&gt;WebPack">WebPack</a>
+            
+        </span>
+        
+        
+    </div>
+    <div class="article-meta">
+        
+            Created At : <time class="date" title='Updated At: 2020-11-07 13:52:38'>2020-11-07 13:46</time>
+        
+    </div>
+    <div class="article-meta">
+        
+        
+        <span id="busuanzi_container_page_pv">
+            Views 👀 :<span id="busuanzi_value_page_pv">
+                <span class="count-comment">
+                    <span class="spinner">
+                      <div class="cube1"></div>
+                      <div class="cube2"></div>
+                    </span>
+                </span>
+            </span>
+        </span>
+        
+        
+    </div>
+    
+    <div class="toc-ref">
+    
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#WebPack-DevTool"><span class="toc-text">WebPack - DevTool</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-WebPack-Config-%EC%97%90%EC%84%9C-%EC%84%A4%EC%A0%95-%ED%95%98%EB%8A%94-%EB%B0%A9%EB%B2%95"><span class="toc-text">1. WebPack Config 에서 설정 하는 방법</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-ionic-app-scripts-%EC%97%90%EC%84%9C-%EC%84%A4%EC%A0%95-%ED%95%98%EB%8A%94-%EB%B0%A9%EB%B2%95"><span class="toc-text">2. @ionic&#x2F;app-scripts 에서 설정 하는 방법</span></a></li></ol></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -496,37 +537,51 @@
     }
 </style>
 </div>
-            <h1 id="Why-Blog"><a href="#Why-Blog" class="headerlink" title="Why Blog"></a>Why Blog</h1><h2 id="对博客的理解"><a href="#对博客的理解" class="headerlink" title="对博客的理解"></a>对博客的理解</h2><p>喜欢写Blog的人，会经历三个阶段。</p>
-<blockquote>
-<p>第一阶段，刚接触Blog，觉得很新鲜，试着选择一个免费空间来写。</p>
-</blockquote>
-<blockquote>
-<p>第二阶段，发现免费空间限制太多，就自己购买域名和空间，搭建独立博客。</p>
-</blockquote>
-<blockquote>
-<p>第三阶段，觉得独立博客的管理太麻烦，最好在保留控制权的前提下，让别人来管，自己只负责写文章。</p>
-</blockquote>
-<p>我们每个人的在网络上产生的数据越来越多，这些信息是我们在互联网上存在过的痕迹，值得我们认真对待。但是它们被分散分布在各个网站上。很多时候我们很难将它们聚合在一起，而且各个网站的信息排布方式也没有办法自由控制，所以我们需要一个可以由自己主宰的空间——博客。</p>
-<p>通过博客，我们可以记录自己的生活和成长的轨迹。它不像 Twitter 那样碎片化，也不像 Facebook 那样关系化，它是私人的空间。</p>
-<h2 id="关于叶落阁"><a href="#关于叶落阁" class="headerlink" title="关于叶落阁"></a>关于叶落阁</h2><p><strong>叶落阁</strong> 是阁主（杨玉杰）的个人站。</p>
-<p>到目前为止已经写了<code class="article_number"></code>篇文章， 共<code class="site_word_count"></code>字。</p>
-<p>本站访问人数：<code class="site_uv"></code>人次 ， 访问量：<code class="site_pv"></code>次</p>
-<h2 id="博客平台"><a href="#博客平台" class="headerlink" title="博客平台"></a>博客平台</h2><p>这个博客通过 <a target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a> 生成，部署在 <a target="_blank" rel="noopener" href="https://pages.github.com/">GitHub Pages</a>主题 <a target="_blank" rel="noopener" href="https://github.com/yelog/hexo-theme-3-hexo">3-hexo</a> 已经在github上开源</p>
-<p><code>3-hexo</code> 主题使用交流可以加 Q群: <a target="_blank" href="//shang.qq.com/wpa/qunwpa?idkey=e8cf083cc097141eaf323396f1766809b8e90ff00c67bb441898f672892f6904"><img data-ignore border="0" src="//pub.idqqimg.com/wpa/images/group.png" alt="3-hexo使用交流" title="3-hexo使用交流"></a></p>
-<p>主要功能：</p>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="WebPack-DevTool"><a href="#WebPack-DevTool" class="headerlink" title="WebPack - DevTool"></a>WebPack - DevTool</h2><p>패키지의 모든 자바스크립트 모듈을 하나(또는 소수)의 번들 파일로 만들어 브라우저에서 이용하면 많은 장점이 있지만,<br>브라우저에서 디버깅할 때 원래 어떤 파일의 어떤 부분에서 문제가 생겼는지 찾기가 어렵다는 단점이 있다.<br>이 문제를 해결하기 위해 웹팩의 소스맵(source map)을 이용할 수 있다.</p>
+<p>소스맵 은 번들 파일 내의 코드를 원래 소스 파일로 연결함으로써 브라우저에서 코드를 읽고 디버그하기 쉽게 만들어 준다.</p>
+<h3 id="1-WebPack-Config-에서-설정-하는-방법"><a href="#1-WebPack-Config-에서-설정-하는-방법" class="headerlink" title="1. WebPack Config 에서 설정 하는 방법"></a>1. WebPack Config 에서 설정 하는 방법</h3><ul>
+<li>일반적으로 React, Vue 프로젝트에서 WebPack 통해 설정 하는 방법을 알아보겠다.</li>
+</ul>
+<p><img src="/img/JAVASCRIPT/Webpack/devtool/c.JPG" alt="c.JPG"></p>
 <ul>
-<li>搜索支持文章标题、标签(#标签)、作者(@作者)</li>
-<li>pad/手机等移动端适配</li>
-<li>页面全局快捷键 <a target="_blank" rel="noopener" href='http://yelog.org/2017/03/24/3-hexo-shortcuts/'>3-hexo快捷键说明</a></li>
+<li><p>보통 WebPack 설정 파일에서 “devtool” 속성값을 추가해 설정값을 입력 하는 것이다.</p>
+</li>
+<li><p>여기서 개발 도구에 SourceMap을 노출하지 않으려는 경우에 “hidden-source-map” 으로 설정 하자</p>
+</li>
+<li><p>그 외 설정값 자료 - <a target="_blank" rel="noopener" href="https://webpack.js.org/configuration/devtool/">https://webpack.js.org/configuration/devtool/</a></p>
+<h3 id="2-ionic-app-scripts-에서-설정-하는-방법"><a href="#2-ionic-app-scripts-에서-설정-하는-방법" class="headerlink" title="2. @ionic/app-scripts 에서 설정 하는 방법"></a>2. @ionic/app-scripts 에서 설정 하는 방법</h3></li>
+<li><p>ionic 경우 app-scripts 통해 실행하기 때문에 다른 방향으로 설정 해야 한다.</p>
+</li>
+</ul>
+<p><img src="/img/JAVASCRIPT/Webpack/devtool/c1.JPG" alt="c1.JPG"></p>
+<ul>
+<li>package.json 파일 통해 위 이미지 처럼 셋팅 하자<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&quot;ionic<span class="emphasis">_source_</span>map<span class="emphasis">_type&quot;: &quot;hidden-source-map&quot;</span></span><br></pre></td></tr></table></figure>
+</li>
 </ul>
 
-        </article>
-        
-        <p>
-            <a  class="dashang" onclick="dashangToggle()">赏</a>
-        </p>
-        
-        
+      
+       <hr><span style="font-style: italic;color: gray;"> 转载请注明来源，欢迎对文章中的引用来源进行考证，欢迎指出任何有错误或不够清晰的表达。可以在下面评论区评论，也可以邮件至 jaytp@qq.com </span>
+    </div>
+</article>
+
+
+<p>
+    <a  class="dashang" onclick="dashangToggle()">💰</a>
+</p>
+
+
+
+
+
+
+    
+
+
+
+
     </div>
     <div class="copyright">
         <p class="footer-entry">
@@ -535,11 +590,11 @@
 <p class="footer-entry">Built with <a href="https://hexo.io/" target="_blank">Hexo</a> and <a href="https://github.com/yelog/hexo-theme-3-hexo" target="_blank">3-hexo</a> theme</p>
 
     </div>
-</div>
-<div class="full-toc">
-    <button class="full" data-title="切换全屏 快捷键 s"><span class="min "></span></button>
+    <div class="full-toc">
+        <button class="full" data-title="切换全屏 快捷键 s"><span class="min "></span></button>
 <a class="" id="rocket" ></a>
 
+    </div>
 </div>
 
 <div class="hide_box" onclick="dashangToggle()"></div>
