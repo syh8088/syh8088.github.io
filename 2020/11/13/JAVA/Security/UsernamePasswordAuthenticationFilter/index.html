@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>UsernamePasswordAuthenticationFilter | Seo Yang Hun Blog</title>
+  <meta name="keywords" content="">
+  <meta name="description" content="UsernamePasswordAuthenticationFilter | Seo Yang Hun Blog">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="description" content="Spring Security UsernamePasswordAuthenticationFilterLogin Form 인증을 담당하고 있는 UsernamePasswordAuthenticationFilter 를 통해 처리 Flow 를 알아보자  UsernamePasswordAuthenticationFilter 는 사용자가 Form Login 방식에서 로그인 하게">
+<meta property="og:type" content="article">
+<meta property="og:title" content="UsernamePasswordAuthenticationFilter">
+<meta property="og:url" content="https://syh8088.github.io/2020/11/13/JAVA/Security/UsernamePasswordAuthenticationFilter/index.html">
+<meta property="og:site_name" content="Seo Yang Hun Blog">
+<meta property="og:description" content="Spring Security UsernamePasswordAuthenticationFilterLogin Form 인증을 담당하고 있는 UsernamePasswordAuthenticationFilter 를 통해 처리 Flow 를 알아보자  UsernamePasswordAuthenticationFilter 는 사용자가 Form Login 방식에서 로그인 하게">
+<meta property="og:locale">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/Security/UsernamePasswordAuthenticationFilter/1.png">
+<meta property="article:published_time" content="2020-11-13T08:51:13.000Z">
+<meta property="article:modified_time" content="2020-11-13T08:51:51.134Z">
+<meta property="article:author" content="Seo Yang Hun">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://syh8088.github.io/img/JAVA/Security/UsernamePasswordAuthenticationFilter/1.png">
+
+
+<link rel="icon" href="/img/avatar.jpg">
+
+<link href="/css/style.css?v=1.1.0" rel="stylesheet">
+
+<link href="/css/hl_theme/atom-light.css?v=1.1.0" rel="stylesheet">
+
+<link href="//cdn.jsdelivr.net/npm/animate.css@4.1.0/animate.min.css" rel="stylesheet">
+
+<script src="//cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"></script>
+<script src="/js/titleTip.js?v=1.1.0" ></script>
+
+<script src="//cdn.jsdelivr.net/npm/highlightjs@9.16.2/highlight.pack.min.js"></script>
+<script>
+    hljs.initHighlightingOnLoad();
+</script>
+
+<script src="//cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.js"></script>
+
+
+
+<script src="//cdn.jsdelivr.net/npm/jquery.cookie@1.4.1/jquery.cookie.min.js" ></script>
+
+<script src="/js/iconfont.js?v=1.1.0" ></script>
+
+<meta name="generator" content="Hexo 5.2.0"></head>
+<div style="display: none">
+  <input class="theme_disqus_on" value="false">
+  <input class="theme_preload_comment" value="">
+  <input class="theme_blog_path" value="">
+  <input id="theme_shortcut" value="true" />
+  <input id="theme_highlight_on" value="true" />
+  <input id="theme_code_copy" value="true" />
+</div>
+
+
+
+<body>
+<aside class="nav">
+    <div class="nav-left">
+        <a href="/" class="avatar_target">
+    <img class="avatar" src="/img/avatar.jpg" />
+</a>
+<div class="author">
+    <span>Seo Yang Hun</span>
+</div>
+
+<div class="icon">
+    
+        
+        <a title="rss" href="/atom.xml" target="_blank">
+            
+                <svg class="iconfont-svg" aria-hidden="true">
+                    <use xlink:href="#icon-rss"></use>
+                </svg>
+            
+        </a>
+        
+    
+        
+        <a title="github" href="https://github.com/syh8088" target="_blank">
+            
+                <svg class="iconfont-svg" aria-hidden="true">
+                    <use xlink:href="#icon-github"></use>
+                </svg>
+            
+        </a>
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+        <a title="email" href="mailto:syh8088@gmail.com" target="_blank">
+            
+                <svg class="iconfont-svg" aria-hidden="true">
+                    <use xlink:href="#icon-email"></use>
+                </svg>
+            
+        </a>
+        
+    
+        
+        <a title="qq" href="http://wpa.qq.com/msgrd?v=3&uin=872336115&site=qq&menu=yes" target="_blank">
+            
+                <svg class="iconfont-svg" aria-hidden="true">
+                    <use xlink:href="#icon-qq"></use>
+                </svg>
+            
+        </a>
+        
+    
+        
+    
+        
+    
+</div>
+
+
+
+
+<ul>
+    <li><div class="all active" data-rel="All">All<small>(10)</small></div></li>
+    
+        
+            
+            <li><div data-rel="CI"><i class="fold iconfont icon-right"></i>CI<small>(3)</small></div>
+                
+                    <ul class="sub hide">
+                        
+                        <li><div data-rel="CI<--->Jenkins">Jenkins<small>(3)</small></div>
+                            
+                        </li>
+                            
+                    </ul>
+                
+            </li>
+            
+        
+    
+        
+            
+            <li><div data-rel="DB"><i class="fold iconfont icon-right"></i>DB<small>(1)</small></div>
+                
+                    <ul class="sub hide">
+                        
+                        <li><div data-rel="DB<--->Mysql">Mysql<small>(1)</small></div>
+                            
+                        </li>
+                            
+                    </ul>
+                
+            </li>
+            
+        
+    
+        
+            
+            <li><div data-rel="JAVA"><i class="fold iconfont icon-right"></i>JAVA<small>(3)</small></div>
+                
+                    <ul class="sub hide">
+                        
+                        <li><div data-rel="JAVA<--->JPA">JPA<small>(1)</small></div>
+                            
+                        </li>
+                            
+                        <li><div data-rel="JAVA<--->Security">Security<small>(2)</small></div>
+                            
+                        </li>
+                            
+                    </ul>
+                
+            </li>
+            
+        
+    
+        
+            
+            <li><div data-rel="JAVASCRIPT"><i class="fold iconfont icon-right"></i>JAVASCRIPT<small>(1)</small></div>
+                
+                    <ul class="sub hide">
+                        
+                        <li><div data-rel="JAVASCRIPT<--->WebPack">WebPack<small>(1)</small></div>
+                            
+                        </li>
+                            
+                    </ul>
+                
+            </li>
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+            <li><div data-rel="R">R<small>(1)</small></div>
+                
+            </li>
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+</ul>
+<div class="left-bottom">
+    <div class="menus">
+    
+    
+    
+    
+    </div>
+    <div><a class="about  hasFriend  site_url"  href="/about">About</a><a style="width: 50%"  class="friends">Friends</a></div>
+</div>
+<input type="hidden" id="yelog_site_posts_number" value="10">
+
+<div style="display: none">
+    <span id="busuanzi_value_site_uv"></span>
+    <span id="busuanzi_value_site_pv"></span>
+</div>
+
+    </div>
+    <div class="nav-right">
+        <div class="friends-area">
+    <div class="friends-title">
+        Links
+        <i class="iconfont icon-left"></i>
+    </div>
+    <div class="friends-content">
+        <ul>
+            
+            <li><a target="_blank" href="/null">叶落阁</a></li>
+            
+        </ul>
+    </div>
+</div>
+        <div class="title-list">
+    <div class="right-top">
+        <div id="default-panel">
+            <i class="iconfont icon-search" data-title="搜索 快捷键 i"></i>
+            <div class="right-title">All</div>
+            <i class="iconfont icon-file-tree" data-title="切换到大纲视图 快捷键 w"></i>
+        </div>
+        <div id="search-panel">
+            <i class="iconfont icon-left" data-title="返回"></i>
+            <input id="local-search-input" />
+            <label class="border-line" for="input"></label>
+            <i class="iconfont icon-case-sensitive" data-title="大小写敏感"></i>
+            <i class="iconfont icon-tag" data-title="标签"></i>
+        </div>
+        <div id="outline-panel" style="display: none">
+            <div class="right-title">大纲</div>
+            <i class="iconfont icon-list" data-title="切换到文章列表"></i>
+        </div>
+    </div>
+
+    <div class="tags-list">
+    <input id="tag-search" />
+    <div class="tag-wrapper">
+        
+    </div>
+
+</div>
+
+    
+    <nav id="title-list-nav">
+        
+        <a  class="All JAVA Security "
+           href="/2020/11/13/JAVA/Security/UsernamePasswordAuthenticationFilter/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="UsernamePasswordAuthenticationFilter">UsernamePasswordAuthenticationFilter</span>
+            <span class="post-date" title="2020-11-13 08:51:13">2020/11/13</span>
+        </a>
+        
+        <a  class="All JAVA JPA "
+           href="/2020/11/08/JAVA/JPA/eagerJpqlNplus1/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="eagerJpqlNplus1">eagerJpqlNplus1</span>
+            <span class="post-date" title="2020-11-08 07:47:42">2020/11/08</span>
+        </a>
+        
+        <a  class="All "
+           href="/2020/11/07/hello-world/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Hello World">Hello World</span>
+            <span class="post-date" title="2020-11-07 13:56:05">2020/11/07</span>
+        </a>
+        
+        <a  class="All R "
+           href="/2020/11/07/R/RServerInstall/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="RServerInstall">RServerInstall</span>
+            <span class="post-date" title="2020-11-07 13:46:53">2020/11/07</span>
+        </a>
+        
+        <a  class="All JAVASCRIPT WebPack "
+           href="/2020/11/07/JAVASCRIPT/Webpack/devtool/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="devtool">devtool</span>
+            <span class="post-date" title="2020-11-07 13:46:40">2020/11/07</span>
+        </a>
+        
+        <a  class="All JAVA Security "
+           href="/2020/11/07/JAVA/Security/JKSGenerate/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="JKSGenerate">JKSGenerate</span>
+            <span class="post-date" title="2020-11-07 13:46:21">2020/11/07</span>
+        </a>
+        
+        <a  class="All DB Mysql "
+           href="/2020/11/07/DB/Mysql/mysqlReplicationSetting/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="mysqlReplicationSetting">mysqlReplicationSetting</span>
+            <span class="post-date" title="2020-11-07 13:45:17">2020/11/07</span>
+        </a>
+        
+        <a  class="All CI Jenkins "
+           href="/2020/11/07/CI/Jenkins/JenkinsInstall/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="JenkinsInstall">JenkinsInstall</span>
+            <span class="post-date" title="2020-11-07 13:44:57">2020/11/07</span>
+        </a>
+        
+        <a  class="All CI Jenkins "
+           href="/2020/11/07/CI/Jenkins/JenkinsGitLabSshConnect/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="JenkinsGitLabSshConnect">JenkinsGitLabSshConnect</span>
+            <span class="post-date" title="2020-11-07 13:44:47">2020/11/07</span>
+        </a>
+        
+        <a  class="All CI Jenkins "
+           href="/2020/11/07/CI/Jenkins/JenkinsGitLabConnect/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="JenkinsGitLabConnect">JenkinsGitLabConnect</span>
+            <span class="post-date" title="2020-11-07 13:44:25">2020/11/07</span>
+        </a>
+        
+        <div id="no-item-tips">
+
+        </div>
+    </nav>
+    <div id="outline-list">
+    </div>
+</div>
+    </div>
+    <div class="hide-list">
+        <div class="semicircle" data-title="切换全屏 快捷键 s">
+            <div class="brackets first"><</div>
+            <div class="brackets">&gt;</div>
+        </div>
+    </div>
+</aside>
+<div id="post">
+    <div class="pjax">
+        <article id="post-JAVA/Security/UsernamePasswordAuthenticationFilter" class="article article-type-post" itemscope itemprop="blogPost">
+    
+        <h1 class="article-title">UsernamePasswordAuthenticationFilter</h1>
+    
+    <div class="article-meta">
+        
+        
+        
+        <span class="book">
+            <i class="iconfont icon-category"></i>
+            
+            
+            <a  data-rel="JAVA">JAVA</a> > 
+            
+            <a  data-rel="JAVA&lt;---&gt;Security">Security</a>
+            
+        </span>
+        
+        
+    </div>
+    <div class="article-meta">
+        
+            Created At : <time class="date" title='Updated At: 2020-11-13 08:51:51'>2020-11-13 08:51</time>
+        
+    </div>
+    <div class="article-meta">
+        
+        
+        <span id="busuanzi_container_page_pv">
+            Views 👀 :<span id="busuanzi_value_page_pv">
+                <span class="count-comment">
+                    <span class="spinner">
+                      <div class="cube1"></div>
+                      <div class="cube2"></div>
+                    </span>
+                </span>
+            </span>
+        </span>
+        
+        
+    </div>
+    
+    <div class="toc-ref">
+    
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Spring-Security-UsernamePasswordAuthenticationFilter"><span class="toc-text">Spring Security UsernamePasswordAuthenticationFilter</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#UsernamePasswordAuthenticationFilter"><span class="toc-text">UsernamePasswordAuthenticationFilter</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#AuthenticationManager"><span class="toc-text">AuthenticationManager</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#AuthenticationProvider"><span class="toc-text">AuthenticationProvider</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#SecurityContext-%EC%97%90-%EC%9D%B8%EC%A6%9D-%EA%B0%9D%EC%B2%B4-%EC%A0%80%EC%9E%A5"><span class="toc-text">SecurityContext 에 인증 객체 저장</span></a></li></ol></li></ol>
+    
+<style>
+    .left-col .switch-btn,
+    .left-col .switch-area {
+        display: none;
+    }
+    .toc-level-3 i,
+    .toc-level-3 ol {
+        display: none !important;
+    }
+</style>
+</div>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="Spring-Security-UsernamePasswordAuthenticationFilter"><a href="#Spring-Security-UsernamePasswordAuthenticationFilter" class="headerlink" title="Spring Security UsernamePasswordAuthenticationFilter"></a>Spring Security UsernamePasswordAuthenticationFilter</h2><p>Login Form 인증을 담당하고 있는 UsernamePasswordAuthenticationFilter 를 통해 처리 Flow 를 알아보자</p>
+<p><img src="/img/JAVA/Security/UsernamePasswordAuthenticationFilter/1.png" alt="1.PNG"></p>
+<p>UsernamePasswordAuthenticationFilter 는 사용자가 Form Login 방식에서 로그인 하게 되면</p>
+<p>담당 및 처리 하는 Filter 입니다.</p>
+<p>사용자가 로그인시 Spring Security 에서 거쳐가는 흐름을 하나하나씩 알아보자 </p>
+<h3 id="UsernamePasswordAuthenticationFilter"><a href="#UsernamePasswordAuthenticationFilter" class="headerlink" title="UsernamePasswordAuthenticationFilter"></a>UsernamePasswordAuthenticationFilter</h3><figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line">public abstract class AbstractAuthenticationProcessingFilter extends GenericFilterBean implements ApplicationEventPublisherAware, MessageSourceAware &#123;</span><br><span class="line"><span class="code">    </span></span><br><span class="line"><span class="code">    public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain) throws IOException, ServletException &#123;</span></span><br><span class="line"><span class="code">            </span></span><br><span class="line"><span class="code">            HttpServletRequest request = (HttpServletRequest)req;</span></span><br><span class="line"><span class="code">            HttpServletResponse response = (HttpServletResponse)res;</span></span><br><span class="line"><span class="code">            if (!this.requiresAuthentication(request, response)) &#123;</span></span><br><span class="line"><span class="code">                chain.doFilter(request, response);</span></span><br><span class="line"><span class="code">            &#125; else &#123;</span></span><br><span class="line"><span class="code">                if (this.logger.isDebugEnabled()) &#123;</span></span><br><span class="line"><span class="code">                    this.logger.debug(&quot;Request is to process authentication&quot;);</span></span><br><span class="line"><span class="code">                &#125;</span></span><br><span class="line"><span class="code">    </span></span><br><span class="line"><span class="code">                Authentication authResult;</span></span><br><span class="line"><span class="code">                try &#123;</span></span><br><span class="line"><span class="code">                    authResult = this.attemptAuthentication(request, response);</span></span><br><span class="line"><span class="code">                    if (authResult == null) &#123;</span></span><br><span class="line"><span class="code">                        return;</span></span><br><span class="line"><span class="code">                    &#125;</span></span><br><span class="line"><span class="code">    </span></span><br><span class="line"><span class="code">                    this.sessionStrategy.onAuthentication(authResult, request, response);</span></span><br><span class="line"><span class="code">                &#125; catch (InternalAuthenticationServiceException var8) &#123;</span></span><br><span class="line"><span class="code">                    this.logger.error(&quot;An internal error occurred while trying to authenticate the user.&quot;, var8);</span></span><br><span class="line"><span class="code">                    this.unsuccessfulAuthentication(request, response, var8);</span></span><br><span class="line"><span class="code">                    return;</span></span><br><span class="line"><span class="code">                &#125; catch (AuthenticationException var9) &#123;</span></span><br><span class="line"><span class="code">                    this.unsuccessfulAuthentication(request, response, var9);</span></span><br><span class="line"><span class="code">                    return;</span></span><br><span class="line"><span class="code">                &#125;</span></span><br><span class="line"><span class="code">    </span></span><br><span class="line"><span class="code">                if (this.continueChainBeforeSuccessfulAuthentication) &#123;</span></span><br><span class="line"><span class="code">                    chain.doFilter(request, response);</span></span><br><span class="line"><span class="code">                &#125;</span></span><br><span class="line"><span class="code">    </span></span><br><span class="line"><span class="code">                this.successfulAuthentication(request, response, chain, authResult);</span></span><br><span class="line"><span class="code">            &#125;</span></span><br><span class="line"><span class="code">        &#125;</span></span><br><span class="line"><span class="code"></span></span><br><span class="line"><span class="code"></span></span><br><span class="line"><span class="code">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>사용자가 아이디 및 비밀번호를 입력 후 전송 버튼을 클릭 하게 되면(FORM 로그인 방식)</p>
+<p>UsernamePasswordAuthenticationFilter 부모 클래스인 AbstractAuthenticationProcessingFilter 가 먼저 담당 하게 된다.</p>
+<p>즉 인증 처리를 담당 하고 처리 할 수 있도록 하는 Filter 입니다.</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">if (!this.requiresAuthentication(request, response)) &#123;</span><br><span class="line"><span class="code">    chain.doFilter(request, response);</span></span><br><span class="line"><span class="code">&#125;</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">protected boolean requiresAuthentication(HttpServletRequest request, HttpServletResponse response) &#123;</span><br><span class="line"><span class="code">    return this.requiresAuthenticationRequestMatcher.matches(request);</span></span><br><span class="line"><span class="code">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>기존 지정된 login 페이지가 아니라면 chain.doFilter 즉 다음 필터로 가서 인증 Flow 로 가지 않고</p>
+<p>지정한 것에 login 페이지가 일치 하게 된다면 인증 Flow 로 가게 된다.</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">// AbstractAuthenticationProcessingFilter</span><br><span class="line">authResult = this.attemptAuthentication(request, response);</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">// UsernamePasswordAuthenticationFilter</span><br><span class="line">public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException &#123;</span><br><span class="line"><span class="code">    if (this.postOnly &amp;&amp; !request.getMethod().equals(&quot;POST&quot;)) &#123;</span></span><br><span class="line"><span class="code">        throw new AuthenticationServiceException(&quot;Authentication method not supported: &quot; + request.getMethod());</span></span><br><span class="line"><span class="code">    &#125; else &#123;</span></span><br><span class="line"><span class="code">        String username = this.obtainUsername(request);</span></span><br><span class="line"><span class="code">        String password = this.obtainPassword(request);</span></span><br><span class="line"><span class="code">        if (username == null) &#123;</span></span><br><span class="line"><span class="code">            username = &quot;&quot;;</span></span><br><span class="line"><span class="code">        &#125;</span></span><br><span class="line"><span class="code"></span></span><br><span class="line"><span class="code">        if (password == null) &#123;</span></span><br><span class="line"><span class="code">            password = &quot;&quot;;</span></span><br><span class="line"><span class="code">        &#125;</span></span><br><span class="line"><span class="code"></span></span><br><span class="line"><span class="code">        username = username.trim();</span></span><br><span class="line"><span class="code">        UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(username, password);</span></span><br><span class="line"><span class="code">        this.setDetails(request, authRequest);</span></span><br><span class="line"><span class="code">        return this.getAuthenticationManager().authenticate(authRequest);</span></span><br><span class="line"><span class="code">    &#125;</span></span><br><span class="line"><span class="code">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>그다음 attemptAuthentication 메소드를 호출 하는데 구현체인 UsernamePasswordAuthenticationFilter 의<br>attemptAuthentication 메소드를 호출 하게 된다.</p>
+<p>이 메소드는 입력한 아이디 및 비밀번호를 추출 하고 이것을 이용해 Authentication 객체를 생성 한다.</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">return this.getAuthenticationManager().authenticate(authRequest);</span><br></pre></td></tr></table></figure>
+<p>Authentication 객체를 만들어서 AuthenticationManager 로 전달 하게 된다.</p>
+<h3 id="AuthenticationManager"><a href="#AuthenticationManager" class="headerlink" title="AuthenticationManager"></a>AuthenticationManager</h3><p>Authentication 받고  총괄적으로 인증 처리 하는 것이 AuthenticationManager 객체 입니다.</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">// AuthenticationManager 구현체인 ProviderManager 클래스</span><br><span class="line">public Authentication authenticate(Authentication authentication) throws AuthenticationException &#123;</span><br><span class="line"><span class="code">    ... 생략 ...</span></span><br><span class="line"><span class="code">    </span></span><br><span class="line"><span class="code">    Iterator var8 = this.getProviders().iterator();</span></span><br><span class="line"><span class="code"></span></span><br><span class="line"><span class="code">    while(var8.hasNext()) &#123;</span></span><br><span class="line"><span class="code">       AuthenticationProvider provider = (AuthenticationProvider)var8.next();</span></span><br><span class="line"><span class="code">       </span></span><br><span class="line"><span class="code">       ... 생략 ...</span></span><br><span class="line"><span class="code">       </span></span><br><span class="line"><span class="code">        try &#123;</span></span><br><span class="line"><span class="code">           result = provider.authenticate(authentication);</span></span><br><span class="line"><span class="code">           if (result != null) &#123;</span></span><br><span class="line"><span class="code">               this.copyDetails(authentication, result);</span></span><br><span class="line"><span class="code">               break;</span></span><br><span class="line"><span class="code">           &#125;</span></span><br><span class="line"><span class="code">       &#125;</span></span><br><span class="line"><span class="code">       </span></span><br><span class="line"><span class="code">       ... 생략 ...</span></span><br><span class="line"><span class="code">     &#125;</span></span><br><span class="line"><span class="code"></span></span><br></pre></td></tr></table></figure>
+<p>여러 AuthenticationProvider 중에 FORM 로그인 관련 된 Provider 를 loop 통해 해당 되는 것만 가져오는 로직 이다.</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">result = provider.authenticate(authentication);</span><br></pre></td></tr></table></figure>
+<p>그리고 AuthenticationProvider 에게 인증 처리를 위임 하게 된다.</p>
+<h3 id="AuthenticationProvider"><a href="#AuthenticationProvider" class="headerlink" title="AuthenticationProvider"></a>AuthenticationProvider</h3><p>실질적으로 인증 처리를 담당 하는 것이 AuthenticationProvider 라고 할 수 있다.</p>
+<p>기본 Default 인 AuthenticationProvider 구현체 AbstractUserDetailsAuthenticationProvider 에서 처리하지만</p>
+<p>대부분 협업에서는 AuthenticationProvider Override 해서 구현 한다. 이 글에서는 실제로 구현체를 직접 만들어서 설명 하고자 한다.</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">// 직접 AuthenticationProvider 구현체인 CustomAuthenticationProvider 클래스를 만들었다. </span><br><span class="line">public class CustomAuthenticationProvider implements AuthenticationProvider &#123;</span><br><span class="line"></span><br><span class="line"><span class="code">    @Autowired</span></span><br><span class="line"><span class="code">    private UserDetailsService userDetailsService;</span></span><br><span class="line"><span class="code"></span></span><br><span class="line"><span class="code">    @Autowired</span></span><br><span class="line"><span class="code">    private PasswordEncoder passwordEncoder;</span></span><br><span class="line"><span class="code"></span></span><br><span class="line"><span class="code">    @Override</span></span><br><span class="line"><span class="code">    @Transactional</span></span><br><span class="line"><span class="code">    public Authentication authenticate(Authentication authentication) throws AuthenticationException &#123;</span></span><br><span class="line"><span class="code">        String username = authentication.getName();</span></span><br><span class="line"><span class="code">        String password = (String) authentication.getCredentials();</span></span><br><span class="line"><span class="code"></span></span><br><span class="line"><span class="code">        AccountContext accountContext = (AccountContext) userDetailsService.loadUserByUsername(username);</span></span><br><span class="line"><span class="code"></span></span><br><span class="line"><span class="code">        if (!passwordEncoder.matches(password, accountContext.getAccount().getPassword())) &#123;</span></span><br><span class="line"><span class="code">            throw new BadCredentialsException(&quot;BadCredentialsException&quot;);</span></span><br><span class="line"><span class="code">        &#125;</span></span><br><span class="line"><span class="code"></span></span><br><span class="line"><span class="code">        return new AbstractAuthenticationToken(accountContext.getMember(), null, accountContext.getAuthorities());</span></span><br><span class="line"><span class="code">    &#125;</span></span><br></pre></td></tr></table></figure>
+
+
+<p>해당 Authentication 인증 객체 통해 실제 저장된 해당 사용자 데이터를 DB 통해 가져와</p>
+<p>매칭 하고 성공 및 실패에 따라 각각 다른 역활을 하게 된다. (UserDetailsService 에 대한 자세한 설명은 나중에 하도록 하겠다.)</p>
+<p>실패 경우 AuthenticationException trow 하게 된다.</p>
+<p>성공 경우 AbstractAuthenticationToken 객체를 생성 후 AuthenticationProvider 그리고 다시 AuthenticationManager 에게 다시 되돌려 준다.</p>
+<h3 id="SecurityContext-에-인증-객체-저장"><a href="#SecurityContext-에-인증-객체-저장" class="headerlink" title="SecurityContext 에 인증 객체 저장"></a>SecurityContext 에 인증 객체 저장</h3><figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain) throws IOException, ServletException &#123;</span><br><span class="line"><span class="code">    ... 생략 ...</span></span><br><span class="line"><span class="code">    Authentication authResult;</span></span><br><span class="line"><span class="code">    try &#123;</span></span><br><span class="line"><span class="code">        authResult = this.attemptAuthentication(request, response);</span></span><br><span class="line"><span class="code">        if (authResult == null) &#123;</span></span><br><span class="line"><span class="code">            return;</span></span><br><span class="line"><span class="code">        &#125;</span></span><br><span class="line"><span class="code"></span></span><br><span class="line"><span class="code">        ... 생략 ...</span></span><br><span class="line"><span class="code">        this.successfulAuthentication(request, response, chain, authResult);</span></span><br></pre></td></tr></table></figure>
+<p>인증 성공 후 Authentication 객체 생성 하고 AbstractAuthenticationProcessingFilter 까지 다시 전달 하게 된다.</p>
+<p>전달 받은 객체 authResult 는 </p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">// AbstractAuthenticationProcessingFilter 클래스</span><br><span class="line">this.successfulAuthentication(request, response, chain, authResult);</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">// AbstractAuthenticationProcessingFilter 클래스</span><br><span class="line">protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException &#123;</span><br><span class="line"><span class="code">    .. 생략 ...</span></span><br><span class="line"><span class="code"></span></span><br><span class="line"><span class="code">    SecurityContextHolder.getContext().setAuthentication(authResult);</span></span><br><span class="line"><span class="code">    ... 생략...</span></span><br><span class="line"><span class="code"></span></span><br><span class="line"><span class="code">    this.successHandler.onAuthenticationSuccess(request, response, authResult);</span></span><br><span class="line"><span class="code">&#125;</span></span><br></pre></td></tr></table></figure>
+<p>SecurityContext 에 해당 인증된 객체를 저장 하고<br>successHandler 통해 미리 지정한 success Handler 로 전달 하게 된다.</p>
+
+      
+       <hr><span style="font-style: italic;color: gray;"> Copyright 2020- syh8088. 무단 전재 및 재배포 금지. 출처 표기 시 인용 가능. </span>
+    </div>
+</article>
+
+
+<p>
+    <a  class="dashang" onclick="dashangToggle()">💰</a>
+</p>
+
+
+
+
+
+
+    
+
+
+
+
+    </div>
+    <div class="copyright">
+        <p class="footer-entry">
+    ©2017 Seo Yang Hun
+</p>
+<p class="footer-entry">Built with <a href="https://hexo.io/" target="_blank">Hexo</a> and <a href="https://github.com/yelog/hexo-theme-3-hexo" target="_blank">3-hexo</a> theme</p>
+
+    </div>
+    <div class="full-toc">
+        <button class="full" data-title="切换全屏 快捷键 s"><span class="min "></span></button>
+<a class="" id="rocket" ></a>
+
+    </div>
+</div>
+
+<div class="hide_box" onclick="dashangToggle()"></div>
+<div class="shang_box">
+    <a class="shang_close"  onclick="dashangToggle()">×</a>
+    <div class="shang_tit">
+        <p>Help us with donation</p>
+    </div>
+    <div class="shang_payimg">
+        <div class="pay_img">
+            <img src="/img/alipay.jpg" class="alipay" title="扫码支持">
+            <img src="/img/weixin.jpg" class="weixin" title="扫码支持">
+        </div>
+    </div>
+    <div class="shang_payselect">
+        <span><label><input type="radio" name="pay" checked value="alipay">alipay</label></span><span><label><input type="radio" name="pay" value="weixin">weixin</label></span>
+    </div>
+</div>
+
+
+</body>
+<script src="/js/jquery.pjax.js?v=1.1.0" ></script>
+
+<script src="/js/script.js?v=1.1.0" ></script>
+<script>
+    var img_resize = 'default';
+    function initArticle() {
+        /*渲染对应的表格样式*/
+        
+            $("#post .pjax table").addClass("green_title");
+        
+
+        /*渲染打赏样式*/
+        
+        $("input[name=pay]").on("click", function () {
+            if($("input[name=pay]:checked").val()=="weixin"){
+                $(".shang_box .shang_payimg .pay_img").addClass("weixin_img");
+            } else {
+                $(".shang_box .shang_payimg .pay_img").removeClass("weixin_img");
+            }
+        })
+        
+
+        /*高亮代码块行号*/
+        
+
+        /*访问数量*/
+        
+        $.getScript("//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js");
+        
+
+        /*代码高亮，行号对齐*/
+        $('.pre-numbering').css('line-height',$('.has-numbering').css('line-height'));
+
+        
+        
+    }
+
+    /*打赏页面隐藏与展示*/
+    
+    function dashangToggle() {
+        $(".shang_box").fadeToggle();
+        $(".hide_box").fadeToggle();
+    }
+    
+
+</script>
+
+<!--加入行号的高亮代码块样式-->
+
+<!--自定义样式设置-->
+<style>
+    
+    
+    .nav {
+        width: 542px;
+    }
+    .nav.fullscreen {
+        margin-left: -542px;
+    }
+    .nav-left {
+        width: 120px;
+    }
+    
+    
+    @media screen and (max-width: 1468px) {
+        .nav {
+            width: 492px;
+        }
+        .nav.fullscreen {
+            margin-left: -492px;
+        }
+        .nav-left {
+            width: 100px;
+        }
+    }
+    
+    
+    @media screen and (max-width: 1024px) {
+        .nav {
+            width: 492px;
+            margin-left: -492px
+        }
+        .nav.fullscreen {
+            margin-left: 0;
+        }
+    }
+    
+    @media screen and (max-width: 426px) {
+        .nav {
+            width: 100%;
+        }
+        .nav-left {
+            width: 100%;
+        }
+    }
+    
+    
+    .nav-right .title-list nav a .post-title, .nav-right .title-list #local-search-result a .post-title {
+        color: #383636;
+    }
+    
+    
+    .nav-right .title-list nav a .post-date, .nav-right .title-list #local-search-result a .post-date {
+        color: #5e5e5f;
+    }
+    
+    
+    .nav-right nav a.hover, #local-search-result a.hover{
+        background-color: #e2e0e0;
+    }
+    
+    
+
+    /*列表样式*/
+    
+
+    /* 背景图样式 */
+    
+    
+
+
+    /*引用块样式*/
+    
+
+    /*文章列表背景图*/
+    
+
+    
+</style>
+
+
+
+
+
+
+
+</html>
