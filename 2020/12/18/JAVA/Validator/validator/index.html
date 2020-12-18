@@ -3,18 +3,32 @@
 <head>
   <meta charset="utf-8">
   <title>validator | Seo Yang Hun Blog</title>
-  <meta name="keywords" content="">
+  <meta name="keywords" content=" JAVA , Validator ">
   <meta name="description" content="validator | Seo Yang Hun Blog">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="description" content="Java Validator 관리자바 스프링에서 Validator 관리 관련해서 이야기 해볼려고 합니다. 우선 해당 코드는 별도의 샘플 코드 기준으로 말하고자 합니다.(https:&#x2F;&#x2F;github.com&#x2F;syh8088&#x2F;springboot-validator) 유효성 검사를 구현하기 위해서는 특정 기능에서 error code, error message, 그에 해당">
 <meta property="og:type" content="article">
 <meta property="og:title" content="validator">
 <meta property="og:url" content="https://syh8088.github.io/2020/12/18/JAVA/Validator/validator/index.html">
 <meta property="og:site_name" content="Seo Yang Hun Blog">
+<meta property="og:description" content="Java Validator 관리자바 스프링에서 Validator 관리 관련해서 이야기 해볼려고 합니다. 우선 해당 코드는 별도의 샘플 코드 기준으로 말하고자 합니다.(https:&#x2F;&#x2F;github.com&#x2F;syh8088&#x2F;springboot-validator) 유효성 검사를 구현하기 위해서는 특정 기능에서 error code, error message, 그에 해당">
 <meta property="og:locale">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/Validator/validator/1.PNG">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/Validator/validator/2.PNG">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/Validator/validator/3.PNG">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/Validator/validator/4.PNG">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/Validator/validator/5.PNG">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/Validator/validator/6.PNG">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/Validator/validator/7.PNG">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/Validator/validator/9.PNG">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/Validator/validator/8.PNG">
 <meta property="article:published_time" content="2020-12-18T14:12:11.000Z">
-<meta property="article:modified_time" content="2020-12-18T14:12:11.912Z">
+<meta property="article:modified_time" content="2020-12-18T14:19:54.893Z">
 <meta property="article:author" content="Seo Yang Hun">
+<meta property="article:tag" content="JAVA">
+<meta property="article:tag" content="Validator">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://syh8088.github.io/img/JAVA/Validator/validator/1.PNG">
 
 
 <link rel="icon" href="/img/avatar.jpg">
@@ -291,6 +305,14 @@
     <input id="tag-search" />
     <div class="tag-wrapper">
         
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>JAVA</a>
+            </li>
+        
+            <li class="article-tag-list-item">
+                <i class="iconfont icon-tag"></i><a>Validator</a>
+            </li>
+        
     </div>
 
 </div>
@@ -300,7 +322,7 @@
         
         <a  class="All "
            href="/2020/12/18/JAVA/Validator/validator/"
-           data-tag=""
+           data-tag="JAVA,Validator"
            data-author="" >
             <span class="post-title" title="validator">validator</span>
             <span class="post-date" title="2020-12-18 14:12:11">2020/12/18</span>
@@ -436,10 +458,19 @@
         
         
         
+        <span class="tag">
+            <i class="iconfont icon-tag"></i>
+            
+            <a class="color5">JAVA</a>
+            
+            <a class="color5">Validator</a>
+            
+        </span>
+        
     </div>
     <div class="article-meta">
         
-            Created At : <time class="date" title='Updated At: 2020-12-18 14:12:11'>2020-12-18 14:12</time>
+            Created At : <time class="date" title='Updated At: 2020-12-18 14:19:54'>2020-12-18 14:12</time>
         
     </div>
     <div class="article-meta">
@@ -461,7 +492,7 @@
     
     <div class="toc-ref">
     
-        
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Java-Validator-%EA%B4%80%EB%A6%AC"><span class="toc-text">Java Validator 관리</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -477,7 +508,50 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        
+        <h2 id="Java-Validator-관리"><a href="#Java-Validator-관리" class="headerlink" title="Java Validator 관리"></a>Java Validator 관리</h2><p>자바 스프링에서 Validator 관리 관련해서 이야기 해볼려고 합니다.</p>
+<p>우선 해당 코드는 별도의 샘플 코드 기준으로 말하고자 합니다.<br>(<a target="_blank" rel="noopener" href="https://github.com/syh8088/springboot-validator">https://github.com/syh8088/springboot-validator</a>)</p>
+<p>유효성 검사를 구현하기 위해서는 특정 기능에서 error code, error message, 그에 해당되는 response status codes 그리고 유효성 검사 비지니스 로직 등</p>
+<p>관리 해야 합니다.</p>
+<p>예를들어 회원가입시 패스워드 길이 제한 유효성 검사에서도 각각의 error code, error message 등 관리 해야 합니다.</p>
+<p>서비스가 커지면 커질수록 이런 error code, error message, 유효성 검사 비지니스 로직 등 </p>
+<p>관리 해야 하니 많이 복잡 하게 됩니다.</p>
+<p>이것을 유지보수 및 재사용 측면에서 어떻게 구현 해야 할지 고민 하게 됩니다.</p>
+<p>우선 일반적인 코드를 보면서 설명 하도록 하겠습니다.</p>
+<p><img src="/img/JAVA/Validator/validator/1.PNG" alt="1.PNG"><br><img src="/img/JAVA/Validator/validator/2.PNG" alt="2.PNG"></p>
+<p>Controller 단에서 회원가입 하기 위한 데이터를 받고 해당 데이터를 DB 에 저장 하기 위해 Service 단으로 전달 하게 됩니다.</p>
+<p>Service 단에서 유효성 검사를 하게 되고 클라이언트로 부터 받은 데이터 중 패스워드가 10 이하 이라면 DB 에 저장 하지 않고</p>
+<p>해당 되는 error code, error message 기입 후 클라이언트에게 전달 하게 됩니다.</p>
+<p>여기서 문제가 있습니다. 지금은 로직이 간단하 규모가 커지지 않기에 한눈에 알아 볼 수 있고 간편하게 유지 보수 할 수 있겠지만 </p>
+<p>이런 유효성 검사 로직이 비지니스 로직 관리하는 서비스 단에 여러 군데 있다면 어떻게 될까요</p>
+<p>핵심 비지니스 로직은 분명 시간이 지나면 규모가 커질테고 해당 유효성 검사를 수정하기 위해 찾는 것 또한 고생이 발생 됩니다.</p>
+<p>유효성 검사 로직을 따로 다른 곳에 위임해서 관리 하는 것도 좋은 방향입니다. 이것뿐만 아니라 error code, error message, response status code 등</p>
+<p>각각 상태와 행위를 한곳에서 관리 하면 좋지 않을까 합니다.</p>
+<p><img src="/img/JAVA/Validator/validator/3.PNG" alt="3.PNG"></p>
+<p>다시 서비스단으로 이동 합니다. 여기서 유효성 검사 상태 관리 및 행위를 Validator 에 옮겼습니다.</p>
+<p><img src="/img/JAVA/Validator/validator/4.PNG" alt="4.PNG"></p>
+<p>MemberValidator 는 회원 전용 유효성 검사 로직 관리 입니다. 앞으로 여기서 유효성 검사 로직은 여기서 관리 하게 됩니다.</p>
+<p>클라이언트로 부터 받은 데이터 중 패스워드가 10 이하 이라면 RuntimeException  상속 받은 MemberException 이 예외 처리 하게 됩니다.</p>
+<p><img src="/img/JAVA/Validator/validator/5.PNG" alt="5.PNG"></p>
+<p>error code  Enum 활용 해서 관리 하게 되었습니다. Enum 장점을 활용 해서 각 error code 마다 본인 만의 계산식 </p>
+<p>즉 해당 error code 을 이용해서 그에 해당 되는 error message 를 출력 할 수 있도록 하였습니다. (밑에 CustomMessageHandler 을 보시면 이해가 될겁니다.)</p>
+<p><img src="/img/JAVA/Validator/validator/6.PNG" alt="6.PNG"></p>
+<p>RuntimeException 상속 받은 MemberException 입니다. 실질적으로 @ResponseStatus(HttpStatus.BAD_REQUEST) 이용해 응답 상태 코드 400번 으로 response 하게 됩니다.</p>
+<p>예외처리시 나중에 알아보게 될 @ControllerAdvice 통해 예외처리 들어오면 해당 MemberException 을 받고 가동해서 최종적으로 response 하게 됩니다.</p>
+<p><img src="/img/JAVA/Validator/validator/7.PNG" alt="7.PNG"><br><img src="/img/JAVA/Validator/validator/9.PNG" alt="9.PNG"><br>error code 를 전달 받은 CustomMessageHandler 는 실질적으로 error properties 에 저장된 메세지를 가져오고 해당 메세지를 </p>
+<p>구현한 Exception 에 전달 하는 역활을 한다.</p>
+<p>여기서 LocaleContextHolder.getLocale() 이 있는데 </p>
+<p>다국어 지원을 위한 MessageSource 를 설정 하는 CookieLocaleResolver(스프링 빈 통해 locale 을 한국으로 셋팅 한 상태) 통해 </p>
+<p>지정한 해당 메세지를 가져오게 한다.</p>
+<p><img src="/img/JAVA/Validator/validator/8.PNG" alt="8.PNG"></p>
+<p>이제 마지막으로 @ControllerAdvice 통해 해당 Exception 발생 시 컨트롤러 및 캐치 해서 응답하는 역활 한다.</p>
+<p>즉 여기서는 최종적으로 원하는 응답 형태에 집중 및 관리 한다. </p>
+<p>여기까지 유효성 검사에 대해 알아보았습니다.</p>
+<p>여기서 말씀해주시고 싶은 것은 단순히 유효성 검사가 나중에 서비스가 커지면 관리하기가 어렵다는 것에</p>
+<p>Exception<br>error code<br>error message<br>원하는 response 형태</p>
+<p>각각 관심사를 따로 분리 하였습니다.</p>
+<p>이렇게 하면 앞으로 유지보수 하는데 있어서 좋은 결과가 있을 거라 믿습니다.</p>
+<p>감사합니다.</p>
+
       
        <hr><span style="font-style: italic;color: gray;"> Copyright 2020- syh8088. 무단 전재 및 재배포 금지. 출처 표기 시 인용 가능. </span>
     </div>
