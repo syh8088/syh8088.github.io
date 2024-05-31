@@ -1,0 +1,1312 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Seo Yang Hun Blog</title>
+  <meta name="keywords" content="">
+  <meta name="description" content="Seo Yang Hun Blog">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="description" content="ZEYO DEPLOY1. REST-API 배포 하는 법  IntelliJ IDEA 실행 후 하단 탭 “Terminal” 클릭 후 1mvn clean package -DskipTests 위 명령어를 입력 후 실행 하자    빌드가 완료되면 해당 프로젝트 경로의 target 폴더에 jar 파일이 생성되어 있을 것이다. 위 이미지에 보이는 jar를 파일을 복사">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Seo Yang Hun Blog">
+<meta property="og:url" content="https://syh8088.github.io/2024/05/31/zeyo/deploy/deploy/index.html">
+<meta property="og:site_name" content="Seo Yang Hun Blog">
+<meta property="og:description" content="ZEYO DEPLOY1. REST-API 배포 하는 법  IntelliJ IDEA 실행 후 하단 탭 “Terminal” 클릭 후 1mvn clean package -DskipTests 위 명령어를 입력 후 실행 하자    빌드가 완료되면 해당 프로젝트 경로의 target 폴더에 jar 파일이 생성되어 있을 것이다. 위 이미지에 보이는 jar를 파일을 복사">
+<meta property="og:locale">
+<meta property="og:image" content="https://syh8088.github.io/img/ZEYO/deploy/1.JPG">
+<meta property="og:image" content="https://syh8088.github.io/img/ZEYO/deploy/2.JPG">
+<meta property="og:image" content="https://syh8088.github.io/img/ZEYO/deploy/2-2.JPG">
+<meta property="og:image" content="https://syh8088.github.io/img/ZEYO/deploy/2-3.JPG">
+<meta property="og:image" content="https://syh8088.github.io/img/ZEYO/deploy/3.JPG">
+<meta property="og:image" content="https://syh8088.github.io/img/ZEYO/deploy/4.JPG">
+<meta property="og:image" content="https://syh8088.github.io/img/ZEYO/deploy/4-2.JPG">
+<meta property="og:image" content="https://syh8088.github.io/img/ZEYO/deploy/4-3.JPG">
+<meta property="og:image" content="https://syh8088.github.io/img/ZEYO/deploy/5.JPG">
+<meta property="og:image" content="https://syh8088.github.io/img/ZEYO/deploy/6.JPG">
+<meta property="og:image" content="https://syh8088.github.io/img/ZEYO/deploy/6-2.JPG">
+<meta property="og:image" content="https://syh8088.github.io/img/ZEYO/deploy/6-3.JPG">
+<meta property="og:image" content="https://syh8088.github.io/img/ZEYO/deploy/7.JPG">
+<meta property="og:image" content="https://syh8088.github.io/img/ZEYO/deploy/8.JPG">
+<meta property="og:image" content="https://syh8088.github.io/img/ZEYO/deploy/8-2.JPG">
+<meta property="og:image" content="https://syh8088.github.io/img/ZEYO/deploy/9.JPG">
+<meta property="og:image" content="https://syh8088.github.io/img/ZEYO/deploy/10.JPG">
+<meta property="og:image" content="https://syh8088.github.io/img/ZEYO/deploy/10-2.JPG">
+<meta property="og:image" content="https://syh8088.github.io/img/ZEYO/deploy/11.JPG">
+<meta property="og:image" content="https://syh8088.github.io/img/ZEYO/deploy/12.JPG">
+<meta property="og:image" content="https://syh8088.github.io/img/ZEYO/deploy/12-2.JPG">
+<meta property="article:published_time" content="2024-05-31T13:32:19.749Z">
+<meta property="article:modified_time" content="2024-05-31T13:32:19.749Z">
+<meta property="article:author" content="Seo Yang Hun">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://syh8088.github.io/img/ZEYO/deploy/1.JPG">
+
+
+<link rel="icon" href="/img/avatar.jpg">
+
+<link href="/css/style.css?v=1.1.0" rel="stylesheet">
+
+<link href="/css/hl_theme/atom-light.css?v=1.1.0" rel="stylesheet">
+
+<link href="//cdn.jsdelivr.net/npm/animate.css@4.1.0/animate.min.css" rel="stylesheet">
+
+<script src="//cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"></script>
+<script src="/js/titleTip.js?v=1.1.0" ></script>
+
+<script src="//cdn.jsdelivr.net/npm/highlightjs@9.16.2/highlight.pack.min.js"></script>
+<script>
+    hljs.initHighlightingOnLoad();
+</script>
+
+<script src="//cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.js"></script>
+
+
+
+<script src="//cdn.jsdelivr.net/npm/jquery.cookie@1.4.1/jquery.cookie.min.js" ></script>
+
+<script src="/js/iconfont.js?v=1.1.0" ></script>
+
+<meta name="generator" content="Hexo 7.2.0"></head>
+<div style="display: none">
+  <input class="theme_disqus_on" value="false">
+  <input class="theme_preload_comment" value="">
+  <input class="theme_blog_path" value="">
+  <input id="theme_shortcut" value="true" />
+  <input id="theme_highlight_on" value="true" />
+  <input id="theme_code_copy" value="true" />
+</div>
+
+
+
+<body>
+<aside class="nav">
+    <div class="nav-left">
+        <a href="/"
+   class="avatar_target">
+    <img class="avatar"
+         src="/img/avatar.jpg"/>
+</a>
+<div class="author">
+    <span>Seo Yang Hun</span>
+</div>
+
+<div class="icon">
+    
+        
+            <a title="rss"
+               href="/atom.xml"
+               target="_blank">
+                
+                    <svg class="iconfont-svg" aria-hidden="true">
+                        <use xlink:href="#icon-rss"></use>
+                    </svg>
+                
+            </a>
+        
+    
+        
+            <a title="github"
+               href="https://github.com/syh8088"
+               target="_blank">
+                
+                    <svg class="iconfont-svg" aria-hidden="true">
+                        <use xlink:href="#icon-github"></use>
+                    </svg>
+                
+            </a>
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+            <a title="email"
+               href="mailto:syh8088@gmail.com"
+               target="_blank">
+                
+                    <svg class="iconfont-svg" aria-hidden="true">
+                        <use xlink:href="#icon-email"></use>
+                    </svg>
+                
+            </a>
+        
+    
+        
+            <a title="qq"
+               href="http://wpa.qq.com/msgrd?v=3&uin=872336115&site=qq&menu=yes"
+               target="_blank">
+                
+                    <svg class="iconfont-svg" aria-hidden="true">
+                        <use xlink:href="#icon-qq"></use>
+                    </svg>
+                
+            </a>
+        
+    
+        
+    
+        
+    
+</div>
+
+
+
+
+
+<ul>
+    <li>
+        <div class="all active" data-rel="All">All
+            
+                <small>(38)</small>
+            
+        </div>
+    </li>
+    
+        
+            
+                
+    <li>
+        <div data-rel="Authentication">
+            <i class="fold iconfont icon-right"></i>
+            Authentication
+            <small>(2)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="Authentication&lt;---&gt;JWT">
+            
+            JWT
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="Authentication&lt;---&gt;Oauth">
+            
+            Oauth
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="CI">
+            <i class="fold iconfont icon-right"></i>
+            CI
+            <small>(3)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="CI&lt;---&gt;Jenkins">
+            
+            Jenkins
+            <small>(3)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="DB">
+            <i class="fold iconfont icon-right"></i>
+            DB
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="DB&lt;---&gt;Mysql">
+            
+            Mysql
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="J">
+            <i class="fold iconfont icon-right"></i>
+            J
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="J&lt;---&gt;Jenkins">
+            
+            Jenkins
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="JAVA">
+            <i class="fold iconfont icon-right"></i>
+            JAVA
+            <small>(20)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;HTTP">
+            <i class="fold iconfont icon-right"></i>
+            HTTP
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;HTTP&lt;---&gt;FeignClient">
+            
+            FeignClient
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;JPA">
+            
+            JPA
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;Security">
+            
+            Security
+            <small>(4)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;SpringBatch">
+            
+            SpringBatch
+            <small>(5)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;SpringBootAndSecurityAndJWT">
+            
+            SpringBootAndSecurityAndJWT
+            <small>(3)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;SpringCloudConfig">
+            
+            SpringCloudConfig
+            <small>(4)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;Transaction">
+            
+            Transaction
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;Validator">
+            
+            Validator
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="JAVA - Security">
+            
+            JAVA - Security
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="JavaScript">
+            <i class="fold iconfont icon-right"></i>
+            JavaScript
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="JavaScript&lt;---&gt;Webpack">
+            
+            Webpack
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="R">
+            
+            R
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+</ul>
+<div class="left-bottom">
+    <div class="menus">
+        
+            
+            
+            
+    </div>
+    <div>
+        
+            <a class="about  hasFriend  site_url"
+               
+               href="/about">About</a>
+        
+        <a style="width: 50%"
+                
+                                           class="friends">Friends</a>
+        
+    </div>
+</div>
+<input type="hidden" id="yelog_site_posts_number" value="38">
+
+<div style="display: none">
+    <span id="busuanzi_value_site_uv"></span>
+    <span id="busuanzi_value_site_pv"></span>
+</div>
+
+    </div>
+    <div class="nav-right">
+        <div class="friends-area">
+    <div class="friends-title">
+        Links
+        <i class="iconfont icon-left"></i>
+    </div>
+    <div class="friends-content">
+        <ul>
+            
+            <li><a target="_blank" href="http://yelog.org/">叶落阁</a></li>
+            
+        </ul>
+    </div>
+</div>
+        <div class="title-list">
+    <div class="right-top">
+        <div id="default-panel">
+            <i class="iconfont icon-search" data-title="search shortcut key i"></i>
+            <div class="right-title">All</div>
+            <i class="iconfont icon-file-tree" data-title="switch to outline view shortcut key w"></i>
+        </div>
+        <div id="search-panel">
+            <i class="iconfont icon-left" data-title="return"></i>
+            <input id="local-search-input" autocomplete="off"/>
+            <label class="border-line" for="input"></label>
+            <i class="iconfont icon-case-sensitive" data-title="case sensitive"></i>
+            <i class="iconfont icon-tag" data-title="label"></i>
+        </div>
+        <div id="outline-panel" style="display: none">
+            <div class="right-title">outline</div>
+            <i class="iconfont icon-list" data-title="switch to article list"></i>
+        </div>
+    </div>
+
+    <div class="tags-list">
+    <input id="tag-search" />
+    <div class="tag-wrapper">
+        
+    </div>
+
+</div>
+
+    
+    <nav id="title-list-nav">
+        
+        
+        <a  class="All "
+           href="/2024/05/31/zeyo/deploy/deploy/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title=""></span>
+            <span class="post-date" title="2024-05-31 22:32:19">2024/05/31</span>
+        </a>
+        
+        
+        <a  class="All "
+           href="/2024/05/31/zeyo/Zeyo_%EB%AA%B0%EC%9D%B8%EB%AA%B0_%EA%B7%B8%EB%88%84%EB%B3%B4%EB%93%9C_%EB%A7%A4%EC%B9%AD%EC%9E%91%EC%97%85/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title=""></span>
+            <span class="post-date" title="2024-05-31 22:32:19">2024/05/31</span>
+        </a>
+        
+        
+        <a  class="All "
+           href="/2024/05/31/zeyo/ZEYO/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title=""></span>
+            <span class="post-date" title="2024-05-31 22:32:19">2024/05/31</span>
+        </a>
+        
+        
+        <a  class="All "
+           href="/2024/05/31/zeyo/Zeyo_%EB%AA%B0%EC%9D%B8%EB%AA%B0_%EB%A7%A4%EC%B9%AD%EC%9E%91%EC%97%85/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title=""></span>
+            <span class="post-date" title="2024-05-31 22:32:19">2024/05/31</span>
+        </a>
+        
+        
+        <a  class="All "
+           href="/2024/05/31/hello-world/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Hello World">Hello World</span>
+            <span class="post-date" title="2024-05-31 22:32:19">2024/05/31</span>
+        </a>
+        
+        
+        <a  class="All "
+           href="/2024/05/31/README/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title=""></span>
+            <span class="post-date" title="2024-05-31 22:32:19">2024/05/31</span>
+        </a>
+        
+        
+        <a  class="All "
+           href="/2024/05/31/gitlab_aws_deploy/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title=""></span>
+            <span class="post-date" title="2024-05-31 22:32:19">2024/05/31</span>
+        </a>
+        
+        
+        <a  class="All "
+           href="/2024/05/31/KUBERNETES/%EC%89%BD%EA%B2%8C_%EC%8B%9C%EC%9E%91%ED%95%98%EB%8A%94_%EC%BF%A0%EB%B2%84%EB%84%A4%ED%8B%B0%EC%8A%A4/%EC%BF%A0%EB%B2%84%EB%84%A4%ED%8B%B0%EC%8A%A4_%ED%99%98%EA%B2%BD_%EA%B5%AC%EC%84%B1/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title=""></span>
+            <span class="post-date" title="2024-05-31 22:32:19">2024/05/31</span>
+        </a>
+        
+        
+        <a  class="All JAVA - Security "
+           href="/2024/05/30/test/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="test">test</span>
+            <span class="post-date" title="2024-05-30 10:04:43">2024/05/30</span>
+        </a>
+        
+        
+        <a  class="All JAVA Security "
+           href="/2024/05/30/JAVA/Security/AnonymousAuthenticationFilter/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="AnonymousAuthenticationFilter">AnonymousAuthenticationFilter</span>
+            <span class="post-date" title="2024-05-30 10:04:43">2024/05/30</span>
+        </a>
+        
+        
+        <a  class="All Authentication JWT "
+           href="/2021/11/27/AUTHTICATION/JWT/jwt/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="JWT (JSON Web Token) 이해하기">JWT (JSON Web Token) 이해하기</span>
+            <span class="post-date" title="2021-11-27 07:47:42">2021/11/27</span>
+        </a>
+        
+        
+        <a  class="All Authentication Oauth "
+           href="/2021/11/27/AUTHTICATION/OAUTH/oauth/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="OAUTH 2.0 이해하기">OAUTH 2.0 이해하기</span>
+            <span class="post-date" title="2021-11-27 07:47:42">2021/11/27</span>
+        </a>
+        
+        
+        <a  class="All JAVA HTTP FeignClient "
+           href="/2021/11/08/JAVA/HTTP/FeignClient/FeignClient/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="FeignClient 활용도">FeignClient 활용도</span>
+            <span class="post-date" title="2021-11-08 10:04:43">2021/11/08</span>
+        </a>
+        
+        
+        <a  class="All JAVA SpringBatch "
+           href="/2021/11/04/JAVA/Batch/SpringBatch5/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Batch - Chunk 5">Spring Batch - Chunk 5</span>
+            <span class="post-date" title="2021-11-04 07:47:42">2021/11/04</span>
+        </a>
+        
+        
+        <a  class="All JAVA SpringBatch "
+           href="/2021/10/30/JAVA/Batch/SpringBatch4/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Batch - Flow 4">Spring Batch - Flow 4</span>
+            <span class="post-date" title="2021-10-30 07:47:42">2021/10/30</span>
+        </a>
+        
+        
+        <a  class="All JAVA SpringBatch "
+           href="/2021/10/24/JAVA/Batch/SpringBatch3/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Batch - 메타데이터 스키마 3">Spring Batch - 메타데이터 스키마 3</span>
+            <span class="post-date" title="2021-10-24 07:47:42">2021/10/24</span>
+        </a>
+        
+        
+        <a  class="All JAVA SpringBatch "
+           href="/2021/10/19/JAVA/Batch/SpringBatch2/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Batch - Job, Step 2">Spring Batch - Job, Step 2</span>
+            <span class="post-date" title="2021-10-19 07:47:42">2021/10/19</span>
+        </a>
+        
+        
+        <a  class="All JAVA SpringBatch "
+           href="/2021/10/17/JAVA/Batch/SpringBatch1/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Batch 1">Spring Batch 1</span>
+            <span class="post-date" title="2021-10-17 07:47:42">2021/10/17</span>
+        </a>
+        
+        
+        <a  class="All JAVA SpringCloudConfig "
+           href="/2021/09/13/JAVA/SpringCloudConfig/spring-cloud-config4/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="비대칭키를 이용한 application.yml 설정값 암호화">비대칭키를 이용한 application.yml 설정값 암호화</span>
+            <span class="post-date" title="2021-09-13 07:47:45">2021/09/13</span>
+        </a>
+        
+        
+        <a  class="All JAVA SpringCloudConfig "
+           href="/2021/09/13/JAVA/SpringCloudConfig/spring-cloud-config3/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Cloud Bus">Spring Cloud Bus</span>
+            <span class="post-date" title="2021-09-13 07:47:44">2021/09/13</span>
+        </a>
+        
+        
+        <a  class="All JAVA SpringCloudConfig "
+           href="/2021/09/13/JAVA/SpringCloudConfig/spring-cloud-config2/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Boot Actuator">Spring Boot Actuator</span>
+            <span class="post-date" title="2021-09-13 07:47:43">2021/09/13</span>
+        </a>
+        
+        
+        <a  class="All JAVA SpringCloudConfig "
+           href="/2021/09/13/JAVA/SpringCloudConfig/spring-cloud-config/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Cloud Config">Spring Cloud Config</span>
+            <span class="post-date" title="2021-09-13 07:47:42">2021/09/13</span>
+        </a>
+        
+        
+        <a  class="All JAVA Transaction "
+           href="/2021/03/14/JAVA/Transaction/multi-transaction/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Java Multi-Transaction 관리">Java Multi-Transaction 관리</span>
+            <span class="post-date" title="2021-03-14 07:47:42">2021/03/14</span>
+        </a>
+        
+        
+        <a  class="All JAVA Validator "
+           href="/2020/12/18/JAVA/VALIDATOR/validator/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Java Validator 관리">Java Validator 관리</span>
+            <span class="post-date" title="2020-12-18 07:47:42">2020/12/18</span>
+        </a>
+        
+        
+        <a  class="All JAVA Security "
+           href="/2020/11/19/JAVA/Security/SessionManagementFilterAndConcurrentSessionFilter/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="SessionManagementFilterAndConcurrentSessionFilter">SessionManagementFilterAndConcurrentSessionFilter</span>
+            <span class="post-date" title="2020-11-19 18:02:23">2020/11/19</span>
+        </a>
+        
+        
+        <a  class="All JAVA Security "
+           href="/2020/11/14/JAVA/Security/RememberMeAuthenticationFilter/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="RememberMeAuthenticationFilter">RememberMeAuthenticationFilter</span>
+            <span class="post-date" title="2020-11-14 07:40:06">2020/11/14</span>
+        </a>
+        
+        
+        <a  class="All JAVA Security "
+           href="/2020/11/13/JAVA/Security/UsernamePasswordAuthenticationFilter/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="UsernamePasswordAuthenticationFilter">UsernamePasswordAuthenticationFilter</span>
+            <span class="post-date" title="2020-11-13 08:51:13">2020/11/13</span>
+        </a>
+        
+        
+        <a  class="All CI Jenkins "
+           href="/2020/11/09/CI/Jenkins/JenkinsGitLabConnect/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Jenkins_GitLab_연동">Jenkins_GitLab_연동</span>
+            <span class="post-date" title="2020-11-09 07:47:42">2020/11/09</span>
+        </a>
+        
+        
+        <a  class="All CI Jenkins "
+           href="/2020/11/08/CI/Jenkins/JenkinsGitLabSshConnect/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="젠킨스와 GitLab ssh 연동하기">젠킨스와 GitLab ssh 연동하기</span>
+            <span class="post-date" title="2020-11-08 07:47:42">2020/11/08</span>
+        </a>
+        
+        
+        <a  class="All JAVA JPA "
+           href="/2020/11/08/JAVA/JPA/eagerJpqlNplus1/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="eagerJpqlNplus1">eagerJpqlNplus1</span>
+            <span class="post-date" title="2020-11-08 07:47:42">2020/11/08</span>
+        </a>
+        
+        
+        <a  class="All JAVA SpringBootAndSecurityAndJWT "
+           href="/2020/11/08/JAVA/SpringBootAndSecurityAndJWT/spring-boot-security-jwt-social2/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Boot 를 이용해 JWT + Social 로그인 처리 - Authorization Server (Social 로그인)">Spring Boot 를 이용해 JWT + Social 로그인 처리 - Authorization Server (Social 로그인)</span>
+            <span class="post-date" title="2020-11-08 07:47:42">2020/11/08</span>
+        </a>
+        
+        
+        <a  class="All JAVA SpringBootAndSecurityAndJWT "
+           href="/2020/11/08/JAVA/SpringBootAndSecurityAndJWT/spring-boot-security-jwt-social/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Boot 를 이용해 JWT + Social 로그인 처리 - Authorization Server (일반 로그인)">Spring Boot 를 이용해 JWT + Social 로그인 처리 - Authorization Server (일반 로그인)</span>
+            <span class="post-date" title="2020-11-08 07:47:42">2020/11/08</span>
+        </a>
+        
+        
+        <a  class="All JAVA SpringBootAndSecurityAndJWT "
+           href="/2020/11/08/JAVA/SpringBootAndSecurityAndJWT/spring-boot-security-jwt-social3/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Boot 를 이용해 JWT + Social 로그인 처리 - Resource Server">Spring Boot 를 이용해 JWT + Social 로그인 처리 - Resource Server</span>
+            <span class="post-date" title="2020-11-08 07:47:42">2020/11/08</span>
+        </a>
+        
+        
+        <a  class="All J Jenkins "
+           href="/2020/11/07/JAVA/Security/JKSGenerate/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="JKSGenerate">JKSGenerate</span>
+            <span class="post-date" title="2020-11-07 13:46:21">2020/11/07</span>
+        </a>
+        
+        
+        <a  class="All DB Mysql "
+           href="/2020/11/07/DB/Mysql/mysqlReplicationSetting/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Mysql_Replication_설정">Mysql_Replication_설정</span>
+            <span class="post-date" title="2020-11-07 07:47:42">2020/11/07</span>
+        </a>
+        
+        
+        <a  class="All CI Jenkins "
+           href="/2020/11/07/CI/Jenkins/JenkinsInstall/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Jenkins_설치">Jenkins_설치</span>
+            <span class="post-date" title="2020-11-07 07:47:42">2020/11/07</span>
+        </a>
+        
+        
+        <a  class="All R "
+           href="/2020/10/17/R/RServerInstall/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="RServer 설치">RServer 설치</span>
+            <span class="post-date" title="2020-10-17 07:47:42">2020/10/17</span>
+        </a>
+        
+        
+        <a  class="All JavaScript Webpack "
+           href="/2020/10/17/JAVASCRIPT/Webpack/devtool/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="WebPack - DevTool">WebPack - DevTool</span>
+            <span class="post-date" title="2020-10-17 07:47:42">2020/10/17</span>
+        </a>
+        
+        <div id="no-item-tips">
+
+        </div>
+    </nav>
+    <div id="outline-list">
+    </div>
+</div>
+
+    </div>
+    <div class="hide-list">
+        <div class="semicircle" data-title="Toggle full screen shortcut key s">
+            <div class="brackets first"><</div>
+            <div class="brackets">&gt;</div>
+        </div>
+    </div>
+</aside>
+<div id="post">
+    <div class="pjax">
+        <article id="post-zeyo/ZEYO" class="article article-type-post" itemscope itemprop="blogPost">
+    
+    <div class="article-meta">
+        
+        
+        
+        
+    </div>
+    <div class="article-meta">
+        
+            Created At : <time class="date" title='Updated At: 2024-05-31 22:32:19'>2024-05-31 22:32</time>
+        
+    </div>
+    <div class="article-meta">
+        
+        
+        <span id="busuanzi_container_page_pv">
+            Views 👀 :<span id="busuanzi_value_page_pv">
+                <span class="count-comment">
+                    <span class="spinner">
+                      <div class="cube1"></div>
+                      <div class="cube2"></div>
+                    </span>
+                </span>
+            </span>
+        </span>
+        
+        
+    </div>
+    
+    <div class="toc-ref">
+    
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#ZEYO-%EA%B0%9C%EB%B0%9C-%ED%99%98%EA%B2%BD"><span class="toc-text">ZEYO 개발 환경</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-ZEYO-%EC%84%9C%EB%B9%84%EC%8A%A4-%EB%B0%B0%EC%B9%98%EB%8F%84-AWS-%EA%B8%B0%EC%A4%80"><span class="toc-text">1. ZEYO 서비스 배치도(AWS 기준)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-API-%EC%84%9C%EB%B2%84-%EB%B0%B0%ED%8F%AC-%EA%B3%BC%EC%A0%95-%EC%96%B8%EC%96%B4-SPRING-BOOT"><span class="toc-text">2. API 서버 배포 과정 (언어 : SPRING BOOT)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-SPRING-BOOT-%EA%B5%AC%EC%A1%B0-%EB%B0%8F-%ED%8C%8C%EC%95%85"><span class="toc-text">3. SPRING BOOT 구조 및 파악</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-SPRING-BOOT-%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8-%ED%8C%8C%EC%9D%BC-%EA%B5%AC%EC%A1%B0"><span class="toc-text">4. SPRING BOOT 프로젝트 파일 구조</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-JPA-%EC%A4%91%EC%8B%AC-%EA%B0%9C%EB%B0%9C"><span class="toc-text">5. JPA 중심 개발</span></a></li></ol></li></ol>
+    
+<style>
+    .left-col .switch-btn,
+    .left-col .switch-area {
+        display: none;
+    }
+    .toc-level-3 i,
+    .toc-level-3 ol {
+        display: none !important;
+    }
+</style>
+</div>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="ZEYO-개발-환경"><a href="#ZEYO-개발-환경" class="headerlink" title="ZEYO 개발 환경"></a>ZEYO 개발 환경</h2><p>back-end : JAVA Spring Framework, JPA, QueryDSL, MyBatis, Maven, Gradle, MariaDB, Redis, GitLab, Jenkins<br>front-end : Vue.js, Nuxt, AngularJS, ES6+</p>
+<h3 id="1-ZEYO-서비스-배치도-AWS-기준"><a href="#1-ZEYO-서비스-배치도-AWS-기준" class="headerlink" title="1. ZEYO 서비스 배치도(AWS 기준)"></a>1. ZEYO 서비스 배치도(AWS 기준)</h3><p><img src="/../img/ZEYO/1.GIF" alt="1.GIF"></p>
+<h3 id="2-API-서버-배포-과정-언어-SPRING-BOOT"><a href="#2-API-서버-배포-과정-언어-SPRING-BOOT" class="headerlink" title="2. API 서버 배포 과정 (언어 : SPRING BOOT)"></a>2. API 서버 배포 과정 (언어 : SPRING BOOT)</h3><p>API 서버 배포시 꼭 해야 할 설정들</p>
+<ul>
+<li><p>Java 8 설치(리눅스 우분투)</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get update</span><br><span class="line">sudo apt-get install java-1.8.0-openjdk-devel.x86<span class="emphasis">_64</span></span><br><span class="line"><span class="emphasis">sudo /usr/sbin/alternatives --config java (환경변수 설정)</span></span><br><span class="line"><span class="emphasis">java -version</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>로컬에서 해당 프로젝트 디렉토리 위치에 build를 수행하자</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mvn clean package (maven)</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>생성한 jar 파일을 해당 리눅스 서버에 옮기고 배포하기<br>일단 배포 스크립트를 만들어서 해보자</p>
+</li>
+</ul>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">// deploy.sh 파일을 생성</span><br><span class="line">vi &#123;디렉토리&#125;/deploy.sh</span><br><span class="line"></span><br><span class="line"><span class="section">#################deploy.sh##################</span></span><br><span class="line"></span><br><span class="line">REPOSITORY=&#123;jar파일을 이동한 디렉토리 주소&#125;</span><br><span class="line">cd $REPOSITORY</span><br><span class="line"></span><br><span class="line">echo &quot;&gt; 현재 구동중인 애플리케이션 pid 확인&quot;</span><br><span class="line">CURRENT<span class="emphasis">_PID=$(pgrep -f &#123;jar파일명&#125;&#125;)</span></span><br><span class="line"><span class="emphasis"></span></span><br><span class="line"><span class="emphasis">echo &quot;$CURRENT_</span>PID&quot;</span><br><span class="line"></span><br><span class="line">if [ -z $CURRENT<span class="emphasis">_PID ]; then</span></span><br><span class="line"><span class="emphasis">    echo &quot;&gt; 현재 구동중인 애플리케이션이 없으므로 종료하지 않습니다.&quot;</span></span><br><span class="line"><span class="emphasis">else</span></span><br><span class="line"><span class="emphasis">    echo &quot;&gt; kill -2 $CURRENT_</span>PID&quot;</span><br><span class="line"><span class="code">    kill -9 $CURRENT_PID</span></span><br><span class="line"><span class="code">    sleep 5</span></span><br><span class="line"><span class="code">fi</span></span><br><span class="line"><span class="code"></span></span><br><span class="line">echo &quot;&gt; 새 어플리케이션 배포&quot;</span><br><span class="line">JAR<span class="emphasis">_NAME=$(ls $REPOSITORY/ |grep &#x27;&#123;jar파일명&#125;&#x27; | tail -n 1)</span></span><br><span class="line"><span class="emphasis"></span></span><br><span class="line"><span class="emphasis">echo &quot;&gt; JAR Name: $JAR_</span>NAME&quot;</span><br><span class="line">nohup java -jar $REPOSITORY/$JAR<span class="emphasis">_NAME &amp;</span></span><br><span class="line"><span class="emphasis"></span></span><br><span class="line"><span class="emphasis">nohup java -Dspring.profiles.active=&#123;환경변수명&#125; -jar $REPOSITORY/$JAR_</span>NAME --logging.file=&#123;로그 파일 저장 디렉토리&#125;/&#123;로그명&#125;.log &amp;</span><br><span class="line"><span class="section">##################################</span></span><br><span class="line"></span><br><span class="line">./deploy.sh (실행하자)</span><br></pre></td></tr></table></figure>
+
+
+<h3 id="3-SPRING-BOOT-구조-및-파악"><a href="#3-SPRING-BOOT-구조-및-파악" class="headerlink" title="3. SPRING BOOT 구조 및 파악"></a>3. SPRING BOOT 구조 및 파악</h3><p>아키텍처</p>
+<p><img src="/../img/ZEYO/2.png" alt="2.png"> </p>
+<ul>
+<li>Controller Layer : UI 에서 요청을 받고 응답을 전달 및 유효성 검사</li>
+<li>Service Layer : 비즈니스 로직을 구현</li>
+<li>Repository Layer : 데이터베이스에서 가져올 쿼리를 구현. JPA를 이용하는 경우 정해진 규칙에 따라서 메소드를 사용하거나, 만들어놓으면 적절한 쿼리를 수행할 수 있습니다.</li>
+<li>Domain Layer : 실제로 데이터베이스 물리 테이블과 1:1 매핑이 되어 바인딩 되어 있습니다.<ul>
+<li>entity :  JPA가 관리하는 클래스로, 해당 클래스를 엔티티라고 한다. JPA를 사용해서 테이블과 매핑할 클래스</li>
+<li>request : request 전용 DTO(Data Transfer Object)</li>
+<li>response : response 전용 DTO(Data Transfer Object)</li>
+</ul>
+</li>
+</ul>
+<h3 id="4-SPRING-BOOT-프로젝트-파일-구조"><a href="#4-SPRING-BOOT-프로젝트-파일-구조" class="headerlink" title="4. SPRING BOOT 프로젝트 파일 구조"></a>4. SPRING BOOT 프로젝트 파일 구조</h3><p><img src="/../img/ZEYO/3.GIF" alt="3.GIF"></p>
+<p>.1 key_store</p>
+<ul>
+<li>ZEYO 인증 방식은 JWT TOKEN 방식으로 처리하게 된다.</li>
+<li>JWT TOKEN 생성시 더 신뢰성 있고 안전한 방식을 위하여 비대칭키를 이용한 서명을 하게된다. <ul>
+<li>public_key : 공개키</li>
+<li>server.jks : 비밀키</li>
+</ul>
+</li>
+<li>이미지와 같이 rest 프로젝트에 공개키, 비밀키이 있는데 key_store에 보관되는 2개 파일은 보관용이고 rest(Resource Server) 경우 공개키만 사용(복호화)합니다. 실질적으로 공개키 보관되고 사용하는 곳은 “application-{profile}.yml” 파일에 있습니다.</li>
+<li>zeyo-authorization 프로젝트 경우 server.jks(비밀키) 통해 TOKEN을 암호화 해서 zeyo-rest 프로젝트에 있는 public-key로 복호화 한다.</li>
+<li>비대칭키 생성 방법 : <a href="https://syh8088.github.io/JKS">https://syh8088.github.io/JKS</a></li>
+</ul>
+<p>.2 mapper</p>
+<ul>
+<li>Spring MyBatis XML SQL문 정의 및 관리</li>
+</ul>
+<p>.3 error.properties</p>
+<ul>
+<li>controller단에 해당 API 호출시 유효성 validation 정책에 어긋날 경우 400대 에러 response 호출 같이 에러 메세지 보낼때 사용되는 파일</li>
+</ul>
+<p>.4 application-{profile}.yml</p>
+<ul>
+<li>외부 설정 파일 (애플리케이션에서 사용하는 여러가지 설정 값들을 애플리케이션의 밖이나 안에 정의할 수 있는 기능을 말한다.)</li>
+</ul>
+<p><img src="/../img/ZEYO/4.GIF" alt="4.GIF"><br>.1 controller</p>
+<ul>
+<li>UI 에서 요청을 받고 응답을 전달 및 유효성 검사 담당</li>
+</ul>
+<p>.2 model</p>
+<ul>
+<li>entity :  JPA가 관리하는 클래스로, 해당 클래스를 엔티티라고 한다. JPA를 사용해서 테이블과 매핑할 클래스</li>
+<li>request : request 전용 DTO(Data Transfer Object)</li>
+<li>response : response 전용 DTO(Data Transfer Object)</li>
+</ul>
+<p>.3 repository</p>
+<ul>
+<li>{파일명}Mapper - Spring MyBatis Interface</li>
+<li>{파일명}Repository - Spring JPA 에서 제공하는 Repository 라는 인터페이스를 정의해 해당 Entity 의 데이타를 사용 할 수 역활</li>
+<li>{파일명}RepositoryCustom, {파일명}RepositoryImpl - JAP Querydsl 담점인 Custom Repository와 JpaRepository를 상속한 Repository가 기능을 나눠서 의존성으로 받아야한다는 점, 이를 보완하기위해 Spring Data Jpa에서는 Custom Repository를 JpaRepository 상속 클래스에서 사용할 수 있도록 기능을 고안<br><img src="/../img/ZEYO/5.png" alt="5.png"></li>
+</ul>
+<p>.4 service</p>
+<ul>
+<li>비지니스 로직 담당</li>
+</ul>
+<h3 id="5-JPA-중심-개발"><a href="#5-JPA-중심-개발" class="headerlink" title="5. JPA 중심 개발"></a>5. JPA 중심 개발</h3><p>현재 ZEYO REST 경우 JPA, QueryDSL(동적쿼리시), MyBatis(그외 복잡한 서브쿼리 사용시) 사용되어 있습니다.</p>
+<p>※ JPA란? (<a target="_blank" rel="noopener" href="https://blog.woniper.net/255">https://blog.woniper.net/255</a>)</p>
+<p>JPA 구동 방식</p>
+<p><img src="/../img/ZEYO/8.GIF" alt="8.GIF"></p>
+<p>ZEYO REST 비지니스 로직 경우 가장 핵심인 JPA 의존 및 활용하면서 개발되어져 있습니다.</p>
+<p>이중 비즈니스 로직 경우 대부분 서비스단 에서 처리하는 하고 있습니다. : 트랜잭션 스크립트 패턴(<a target="_blank" rel="noopener" href="http://martinfowler.com/eaaCatalog/transactionScript.html">http://martinfowler.com/eaaCatalog/transactionScript.html</a>)</p>
+<p>.1 기존 SQL 중심 유지보수 및 개발시</p>
+<p><img src="/../img/ZEYO/6.GIF" alt="6.GIF"></p>
+<p>.2 JPA 이용시</p>
+<p><img src="/../img/ZEYO/7.GIF" alt="7.GIF"></p>
+
+      
+       <hr><span style="font-style: italic;color: gray;"> Copyright 201- syh8088. 무단 전재 및 재배포 금지. 출처 표기 시 인용 가능. </span>
+    </div>
+</article>
+
+
+<p>
+    <a  class="dashang" onclick="dashangToggle()">💰</a>
+</p>
+
+
+
+
+
+
+    
+
+
+
+
+    </div>
+    <div class="copyright">
+        <p class="footer-entry">
+    ©2017 Seo Yang Hun
+</p>
+<p class="footer-entry">Built with <a href="https://hexo.io/" target="_blank">Hexo</a> and <a href="https://github.com/yelog/hexo-theme-3-hexo" target="_blank">3-hexo</a> theme</p>
+
+    </div>
+    <div class="full-toc">
+        <button class="full" data-title="Toggle full screen shortcut key s"><span class="min "></span></button>
+<a class="" id="rocket" ></a>
+
+    </div>
+</div>
+
+<div class="hide_box" onclick="dashangToggle()"></div>
+<div class="shang_box">
+    <a class="shang_close"  onclick="dashangToggle()">×</a>
+    <div class="shang_tit">
+        <p>Help us with donation</p>
+    </div>
+    <div class="shang_payimg">
+        <div class="pay_img">
+            <img src="/img/alipay.jpg" class="alipay" title="扫码支持">
+            <img src="/img/weixin.jpg" class="weixin" title="扫码支持">
+        </div>
+    </div>
+    <div class="shang_payselect">
+        <span><label><input type="radio" name="pay" checked value="alipay">alipay</label></span><span><label><input type="radio" name="pay" value="weixin">weixin</label></span>
+    </div>
+</div>
+
+
+</body>
+<script src="/js/jquery.pjax.js?v=1.1.0" ></script>
+
+<script src="/js/script.js?v=1.1.0" ></script>
+<script>
+    var img_resize = 'default';
+    function initArticle() {
+        /*渲染对应的表格样式*/
+        
+            $("#post .pjax table").addClass("green_title");
+        
+
+        /*渲染打赏样式*/
+        
+        $("input[name=pay]").on("click", function () {
+            if($("input[name=pay]:checked").val()=="weixin"){
+                $(".shang_box .shang_payimg .pay_img").addClass("weixin_img");
+            } else {
+                $(".shang_box .shang_payimg .pay_img").removeClass("weixin_img");
+            }
+        })
+        
+
+        /*高亮代码块行号*/
+        
+
+        /*访问数量*/
+        
+        $.getScript("//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js");
+        
+
+        /*代码高亮，行号对齐*/
+        $('.pre-numbering').css('line-height',$('.has-numbering').css('line-height'));
+
+        
+        
+    }
+
+    /*打赏页面隐藏与展示*/
+    
+    function dashangToggle() {
+        $(".shang_box").fadeToggle();
+        $(".hide_box").fadeToggle();
+    }
+    
+
+</script>
+
+<!--加入行号的高亮代码块样式-->
+
+<!--自定义样式设置-->
+<style>
+    
+    
+    .nav {
+        width: 542px;
+    }
+    .nav.fullscreen {
+        margin-left: -542px;
+    }
+    .nav-left {
+        width: 120px;
+    }
+    
+    
+    @media screen and (max-width: 1468px) {
+        .nav {
+            width: 492px;
+        }
+        .nav.fullscreen {
+            margin-left: -492px;
+        }
+        .nav-left {
+            width: 100px;
+        }
+    }
+    
+    
+    @media screen and (max-width: 1024px) {
+        .nav {
+            width: 492px;
+            margin-left: -492px
+        }
+        .nav.fullscreen {
+            margin-left: 0;
+        }
+    }
+    
+    @media screen and (max-width: 426px) {
+        .nav {
+            width: 100%;
+        }
+        .nav-left {
+            width: 100%;
+        }
+    }
+    
+    
+    .nav-right .title-list nav a .post-title, .nav-right .title-list #local-search-result a .post-title {
+        color: #383636;
+    }
+    
+    
+    .nav-right .title-list nav a .post-date, .nav-right .title-list #local-search-result a .post-date {
+        color: #5e5e5f;
+    }
+    
+    
+    .nav-right nav a.hover, #local-search-result a.hover{
+        background-color: #e2e0e0;
+    }
+    
+    
+
+    /*列表样式*/
+    
+
+    /* 背景图样式 */
+    
+    
+
+
+    /*引用块样式*/
+    
+
+    /*文章列表背景图*/
+    
+
+    
+</style>
+
+
+
+
+
+
+
+</html>
