@@ -6,21 +6,17 @@
   <meta name="keywords" content="">
   <meta name="description" content="결제 시스템 구축 - 4 | Seo Yang Hun Blog">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-<meta name="description" content="Transaction OutBox Pattern결제 승인이 성공한 후, 결제 완료를 위해 결제 승인 이벤트 메시지를 발행해보자. 결제 승인 메시지 발행이 필요한 이유상품 결제 프로세스 진행시 PSP 로부터 결제 승인이 성공으로 처리된 이후 2가지 프로세스가 필요합니다.  정산 프로세스 결제 내역을 장부에 기록  이 2가지 작업이 완료되어야 비로써 최종 결제">
+<meta name="description" content="지금까지 ‘문자 타입 정책’ 및 ‘문자 상세 내용 정책’에 따른 상속 통해 코드 재사용 하는 방법을 알아보았습니다.하지만 상속에 따른 단점도 알아보았습니다. 앞서 이야기 한대로 이러한 단점을 회피 하기 위해서는 다른 구조 설계가 필요 할 것 입니다. 합성으로 문제 해결하기상속과 다르게 합성 관계는 런타임 시점에 동적으로 변경이 가능하다는 것 입니다. 반면">
 <meta property="og:type" content="article">
-<meta property="og:title" content="결제 시스템 구축 - 5">
-<meta property="og:url" content="https://syh8088.github.io/2024/08/06/JAVA/Payment/PaymentTransactionalOutboxpattern/index.html">
+<meta property="og:title" content="상속과 합성 이야기-2">
+<meta property="og:url" content="https://syh8088.github.io/2024/08/24/JAVA/Object/InheritanceComposition2/index.html">
 <meta property="og:site_name" content="Seo Yang Hun Blog">
-<meta property="og:description" content="Transaction OutBox Pattern결제 승인이 성공한 후, 결제 완료를 위해 결제 승인 이벤트 메시지를 발행해보자. 결제 승인 메시지 발행이 필요한 이유상품 결제 프로세스 진행시 PSP 로부터 결제 승인이 성공으로 처리된 이후 2가지 프로세스가 필요합니다.  정산 프로세스 결제 내역을 장부에 기록  이 2가지 작업이 완료되어야 비로써 최종 결제">
+<meta property="og:description" content="지금까지 ‘문자 타입 정책’ 및 ‘문자 상세 내용 정책’에 따른 상속 통해 코드 재사용 하는 방법을 알아보았습니다.하지만 상속에 따른 단점도 알아보았습니다. 앞서 이야기 한대로 이러한 단점을 회피 하기 위해서는 다른 구조 설계가 필요 할 것 입니다. 합성으로 문제 해결하기상속과 다르게 합성 관계는 런타임 시점에 동적으로 변경이 가능하다는 것 입니다. 반면">
 <meta property="og:locale">
-<meta property="og:image" content="https://syh8088.github.io/img/JAVA/Payment/transactionoutboxpattern1.png">
-<meta property="og:image" content="https://syh8088.github.io/img/JAVA/Payment/transactionoutboxpattern2.png">
-<meta property="og:image" content="https://syh8088.github.io/img/JAVA/Payment/transactionOutboxPatternSequenceDiagram.png">
-<meta property="article:published_time" content="2024-08-06T06:50:00.000Z">
-<meta property="article:modified_time" content="2024-08-17T13:46:55.533Z">
+<meta property="article:published_time" content="2024-08-24T06:50:00.000Z">
+<meta property="article:modified_time" content="2024-08-25T03:02:04.906Z">
 <meta property="article:author" content="Seo Yang Hun">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://syh8088.github.io/img/JAVA/Payment/transactionoutboxpattern1.png">
 
 
 <link rel="icon" href="/img/avatar.jpg">
@@ -157,7 +153,7 @@
     <li>
         <div class="all active" data-rel="All">All
             
-                <small>(42)</small>
+                <small>(44)</small>
             
         </div>
     </li>
@@ -308,7 +304,7 @@
         <div data-rel="JAVA">
             <i class="fold iconfont icon-right"></i>
             JAVA
-            <small>(25)</small>
+            <small>(27)</small>
         </div>
         
             <ul class="sub hide">
@@ -345,6 +341,17 @@
             
             JPA
             <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;Object">
+            
+            Object
+            <small>(2)</small>
         </div>
         
     </li>
@@ -494,6 +501,10 @@
     
         
             
+        
+    
+        
+            
                 
     <li>
         <div data-rel="R">
@@ -555,7 +566,7 @@
         
     </div>
 </div>
-<input type="hidden" id="yelog_site_posts_number" value="42">
+<input type="hidden" id="yelog_site_posts_number" value="44">
 
 <div style="display: none">
     <span id="busuanzi_value_site_uv"></span>
@@ -607,6 +618,24 @@
 
     
     <nav id="title-list-nav">
+        
+        
+        <a  class="All JAVA Object "
+           href="/2024/08/24/JAVA/Object/InheritanceComposition2/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="상속과 합성 이야기-2">상속과 합성 이야기-2</span>
+            <span class="post-date" title="2024-08-24 15:50:00">2024/08/24</span>
+        </a>
+        
+        
+        <a  class="All JAVA Object "
+           href="/2024/08/23/JAVA/Object/InheritanceComposition1/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="상속과 합성 이야기-1">상속과 합성 이야기-1</span>
+            <span class="post-date" title="2024-08-23 15:50:00">2024/08/23</span>
+        </a>
         
         
         <a  class="All JAVA Payment "
