@@ -6,22 +6,28 @@
   <meta name="keywords" content="">
   <meta name="description" content="결제 시스템 구축 - 5 | Seo Yang Hun Blog">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-<meta name="description" content="상속과 합성 차이객체지향 프로그래밍에서 상속과 합성은 자주 사용되는 재사용 기법 입니다. 코드 중복을 제거 하므로 나중에 코드 수정 및 확장을 더 쉽게 용이하게 관리 하기 위함 입니다.    상속(Inheritance) 합성(Composition)    부모 클래스와 자식 클래스 사이의 의존성은 컴파일 타임에 해결 두 객체 사이의 의존성은 런타임에 해결">
+<meta name="description" content="DBCP 는 왜 필요한가? DBCP 가 없는 상태에서 클라이언트 로 부터 Request 요청을 받고 특정 쿼리 조회시 Application Server 와 DB Server 어떻게 통신을 하게 되는지 알아보겠습니다. 먼저 클라이언트 로 부터 Request 요청을 들어오고 특정 쿼리를 조회 하기 위해 DB 서버에 요청을 했습니다.  이후에 요청을 받고 나서">
 <meta property="og:type" content="article">
-<meta property="og:title" content="상속과 합성 이야기-1">
-<meta property="og:url" content="https://syh8088.github.io/2024/08/23/JAVA/Object/InheritanceComposition1/index.html">
+<meta property="og:title" content="Mysql_Replication_설정">
+<meta property="og:url" content="https://syh8088.github.io/2024/10/02/DB/Mysql/mysqlDBCP/index.html">
 <meta property="og:site_name" content="Seo Yang Hun Blog">
-<meta property="og:description" content="상속과 합성 차이객체지향 프로그래밍에서 상속과 합성은 자주 사용되는 재사용 기법 입니다. 코드 중복을 제거 하므로 나중에 코드 수정 및 확장을 더 쉽게 용이하게 관리 하기 위함 입니다.    상속(Inheritance) 합성(Composition)    부모 클래스와 자식 클래스 사이의 의존성은 컴파일 타임에 해결 두 객체 사이의 의존성은 런타임에 해결">
+<meta property="og:description" content="DBCP 는 왜 필요한가? DBCP 가 없는 상태에서 클라이언트 로 부터 Request 요청을 받고 특정 쿼리 조회시 Application Server 와 DB Server 어떻게 통신을 하게 되는지 알아보겠습니다. 먼저 클라이언트 로 부터 Request 요청을 들어오고 특정 쿼리를 조회 하기 위해 DB 서버에 요청을 했습니다.  이후에 요청을 받고 나서">
 <meta property="og:locale">
-<meta property="og:image" content="https://syh8088.github.io/img/JAVA/Object/smsType.png">
-<meta property="og:image" content="https://syh8088.github.io/img/JAVA/Object/combinationOrder.png">
-<meta property="og:image" content="https://syh8088.github.io/img/JAVA/Object/inheritanceClass.png">
-<meta property="og:image" content="https://syh8088.github.io/img/JAVA/Object/inheritanceClass2.png">
-<meta property="article:published_time" content="2024-08-23T06:50:00.000Z">
-<meta property="article:modified_time" content="2024-08-24T02:50:16.526Z">
+<meta property="og:image" content="https://syh8088.github.io/img/DB/Mysql/mysqlDBCP/DBConnectionOpenClose.png">
+<meta property="og:image" content="https://syh8088.github.io/img/DB/Mysql/mysqlDBCP/DBCPConnectionOpenClose.png">
+<meta property="og:image" content="https://syh8088.github.io/img/DB/Mysql/mysqlDBCP/max_connections_example.png">
+<meta property="og:image" content="https://syh8088.github.io/img/DB/Mysql/mysqlDBCP/minimumidle_maximumPoolSize_1.png">
+<meta property="og:image" content="https://syh8088.github.io/img/DB/Mysql/mysqlDBCP/minimumidle_maximumPoolSize_2.png">
+<meta property="og:image" content="https://syh8088.github.io/img/DB/Mysql/mysqlDBCP/minimumidle_maximumPoolSize_3.png">
+<meta property="og:image" content="https://syh8088.github.io/img/DB/Mysql/mysqlDBCP/minimumidle_maximumPoolSize_4.png">
+<meta property="og:image" content="https://syh8088.github.io/img/DB/Mysql/mysqlDBCP/minimumidle_maximumPoolSize_1.png">
+<meta property="og:image" content="https://syh8088.github.io/img/DB/Mysql/mysqlDBCP/minimumidle_maximumPoolSize_Problem.png">
+<meta property="og:image" content="https://syh8088.github.io/img/DB/Mysql/mysqlDBCP/connectionTimeout.png">
+<meta property="article:published_time" content="2024-10-01T22:47:42.000Z">
+<meta property="article:modified_time" content="2024-10-03T14:09:57.348Z">
 <meta property="article:author" content="Seo Yang Hun">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://syh8088.github.io/img/JAVA/Object/smsType.png">
+<meta name="twitter:image" content="https://syh8088.github.io/img/DB/Mysql/mysqlDBCP/DBConnectionOpenClose.png">
 
 
 <link rel="icon" href="/img/avatar.jpg">
@@ -158,7 +164,7 @@
     <li>
         <div class="all active" data-rel="All">All
             
-                <small>(44)</small>
+                <small>(45)</small>
             
         </div>
     </li>
@@ -241,7 +247,7 @@
         <div data-rel="DB">
             <i class="fold iconfont icon-right"></i>
             DB
-            <small>(1)</small>
+            <small>(2)</small>
         </div>
         
             <ul class="sub hide">
@@ -249,8 +255,18 @@
                     
     <li>
         <div data-rel="DB&lt;---&gt;Mysql">
-            
+            <i class="fold iconfont icon-right"></i>
             Mysql
+            <small>(2)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="DB&lt;---&gt;Mysql&lt;---&gt;DBCP">
+            
+            DBCP
             <small>(1)</small>
         </div>
         
@@ -261,6 +277,15 @@
         
     </li>
 
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
             
         
     
@@ -571,7 +596,7 @@
         
     </div>
 </div>
-<input type="hidden" id="yelog_site_posts_number" value="44">
+<input type="hidden" id="yelog_site_posts_number" value="45">
 
 <div style="display: none">
     <span id="busuanzi_value_site_uv"></span>
@@ -623,6 +648,15 @@
 
     
     <nav id="title-list-nav">
+        
+        
+        <a  class="All DB Mysql DBCP "
+           href="/2024/10/02/DB/Mysql/mysqlDBCP/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Mysql_Replication_설정">Mysql_Replication_설정</span>
+            <span class="post-date" title="2024-10-02 07:47:42">2024/10/02</span>
+        </a>
         
         
         <a  class="All JAVA Object "
