@@ -2,9 +2,9 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>Jenkins_설치 | Seo Yang Hun Blog</title>
+  <title>Paging Query 처리 방법 | Seo Yang Hun Blog</title>
   <meta name="keywords" content="">
-  <meta name="description" content="Jenkins_설치 | Seo Yang Hun Blog">
+  <meta name="description" content="Paging Query 처리 방법 | Seo Yang Hun Blog">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="Paging 란?특정 데이터를 부분적으로 분할해서 데이터를 조회 하는 방식을 말합니다.예를들어 A 테이블에 100만건이 있다고 존재할때 클라이언트에 데이터를 보낼때 모든 데이터를 보여주는 것 보다 부분적으로 나눠서 데이터를 보내는 것이DB Server 측면에서 처리시간 및 효율적으로 자원 관리를 할 수 있게 됩니다. Offset Paging 방식우선 일반적">
 <meta property="og:type" content="article">
@@ -1089,9 +1089,9 @@
 </aside>
 <div id="post">
     <div class="pjax">
-        <article id="post-CI/Jenkins/JenkinsInstall" class="article article-type-post" itemscope itemprop="blogPost">
+        <article id="post-DB/Mysql/PagingQuery" class="article article-type-post" itemscope itemprop="blogPost">
     
-        <h1 class="article-title">Jenkins_설치</h1>
+        <h1 class="article-title">Paging Query 처리 방법</h1>
     
     <div class="article-meta">
         
@@ -1101,9 +1101,11 @@
             <i class="iconfont icon-category"></i>
             
             
-            <a  data-rel="CI">CI</a> > 
+            <a  data-rel="DB">DB</a> > 
             
-            <a  data-rel="CI&lt;---&gt;Jenkins">Jenkins</a>
+            <a  data-rel="DB&lt;---&gt;Mysql">Mysql</a> > 
+            
+            <a  data-rel="DB&lt;---&gt;Mysql&lt;---&gt;Paging">Paging</a>
             
         </span>
         
@@ -1111,7 +1113,7 @@
     </div>
     <div class="article-meta">
         
-            发布时间 : <time class="date" title='最后更新: 2024-05-31 22:32:19'>2020-11-07 07:47</time>
+            发布时间 : <time class="date" title='最后更新: 2024-10-06 20:08:17'>2024-10-06 07:47</time>
         
     </div>
     <div class="article-meta">
@@ -1133,7 +1135,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Jenkins-%EC%84%A4%EC%B9%98"><span class="toc-text">Jenkins_설치</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-JDK-%EC%84%A4%EC%B9%98"><span class="toc-text">1. JDK 설치</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-GIT-%EC%84%A4%EC%B9%98"><span class="toc-text">2. GIT 설치</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-Jenkins-%EC%84%A4%EC%B9%98"><span class="toc-text">3. Jenkins 설치</span></a></li></ol></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Paging-%EB%9E%80"><span class="toc-text">Paging 란?</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Offset-Paging-%EB%B0%A9%EC%8B%9D"><span class="toc-text">Offset Paging 방식</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Cursor-%EB%B0%A9%EC%8B%9D"><span class="toc-text">Cursor 방식</span></a></li></ol></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -1149,37 +1151,34 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="Jenkins-설치"><a href="#Jenkins-설치" class="headerlink" title="Jenkins_설치"></a>Jenkins_설치</h2><p>우분투 16.04 설치법 입니다.</p>
-<p>젠키스를 설치 하기 위해서는 기본적으로 JDK, GIT, gradle이 필요합니다. </p>
-<p>하지만 gradle경우 Spring bootd에서 build되는 프로젝트에서 포함되고 있는 wrapper gradle를 사용하기 때문에 </p>
-<p>설치를 따로 할 필요는 없습니다.</p>
-<h3 id="1-JDK-설치"><a href="#1-JDK-설치" class="headerlink" title="1. JDK 설치"></a>1. JDK 설치</h3><figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo apt update</span><br><span class="line">sudo apt-get install openjdk-8-jdk</span><br></pre></td></tr></table></figure>
+        <h1 id="Paging-란"><a href="#Paging-란" class="headerlink" title="Paging 란?"></a>Paging 란?</h1><p>특정 데이터를 부분적으로 분할해서 데이터를 조회 하는 방식을 말합니다.<br>예를들어 A 테이블에 100만건이 있다고 존재할때 클라이언트에 데이터를 보낼때 모든 데이터를 보여주는 것 보다 부분적으로 나눠서 데이터를 보내는 것이<br>DB Server 측면에서 처리시간 및 효율적으로 자원 관리를 할 수 있게 됩니다.</p>
+<h2 id="Offset-Paging-방식"><a href="#Offset-Paging-방식" class="headerlink" title="Offset Paging 방식"></a>Offset Paging 방식</h2><p>우선 일반적으로 많이 사용되고 있는 Offset Paging 방식을 알아보도록 하겠습니다. </p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">SELECT </span><br><span class="line">  * </span><br><span class="line">FROM </span><br><span class="line">  $<span class="punctuation">&#123;</span>테이블명<span class="punctuation">&#125;</span></span><br><span class="line">ORDER BY </span><br><span class="line">  $<span class="punctuation">&#123;</span>생성 일자 컬럼<span class="punctuation">&#125;</span> DESC</span><br><span class="line">LIMIT <span class="number">5</span></span><br></pre></td></tr></table></figure>
+<p>처음 부터 10개만 출력 하는 쿼리 문 입니다. (1회차)</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">SELECT </span><br><span class="line">  * </span><br><span class="line">FROM </span><br><span class="line">  $<span class="punctuation">&#123;</span>테이블명<span class="punctuation">&#125;</span></span><br><span class="line">ORDER BY </span><br><span class="line">  $<span class="punctuation">&#123;</span>생성 일자 컬럼<span class="punctuation">&#125;</span> DESC</span><br><span class="line">OFFSET $<span class="punctuation">&#123;</span>N 회차<span class="punctuation">&#125;</span> </span><br><span class="line">LIMIT <span class="number">5</span></span><br></pre></td></tr></table></figure>
+<p>N 번째 부터 그 후 5개 출력 하는 쿼리 문 입니다. 만약 offset 이 3 번째 이라고 하면 3번째 부터 5개 출력 하는 의미 입니다.</p>
+<p>간단하게 Offset Paging Query 에 대해서 알아보았는데요. 구현방식은 단조롭지만 단점이 있습니다.<br>1회차 경우는 인덱스만 잘 활용 한다면 문제가 없지만 이후 2회차 이상 부터는 오히려 DBMS 에 부하가 발생 할 수 있습니다.<br>이유는 Offset 에 설정한 위치까지 모든 레코드를 순차적으로 조회 후 이제서야 데이터를 조회 하기 때문입니다.<br>즉 Offset 의 지정된 값이 크면 클 수록 DB Server 에 부하가 발생 될 수 있습니다.</p>
+<p>이것은 Offset Paging 사용하지 않고 Table Full Scan 사용하는 것 보다 더 나쁜 성능을 보여줍니다.</p>
+<h2 id="Cursor-방식"><a href="#Cursor-방식" class="headerlink" title="Cursor 방식"></a>Cursor 방식</h2><p>Offset Paging 방식은 원하는 데이터가 “몇 번째” 에 있다는 데에 집중하고 있다면 Cursor Paging 방식은 우리가 원하는 데이터가 “어떤 데이터의 다음” 에 있다는 데에 집중합니다.<br>즉 Offset 방식은 N 개의 row 를 skip 한 다음 10개를 가져오고 Cursor 방식은 정적으로 row 다음 부터 10개를 가져오는 방식 입니다.</p>
+<p>Cursor Paging 방식 처리 하는 과정에서 여러가지 방식이 있지만 그 중 “데이터 갯수 기반 방식” 중 “범위 조건” 방식에 대해 알아보도록 하겠습니다.</p>
+<p>“데이터 갯수 기반 방식” 경우는 배치 작업보다 서비스단에서 주로 사용되는 형식 입니다. ORDER BY 하고 LIMIT 사용하면서 쿼리 작성 하게 됩니다. 또 다른 특징은 1회차 쿼리문하고 N 회차 쿼리문 형태가 다르다는 점 입니다.</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">CREATE TABLE boards (</span><br><span class="line">    no int NOT NULL AUTO_INCREMENT<span class="punctuation">,</span></span><br><span class="line">    updated_at datetime NOT NULL<span class="punctuation">,</span></span><br><span class="line">    PRIMARY KEY (no)<span class="punctuation">,</span></span><br><span class="line">    KEY idx_updated_at (updated_at)</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+<p>우선 boards 이라는 테이블을 만들도록 하겠습니다. ‘no’ 컬럼은 PK 값으로 설정하고 updated_at 수정일 컬럼이 있습니다.<br>이 방식으로 Paging 처리를 한다고 가정 하겠습니다.</p>
+<p><img src="/../../../img/DB/Mysql/PagingQuery/1st_Range_Condition_Query.png" alt="1차 범위조건 쿼리.PNG"></p>
+<p>1회차 조회 방법 입니다. Offset 방식과 다르게 Offset 사용하지 않고 대신 ORDER BY 방식으로 해결합니다. 컬럼 updated_at DESC 방식으로 내림차순으로 하고<br>PK 컬럼인 no 컬럼을 DESC 방식으로 정렬 합니다.</p>
+<p>그리고 부가적으로 조회 조건 WHERE 절을 updated_at 시작 날짜, 종료 날짜 범위를 지정 합니다.</p>
+<p>ORDER BY 절에 updated_at 컬럼이 추가된 이유는 성능 최적화에 있습니다. 인덱스를 updated_at 로 지정 했다는것을 알수 있습니다.<br>ORDER BY 절에 no 컬럼만 지정되어 있다면 조건절 updated_at 범위 탐색 하더라도 ORDER BY no 컬럼이 있기 때문에 정렬은 인덱스를 활용 할 수 없습니다.<br>그래서 ORDER BY 절에 updated_at 컬럼을 먼저 지정하고 범위 탐색에 바로 적용 해서 인덱스를 활용 할 수 있도록 해야 합니다. </p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">SELECT</span><br><span class="line"> *</span><br><span class="line">FROM </span><br><span class="line"> boards</span><br><span class="line">ORDER BY </span><br><span class="line">  updated_at DESC<span class="punctuation">,</span> no DESC</span><br><span class="line">LIMIT <span class="number">5</span></span><br></pre></td></tr></table></figure>
+<p>1회차 조회시 쿼리문 입니다. updated_at, no 순서대로 내림차순으로 정렬 후 이 중 5개를 먼저 탐색되면 바로 반환 되도록 하는 쿼리 입니다.</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">SELECT</span><br><span class="line"> *</span><br><span class="line">FROM </span><br><span class="line"> boards</span><br><span class="line">WHERE </span><br><span class="line">  updated_at &lt; &#x27;<span class="number">2024</span><span class="number">-10</span><span class="number">-16</span> <span class="number">00</span><span class="punctuation">:</span><span class="number">00</span><span class="punctuation">:</span><span class="number">06</span>&#x27; AND no &gt; <span class="number">9</span></span><br><span class="line">ORDER BY </span><br><span class="line">  updated_at DESC<span class="punctuation">,</span> no DESC</span><br><span class="line">LIMIT <span class="number">5</span></span><br></pre></td></tr></table></figure>
 
-<p>※ $JAVA_HOME 설정</p>
-<p><img src="/../../img/CI/Install/1.PNG" alt="1.PNG"> </p>
-<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo vi /etc/profile</span><br><span class="line">export JAVA<span class="emphasis">_HOME=/usr/lib/jvm/java-8-openjdk-amd64(추가하기)</span></span><br></pre></td></tr></table></figure>
+<p><img src="/../../../img/DB/Mysql/PagingQuery/incorrect_2st_Range_Condition_Query.png" alt="잘못된 2차 범위조건 쿼리.PNG"></p>
+<p>이후 2회차 이후 조회 방법 입니다. 하지만 이것은 잘못된 방법 입니다.<br>1회차 조회시 맨 마지막 row 데이터인 updated_at 하고 no 값을 이용해서 그 다음 데이터 출력할려고 했지만 PK 값 no 값 경우 항상 updated_at 처럼 정렬된 데이터로 구성 되지 않습니다.<br>updated_at 날짜 경우 해당 row 가 어느 컬럼이든 업데이트가 일어나면 현재 날짜로 업데이트가 일어나기 때문에 no 값은 항상 일정한 정렬로 일어나지 않습니다.</p>
+<p>이럴 경우 초록색 박스만 출력되고 나머지 데이터는 출력되지 않습니다.</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">SELECT</span><br><span class="line"> *</span><br><span class="line">FROM </span><br><span class="line"> boards</span><br><span class="line">WHERE </span><br><span class="line">  (updated_at = &#x27;<span class="number">2024</span><span class="number">-10</span><span class="number">-16</span> <span class="number">00</span><span class="punctuation">:</span><span class="number">00</span><span class="punctuation">:</span><span class="number">06</span>&#x27; AND no &lt; <span class="number">9</span>) OR (updated_at &lt; &#x27;<span class="number">2024</span><span class="number">-10</span><span class="number">-16</span> <span class="number">00</span><span class="punctuation">:</span><span class="number">00</span><span class="punctuation">:</span><span class="number">06</span>&#x27;)</span><br><span class="line">ORDER BY </span><br><span class="line">  updated_at DESC<span class="punctuation">,</span> no DESC</span><br><span class="line">LIMIT <span class="number">5</span></span><br></pre></td></tr></table></figure>
 
-<h3 id="2-GIT-설치"><a href="#2-GIT-설치" class="headerlink" title="2. GIT 설치"></a>2. GIT 설치</h3><figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt install git</span><br></pre></td></tr></table></figure>
-
-<h3 id="3-Jenkins-설치"><a href="#3-Jenkins-설치" class="headerlink" title="3. Jenkins 설치"></a>3. Jenkins 설치</h3><figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">wget -q -O - https://pkg.jenkins.io/debian/jenkins-ci.org.key | sudo apt-key add -   (Jenkins 설치를 위한 repository key를 추가)</span><br><span class="line">sh -c &#x27;echo deb http://pkg.jenkins.io/debian-stable binary/ &gt; /etc/apt/sources.list.d/jenkins.list&#x27;</span><br><span class="line">apt-get install jenkins</span><br></pre></td></tr></table></figure>
-
-<p>※ 기본 설정 파일 </p>
-<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="section"># /etc/default/jenkins</span></span><br></pre></td></tr></table></figure>
-<p>※ 로그파일 </p>
-<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="section"># /var/log/jenkins/jenkins.log</span></span><br></pre></td></tr></table></figure>
-<p>※ 젠킨스 시작&#x2F;</p>
-<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="section"># service jenkins start</span></span><br><span class="line"><span class="section"># service jenkins stop</span></span><br></pre></td></tr></table></figure>
-
-<p><a target="_blank" rel="noopener" href="http://localhost:8080/">http://localhost:8080</a> 접속 하도록 합니다.(기본 Port는 8080입니다.)</p>
-<p><img src="/../../img/CI/Install/2.png" alt="2.png"></p>
-<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/var/lib/jenkins/secrets/initialAdminPassword</span><br></pre></td></tr></table></figure>
-<p>해당 파일을 열어서 초기 비밀번호를 복사 후 붙여넣기해 진행 하도록 하자</p>
-<p><img src="/../../img/CI/Install/3.png" alt="3.png"></p>
-<p>Install suggested plugins 를 선택해 진행하자.</p>
-<p><img src="/../../img/CI/Install/5.png" alt="5.png"></p>
-<p>다음 계정 정보를 입력 후 진행하자.</p>
-<p><img src="/../../img/CI/Install/6.png" alt="6.png"></p>
-<p>최종적으로 설치가 완료된 모습이다!</p>
+<p><img src="/../../../img/DB/Mysql/PagingQuery/2st_Range_Condition_Query.png" alt="2차 범위조건 쿼리.PNG"></p>
+<p>우선 1차 쿼리문 통해 조회된 updated_at 날짜 값 ‘2024-10-16 00:00:06’ 이용해서 같으면서도 no 값 9 보다 작은 값들이 있는지 체크를 먼저 확인을 합니다.<br>그리고 ‘OR’ 조건문을 이용해 나머지 값인 ‘2024-10-16 00:00:06’ updated_at 날짜 보다 작은 값들을 조회 하도록 합니다.</p>
 
       
        <hr><span style="font-style: italic;color: gray;"> Copyright 201- syh8088. 무단 전재 및 재배포 금지. 출처 표기 시 인용 가능. </span>
