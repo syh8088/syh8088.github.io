@@ -39,11 +39,12 @@
 <meta property="og:image" content="https://syh8088.github.io/img/CI-CD/GitHunActions/6/21-testV1-Actions-Detail-Approve.png">
 <meta property="og:image" content="https://syh8088.github.io/img/CI-CD/GitHunActions/6/22-testV1-Actions-Detail-Approve-check.png">
 <meta property="og:image" content="https://syh8088.github.io/img/CI-CD/GitHunActions/6/23-testV1-Actions-Detail-release-prod-success.png">
+<meta property="og:image" content="https://syh8088.github.io/img/CI-CD/GitHunActions/6/6-CI-CD-SLACK-RESULT-PROD.png">
 <meta property="og:image" content="https://syh8088.github.io/img/CI-CD/GitHunActions/6/24-EC2-COMMEND-SERVER-CHECK-release-prod.png">
 <meta property="og:image" content="https://syh8088.github.io/img/CI-CD/GitHunActions/6/RESULT.png">
 <meta property="og:image" content="https://syh8088.github.io/img/CI-CD/GitHunActions/6/rollback.png">
 <meta property="article:published_time" content="2024-10-19T22:47:42.000Z">
-<meta property="article:modified_time" content="2024-10-18T09:01:15.002Z">
+<meta property="article:modified_time" content="2024-10-18T09:11:08.015Z">
 <meta property="article:author" content="Seo Yang Hun">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https://syh8088.github.io/img/CI-CD/GitHunActions/6/1-TestController-TEST1.png">
@@ -1212,7 +1213,7 @@
     </div>
     <div class="article-meta">
         
-            发布时间 : <time class="date" title='最后更新: 2024-10-18 18:01:15'>2024-10-20 07:47</time>
+            发布时间 : <time class="date" title='最后更新: 2024-10-18 18:11:08'>2024-10-20 07:47</time>
         
     </div>
     <div class="article-meta">
@@ -1296,6 +1297,7 @@
 <p><img src="/../../../img/CI-CD/GitHunActions/6/21-testV1-Actions-Detail-Approve.png" alt="21-testV1-Actions-Detail-Approve"><br>CD 작업이 진행하게 됩니다. 우선 ‘set-environment’ Job 통해 배포 환경 변수를 배정되고<br>‘image-build’ 진행해서 docker image 를 생성 후 AWS ECR Repository 에 해당 상용 전용 저장소에 저장 하게 됩니다.<br>여기서 개발 서버로 배포하는 WorkFlow 와 차이점을 있다면 ‘approve’ 이라는 job 단계가 있습니다.<br>앞써 설명한대로 GitHub 페이지에서 ‘Approve Process’ 라는 환경을 구성하고 ‘Protection Rule’ 을 설정을 한 다음 GitHub Actions Job 에서 Environment 값으로 Approve Process 를<br>사용하면 승인을 받아야만 Approve Job 이 실행이 됩니다.</p>
 <p><img src="/../../../img/CI-CD/GitHunActions/6/22-testV1-Actions-Detail-Approve-check.png" alt="22-testV1-Actions-Detail-Approve-check"><br>‘Review Deployments’ 이라는 버튼을 클릭하게 되면 승인 할 수 있는 팝업이 나타납니다. 지정된 사용자로 승인 처리 합니다.</p>
 <p><img src="/../../../img/CI-CD/GitHunActions/6/23-testV1-Actions-Detail-release-prod-success.png" alt="23-testV1-Actions-Detail-release-prod-success"><br>‘prod-deploy’ 이라는 Job 이 실행하게 되면서 실질적으로 AWS EKS 서비스를 이용해서 helm 활용해 kubernetes 에 배포 하게 됩니다.</p>
+<p><img src="/../../../img/CI-CD/GitHunActions/6/6-CI-CD-SLACK-RESULT-PROD.png" alt="6-CI-CD-SLACK-RESULT-PROD"><br>Slack 메신저를 통해 성공 여부 결과 메시지가 전송 되는 것을 확인 할 수 있습니다.</p>
 <p><img src="/../../../img/CI-CD/GitHunActions/6/24-EC2-COMMEND-SERVER-CHECK-release-prod.png" alt="24-EC2-COMMEND-SERVER-CHECK-release-prod"></p>
 <figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl get ns</span><br></pre></td></tr></table></figure>
 <p>해당 명령어를 통해 네임스페이스 조회 해보면 정상적으로 ‘spring-boot-prod’ 이라는 네임 스페이스가 생성 되었고</p>
