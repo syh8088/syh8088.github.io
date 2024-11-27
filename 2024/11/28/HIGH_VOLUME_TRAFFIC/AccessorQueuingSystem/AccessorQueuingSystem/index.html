@@ -25,7 +25,7 @@
 <meta property="og:image" content="https://syh8088.github.io/img/HIGH_VOLUME_TRAFFIC/AccessorQueuingSystem/SequenceDiagramAccessorQueuingWaiting.png">
 <meta property="og:image" content="https://syh8088.github.io/img/HIGH_VOLUME_TRAFFIC/AccessorQueuingSystem/AccessorQueuingWaitingQueue_test.png">
 <meta property="article:published_time" content="2024-11-27T22:47:42.000Z">
-<meta property="article:modified_time" content="2024-11-27T05:33:27.665Z">
+<meta property="article:modified_time" content="2024-11-27T05:36:30.572Z">
 <meta property="article:author" content="Seo Yang Hun">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https://syh8088.github.io/img/HIGH_VOLUME_TRAFFIC/AccessorQueuingSystem/higtTraffic.png">
@@ -1365,7 +1365,7 @@
     </div>
     <div class="article-meta">
         
-            Created At : <time class="date" title='Updated At: 2024-11-27 14:33:27'>2024-11-28 07:47</time>
+            Created At : <time class="date" title='Updated At: 2024-11-27 14:36:30'>2024-11-28 07:47</time>
         
     </div>
     <div class="article-meta">
@@ -1480,7 +1480,7 @@
 <li><strong>(6) AccessorQueuing Server → Redis Server</strong>: Main 페이지에 접근이 가능하도록 대기열에 POP 해서 접근 하도록 합니다. 이때 Redis Server 에 사용되는 명령어는 “ZPOPMIN 100 ZPOPMIN {waitKey} 100” 입니다. 정해진 시간 간격으로 반복 하면서 실행 됩니다. </li>
 <li><strong>(7) AccessorQueuing Server → Redis Server</strong>: 대기열에 POP 통해 빠져나온 task 는 “ZADD {ProceedKey} UnixTime idempotencyKey” 이용해 “ProceedKey” 로 구성된 대기열에 저장 하도록 합니다.</li>
 <li><strong>(8) AccessorQueuing Server(Front) → AccessorQueuing Server</strong>: 프론트 서버는 정해진 일정 시간이 지나면 스케쥴링 기능 통해 ‘&#x2F;api&#x2F;accessor-queuing&#x2F;rank’ API 호출 통해 순번 데이터가 존재하지 않을시 즉 waitingQueue 에 데이터가 존재하지 않으면 ‘&#x2F;api&#x2F;accessor-queuing&#x2F;touch’ API 호출 해서 대기열 이탈 방지 하기 위한 토큰 생성 합니다. </li>
-<li><strong>(8) AccessorQueuing Server → Main Server</strong>: Main 페이지에 접근 하도록 합니다.</li>
+<li><strong>(9) AccessorQueuing Server → Main Server</strong>: Main 페이지에 접근 하도록 합니다.</li>
 </ul>
 <h2 id="접속자-대기열-시스템-이용해-부하-TEST-해보자"><a href="#접속자-대기열-시스템-이용해-부하-TEST-해보자" class="headerlink" title="접속자 대기열 시스템 이용해 부하 TEST 해보자"></a>접속자 대기열 시스템 이용해 부하 TEST 해보자</h2><p><img src="/../../../img/HIGH_VOLUME_TRAFFIC/AccessorQueuingSystem/AccessorQueuingWaitingQueue_test.png" alt="접속자 대기열 시스템 부하 테스트"></p>
 <ul>
