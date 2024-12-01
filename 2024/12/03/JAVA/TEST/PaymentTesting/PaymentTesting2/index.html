@@ -2,9 +2,9 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>Request Rate Limiter 구현하기 | Seo Yang Hun Blog</title>
+  <title>결제 Testing - 2 | Seo Yang Hun Blog</title>
   <meta name="keywords" content="">
-  <meta name="description" content="Request Rate Limiter 구현하기 | Seo Yang Hun Blog">
+  <meta name="description" content="결제 Testing - 2 | Seo Yang Hun Blog">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="Mockito 도입 TEST 과정에서 고려해야 되는 부분이 발생되었습니다. 이렇게 매번 TEST 할때마다 Toss Server 로 결제 승인 API 를 호출 해서 TEST 해야 할까요?TEST 할때마다 Toss 로 API 호출 한다는 것은 시간적 부분 비용적인 부분을 고려를 안 할수가 없습니다. 하필 TEST 시 Toss 서버가 불안정한다면? TEST 할때">
 <meta property="og:type" content="article">
@@ -1424,9 +1424,9 @@
 </aside>
 <div id="post">
     <div class="pjax">
-        <article id="post-NoSQL/Redis/RateLimiter" class="article article-type-post" itemscope itemprop="blogPost">
+        <article id="post-JAVA/TEST/PaymentTesting/PaymentTesting2" class="article article-type-post" itemscope itemprop="blogPost">
     
-        <h1 class="article-title">Request Rate Limiter 구현하기</h1>
+        <h1 class="article-title">결제 Testing - 2</h1>
     
     <div class="article-meta">
         
@@ -1436,11 +1436,15 @@
             <i class="iconfont icon-category"></i>
             
             
-            <a  data-rel="NoSQL">NoSQL</a> > 
+            <a  data-rel="JAVA">JAVA</a> > 
             
-            <a  data-rel="NoSQL&lt;---&gt;Redis">Redis</a> > 
+            <a  data-rel="JAVA&lt;---&gt;Spring">Spring</a> > 
             
-            <a  data-rel="NoSQL&lt;---&gt;Redis&lt;---&gt;RateLimiter">RateLimiter</a>
+            <a  data-rel="JAVA&lt;---&gt;Spring&lt;---&gt;Payment">Payment</a> > 
+            
+            <a  data-rel="JAVA&lt;---&gt;Spring&lt;---&gt;Payment&lt;---&gt;junit5">junit5</a> > 
+            
+            <a  data-rel="JAVA&lt;---&gt;Spring&lt;---&gt;Payment&lt;---&gt;junit5&lt;---&gt;Mockito">Mockito</a>
             
         </span>
         
@@ -1448,7 +1452,7 @@
     </div>
     <div class="article-meta">
         
-            Created At : <time class="date" title='Updated At: 2024-11-19 23:06:52'>2024-11-19 07:47</time>
+            Created At : <time class="date" title='Updated At: 2024-12-01 17:35:22'>2024-12-03 15:50</time>
         
     </div>
     <div class="article-meta">
@@ -1470,7 +1474,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Request-Rate-Limiter"><span class="toc-text">Request Rate Limiter</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Fixed-Window-Rate-Limiter"><span class="toc-text">Fixed Window Rate Limiter</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Sliding-Window-Rate-Limiter"><span class="toc-text">Sliding Window Rate Limiter</span></a></li></ol></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Mockito-%EB%8F%84%EC%9E%85"><span class="toc-text">Mockito 도입</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Test-Double"><span class="toc-text">Test Double</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Presentation-Layer-%ED%85%8C%EC%8A%A4%ED%8A%B8"><span class="toc-text">Presentation Layer 테스트</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#CQRS"><span class="toc-text">CQRS</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#TEST-%ED%99%98%EA%B2%BD-%ED%86%B5%ED%95%A9-%ED%95%98%EA%B8%B0"><span class="toc-text">TEST 환경 통합 하기</span></a></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -1486,43 +1490,82 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h1 id="Request-Rate-Limiter"><a href="#Request-Rate-Limiter" class="headerlink" title="Request Rate Limiter"></a>Request Rate Limiter</h1><p>안녕하세요. 이번에는 Api Request Rate Limiter 대해 알아보고자 합니다.</p>
-<p>일단 Rate Limiter 가 왜 필요한지 먼저 생각 해보자면 무분별한 DDoS 공격 방지에 효과적 이기 때문입니다. 특정 시간 내에 요청 수를 제한 하므로써</p>
-<p>보다 안전한 서버를 유지 및 관리 할 수 있기 때문입니다.</p>
-<p>Rate Limiter 알고리즘 으로써 대표적으로 ‘Token Bucket’, ‘Leaky Bucket’, ‘Fixed Window Rate Limiter’, ‘Sliding Window Rate Limiter’ 등이 있습니다.</p>
-<p>여기서는 ‘Fixed Window Rate Limiter’, ‘Sliding Window Rate Limiter’ 중점으로 알아보고자 합니다.</p>
-<h2 id="Fixed-Window-Rate-Limiter"><a href="#Fixed-Window-Rate-Limiter" class="headerlink" title="Fixed Window Rate Limiter"></a>Fixed Window Rate Limiter</h2><p>‘Rate Limiter’ 사전적 의미로는 ‘비율 계산기’ 로 시스템의 안정성 또는 보안의 목적으로 요청의 수를 제한 하는 기술 입니다.</p>
-<p>‘Fixed Window Rate Limiter’ 경우는 고정된 시간 안에 요청 수를 제한 하는 방법 입니다.</p>
-<p>예를들어 1분 안에 요청 수를 10번 만 제한 해서 10번 이상 요청이 들어오면 ‘429 Too Many Requests’ 응답을 내리도록 합니다.</p>
-<p><img src="/../../../img/NoSQL/Redis/RateLimiter/FixedWindowRateLimiter.png" alt="Fixed Window Rate Limiter 설명"></p>
-<p>0.0.0.0 IP 가지고 있는 사람이 9시 30분에 요청을 했다고 하면 IP 0.0.0.0 가지고 있는 사용자는 30분에 2번만 방문을 했으니</p>
-<p>‘GET 0.0.0.0:30’ Redis 서버로 명령어를 입력하면 ‘2’ 로 반환하게 됩니다.</p>
-<p>아직 분 단위로 10번 이상 방문하지 않았으므로 호출을 통과 합니다.</p>
-<p>이후에는 Redis 서버에 해당 IP 가 호출 횟수를 저장 해야 합니다. 저장 하기전 Redis 원자성을 보장 하기 위해 ‘MULT’ 명령어 통해 트렌젝션을 열리도록 합니다.</p>
-<p>Redis 의 데이터 타입 중 가장 기본적인 String 데이터 타입을 이용해서</p>
-<p>‘INCR 0.0.0.0:30’ 명령어를 통해 1씩 증가 하도록 합니다. 숫자형 String 값으로 INCR 명령어를 이용하면 1씩 증가 됩니다. </p>
-<p>동시에 ‘EXPIRE 1.1.1.1:30 3600’ 명령어를 통해 ‘1.1.1.1:30’ 이라는 키값을 유효기간을 설정 합니다. (초단위) </p>
-<p>입력하고자 하는 명령어 입력이 완료되면 트렌젝션을 완료 시키기 위해 입력했던 명령어를 실행하기 위한 ‘EXEC’ 명령어를 입력 합니다.</p>
-<p><img src="/../../../img/NoSQL/Redis/RateLimiter/FixedWindowRateLimiterError.png" alt="Fixed Window Rate Limiter 설명"></p>
-<p>그런데 만약 분단위로 10번 이상 호출 하게 된다면 ‘429 Too Many Requests’ 응답을 내리도록 서버에서 핸드링 하도록 합니다.</p>
-<p>‘Fixed Window Rate Limiter’ 경우에는 구현하기에 있어서 쉽다는 장점이 있습니다. 하지만 단점이 있는데요. 말그대로 Fixed 고정된 분단위로 </p>
-<p>방문 수를 측정 하다보니 예를들어서 10분 59초에 갑자기 9번 호출 하고 11분 01초에 9번 호출 하게 된다면 10분 59초 ~ 11분 01초 사이에는 18번 호출</p>
-<p>하게 되면서 두배의 부하를 받을 수 있다는 단점이 있습니다. 왜냐하면 11분이 되면 다시 조회수 카운팅 초기화가 되기 때문 입니다.</p>
-<h2 id="Sliding-Window-Rate-Limiter"><a href="#Sliding-Window-Rate-Limiter" class="headerlink" title="Sliding Window Rate Limiter"></a>Sliding Window Rate Limiter</h2><p>앞써 보았던 ‘Fixed Window Rate Limiter’ 다르게 ‘Sliding Window Rate Limiter’ 는 시간에 따라 윈도우의 간격을 이동시켜서 동적으로 요청 수를 조절 합니다.</p>
-<p>‘Fixed Window Rate Limiter’ 단점인 window 경계 시간대에 요청이 몰리면 두배의 부하가 되는 문제를 해결 할 수 있습니다.</p>
-<p>즉 세밀한 방식으로 요청수 제한을 할 수 있습니다.</p>
-<p><img src="/../../../img/NoSQL/Redis/RateLimiter/FixedWindowRateLimiterGraph.png" alt="Fixed Window Rate Limiter 설명"></p>
-<p><img src="/../../../img/NoSQL/Redis/RateLimiter/SlidingWindowRateLimiterGraph.png" alt="Sliding Window Rate Limiter 설명"></p>
-<p>예를들어 ‘Fixed Window Rate Limiter’ 경우 31분이 되면 요청 허용수가 다시 초기화가 되지만 ‘Sliding Window Rate Limiter’ 경우에는 </p>
-<p>현재 시간으로부터 60초 전까지의 데이터를 확인하기 때문에 계속해서 지난 1분간의 요청 횟수를 카운팅 할 수 있습니다.</p>
-<p>‘Sliding Window Rate Limiter’ 경우에는 Redis 데이터 타입 중 ‘Sorted Set’ 이용해서 구현이 가능 합니다.</p>
-<p>Sorted Set 의 명령어 중에 score 대신 초단위로 변경한 Unix time 으로 변환해 구현 합니다.</p>
-<p><img src="/../../../img/NoSQL/Redis/RateLimiter/SlidingWindowRateLimiter.png" alt="Sliding Window Rate Limiter 설명"></p>
-<p>09시 30분에 IP 0.0.0.0 인 사용자가 요청이 들어오면 요청 시간을 Unix Time (1732008600) 으로 변환 합니다. </p>
-<p>09시 29분 ~ 09시 30분 사이에 요청수를 계산하기 위해서는 우선 요청 시간에 들어왔던 시간 09시 30분에서 1분을 뺀 09시 29분의 Unix Time (1732008540) </p>
-<p>을 변환 합니다. 그런 후 Redis 명령어 중 ‘ZREMRANGEBYSCORE 0.0.0.0 0 1732008540’ 이용해서 0 부터 09시 29분 까지 ‘0.0.0.0’ 이라는 key 값으로 초기화 합니다.</p>
-<p>그런 후 ZCARD 명령어를 이용해서 ‘ZCARD 0.0.0.0’ 통해 09시 29분 ~ 09시 30분 사이의 요청 수를 가져올 수 있게 됩니다.</p>
-<p>반환된 값이 10 횟수 이상이 아니면 ‘ZCARD 0.0.0.0 1732008600 1732008600’ 입력 해서 score (접속한 unix time 시간) 및 member (접속한 unix time 시간) 를 저장 합니다.</p>
+        <h2 id="Mockito-도입"><a href="#Mockito-도입" class="headerlink" title="Mockito 도입"></a>Mockito 도입</h2><p><img src="/../../../../img/JAVA/TEST/PaymentTesting/serverTotossPayment.png" alt="토스 결제 승인 프로세스"></p>
+<p>TEST 과정에서 고려해야 되는 부분이 발생되었습니다. 이렇게 매번 TEST 할때마다 Toss Server 로 결제 승인 API 를 호출 해서 TEST 해야 할까요?<br>TEST 할때마다 Toss 로 API 호출 한다는 것은 시간적 부분 비용적인 부분을 고려를 안 할수가 없습니다. 하필 TEST 시 Toss 서버가 불안정한다면? TEST 할때마다<br>Toss 에 절대적인 의존성이 커지게 됩니다.</p>
+<p>Toss 서버로 상호작용 하는 로직 부분만 Mocking 처리 하므로써 이러한 의존에 대한 문제를 해결 하고자 합니다. </p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">private void createStubbingTossPostPayment(String paymentKey, String orderId, String amount) &#123;</span><br><span class="line"></span><br><span class="line"><span class="code">    String responsePostPaymentsBody = &quot;&#123;\&quot;mId\&quot;:\&quot;tvivarepublica\&quot;,\&quot;lastTransactionKey\&quot;:\&quot;F69384D0887558A85A78199D534FBBD5\&quot;,\&quot;paymentKey\&quot;:\&quot;&quot; + paymentKey + &quot;\&quot;,\&quot;orderId\&quot;:\&quot;&quot; + orderId + &quot;\&quot;,\&quot;orderName\&quot;:\&quot;상품A 그외\&quot;,\&quot;taxExemptionAmount\&quot;:0,\&quot;status\&quot;:\&quot;DONE\&quot;,\&quot;requestedAt\&quot;:\&quot;2024-11-30T16:53:34+09:00\&quot;,\&quot;approvedAt\&quot;:\&quot;2024-11-30T16:53:57+09:00\&quot;,\&quot;useEscrow\&quot;:false,\&quot;cultureExpense\&quot;:false,\&quot;card\&quot;:&#123;\&quot;issuerCode\&quot;:\&quot;11\&quot;,\&quot;acquirerCode\&quot;:\&quot;11\&quot;,\&quot;number\&quot;:\&quot;52361232****606*\&quot;,\&quot;installmentPlanMonths\&quot;:0,\&quot;isInterestFree\&quot;:false,\&quot;interestPayer\&quot;:null,\&quot;approveNo\&quot;:\&quot;00000000\&quot;,\&quot;useCardPoint\&quot;:false,\&quot;cardType\&quot;:\&quot;신용\&quot;,\&quot;ownerType\&quot;:\&quot;개인\&quot;,\&quot;acquireStatus\&quot;:\&quot;READY\&quot;,\&quot;amount\&quot;:&quot; + amount + &quot;&#125;,\&quot;virtualAccount\&quot;:null,\&quot;transfer\&quot;:null,\&quot;mobilePhone\&quot;:null,\&quot;giftCertificate\&quot;:null,\&quot;cashReceipt\&quot;:null,\&quot;cashReceipts\&quot;:null,\&quot;discount\&quot;:null,\&quot;cancels\&quot;:null,\&quot;secret\&quot;:\&quot;ps_GePWvyJnrKvelyyyB2pLVgLzN97E\&quot;,\&quot;type\&quot;:\&quot;NORMAL\&quot;,\&quot;easyPay\&quot;:null,\&quot;country\&quot;:\&quot;KR\&quot;,\&quot;failure\&quot;:null,\&quot;isPartialCancelable\&quot;:true,\&quot;receipt\&quot;:&#123;\&quot;url\&quot;:\&quot;https://dashboard.tosspayments.com/receipt/redirection?transactionId=tviva20241130165334qVdY4&amp;ref=PX\&quot;&#125;,\&quot;checkout\&quot;:&#123;\&quot;url\&quot;:\&quot;https://api.tosspayments.com/v1/payments/tviva20241130165334qVdY4/checkout\&quot;&#125;,\&quot;currency\&quot;:\&quot;KRW\&quot;,\&quot;totalAmount\&quot;:&quot; + amount + &quot;,\&quot;balanceAmount\&quot;:6000,\&quot;suppliedAmount\&quot;:5455,\&quot;vat\&quot;:545,\&quot;taxFreeAmount\&quot;:0,\&quot;method\&quot;:\&quot;카드\&quot;,\&quot;version\&quot;:\&quot;2022-11-16\&quot;,\&quot;metadata\&quot;:null&#125;&quot;;</span></span><br><span class="line"><span class="code">    when(tossPaymentClient.paymentConfirm(</span></span><br><span class="line"><span class="code">            any(String.class), any(PaymentConfirmInPut.class)</span></span><br><span class="line"><span class="code">    )).thenReturn(ResponseEntity.ok(responsePostPaymentsBody));</span></span><br><span class="line"><span class="code">&#125;</span></span><br></pre></td></tr></table></figure>
+<p>‘tossPaymentClient’ 객체를 Mocking 처리를 하고 thenReturn 을 통해 내가 원하는 응답을 지정 할 수 있습니다.</p>
+<h2 id="Test-Double"><a href="#Test-Double" class="headerlink" title="Test Double"></a>Test Double</h2><p><img src="/../../../../img/JAVA/TEST/PaymentTesting/TestDouble.png" alt="출처: https://testsigma.com/blog/test-doubles"></p>
+<p>Test Double</p>
+<ul>
+<li><p>Dummy<br>아무 것도 하지 않는 깡통 객체 </p>
+</li>
+<li><p>Fake<br>단순한 형태로 동일한 기능은 수행하나, 프로덕션에서 쓰기에는 부족한 객체 (ex. FakeRepository)</p>
+</li>
+<li><p>Stub<br>테스트에서 요청한 것에 대해 미리 준비한 결과를 제공하는 객체 그 외에는 응답하지 않는다.</p>
+</li>
+<li><p>Spy<br>Stub이면서 호출된 내용을 기록하여 보여줄 수 있는 객체, 일부는 실제 객체처럼 동작시키고 일부만 Stubbing할 수 있다.</p>
+</li>
+<li><p>Mock<br>행위에 대한 기대를 명세하고, 그에 따라 동작하도록 만들어진 객체</p>
+</li>
+</ul>
+<h2 id="Presentation-Layer-테스트"><a href="#Presentation-Layer-테스트" class="headerlink" title="Presentation Layer 테스트"></a>Presentation Layer 테스트</h2><p><img src="/../../../../img/JAVA/TEST/PaymentTesting/PresentationLayerTest.png" alt="Presentation Layer 계층"></p>
+<p>Presentation Layer 테스트 경우는 다른 Later 테스트와 다르게 가장 먼저 진입되는 테스트 계층 이라고 보면 됩니다. 즉 비지니스 로직을 진입 하기 전<br>프론트로 부터 요청 받은 요청값들이 정상적으로 검증 하고 있는가 TEST 입니다. </p>
+<p>Presentation Layer 계층 부분 즉 Controller 영역만 TEST 검증을 하게 되고 그외 Business Layer, Persistence Layer 계층들은 모두 Mocking<br>처리를 해서 진행 할 계획 입니다.</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line">@WebMvcTest(controllers = &#123;</span><br><span class="line"><span class="code">        PaymentConfirmController.class</span></span><br><span class="line"><span class="code">&#125;)</span></span><br><span class="line"><span class="code">class PaymentConfirmControllerTest &#123;</span></span><br><span class="line"><span class="code"></span></span><br><span class="line"><span class="code">    @Autowired</span></span><br><span class="line"><span class="code">    protected MockMvc mockMvc;</span></span><br><span class="line"><span class="code"></span></span><br><span class="line"><span class="code">    @Autowired</span></span><br><span class="line"><span class="code">    protected ObjectMapper objectMapper;</span></span><br><span class="line"><span class="code"></span></span><br><span class="line"><span class="code">    @MockBean</span></span><br><span class="line"><span class="code">    private PaymentConfirmApiService paymentConfirmApiService;</span></span><br><span class="line"><span class="code"></span></span><br><span class="line"><span class="code">    @Test</span></span><br><span class="line"><span class="code">    @DisplayName(&quot;결제 승인 confirm 처리를 하도록 합니다.&quot;)</span></span><br><span class="line"><span class="code">    void paymentConfirm() throws Exception &#123;</span></span><br><span class="line"><span class="code"></span></span><br><span class="line"><span class="code">        // given</span></span><br><span class="line"><span class="code">        PaymentConfirmRequest request</span></span><br><span class="line"><span class="code">                = PaymentConfirmRequest.of(&quot;paymentKey&quot;, &quot;orderId&quot;, &quot;6000&quot;);</span></span><br><span class="line"><span class="code"></span></span><br><span class="line"><span class="code">        // when // then</span></span><br><span class="line"><span class="code">        mockMvc.perform(</span></span><br><span class="line"><span class="code">                        post(&quot;/api/payments/confirm&quot;)</span></span><br><span class="line"><span class="code">                                .content(objectMapper.writeValueAsString(request))</span></span><br><span class="line"><span class="code">                                .contentType(MediaType.APPLICATION_JSON)</span></span><br><span class="line"><span class="code">                )</span></span><br><span class="line"><span class="code">                .andDo(print())</span></span><br><span class="line"><span class="code">                .andExpect(status().is2xxSuccessful())</span></span><br><span class="line"><span class="code">                .andExpect(jsonPath(&quot;$.code&quot;).value(&quot;204&quot;))</span></span><br><span class="line"><span class="code">                .andExpect(jsonPath(&quot;$.status&quot;).value(&quot;NO_CONTENT&quot;))</span></span><br><span class="line"><span class="code">                .andExpect(jsonPath(&quot;$.message&quot;).value(&quot;NO_CONTENT&quot;))</span></span><br><span class="line"><span class="code">                .andExpect(jsonPath(&quot;$.data&quot;).isEmpty());</span></span><br><span class="line"><span class="code">        ;</span></span><br><span class="line"><span class="code">    &#125;</span></span><br><span class="line"><span class="code">&#125;</span></span><br></pre></td></tr></table></figure>
+<p>여기서 주목 해야 하는것은 앞써 이야기 한대로  Controller 영역만 TEST 검증을 하게 되고 그외 Business Layer, Persistence Layer 계층들은 모두 Mocking<br>처리 한다는 점 입니다. </p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">@MockBean</span><br><span class="line">private PaymentConfirmApiService paymentConfirmApiService;</span><br></pre></td></tr></table></figure>
+
+<p>Controller 단에 있는 ‘PaymentConfirmController’ 부터 가장 먼저 진입 되는 ‘PaymentConfirmApiService’ 객체를 가짜 객체 통해 Mocking 하는 모습을 볼 수 있습니다.</p>
+<h2 id="CQRS"><a href="#CQRS" class="headerlink" title="CQRS"></a>CQRS</h2><p>CQRS 경우 기존 CURD 로직들을 읽기 (query) 와 쓰기 (command) 영역을 별도로 분리해서 관리하는 것 입니다. 보통의 서비스에서는 대부분 읽기 처리 부분이<br>대부분 이라고 보시면 됩니다.</p>
+<p>읽기 (query) 와 쓰기 (command) 영역 분리하면서 책임을 분리해 서로 연관 관계를 없애서 나중에 크게 생각해 볼때 읽기 부분에 대한 부하가 많이 발생시<br>별로로 분리한 query 영역을 집중 관리를 하면 됩니다.</p>
+<p>또 하나의 장점은 Spring 에서는 @Transaction 옵션에서 readOnly 를 통해 true, false 를 지정 할 수 있습니다. </p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">@Transaction(readOnly = true)</span><br></pre></td></tr></table></figure>
+<p>읽기 (query) 영역에서는 해당 트랜잭션 readOnly true 로 관리 하므로 데이터베이스의 slave 영역으로만 접근 할 수 있도록 관리 할 수 있습니다.</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">@Transaction</span><br></pre></td></tr></table></figure>
+<p>반대로 쓰기 (command) 영역에서는 트랜잭션 readOnly false 로 관리 해서 데이버베이스 master 영역으로 접근 하도록 관리 할 수 있습니다.</p>
+<p>추가적으로 장점이 있는데요. 트랜잭션 readOnly true 로 설정시 CUD 작업이 동작하지 않고, 스냅샷 저장, 변경 감지 (dirty check)의 작업을 수행하지 않아 성능이 향상됩니다.</p>
+<h2 id="TEST-환경-통합-하기"><a href="#TEST-환경-통합-하기" class="headerlink" title="TEST 환경 통합 하기"></a>TEST 환경 통합 하기</h2><p>TEST 환경 통합 설명하기 앞써서 지금까지 우리가 작성한 TEST 코드를 모두 한꺼번에 실행 한번 해볼려고 합니다.</p>
+<p><img src="/../../../../img/JAVA/TEST/PaymentTesting/testAll.png" alt="TEST ALL 진행 결과"></p>
+<p>이미지를 보시면 우리가 작성한 단일 테스트, 통합 테스트가 모두 정상적으로 통과 되는 것을 확인 할 수 있습니다.</p>
+<p><img src="/../../../../img/JAVA/TEST/PaymentTesting/testAllSearchSpringBoot.png" alt="TEST ALL 진행 결과 에서 &#39;:: Spring Boot ::&#39; 검색"></p>
+<p>결과 로그에서 ‘:: Spring Boot ::’ 로 검색 한번 해보면 5개가 검색 나온것을 확인 할 수 있는데요. 즉 5번 Spring Boot 서버가 띄우고 있다는 것 입니다.<br>이 부분은 비용적인 부분에서 많은 비용이 발생 된다는 뜻 입니다.</p>
+<p>왜 전체 TEST 하게 된다면 이렇게 여러번 Spring Boot 서버가 띄우게 되는 걸까요? </p>
+<p>일단 로그를 보면 스프링 부트가 띄울때 어떤 영역부터 띄우는지 확인 할 필요가 있습니다.</p>
+<ol>
+<li>Starting PaymentConfirmApiServiceTest ….</li>
+<li>Starting PaymentControllerTest ….</li>
+<li>Starting PaymentCheckOutApiServiceTest ….</li>
+<li>Starting PaymentConfirmControllerTest ….</li>
+<li>Starting PaymentTestingApplicationTests ….</li>
+</ol>
+<p>우리가 TEST 코드를 작성시 각각의 TEST 코드를 실행 할때마다 스프링 부트 서버가 다시 띄우고 있다는 점 입니다. 스프링 부트에서는 각각의 TEST 가 실행<br>하는 시점에서 조금이라도 환경이 다르게 된다면 다시 스프링 부트 서버를 띄우게 됩니다.</p>
+<p>동일한 환경 속에 스프링 부트 띄우는 횟수를 최소화 하기로 하겠습니다.</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">@ActiveProfiles(&quot;test&quot;)</span><br><span class="line">@SpringBootTest</span><br><span class="line">public abstract class IntegrationTestSupport &#123;</span><br><span class="line"></span><br><span class="line"><span class="code">    @MockBean</span></span><br><span class="line"><span class="code">    protected TossPaymentClient tossPaymentClient;</span></span><br><span class="line"><span class="code"></span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>우선 ‘IntegrationTestSupport’ 클래스를 생성 하겠습니다.</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">@ActiveProfiles(&quot;test&quot;)</span><br><span class="line">@SpringBootTest</span><br><span class="line">class PaymentConfirmApiServiceTest &#123;</span><br><span class="line"></span><br><span class="line"><span class="code">    @MockBean</span></span><br><span class="line"><span class="code">    private TossPaymentClient tossPaymentClient;</span></span><br><span class="line"><span class="code"></span></span><br><span class="line"><span class="code">    ... 생략 ...</span></span><br><span class="line"><span class="code">&#125;</span></span><br></pre></td></tr></table></figure>
+<ol>
+<li>PaymentConfirmApiServiceTest</li>
+<li>PaymentCheckOutApiServiceTest</li>
+<li>PaymentTestingApplicationTests</li>
+</ol>
+<p>TEST 클래스를 확인 해보시면 </p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">@ActiveProfiles(&quot;test&quot;)</span><br><span class="line">@SpringBootTest</span><br></pre></td></tr></table></figure>
+
+<p>해당 객체를 모두 이전에 생성한 ‘IntegrationTestSupport’ 로 옮기도록 합니다.</p>
+<p>그런 다음 ‘@MockBean’ 으로 등록한 객체들도 모두 ‘IntegrationTestSupport’ 로 옮기도록 합니다.</p>
+<p>TEST 작성한 객체는 ‘IntegrationTestSupport’ extend 하도록 합니다.</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">@WebMvcTest(controllers = &#123;</span><br><span class="line"><span class="code">        PaymentCheckoutController.class,</span></span><br><span class="line"><span class="code">        PaymentConfirmController.class,</span></span><br><span class="line"><span class="code">        PaymentController.class</span></span><br><span class="line"><span class="code">&#125;)</span></span><br><span class="line"><span class="code">public abstract class ControllerTestSupport &#123;</span></span><br><span class="line"><span class="code"></span></span><br><span class="line"><span class="code">    @Autowired</span></span><br><span class="line"><span class="code">    protected MockMvc mockMvc;</span></span><br><span class="line"><span class="code"></span></span><br><span class="line"><span class="code">    @Autowired</span></span><br><span class="line"><span class="code">    protected ObjectMapper objectMapper;</span></span><br><span class="line"><span class="code"></span></span><br><span class="line"><span class="code">    @MockBean</span></span><br><span class="line"><span class="code">    protected PaymentApiService paymentApiService;</span></span><br><span class="line"><span class="code"></span></span><br><span class="line"><span class="code">    @MockBean</span></span><br><span class="line"><span class="code">    protected PaymentConfirmApiService paymentConfirmApiService;</span></span><br><span class="line"><span class="code"></span></span><br><span class="line"><span class="code">    @MockBean</span></span><br><span class="line"><span class="code">    protected PaymentCheckOutApiService paymentCheckOutApiService;</span></span><br><span class="line"><span class="code">&#125;</span></span><br></pre></td></tr></table></figure>
+<p>이번에는 Controller 단 TEST 전용 통합 ‘ControllerTestSupport’ 객체를 만들도록 합니다.</p>
+<ol>
+<li>PaymentControllerTest</li>
+<li>PaymentConfirmControllerTest</li>
+</ol>
+<p>Controller 객체를 모두 동일하게 @WebMvcTest 에노테이션 코드를 ‘ControllerTestSupport’ 객체로 옮기도록 합니다.</p>
+<p>TEST 작성한 Controller 객체는 ‘ControllerTestSupport’ extend 하도록 합니다.</p>
+<p>이렇게 한 다음 다시 전체 TEST 를 하도록 하겠습니다.</p>
+<p><img src="/../../../../img/JAVA/TEST/PaymentTesting/improvementTestAllSearchSpringBoot.png" alt="개선된 TEST ALL 진행 결과 에서 &#39;:: Spring Boot ::&#39; 검색"></p>
+<p>이렇게 기존에 5번 스프링 부트가 반복적으로 띄워졌는데 이번에는 2번으로 줄였습니다.</p>
 
       
        <hr><span style="font-style: italic;color: gray;"> Copyright 201- syh8088. 무단 전재 및 재배포 금지. 출처 표기 시 인용 가능. </span>
