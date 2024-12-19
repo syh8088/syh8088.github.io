@@ -6,30 +6,25 @@
   <meta name="keywords" content="">
   <meta name="description" content="결제 시스템으로 알아보는 MSA 2 - 분산 트랜잭션 구현 | Seo Yang Hun Blog">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-<meta name="description" content="예제 소스 코드이번 블로그에 사용되는 코드는 아래 링크 통해 확인 할 수 있습니다. https:&#x2F;&#x2F;github.com&#x2F;syh8088&#x2F;MSA_project&#x2F;tree&#x2F;main&#x2F;paymentMsa 어떻게 분해를 해야 할까?분해를 어떤 기준으로 해야 할까요? 앞서 강조한 Business Capability 최대한 가지면서 어떤 방향으로 분해를 해야 할지 고민이 발">
+<meta name="description" content="예제 소스 코드이번 블로그에 사용되는 코드는 아래 링크 통해 확인 할 수 있습니다. https:&#x2F;&#x2F;github.com&#x2F;syh8088&#x2F;MSA_project&#x2F;tree&#x2F;main&#x2F;paymentMsa 모놀리스 아키텍처 (Monolithic Architecture) VS MSA (Micro Service Architecture)모놀리스 아키텍처 (Monolithic">
 <meta property="og:type" content="article">
-<meta property="og:title" content="결제 시스템으로 알아보는 MSA 2 - 분산 트랜잭션 구현">
-<meta property="og:url" content="https://syh8088.github.io/2024/12/15/MSA/MSA_Payment_Project_2/index.html">
+<meta property="og:title" content="결제 시스템으로 알아보는 MSA 1 - 기본 설명">
+<meta property="og:url" content="https://syh8088.github.io/2024/12/14/MSA/MSA_Payment_Project_1/index.html">
 <meta property="og:site_name" content="Seo Yang Hun Blog">
-<meta property="og:description" content="예제 소스 코드이번 블로그에 사용되는 코드는 아래 링크 통해 확인 할 수 있습니다. https:&#x2F;&#x2F;github.com&#x2F;syh8088&#x2F;MSA_project&#x2F;tree&#x2F;main&#x2F;paymentMsa 어떻게 분해를 해야 할까?분해를 어떤 기준으로 해야 할까요? 앞서 강조한 Business Capability 최대한 가지면서 어떤 방향으로 분해를 해야 할지 고민이 발">
+<meta property="og:description" content="예제 소스 코드이번 블로그에 사용되는 코드는 아래 링크 통해 확인 할 수 있습니다. https:&#x2F;&#x2F;github.com&#x2F;syh8088&#x2F;MSA_project&#x2F;tree&#x2F;main&#x2F;paymentMsa 모놀리스 아키텍처 (Monolithic Architecture) VS MSA (Micro Service Architecture)모놀리스 아키텍처 (Monolithic">
 <meta property="og:locale">
-<meta property="og:image" content="https://syh8088.github.io/img/MSA/SeparateByBusinessBehavior.png">
-<meta property="og:image" content="https://syh8088.github.io/img/MSA/Bounded_Context.png">
-<meta property="og:image" content="https://syh8088.github.io/img/MSA/SAGA_example.png">
-<meta property="og:image" content="https://syh8088.github.io/img/MSA/SAGA_rollback_example.png">
-<meta property="og:image" content="https://syh8088.github.io/img/MSA/SAGA_Orchestration_example.png">
-<meta property="og:image" content="https://syh8088.github.io/img/MSA/SAGA_Orchestration_rollback_example.png">
-<meta property="og:image" content="https://syh8088.github.io/img/MSA/paymentFlow.png">
-<meta property="og:image" content="https://syh8088.github.io/img/MSA/axon.png">
-<meta property="og:image" content="https://syh8088.github.io/img/MSA/Axon_SAGA_pattern.png">
-<meta property="og:image" content="https://syh8088.github.io/img/MSA/axon_Seller.png">
-<meta property="og:image" content="https://syh8088.github.io/img/MSA/Create_Seller_SagaWithAxon-1.png">
-<meta property="og:image" content="https://syh8088.github.io/img/MSA/Create_Seller_SagaWithAxon-2.png">
-<meta property="article:published_time" content="2024-12-14T22:47:42.000Z">
-<meta property="article:modified_time" content="2024-12-19T12:38:33.936Z">
+<meta property="og:image" content="https://syh8088.github.io/img/MSA/Distribution.png">
+<meta property="og:image" content="https://syh8088.github.io/img/MSA/Replication.png">
+<meta property="og:image" content="https://syh8088.github.io/img/MSA/Service-OrientedvsMonolithic.png">
+<meta property="og:image" content="https://syh8088.github.io/img/MSA/MSA_Architecture.png">
+<meta property="og:image" content="https://syh8088.github.io/img/MSA/MSA_problem_transaction.png">
+<meta property="og:image" content="https://syh8088.github.io/img/MSA/MSA_problem_data_query.png">
+<meta property="og:image" content="https://syh8088.github.io/img/MSA/MSA_problem_Monitoring.png">
+<meta property="article:published_time" content="2024-12-13T22:47:42.000Z">
+<meta property="article:modified_time" content="2024-12-19T12:38:33.931Z">
 <meta property="article:author" content="Seo Yang Hun">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://syh8088.github.io/img/MSA/SeparateByBusinessBehavior.png">
+<meta name="twitter:image" content="https://syh8088.github.io/img/MSA/Distribution.png">
 
 
 <link rel="icon" href="/img/avatar.jpg">
@@ -164,7 +159,7 @@
 
 <ul>
     <li>
-        <div class="all active" data-rel="모든 글">모든 글
+        <div class="all active" data-rel="All">All
             
                 <small>(62)</small>
             
@@ -1044,11 +1039,11 @@
         
             <a class="about  hasFriend  site_url"
                
-               href="/about">关于</a>
+               href="/about">About</a>
         
         <a style="width: 50%"
                 
-                                           class="friends">友链</a>
+                                           class="friends">Friends</a>
         
     </div>
 </div>
@@ -1063,7 +1058,7 @@
     <div class="nav-right">
         <div class="friends-area">
     <div class="friends-title">
-        友情链接
+        Links
         <i class="iconfont icon-left"></i>
     </div>
     <div class="friends-content">
@@ -1077,20 +1072,20 @@
         <div class="title-list">
     <div class="right-top">
         <div id="default-panel">
-            <i class="iconfont icon-search" data-title="搜索 快捷键 i"></i>
-            <div class="right-title">모든 글</div>
-            <i class="iconfont icon-file-tree" data-title="切换到大纲视图 快捷键 w"></i>
+            <i class="iconfont icon-search" data-title="search shortcut key i"></i>
+            <div class="right-title">All</div>
+            <i class="iconfont icon-file-tree" data-title="switch to outline view shortcut key w"></i>
         </div>
         <div id="search-panel">
-            <i class="iconfont icon-left" data-title="返回"></i>
+            <i class="iconfont icon-left" data-title="return"></i>
             <input id="local-search-input" autocomplete="off"/>
             <label class="border-line" for="input"></label>
-            <i class="iconfont icon-case-sensitive" data-title="大小写敏感"></i>
-            <i class="iconfont icon-tag" data-title="标签"></i>
+            <i class="iconfont icon-case-sensitive" data-title="case sensitive"></i>
+            <i class="iconfont icon-tag" data-title="label"></i>
         </div>
         <div id="outline-panel" style="display: none">
-            <div class="right-title">大纲</div>
-            <i class="iconfont icon-list" data-title="切换到文章列表"></i>
+            <div class="right-title">outline</div>
+            <i class="iconfont icon-list" data-title="switch to article list"></i>
         </div>
     </div>
 
@@ -1106,7 +1101,7 @@
     <nav id="title-list-nav">
         
         
-        <a  class="모든 글 MSA Payment Kafka EDA Saga Axon "
+        <a  class="All MSA Payment Kafka EDA Saga Axon "
            href="/2024/12/15/MSA/MSA_Payment_Project_2/"
            data-tag=""
            data-author="" >
@@ -1115,7 +1110,7 @@
         </a>
         
         
-        <a  class="모든 글 MSA Payment Kafka EDA "
+        <a  class="All MSA Payment Kafka EDA "
            href="/2024/12/14/MSA/MSA_Payment_Project_1/"
            data-tag=""
            data-author="" >
@@ -1124,7 +1119,7 @@
         </a>
         
         
-        <a  class="모든 글 대용량 트래픽 EDA Payment Redis Kafka "
+        <a  class="All 대용량 트래픽 EDA Payment Redis Kafka "
            href="/2024/12/13/HIGH_VOLUME_TRAFFIC/PaymentEDA/PaymentEDA/"
            data-tag=""
            data-author="" >
@@ -1133,7 +1128,7 @@
         </a>
         
         
-        <a  class="모든 글 DB Mysql optimizing "
+        <a  class="All DB Mysql optimizing "
            href="/2024/12/06/DB/Mysql/optimizing/IndexDiveOptimizaiton/IndexDiveOptimizaiton/"
            data-tag=""
            data-author="" >
@@ -1142,7 +1137,7 @@
         </a>
         
         
-        <a  class="모든 글 JAVA Spring Payment junit5 Mockito "
+        <a  class="All JAVA Spring Payment junit5 Mockito "
            href="/2024/12/03/JAVA/TEST/PaymentTesting/PaymentTesting2/"
            data-tag=""
            data-author="" >
@@ -1151,7 +1146,7 @@
         </a>
         
         
-        <a  class="모든 글 JAVA Spring Payment junit5 Mockito "
+        <a  class="All JAVA Spring Payment junit5 Mockito "
            href="/2024/12/02/JAVA/TEST/PaymentTesting/PaymentTesting1/"
            data-tag=""
            data-author="" >
@@ -1160,7 +1155,7 @@
         </a>
         
         
-        <a  class="모든 글 대용량 트래픽 Redis WebFlux 접근자 대기열 "
+        <a  class="All 대용량 트래픽 Redis WebFlux 접근자 대기열 "
            href="/2024/11/28/HIGH_VOLUME_TRAFFIC/AccessorQueuingSystem/AccessorQueuingSystem/"
            data-tag=""
            data-author="" >
@@ -1169,7 +1164,7 @@
         </a>
         
         
-        <a  class="모든 글 대용량 트래픽 Redis Kafka "
+        <a  class="All 대용량 트래픽 Redis Kafka "
            href="/2024/11/22/HIGH_VOLUME_TRAFFIC/CreateCoupon/CreateCoupon/"
            data-tag=""
            data-author="" >
@@ -1178,7 +1173,7 @@
         </a>
         
         
-        <a  class="모든 글 NoSQL Redis RateLimiter "
+        <a  class="All NoSQL Redis RateLimiter "
            href="/2024/11/19/NoSQL/Redis/RateLimiter/"
            data-tag=""
            data-author="" >
@@ -1187,7 +1182,7 @@
         </a>
         
         
-        <a  class="모든 글 CI-CD GitHubActions "
+        <a  class="All CI-CD GitHubActions "
            href="/2024/10/20/CI-CD/GitHunActions/GitHubActionsCICDWithSpringBoot6/"
            data-tag=""
            data-author="" >
@@ -1196,7 +1191,7 @@
         </a>
         
         
-        <a  class="모든 글 CI-CD GitHubActions "
+        <a  class="All CI-CD GitHubActions "
            href="/2024/10/19/CI-CD/GitHunActions/GitHubActionsCICDWithSpringBoot5/"
            data-tag=""
            data-author="" >
@@ -1205,7 +1200,7 @@
         </a>
         
         
-        <a  class="모든 글 CI-CD GitHubActions "
+        <a  class="All CI-CD GitHubActions "
            href="/2024/10/18/CI-CD/GitHunActions/GitHubActionsCICDWithSpringBoot4/"
            data-tag=""
            data-author="" >
@@ -1214,7 +1209,7 @@
         </a>
         
         
-        <a  class="모든 글 CI-CD GitHubActions "
+        <a  class="All CI-CD GitHubActions "
            href="/2024/10/17/CI-CD/GitHunActions/GitHubActionsCICDWithSpringBoot3/"
            data-tag=""
            data-author="" >
@@ -1223,7 +1218,7 @@
         </a>
         
         
-        <a  class="모든 글 CI-CD GitHubActions "
+        <a  class="All CI-CD GitHubActions "
            href="/2024/10/14/CI-CD/GitHunActions/GitHubActionsCICDWithSpringBoot1/"
            data-tag=""
            data-author="" >
@@ -1232,7 +1227,7 @@
         </a>
         
         
-        <a  class="모든 글 CI-CD GitHubActions "
+        <a  class="All CI-CD GitHubActions "
            href="/2024/10/14/CI-CD/GitHunActions/GitHubActionsCICDWithSpringBoot2/"
            data-tag=""
            data-author="" >
@@ -1241,7 +1236,7 @@
         </a>
         
         
-        <a  class="모든 글 DB Mysql Paging "
+        <a  class="All DB Mysql Paging "
            href="/2024/10/06/DB/Mysql/PagingQuery/"
            data-tag=""
            data-author="" >
@@ -1250,7 +1245,7 @@
         </a>
         
         
-        <a  class="모든 글 DB Mysql DBCP "
+        <a  class="All DB Mysql DBCP "
            href="/2024/10/02/DB/Mysql/mysqlDBCP/"
            data-tag=""
            data-author="" >
@@ -1259,7 +1254,7 @@
         </a>
         
         
-        <a  class="모든 글 JAVA Object "
+        <a  class="All JAVA Object "
            href="/2024/08/24/JAVA/Object/InheritanceComposition2/"
            data-tag=""
            data-author="" >
@@ -1268,7 +1263,7 @@
         </a>
         
         
-        <a  class="모든 글 JAVA Object "
+        <a  class="All JAVA Object "
            href="/2024/08/23/JAVA/Object/InheritanceComposition1/"
            data-tag=""
            data-author="" >
@@ -1277,7 +1272,7 @@
         </a>
         
         
-        <a  class="모든 글 JAVA Payment "
+        <a  class="All JAVA Payment "
            href="/2024/08/06/JAVA/Payment/PaymentTransactionalOutboxpattern/"
            data-tag=""
            data-author="" >
@@ -1286,7 +1281,7 @@
         </a>
         
         
-        <a  class="모든 글 JAVA Payment "
+        <a  class="All JAVA Payment "
            href="/2024/08/05/JAVA/Payment/PaymentRetry/"
            data-tag=""
            data-author="" >
@@ -1295,7 +1290,7 @@
         </a>
         
         
-        <a  class="모든 글 JAVA Payment "
+        <a  class="All JAVA Payment "
            href="/2024/07/28/JAVA/Payment/BuildingPaymentSystem/"
            data-tag=""
            data-author="" >
@@ -1304,7 +1299,7 @@
         </a>
         
         
-        <a  class="모든 글 JAVA Payment "
+        <a  class="All JAVA Payment "
            href="/2024/07/28/JAVA/Payment/PaymentConfirm/"
            data-tag=""
            data-author="" >
@@ -1313,7 +1308,7 @@
         </a>
         
         
-        <a  class="모든 글 JAVA Payment "
+        <a  class="All JAVA Payment "
            href="/2024/07/28/JAVA/Payment/PaymentCheckOut/"
            data-tag=""
            data-author="" >
@@ -1322,7 +1317,7 @@
         </a>
         
         
-        <a  class="모든 글 "
+        <a  class="All "
            href="/2024/05/31/zeyo/deploy/deploy/"
            data-tag=""
            data-author="" >
@@ -1331,7 +1326,7 @@
         </a>
         
         
-        <a  class="모든 글 "
+        <a  class="All "
            href="/2024/05/31/zeyo/Zeyo_%EB%AA%B0%EC%9D%B8%EB%AA%B0_%EA%B7%B8%EB%88%84%EB%B3%B4%EB%93%9C_%EB%A7%A4%EC%B9%AD%EC%9E%91%EC%97%85/"
            data-tag=""
            data-author="" >
@@ -1340,7 +1335,7 @@
         </a>
         
         
-        <a  class="모든 글 "
+        <a  class="All "
            href="/2024/05/31/zeyo/Zeyo_%EB%AA%B0%EC%9D%B8%EB%AA%B0_%EB%A7%A4%EC%B9%AD%EC%9E%91%EC%97%85/"
            data-tag=""
            data-author="" >
@@ -1349,7 +1344,7 @@
         </a>
         
         
-        <a  class="모든 글 "
+        <a  class="All "
            href="/2024/05/31/zeyo/ZEYO/"
            data-tag=""
            data-author="" >
@@ -1358,7 +1353,7 @@
         </a>
         
         
-        <a  class="모든 글 "
+        <a  class="All "
            href="/2024/05/31/hello-world/"
            data-tag=""
            data-author="" >
@@ -1367,7 +1362,7 @@
         </a>
         
         
-        <a  class="모든 글 "
+        <a  class="All "
            href="/2024/05/31/README/"
            data-tag=""
            data-author="" >
@@ -1376,7 +1371,7 @@
         </a>
         
         
-        <a  class="모든 글 JAVA Security "
+        <a  class="All JAVA Security "
            href="/2024/05/30/JAVA/Security/AnonymousAuthenticationFilter/"
            data-tag=""
            data-author="" >
@@ -1385,7 +1380,7 @@
         </a>
         
         
-        <a  class="모든 글 "
+        <a  class="All "
            href="/2024/02/01/HIGH_VOLUME_TRAFFIC/AccessorQueuingSystem2/AccessorQueuingSystem/"
            data-tag=""
            data-author="" >
@@ -1394,7 +1389,7 @@
         </a>
         
         
-        <a  class="모든 글 Authentication JWT "
+        <a  class="All Authentication JWT "
            href="/2021/11/27/AUTHTICATION/JWT/jwt/"
            data-tag=""
            data-author="" >
@@ -1403,7 +1398,7 @@
         </a>
         
         
-        <a  class="모든 글 Authentication Oauth "
+        <a  class="All Authentication Oauth "
            href="/2021/11/27/AUTHTICATION/OAUTH/oauth/"
            data-tag=""
            data-author="" >
@@ -1412,7 +1407,7 @@
         </a>
         
         
-        <a  class="모든 글 JAVA HTTP FeignClient "
+        <a  class="All JAVA HTTP FeignClient "
            href="/2021/11/08/JAVA/HTTP/FeignClient/FeignClient/"
            data-tag=""
            data-author="" >
@@ -1421,7 +1416,7 @@
         </a>
         
         
-        <a  class="모든 글 JAVA SpringBatch "
+        <a  class="All JAVA SpringBatch "
            href="/2021/11/04/JAVA/Batch/SpringBatch5/"
            data-tag=""
            data-author="" >
@@ -1430,7 +1425,7 @@
         </a>
         
         
-        <a  class="모든 글 JAVA SpringBatch "
+        <a  class="All JAVA SpringBatch "
            href="/2021/10/30/JAVA/Batch/SpringBatch4/"
            data-tag=""
            data-author="" >
@@ -1439,7 +1434,7 @@
         </a>
         
         
-        <a  class="모든 글 JAVA SpringBatch "
+        <a  class="All JAVA SpringBatch "
            href="/2021/10/24/JAVA/Batch/SpringBatch3/"
            data-tag=""
            data-author="" >
@@ -1448,7 +1443,7 @@
         </a>
         
         
-        <a  class="모든 글 JAVA SpringBatch "
+        <a  class="All JAVA SpringBatch "
            href="/2021/10/19/JAVA/Batch/SpringBatch2/"
            data-tag=""
            data-author="" >
@@ -1457,7 +1452,7 @@
         </a>
         
         
-        <a  class="모든 글 JAVA SpringBatch "
+        <a  class="All JAVA SpringBatch "
            href="/2021/10/17/JAVA/Batch/SpringBatch1/"
            data-tag=""
            data-author="" >
@@ -1466,7 +1461,7 @@
         </a>
         
         
-        <a  class="모든 글 JAVA SpringCloudConfig "
+        <a  class="All JAVA SpringCloudConfig "
            href="/2021/09/13/JAVA/SpringCloudConfig/spring-cloud-config4/"
            data-tag=""
            data-author="" >
@@ -1475,7 +1470,7 @@
         </a>
         
         
-        <a  class="모든 글 JAVA SpringCloudConfig "
+        <a  class="All JAVA SpringCloudConfig "
            href="/2021/09/13/JAVA/SpringCloudConfig/spring-cloud-config3/"
            data-tag=""
            data-author="" >
@@ -1484,7 +1479,7 @@
         </a>
         
         
-        <a  class="모든 글 JAVA SpringCloudConfig "
+        <a  class="All JAVA SpringCloudConfig "
            href="/2021/09/13/JAVA/SpringCloudConfig/spring-cloud-config2/"
            data-tag=""
            data-author="" >
@@ -1493,7 +1488,7 @@
         </a>
         
         
-        <a  class="모든 글 JAVA SpringCloudConfig "
+        <a  class="All JAVA SpringCloudConfig "
            href="/2021/09/13/JAVA/SpringCloudConfig/spring-cloud-config/"
            data-tag=""
            data-author="" >
@@ -1502,7 +1497,7 @@
         </a>
         
         
-        <a  class="모든 글 JAVA Transaction "
+        <a  class="All JAVA Transaction "
            href="/2021/03/14/JAVA/Transaction/multi-transaction/"
            data-tag=""
            data-author="" >
@@ -1511,7 +1506,7 @@
         </a>
         
         
-        <a  class="모든 글 JAVA Validator "
+        <a  class="All JAVA Validator "
            href="/2020/12/18/JAVA/VALIDATOR/validator/"
            data-tag=""
            data-author="" >
@@ -1520,7 +1515,7 @@
         </a>
         
         
-        <a  class="모든 글 JAVA Security "
+        <a  class="All JAVA Security "
            href="/2020/11/19/JAVA/Security/SessionManagementFilterAndConcurrentSessionFilter/"
            data-tag=""
            data-author="" >
@@ -1529,7 +1524,7 @@
         </a>
         
         
-        <a  class="모든 글 JAVA Security "
+        <a  class="All JAVA Security "
            href="/2020/11/14/JAVA/Security/RememberMeAuthenticationFilter/"
            data-tag=""
            data-author="" >
@@ -1538,7 +1533,7 @@
         </a>
         
         
-        <a  class="모든 글 JAVA Security "
+        <a  class="All JAVA Security "
            href="/2020/11/13/JAVA/Security/UsernamePasswordAuthenticationFilter/"
            data-tag=""
            data-author="" >
@@ -1547,7 +1542,7 @@
         </a>
         
         
-        <a  class="모든 글 CI-CD Jenkins "
+        <a  class="All CI-CD Jenkins "
            href="/2020/11/09/CI-CD/Jenkins/JenkinsGitLabConnect/"
            data-tag=""
            data-author="" >
@@ -1556,7 +1551,7 @@
         </a>
         
         
-        <a  class="모든 글 JAVA JPA "
+        <a  class="All JAVA JPA "
            href="/2020/11/08/JAVA/JPA/eagerJpqlNplus1/"
            data-tag=""
            data-author="" >
@@ -1565,7 +1560,7 @@
         </a>
         
         
-        <a  class="모든 글 JAVA SpringBootAndSecurityAndJWT "
+        <a  class="All JAVA SpringBootAndSecurityAndJWT "
            href="/2020/11/08/JAVA/SpringBootAndSecurityAndJWT/spring-boot-security-jwt-social2/"
            data-tag=""
            data-author="" >
@@ -1574,7 +1569,7 @@
         </a>
         
         
-        <a  class="모든 글 JAVA SpringBootAndSecurityAndJWT "
+        <a  class="All JAVA SpringBootAndSecurityAndJWT "
            href="/2020/11/08/JAVA/SpringBootAndSecurityAndJWT/spring-boot-security-jwt-social/"
            data-tag=""
            data-author="" >
@@ -1583,7 +1578,7 @@
         </a>
         
         
-        <a  class="모든 글 JAVA SpringBootAndSecurityAndJWT "
+        <a  class="All JAVA SpringBootAndSecurityAndJWT "
            href="/2020/11/08/JAVA/SpringBootAndSecurityAndJWT/spring-boot-security-jwt-social3/"
            data-tag=""
            data-author="" >
@@ -1592,7 +1587,7 @@
         </a>
         
         
-        <a  class="모든 글 CI-CD Jenkins "
+        <a  class="All CI-CD Jenkins "
            href="/2020/11/08/CI-CD/Jenkins/JenkinsGitLabSshConnect/"
            data-tag=""
            data-author="" >
@@ -1601,7 +1596,7 @@
         </a>
         
         
-        <a  class="모든 글 J Jenkins "
+        <a  class="All J Jenkins "
            href="/2020/11/07/JAVA/Security/JKSGenerate/"
            data-tag=""
            data-author="" >
@@ -1610,7 +1605,7 @@
         </a>
         
         
-        <a  class="모든 글 DB Mysql "
+        <a  class="All DB Mysql "
            href="/2020/11/07/DB/Mysql/mysqlReplicationSetting/"
            data-tag=""
            data-author="" >
@@ -1619,7 +1614,7 @@
         </a>
         
         
-        <a  class="모든 글 KUBERNETES "
+        <a  class="All KUBERNETES "
            href="/2020/11/07/KUBERNETES/%EC%89%BD%EA%B2%8C_%EC%8B%9C%EC%9E%91%ED%95%98%EB%8A%94_%EC%BF%A0%EB%B2%84%EB%84%A4%ED%8B%B0%EC%8A%A4/%EC%BF%A0%EB%B2%84%EB%84%A4%ED%8B%B0%EC%8A%A4_%ED%99%98%EA%B2%BD_%EA%B5%AC%EC%84%B1/"
            data-tag=""
            data-author="" >
@@ -1628,7 +1623,7 @@
         </a>
         
         
-        <a  class="모든 글 CI-CD Jenkins "
+        <a  class="All CI-CD Jenkins "
            href="/2020/11/07/CI-CD/Jenkins/JenkinsInstall/"
            data-tag=""
            data-author="" >
@@ -1637,7 +1632,7 @@
         </a>
         
         
-        <a  class="모든 글 R "
+        <a  class="All R "
            href="/2020/10/17/R/RServerInstall/"
            data-tag=""
            data-author="" >
@@ -1646,7 +1641,7 @@
         </a>
         
         
-        <a  class="모든 글 JavaScript Webpack "
+        <a  class="All JavaScript Webpack "
            href="/2020/10/17/JAVASCRIPT/Webpack/devtool/"
            data-tag=""
            data-author="" >
@@ -1655,7 +1650,7 @@
         </a>
         
         
-        <a  class="모든 글 "
+        <a  class="All "
            href="/2018/12/02/%EB%A9%B4%EC%A0%91%EC%A4%80%EB%B9%84/test/"
            data-tag=""
            data-author="" >
@@ -1673,7 +1668,7 @@
 
     </div>
     <div class="hide-list">
-        <div class="semicircle" data-title="切换全屏 快捷键 s">
+        <div class="semicircle" data-title="Toggle full screen shortcut key s">
             <div class="brackets first"><</div>
             <div class="brackets">&gt;</div>
         </div>
@@ -1711,14 +1706,14 @@
     </div>
     <div class="article-meta">
         
-            작성일 : <time class="date" title='수정일: 2024-12-19 21:38:33'>2024-12-15 07:47</time>
+            Created At : <time class="date" title='Updated At: 2024-12-20 07:16:35'>2024-12-15 07:47</time>
         
     </div>
     <div class="article-meta">
         
         
         <span id="busuanzi_container_page_pv">
-            조회수 :<span id="busuanzi_value_page_pv">
+            Views 👀 :<span id="busuanzi_value_page_pv">
                 <span class="count-comment">
                     <span class="spinner">
                       <div class="cube1"></div>
@@ -1733,7 +1728,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%EC%98%88%EC%A0%9C-%EC%86%8C%EC%8A%A4-%EC%BD%94%EB%93%9C"><span class="toc-text">예제 소스 코드</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%EC%96%B4%EB%96%BB%EA%B2%8C-%EB%B6%84%ED%95%B4%EB%A5%BC-%ED%95%B4%EC%95%BC-%ED%95%A0%EA%B9%8C"><span class="toc-text">어떻게 분해를 해야 할까?</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%EB%B9%84%EC%A6%88%EB%8B%88%EC%8A%A4-%EB%8F%99%EC%9E%91-%EA%B8%B0%EC%A4%80%EC%9C%BC%EB%A1%9C-%EB%B6%84%EB%A6%AC"><span class="toc-text">비즈니스 동작 기준으로 분리</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%ED%95%98%EC%9C%84-%EB%8F%84%EB%A9%94%EC%9D%B8-%ED%8C%A8%ED%84%B4-%EA%B8%B0%EC%A4%80%EC%9C%BC%EB%A1%9C-%EB%B6%84%EB%A6%AC-from-%EB%8F%84%EB%A9%94%EC%9D%B8-%EC%A3%BC%EB%8F%84-%EC%84%A4%EA%B3%84-DDD"><span class="toc-text">하위 도메인 패턴 기준으로 분리 (from 도메인 주도 설계 - DDD)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%EC%97%AC%EA%B8%B0%EC%84%9C-%EB%82%98%EC%98%A4%EB%8A%94-%EB%8F%84%EB%A9%94%EC%9D%B8-%EC%A3%BC%EB%8F%84-%EC%84%A4%EA%B3%84-DDD-Domain-Driven-Design-%EC%84%A4%EB%AA%85"><span class="toc-text">여기서 나오는 도메인 주도 설계 (DDD, Domain-Driven Design) 설명</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%EB%B6%84%ED%95%B4%EB%A1%9C-%EC%9D%B8%ED%95%B4-%EB%B0%9C%EC%83%9D%EB%90%98%EB%8A%94-%EB%AC%B8%EC%A0%9C-%ED%8A%B8%EB%9E%9C%EC%9E%AD%EC%85%98"><span class="toc-text">분해로 인해 발생되는 문제 - 트랜잭션</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2PC-2-Phase-Commit-%EB%9E%80"><span class="toc-text">2PC(2 Phase Commit) 란?</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%EB%B3%B4%EC%83%81-%ED%8A%B8%EB%9E%9C%EC%9E%AD%EC%85%98-Compensating-Transaction-%EB%9E%80"><span class="toc-text">보상 트랜잭션(Compensating Transaction) 란?</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#SAGA-%ED%8C%A8%ED%84%B4"><span class="toc-text">SAGA 패턴</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#SAGA-%ED%8C%A8%ED%84%B4-%EC%98%A4%EC%BC%80%EC%88%98%ED%8A%B8%EB%A0%88%EC%9D%B4%EC%85%98-Orchestration-%ED%8C%A8%ED%84%B4"><span class="toc-text">SAGA 패턴 - 오케수트레이션 (Orchestration) 패턴</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%EA%B2%B0%EC%A0%9C-%EC%8B%9C%EC%8A%A4%ED%85%9C%EC%97%90%EC%84%9C-%EB%B6%84%EC%82%B0-%ED%8A%B8%EB%9E%99%EC%9E%AD%EC%85%98%EC%9D%B4-%ED%95%84%EC%9A%94%ED%95%9C-%EA%B5%AC%EA%B0%84-%EC%95%8C%EC%95%84%EB%B3%B4%EA%B8%B0"><span class="toc-text">결제 시스템에서 분산 트랙잭션이 필요한 구간 알아보기</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Axon-%EC%9D%B4%EC%9A%A9%ED%95%B4%EC%84%9C-Saga-%ED%8C%A8%ED%84%B4%EC%9C%BC%EB%A1%9C-%EB%B6%84%EC%82%B0-%ED%8A%B8%EB%9E%9C%EC%9E%AD%EC%85%98-%EA%B5%AC%ED%98%84-%ED%95%B4%EB%B3%B4%EC%9E%90"><span class="toc-text">Axon 이용해서 Saga 패턴으로 분산 트랜잭션 구현 해보자</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Seller-%EB%93%B1%EB%A1%9D-%EC%84%A4%EA%B3%84-%EC%84%B1%EA%B3%B5"><span class="toc-text">Seller 등록 설계 - 성공</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Seller-%EB%93%B1%EB%A1%9D-%EC%84%A4%EA%B3%84-%EC%8B%A4%ED%8C%A8"><span class="toc-text">Seller 등록 설계 - 실패</span></a></li></ol></li></ol></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%EC%98%88%EC%A0%9C-%EC%86%8C%EC%8A%A4-%EC%BD%94%EB%93%9C"><span class="toc-text">예제 소스 코드</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%EC%96%B4%EB%96%BB%EA%B2%8C-%EB%B6%84%ED%95%B4%EB%A5%BC-%ED%95%B4%EC%95%BC-%ED%95%A0%EA%B9%8C"><span class="toc-text">어떻게 분해를 해야 할까?</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%EB%B9%84%EC%A6%88%EB%8B%88%EC%8A%A4-%EB%8F%99%EC%9E%91-%EA%B8%B0%EC%A4%80%EC%9C%BC%EB%A1%9C-%EB%B6%84%EB%A6%AC"><span class="toc-text">비즈니스 동작 기준으로 분리</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%ED%95%98%EC%9C%84-%EB%8F%84%EB%A9%94%EC%9D%B8-%ED%8C%A8%ED%84%B4-%EA%B8%B0%EC%A4%80%EC%9C%BC%EB%A1%9C-%EB%B6%84%EB%A6%AC-from-%EB%8F%84%EB%A9%94%EC%9D%B8-%EC%A3%BC%EB%8F%84-%EC%84%A4%EA%B3%84-DDD"><span class="toc-text">하위 도메인 패턴 기준으로 분리 (from 도메인 주도 설계 - DDD)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%EC%97%AC%EA%B8%B0%EC%84%9C-%EB%82%98%EC%98%A4%EB%8A%94-%EB%8F%84%EB%A9%94%EC%9D%B8-%EC%A3%BC%EB%8F%84-%EC%84%A4%EA%B3%84-DDD-Domain-Driven-Design-%EC%84%A4%EB%AA%85"><span class="toc-text">여기서 나오는 도메인 주도 설계 (DDD, Domain-Driven Design) 설명</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%EB%B6%84%ED%95%B4%EB%A1%9C-%EC%9D%B8%ED%95%B4-%EB%B0%9C%EC%83%9D%EB%90%98%EB%8A%94-%EB%AC%B8%EC%A0%9C-%ED%8A%B8%EB%9E%9C%EC%9E%AD%EC%85%98"><span class="toc-text">분해로 인해 발생되는 문제 - 트랜잭션</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2PC-2-Phase-Commit-%EB%9E%80"><span class="toc-text">2PC(2 Phase Commit) 란?</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%EB%B3%B4%EC%83%81-%ED%8A%B8%EB%9E%9C%EC%9E%AD%EC%85%98-Compensating-Transaction-%EB%9E%80"><span class="toc-text">보상 트랜잭션(Compensating Transaction) 란?</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#SAGA-%ED%8C%A8%ED%84%B4"><span class="toc-text">SAGA 패턴</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#SAGA-%ED%8C%A8%ED%84%B4-%EC%98%A4%EC%BC%80%EC%88%98%ED%8A%B8%EB%A0%88%EC%9D%B4%EC%85%98-Orchestration-%ED%8C%A8%ED%84%B4"><span class="toc-text">SAGA 패턴 - 오케수트레이션 (Orchestration) 패턴</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%EA%B2%B0%EC%A0%9C-%EC%8B%9C%EC%8A%A4%ED%85%9C%EC%97%90%EC%84%9C-%EB%B6%84%EC%82%B0-%ED%8A%B8%EB%9E%99%EC%9E%AD%EC%85%98%EC%9D%B4-%ED%95%84%EC%9A%94%ED%95%9C-%EA%B5%AC%EA%B0%84-%EC%95%8C%EC%95%84%EB%B3%B4%EA%B8%B0"><span class="toc-text">결제 시스템에서 분산 트랙잭션이 필요한 구간 알아보기</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Axon-%EC%9D%B4%EC%9A%A9%ED%95%B4%EC%84%9C-Saga-%ED%8C%A8%ED%84%B4%EC%9C%BC%EB%A1%9C-%EB%B6%84%EC%82%B0-%ED%8A%B8%EB%9E%9C%EC%9E%AD%EC%85%98-%EA%B5%AC%ED%98%84-%ED%95%B4%EB%B3%B4%EC%9E%90"><span class="toc-text">Axon 이용해서 Saga 패턴으로 분산 트랜잭션 구현 해보자</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Seller-%EB%93%B1%EB%A1%9D-%EC%84%A4%EA%B3%84-%EC%84%B1%EA%B3%B5"><span class="toc-text">Seller 등록 설계 - 성공</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Seller-%EB%93%B1%EB%A1%9D-%EC%84%A4%EA%B3%84-%EC%8B%A4%ED%8C%A8"><span class="toc-text">Seller 등록 설계 - 실패</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%EA%B5%AC%ED%98%84-%EC%BD%94%EB%93%9C"><span class="toc-text">구현 코드</span></a></li></ol></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -1849,6 +1844,32 @@
 <p>그다음 등록된 Seller 에 해당 되는 Wallet 등록 하기 위해 <code>Axon Server</code> 에 요청해서 Wallet 서비스는 디비에 Wallet 을 등록 하게 됩니다. </p>
 <h3 id="Seller-등록-설계-실패"><a href="#Seller-등록-설계-실패" class="headerlink" title="Seller 등록 설계 - 실패"></a>Seller 등록 설계 - 실패</h3><p><img src="/../../img/MSA/Create_Seller_SagaWithAxon-2.png" alt="AAxon 이용한 Seller 등록 실패"></p>
 <p>만약 Wallet DB 에 등록하는 과정에서 에러가 발생된다면 Seller Server 에 <code>보상 트랜잭션</code> 을 보장 하기 위해 <code>Axon Server</code> 에 요청해서 Seller 서비스는<br>Wallet 등록 실패로 인한 디비 업데이트를 진행 하게 됩니다.</p>
+<h2 id="구현-코드"><a href="#구현-코드" class="headerlink" title="구현 코드"></a>구현 코드</h2><figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">@Slf4j</span><br><span class="line">@UseCase</span><br><span class="line">@RequiredArgsConstructor</span><br><span class="line">public class SellerService implements InsertSellerUseCase &#123;</span><br><span class="line"></span><br><span class="line"><span class="code">    private final CommandGateway commandGateway;</span></span><br><span class="line"><span class="code"></span></span><br><span class="line"><span class="code">    @Override</span></span><br><span class="line"><span class="code">    public void insertSeller(RequestPersistenceInsertSellerCommand insertSellerCommand) &#123;</span></span><br><span class="line"><span class="code"></span></span><br><span class="line"><span class="code">        RequestInsertSellerCommand requestInsertSellerCommand = RequestInsertSellerCommand.of(insertSellerCommand.getSellerId());</span></span><br><span class="line"><span class="code">        commandGateway.send(requestInsertSellerCommand)</span></span><br><span class="line"><span class="code">        .whenComplete(</span></span><br><span class="line"><span class="code">                (result, throwable) -&gt; &#123;</span></span><br><span class="line"><span class="code">                    if (throwable != null) &#123;</span></span><br><span class="line"><span class="code">                        throwable.printStackTrace();</span></span><br><span class="line"><span class="code">                        log.error(&quot;InsertSellerCommand Command failed = &#123;&#125;&quot;, result.toString());</span></span><br><span class="line"><span class="code">                        throw new RuntimeException(throwable);</span></span><br><span class="line"><span class="code">                    &#125;</span></span><br><span class="line"><span class="code">                    else &#123;</span></span><br><span class="line"><span class="code">                        log.info(&quot;InsertSellerCommand SAGA success = &#123;&#125;&quot;, result.toString());</span></span><br><span class="line"><span class="code">                    &#125;</span></span><br><span class="line"><span class="code">                &#125;</span></span><br><span class="line"><span class="code">        );</span></span><br><span class="line"><span class="code">    &#125;</span></span><br><span class="line"><span class="code">&#125;</span></span><br></pre></td></tr></table></figure>
+<p>AxonServer 의 CommandBus 에 Command (RequestInsertSellerCommand: Seller 등록) 를 보냅니다.</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">@Aggregate</span><br><span class="line">@Data</span><br><span class="line">public class SellerAggregate &#123;</span><br><span class="line"></span><br><span class="line"><span class="code">    @AggregateIdentifier</span></span><br><span class="line"><span class="code">    private String id;</span></span><br><span class="line"><span class="code"></span></span><br><span class="line"><span class="code">    @CommandHandler</span></span><br><span class="line"><span class="code">    @CreationPolicy(AggregateCreationPolicy.ALWAYS)</span></span><br><span class="line"><span class="code">    public void handler(RequestInsertSellerCommand command) &#123;</span></span><br><span class="line"><span class="code"></span></span><br><span class="line"><span class="code">        this.id = command.getId();</span></span><br><span class="line"><span class="code">        String requestInsertSellerId = UUID.randomUUID().toString();</span></span><br><span class="line"><span class="code"></span></span><br><span class="line"><span class="code">        // Saga Start</span></span><br><span class="line"><span class="code">        apply(new RequestInsertSellerEvent(requestInsertSellerId, command.getSellerId()));</span></span><br><span class="line"><span class="code">    &#125;</span></span><br><span class="line"><span class="code"></span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>Seller 의 Aggregate 는 요청 받은 Command 를 받아 Seller 등록 Event 를 발행 합니다.</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">@Slf4j</span><br><span class="line">@Saga</span><br><span class="line">@NoArgsConstructor</span><br><span class="line">public class InsertSellerAndWalletSaga &#123;</span><br><span class="line"></span><br><span class="line"><span class="code">    @StartSaga</span></span><br><span class="line"><span class="code">    @SagaEventHandler(associationProperty = &quot;requestInsertSellerId&quot;)</span></span><br><span class="line"><span class="code">    public void handle(RequestInsertSellerEvent event) &#123;</span></span><br><span class="line"><span class="code"></span></span><br><span class="line"><span class="code">        String sagaInsertSellerId = UUID.randomUUID().toString();</span></span><br><span class="line"><span class="code">        SagaLifecycle.associateWith(&quot;sagaInsertSellerId&quot;, sagaInsertSellerId);</span></span><br><span class="line"><span class="code"></span></span><br><span class="line"><span class="code">        commandGateway.send(</span></span><br><span class="line"><span class="code">                new InsertSellerCommand(</span></span><br><span class="line"><span class="code">                        UUID.randomUUID().toString(),</span></span><br><span class="line"><span class="code">                        event.getRequestInsertSellerId(),</span></span><br><span class="line"><span class="code">                        event.getSellerId(),</span></span><br><span class="line"><span class="code">                        sagaInsertSellerId</span></span><br><span class="line"><span class="code">                )</span></span><br><span class="line"><span class="code">        ).whenComplete(</span></span><br><span class="line"><span class="code">                (result, throwable) -&gt; &#123;</span></span><br><span class="line"><span class="code">                    if (throwable != null) &#123;</span></span><br><span class="line"><span class="code">                        throwable.printStackTrace();</span></span><br><span class="line"><span class="code">                        log.error(&quot;RequestInsertSellerEvent Command failed, = &#123;&#125;&quot;, sagaInsertSellerId, throwable);</span></span><br><span class="line"><span class="code">                    &#125; else &#123;</span></span><br><span class="line"><span class="code">                        log.info(&quot;RequestInsertSellerEvent SAGA success = &#123;&#125;&quot;, result.toString());</span></span><br><span class="line"><span class="code">                    &#125;</span></span><br><span class="line"><span class="code">                &#125;</span></span><br><span class="line"><span class="code">        );</span></span><br><span class="line"><span class="code">    &#125;</span></span><br><span class="line"><span class="code">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>등록 Seller 담당하는 InsertSellerAndWalletSaga 는 해당 Event 를 구독하여 트리거 됩니다. </p>
+<p>메소드 상단에 @StartSaga 확인 할 수 있습니다. 이는 Saga 가 시작 되었다는 것을 알립니다.</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">@SagaEventHandler(associationProperty = &quot;requestInsertSellerId&quot;)</span><br></pre></td></tr></table></figure>
+<p>해당 로직은 구독할 Saga 를 정하고 식별자를 지정하는 용도 입니다.</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">@Slf4j</span><br><span class="line">@Aggregate</span><br><span class="line">@Data</span><br><span class="line">public class InsertSellerAggregate &#123;</span><br><span class="line"></span><br><span class="line"><span class="code">    @AggregateIdentifier</span></span><br><span class="line"><span class="code">    private String id;</span></span><br><span class="line"><span class="code"></span></span><br><span class="line"><span class="code">    @CommandHandler</span></span><br><span class="line"><span class="code">    @CreationPolicy(AggregateCreationPolicy.ALWAYS)</span></span><br><span class="line"><span class="code">    public void requestInsertWalletAggregate(</span></span><br><span class="line"><span class="code">            InsertSellerCommand command,</span></span><br><span class="line"><span class="code">            InsertSellerPort insertSellerPort</span></span><br><span class="line"><span class="code">    ) &#123;</span></span><br><span class="line"><span class="code">        id = command.getId();</span></span><br><span class="line"><span class="code"></span></span><br><span class="line"><span class="code">        // seller insert</span></span><br><span class="line"><span class="code">        long savedSellerNo = insertSellerPort.insertSeller(</span></span><br><span class="line"><span class="code">                RequestPersistenceInsertSellerCommand.of(command.getSellerId())</span></span><br><span class="line"><span class="code">        );</span></span><br><span class="line"><span class="code"></span></span><br><span class="line"><span class="code">        String requestInsertWalletId = UUID.randomUUID().toString();</span></span><br><span class="line"><span class="code"></span></span><br><span class="line"><span class="code">        // Saga Start</span></span><br><span class="line"><span class="code">        apply(new SagaInsertWalletEvent(</span></span><br><span class="line"><span class="code">                requestInsertWalletId,</span></span><br><span class="line"><span class="code">                command.getSagaInsertSellerId(),</span></span><br><span class="line"><span class="code">                command.getRequestInsertSellerId(),</span></span><br><span class="line"><span class="code">                savedSellerNo,</span></span><br><span class="line"><span class="code">                command.getSellerId()</span></span><br><span class="line"><span class="code">        ));</span></span><br><span class="line"><span class="code">    &#125;</span></span><br><span class="line"><span class="code"></span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>등록 담당 하는 Seller 의 Aggregate 는 요청 받은 Command 를 받아 DB 에 Seller 를 insert 하게 됩니다. </p>
+<p>그런 후 그다음 로직을 수행 해야 할 해당 Seller 의 Wallet 등록을 하기 위해 Event 를 발행 합니다.</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">@SagaEventHandler(associationProperty = &quot;sagaInsertSellerId&quot;)</span><br><span class="line">public void handle(SagaInsertWalletEvent event) &#123;</span><br><span class="line"></span><br><span class="line"><span class="code">    String sagaInsertWalletId = UUID.randomUUID().toString();</span></span><br><span class="line"><span class="code">    SagaLifecycle.associateWith(&quot;sagaInsertWalletId&quot;, sagaInsertWalletId);</span></span><br><span class="line"><span class="code"></span></span><br><span class="line"><span class="code">    commandGateway.send(new InsertWalletCommand(</span></span><br><span class="line"><span class="code">            UUID.randomUUID().toString(),</span></span><br><span class="line"><span class="code">            sagaInsertWalletId,</span></span><br><span class="line"><span class="code">            event.getSagaInsertSellerId(),</span></span><br><span class="line"><span class="code">            event.getSellerNo(),</span></span><br><span class="line"><span class="code">            event.getSellerId()</span></span><br><span class="line"><span class="code">        )</span></span><br><span class="line"><span class="code">    ).whenComplete(</span></span><br><span class="line"><span class="code">            (result, throwable) -&gt; &#123;</span></span><br><span class="line"><span class="code">                if (throwable != null) &#123;</span></span><br><span class="line"><span class="code">                    throwable.printStackTrace();</span></span><br><span class="line"><span class="code">                    log.error(&quot;requestInsertWalletAggregate Command failed&quot;);</span></span><br><span class="line"><span class="code">                &#125; else &#123;</span></span><br><span class="line"><span class="code">                    log.info(&quot;requestInsertWalletAggregate SAGA success = &#123;&#125;&quot;, result.toString());</span></span><br><span class="line"><span class="code">                &#125;</span></span><br><span class="line"><span class="code">            &#125;</span></span><br><span class="line"><span class="code">    );</span></span><br><span class="line"><span class="code">&#125;</span></span><br></pre></td></tr></table></figure>
+<p>Saga 는 CommandGateway 를 이용해서 Wallet 을 등록하는 Command 를 보냅니다.</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line">@Slf4j</span><br><span class="line">@Aggregate()</span><br><span class="line">@Data</span><br><span class="line">public class InsertSellerRequestInsertWalletAggregate &#123;</span><br><span class="line"></span><br><span class="line"><span class="code">    ... 생략 ...</span></span><br><span class="line"><span class="code"></span></span><br><span class="line"><span class="code">    @CommandHandler</span></span><br><span class="line"><span class="code">    @CreationPolicy(AggregateCreationPolicy.ALWAYS)</span></span><br><span class="line"><span class="code">    public void requestInsertWalletAggregate(</span></span><br><span class="line"><span class="code">            InsertWalletCommand insertWalletCommand,</span></span><br><span class="line"><span class="code">            InsertWalletPort insertWalletPort</span></span><br><span class="line"><span class="code">    ) &#123;</span></span><br><span class="line"><span class="code"></span></span><br><span class="line"><span class="code">        id = insertWalletCommand.getAggregateIdentifier();</span></span><br><span class="line"><span class="code"></span></span><br><span class="line"><span class="code">        // wallet insert</span></span><br><span class="line"><span class="code">        boolean isSuccess = insertWalletPort.insertWallet(com.wallet_service.domain.InsertWalletCommand.of(insertWalletCommand.getSellerNo()));</span></span><br><span class="line"><span class="code">        </span></span><br><span class="line"><span class="code">        String requestResultInsertWalletId = UUID.randomUUID().toString();</span></span><br><span class="line"><span class="code"></span></span><br><span class="line"><span class="code">        apply(new RequestInsertWalletFinishedEvent(</span></span><br><span class="line"><span class="code">                requestResultInsertWalletId,</span></span><br><span class="line"><span class="code">                insertWalletCommand.getSagaInsertWalletId(),</span></span><br><span class="line"><span class="code">                insertWalletCommand.getSagaInsertSellerId(),</span></span><br><span class="line"><span class="code">                isSuccess,</span></span><br><span class="line"><span class="code">                insertWalletCommand.getSellerNo(),</span></span><br><span class="line"><span class="code">                insertWalletCommand.getSellerId()</span></span><br><span class="line"><span class="code">        ));</span></span><br><span class="line"><span class="code">    &#125;</span></span><br><span class="line"><span class="code"></span></span><br><span class="line"><span class="code">    ... 생략 ...</span></span><br><span class="line"><span class="code">&#125;</span></span><br></pre></td></tr></table></figure>
+<p>등록 담당 하는 Wallet 의 Aggregate 는 요청 받은 Command 를 받아 DB 에 Wallet 을 insert 하게 됩니다.</p>
+<p>그런 후 만약 등록 성공 여부 데이터 값 함께 Event 를 발행 합니다.</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">@SagaEventHandler(associationProperty = &quot;sagaInsertWalletId&quot;)</span><br><span class="line">public void handle(RequestInsertWalletFinishedEvent event) &#123;</span><br><span class="line"></span><br><span class="line"><span class="code">    boolean isSuccess = event.isSuccess();</span></span><br><span class="line"><span class="code">    if (isSuccess) &#123;</span></span><br><span class="line"><span class="code">        SagaLifecycle.end();</span></span><br><span class="line"><span class="code">    &#125;</span></span><br><span class="line"><span class="code">    else &#123;</span></span><br><span class="line"><span class="code">        // 실패 시, 롤백 이벤트</span></span><br><span class="line"><span class="code">        String sagaRollbackSellerId = UUID.randomUUID().toString();</span></span><br><span class="line"><span class="code">        SagaLifecycle.associateWith(&quot;sagaRollbackSellerId&quot;, sagaRollbackSellerId);</span></span><br><span class="line"><span class="code">        commandGateway.send(</span></span><br><span class="line"><span class="code">                new RollbackSellerRequestCommand(</span></span><br><span class="line"><span class="code">                    sagaRollbackSellerId,</span></span><br><span class="line"><span class="code">                    event.getSellerNo()</span></span><br><span class="line"><span class="code">                )</span></span><br><span class="line"><span class="code">        ).whenComplete(</span></span><br><span class="line"><span class="code">                (result, throwable) -&gt; &#123;</span></span><br><span class="line"><span class="code">                    if (throwable != null) &#123;</span></span><br><span class="line"><span class="code">                        throwable.printStackTrace();</span></span><br><span class="line"><span class="code">                        log.error(&quot;RequestWalletFinishedEvent Command failed&quot;);</span></span><br><span class="line"><span class="code">                    &#125;</span></span><br><span class="line"><span class="code">                    else &#123;</span></span><br><span class="line"><span class="code">                        log.info(&quot;RequestWalletFinishedEvent SAGA success = &#123;&#125;&quot;, result.toString());</span></span><br><span class="line"><span class="code">                        SagaLifecycle.end();</span></span><br><span class="line"><span class="code">                    &#125;</span></span><br><span class="line"><span class="code">                &#125;</span></span><br><span class="line"><span class="code">        );</span></span><br><span class="line"><span class="code">    &#125;</span></span><br><span class="line"><span class="code">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>최종 Wallet 등록까지 성공적이면 Saga 를 종료 하지만 만약 실패 할 경우 롤백 (여기서는 정확히 해당 Seller 상태값 변경)을 실행 해야 합니다.</p>
+<p>그래서 Saga 는 CommandGateway 이용해서 롤백 로직을 담당하는 Command 를 보냅니다.</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">@CommandHandler</span><br><span class="line">@CreationPolicy(AggregateCreationPolicy.ALWAYS)</span><br><span class="line">public void requestInsertWalletAggregate(</span><br><span class="line"><span class="code">        RollbackSellerRequestCommand command,</span></span><br><span class="line"><span class="code">        DeleteSellerPort deleteSellerPort</span></span><br><span class="line"><span class="code">) &#123;</span></span><br><span class="line"><span class="code"></span></span><br><span class="line"><span class="code">    id = command.getSagaRollbackSellerId();</span></span><br><span class="line"><span class="code"></span></span><br><span class="line"><span class="code">    // seller delete</span></span><br><span class="line"><span class="code">    deleteSellerPort.deleteSeller(command.getSellerNo());</span></span><br><span class="line"><span class="code"></span></span><br><span class="line"><span class="code">    String requestDeleteSellerId = UUID.randomUUID().toString();</span></span><br><span class="line"><span class="code"></span></span><br><span class="line"><span class="code">    // Saga Start</span></span><br><span class="line"><span class="code">    apply(new RequestDeleteSellerEvent(requestDeleteSellerId, command.getSagaRollbackSellerId(), command.getSellerNo()));</span></span><br><span class="line"><span class="code">&#125;</span></span><br></pre></td></tr></table></figure>
+<p>Seller 담당하는 Aggregate 는 해당 Seller 롤백 처리 (여기서는 간단하게 Seller 상태값 변경)를 하고 롤백 완료 Event 를 발행 하도록 합니다.</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">@EndSaga</span><br><span class="line">@SagaEventHandler(associationProperty = &quot;sagaRollbackSellerId&quot;)</span><br><span class="line">public void handle(RequestDeleteSellerEvent event) &#123;</span><br><span class="line"><span class="code">    log.info(&quot;EndSaga &gt;&gt; requestDeleteSellerId = &#123;&#125;&quot;, event.getRequestDeleteSellerId());</span></span><br><span class="line"><span class="code">&#125;</span></span><br></pre></td></tr></table></figure>
+<p>Saga 가 Event 를 받으면 <code>@EndSaga</code> 따라 Saga 를 종료하게 됩니다.</p>
 
       
        <hr><span style="font-style: italic;color: gray;"> Copyright 201- syh8088. 무단 전재 및 재배포 금지. 출처 표기 시 인용 가능. </span>
@@ -1857,7 +1878,7 @@
 
 
 <p>
-    <a  class="dashang" onclick="dashangToggle()">버튼</a>
+    <a  class="dashang" onclick="dashangToggle()">💰</a>
 </p>
 
 
@@ -1879,7 +1900,7 @@
 
     </div>
     <div class="full-toc">
-        <button class="full" data-title="切换全屏 快捷键 s"><span class="min "></span></button>
+        <button class="full" data-title="Toggle full screen shortcut key s"><span class="min "></span></button>
 <a class="" id="rocket" ></a>
 
     </div>
@@ -1889,7 +1910,7 @@
 <div class="shang_box">
     <a class="shang_close"  onclick="dashangToggle()">×</a>
     <div class="shang_tit">
-        <p>喜欢就点赞,疼爱就打赏</p>
+        <p>Help us with donation</p>
     </div>
     <div class="shang_payimg">
         <div class="pay_img">
@@ -1898,7 +1919,7 @@
         </div>
     </div>
     <div class="shang_payselect">
-        <span><label><input type="radio" name="pay" checked value="alipay">支付宝</label></span><span><label><input type="radio" name="pay" value="weixin">微信</label></span>
+        <span><label><input type="radio" name="pay" checked value="alipay">alipay</label></span><span><label><input type="radio" name="pay" value="weixin">weixin</label></span>
     </div>
 </div>
 
