@@ -26,7 +26,7 @@
 <meta property="og:image" content="https://syh8088.github.io/img/MSA/Create_Seller_SagaWithAxon-1.png">
 <meta property="og:image" content="https://syh8088.github.io/img/MSA/Create_Seller_SagaWithAxon-2.png">
 <meta property="article:published_time" content="2024-12-14T22:47:42.000Z">
-<meta property="article:modified_time" content="2024-12-19T22:16:35.966Z">
+<meta property="article:modified_time" content="2024-12-19T22:38:06.337Z">
 <meta property="article:author" content="Seo Yang Hun">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https://syh8088.github.io/img/MSA/SeparateByBusinessBehavior.png">
@@ -1703,7 +1703,7 @@
     </div>
     <div class="article-meta">
         
-            작성일 : <time class="date" title='수정일: 2024-08-17 22:36:03'>2024-07-28 15:50</time>
+            작성일 : <time class="date" title='수정일: 2024-12-20 07:44:55'>2024-07-28 15:50</time>
         
     </div>
     <div class="article-meta">
@@ -1748,7 +1748,7 @@
 <p>1번 사용자는 A 이라는 상품을 초기 결제는 딱 한번만 이루어집니다. 이후 자동으로 결제가 진행 될테니깐요.</p>
 <p>초기 결제 승인시 불행하게도 시스템 내부적으로 문제가 발생되어서 다시 결제를 진행해야 되는 경우가 만약 발생된다고 하면</p>
 <p>특정 결제 아이디값 (1번 사용자가 A 상품을 결제시 유니크한 식별자값) 을 통해 다시 결제가 진행해도 기존에 진행되었던 결제 이력을 이용해 정상적으로 처리 해야 하기 위함 입니다.</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 멱등성 키 만드는 멱등성 크리에이터</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">DoctalkPaymentIdempotencyCreator</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> String <span class="title function_">create</span><span class="params">(Object data)</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> UUID.nameUUIDFromBytes(data.toString().getBytes()).toString();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 멱등성 키 만드는 멱등성 크리에이터</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line">public <span class="keyword">class</span> <span class="title class_">DoctalkPaymentIdempotencyCreator</span> &#123;</span><br><span class="line"></span><br><span class="line">    public <span class="keyword">static</span> <span class="title class_">String</span> <span class="title function_">create</span>(<span class="params"><span class="built_in">Object</span> data</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="variable constant_">UUID</span>.<span class="title function_">nameUUIDFromBytes</span>(data.<span class="title function_">toString</span>().<span class="title function_">getBytes</span>()).<span class="title function_">toString</span>();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>또한 서비스 주문 신청시 orderId 값 경우 동일한 orderId 로 다시 신청 할 수 없도록 데이터베이스 상에 unique 로 지정 했습니다. (2번 이상 결제 등록 하는 과정을 회피 하기 위한 방도도 있음)</p>
 <p>즉 2번 이상 호출시 무결성 제약 으로 실패 하게 됩니다.</p>
