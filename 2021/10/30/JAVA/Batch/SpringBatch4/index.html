@@ -6,19 +6,30 @@
   <meta name="keywords" content="">
   <meta name="description" content="Spring Batch - Flow 4 | Seo Yang Hun Blog">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-<meta name="description" content="Index Dive 최적화여러 MySQL 성능 최적화 방법 중 하나인 Index Dive 최적화에 알아볼려고 합니다.  ‘Index Dive’ 는 Mysql 에서 실행 계획을 수립시 설정한 인덱스를 평가 하는 과정 입니다. 이러한 과정을 역활 하는 곳은 Mysql 옵티마이저 인데요.옵티마이저는 실제 테이블의 데이터를 샘플링(조금씩 가져온다) 해서 검색에 사">
+<meta name="description" content="예제 소스 코드이번 블로그에 사용되는 코드는 아래 링크 통해 확인 할 수 있습니다. https:&#x2F;&#x2F;github.com&#x2F;syh8088&#x2F;MSA_project&#x2F;tree&#x2F;main&#x2F;paymentMsa 어떻게 분해를 해야 할까?분해를 어떤 기준으로 해야 할까요? 앞서 강조한 Business Capability 최대한 가지면서 어떤 방향으로 분해를 해야 할지 고민이 발">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Index Dive 최적화">
-<meta property="og:url" content="https://syh8088.github.io/2024/12/06/DB/Mysql/optimizing/IndexDiveOptimizaiton/IndexDiveOptimizaiton/index.html">
+<meta property="og:title" content="결제 시스템으로 알아보는 MSA 2 - 분산 트랜잭션 구현">
+<meta property="og:url" content="https://syh8088.github.io/2024/12/15/MSA/MSA_Payment_Project_2/index.html">
 <meta property="og:site_name" content="Seo Yang Hun Blog">
-<meta property="og:description" content="Index Dive 최적화여러 MySQL 성능 최적화 방법 중 하나인 Index Dive 최적화에 알아볼려고 합니다.  ‘Index Dive’ 는 Mysql 에서 실행 계획을 수립시 설정한 인덱스를 평가 하는 과정 입니다. 이러한 과정을 역활 하는 곳은 Mysql 옵티마이저 인데요.옵티마이저는 실제 테이블의 데이터를 샘플링(조금씩 가져온다) 해서 검색에 사">
+<meta property="og:description" content="예제 소스 코드이번 블로그에 사용되는 코드는 아래 링크 통해 확인 할 수 있습니다. https:&#x2F;&#x2F;github.com&#x2F;syh8088&#x2F;MSA_project&#x2F;tree&#x2F;main&#x2F;paymentMsa 어떻게 분해를 해야 할까?분해를 어떤 기준으로 해야 할까요? 앞서 강조한 Business Capability 최대한 가지면서 어떤 방향으로 분해를 해야 할지 고민이 발">
 <meta property="og:locale">
-<meta property="og:image" content="https://syh8088.github.io/img/DB/Mysql/optimizing/IndexDiveOptimizaiton/QueryExecutionStructure.png">
-<meta property="article:published_time" content="2024-12-05T22:47:42.000Z">
-<meta property="article:modified_time" content="2024-12-04T13:48:38.354Z">
+<meta property="og:image" content="https://syh8088.github.io/img/MSA/SeparateByBusinessBehavior.png">
+<meta property="og:image" content="https://syh8088.github.io/img/MSA/Bounded_Context.png">
+<meta property="og:image" content="https://syh8088.github.io/img/MSA/SAGA_example.png">
+<meta property="og:image" content="https://syh8088.github.io/img/MSA/SAGA_rollback_example.png">
+<meta property="og:image" content="https://syh8088.github.io/img/MSA/SAGA_Orchestration_example.png">
+<meta property="og:image" content="https://syh8088.github.io/img/MSA/SAGA_Orchestration_rollback_example.png">
+<meta property="og:image" content="https://syh8088.github.io/img/MSA/paymentFlow.png">
+<meta property="og:image" content="https://syh8088.github.io/img/MSA/axon.png">
+<meta property="og:image" content="https://syh8088.github.io/img/MSA/Axon_SAGA_pattern.png">
+<meta property="og:image" content="https://syh8088.github.io/img/MSA/axon_Seller.png">
+<meta property="og:image" content="https://syh8088.github.io/img/MSA/Create_Seller_SagaWithAxon-1.png">
+<meta property="og:image" content="https://syh8088.github.io/img/MSA/Create_Seller_SagaWithAxon-2.png">
+<meta property="article:published_time" content="2024-12-14T22:47:42.000Z">
+<meta property="article:modified_time" content="2024-12-19T12:38:33.936Z">
 <meta property="article:author" content="Seo Yang Hun">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://syh8088.github.io/img/DB/Mysql/optimizing/IndexDiveOptimizaiton/QueryExecutionStructure.png">
+<meta name="twitter:image" content="https://syh8088.github.io/img/MSA/SeparateByBusinessBehavior.png">
 
 
 <link rel="icon" href="/img/avatar.jpg">
@@ -155,7 +166,7 @@
     <li>
         <div class="all active" data-rel="모든 글">모든 글
             
-                <small>(60)</small>
+                <small>(62)</small>
             
         </div>
     </li>
@@ -198,6 +209,10 @@
         
     </li>
 
+            
+        
+    
+        
             
         
     
@@ -306,6 +321,10 @@
         
     </li>
 
+            
+        
+    
+        
             
         
     
@@ -619,6 +638,10 @@
     
         
             
+        
+    
+        
+            
                 
     <li>
         <div data-rel="KUBERNETES">
@@ -633,6 +656,96 @@
         
     
         
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="MSA">
+            <i class="fold iconfont icon-right"></i>
+            MSA
+            <small>(2)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="MSA&lt;---&gt;Payment">
+            <i class="fold iconfont icon-right"></i>
+            Payment
+            <small>(2)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="MSA&lt;---&gt;Payment&lt;---&gt;Kafka">
+            <i class="fold iconfont icon-right"></i>
+            Kafka
+            <small>(2)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="MSA&lt;---&gt;Payment&lt;---&gt;Kafka&lt;---&gt;EDA">
+            <i class="fold iconfont icon-right"></i>
+            EDA
+            <small>(2)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="MSA&lt;---&gt;Payment&lt;---&gt;Kafka&lt;---&gt;EDA&lt;---&gt;Saga">
+            <i class="fold iconfont icon-right"></i>
+            Saga
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="MSA&lt;---&gt;Payment&lt;---&gt;Kafka&lt;---&gt;EDA&lt;---&gt;Saga&lt;---&gt;Axon">
+            
+            Axon
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
             
         
     
@@ -715,6 +828,10 @@
     
         
             
+        
+    
+        
+            
                 
     <li>
         <div data-rel="R">
@@ -725,6 +842,10 @@
         
     </li>
 
+            
+        
+    
+        
             
         
     
@@ -931,7 +1052,7 @@
         
     </div>
 </div>
-<input type="hidden" id="yelog_site_posts_number" value="60">
+<input type="hidden" id="yelog_site_posts_number" value="62">
 
 <div style="display: none">
     <span id="busuanzi_value_site_uv"></span>
@@ -983,6 +1104,24 @@
 
     
     <nav id="title-list-nav">
+        
+        
+        <a  class="모든 글 MSA Payment Kafka EDA Saga Axon "
+           href="/2024/12/15/MSA/MSA_Payment_Project_2/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="결제 시스템으로 알아보는 MSA 2 - 분산 트랜잭션 구현">결제 시스템으로 알아보는 MSA 2 - 분산 트랜잭션 구현</span>
+            <span class="post-date" title="2024-12-15 07:47:42">2024/12/15</span>
+        </a>
+        
+        
+        <a  class="모든 글 MSA Payment Kafka EDA "
+           href="/2024/12/14/MSA/MSA_Payment_Project_1/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="결제 시스템으로 알아보는 MSA 1 - 기본 설명">결제 시스템으로 알아보는 MSA 1 - 기본 설명</span>
+            <span class="post-date" title="2024-12-14 07:47:42">2024/12/14</span>
+        </a>
         
         
         <a  class="모든 글 대용량 트래픽 EDA Payment Redis Kafka "
