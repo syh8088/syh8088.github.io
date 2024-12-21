@@ -2,26 +2,26 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>결제 시스템으로 알아보는 MSA 3 - 쿼리 문제 | Seo Yang Hun Blog</title>
+  <title>결제 시스템으로 알아보는 MSA 1 - 기본 설명 | Seo Yang Hun Blog</title>
   <meta name="keywords" content="">
-  <meta name="description" content="결제 시스템으로 알아보는 MSA 3 - 쿼리 문제 | Seo Yang Hun Blog">
+  <meta name="description" content="결제 시스템으로 알아보는 MSA 1 - 기본 설명 | Seo Yang Hun Blog">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="예제 소스 코드이번 블로그에 사용되는 코드는 아래 링크 통해 확인 할 수 있습니다. https:&#x2F;&#x2F;github.com&#x2F;syh8088&#x2F;MSA_project&#x2F;tree&#x2F;main&#x2F;paymentMsa MSA Data Query 문제MSA 경우는 각 서비스에 해당되는 데이터베이스에 이용되고 있습니다. 그래서 특정 서비스가 다른 데이터베이스에 접근 하는것을 지양해야 합">
 <meta property="og:type" content="article">
 <meta property="og:title" content="결제 시스템으로 알아보는 MSA 3 - 쿼리 문제">
-<meta property="og:url" content="https://syh8088.github.io/2024/12/16/MSA/MSA_Payment_Project_3/index.html">
+<meta property="og:url" content="https://syh8088.github.io/2024/12/16/MSA/paymentMsa/MSA_Payment_Project_3/index.html">
 <meta property="og:site_name" content="Seo Yang Hun Blog">
 <meta property="og:description" content="예제 소스 코드이번 블로그에 사용되는 코드는 아래 링크 통해 확인 할 수 있습니다. https:&#x2F;&#x2F;github.com&#x2F;syh8088&#x2F;MSA_project&#x2F;tree&#x2F;main&#x2F;paymentMsa MSA Data Query 문제MSA 경우는 각 서비스에 해당되는 데이터베이스에 이용되고 있습니다. 그래서 특정 서비스가 다른 데이터베이스에 접근 하는것을 지양해야 합">
 <meta property="og:locale">
-<meta property="og:image" content="https://syh8088.github.io/img/MSA/stop_MSA_MYSQL.png">
-<meta property="og:image" content="https://syh8088.github.io/img/MSA/seller_query_aggretation.png">
-<meta property="og:image" content="https://syh8088.github.io/img/MSA/SellerQueryService.png">
-<meta property="og:image" content="https://syh8088.github.io/img/MSA/SellerQueryService_CQRS_architecture.png">
+<meta property="og:image" content="https://syh8088.github.io/img/MSA/paymentMsa/stop_MSA_MYSQL.png">
+<meta property="og:image" content="https://syh8088.github.io/img/MSA/paymentMsa/seller_query_aggretation.png">
+<meta property="og:image" content="https://syh8088.github.io/img/MSA/paymentMsa/SellerQueryService.png">
+<meta property="og:image" content="https://syh8088.github.io/img/MSA/paymentMsa/SellerQueryService_CQRS_architecture.png">
 <meta property="article:published_time" content="2024-12-15T22:47:42.000Z">
-<meta property="article:modified_time" content="2024-12-20T07:57:33.241Z">
+<meta property="article:modified_time" content="2024-12-21T06:47:16.545Z">
 <meta property="article:author" content="Seo Yang Hun">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://syh8088.github.io/img/MSA/stop_MSA_MYSQL.png">
+<meta name="twitter:image" content="https://syh8088.github.io/img/MSA/paymentMsa/stop_MSA_MYSQL.png">
 
 
 <link rel="icon" href="/img/avatar.jpg">
@@ -1114,7 +1114,7 @@
         
         
         <a  class="모든 글 MSA Payment Kafka EDA CQRS "
-           href="/2024/12/16/MSA/MSA_Payment_Project_3/"
+           href="/2024/12/16/MSA/paymentMsa/MSA_Payment_Project_3/"
            data-tag=""
            data-author="" >
             <span class="post-title" title="결제 시스템으로 알아보는 MSA 3 - 쿼리 문제">결제 시스템으로 알아보는 MSA 3 - 쿼리 문제</span>
@@ -1123,7 +1123,7 @@
         
         
         <a  class="모든 글 MSA Payment Kafka EDA Saga Axon "
-           href="/2024/12/15/MSA/MSA_Payment_Project_2/"
+           href="/2024/12/15/MSA/paymentMsa/MSA_Payment_Project_2/"
            data-tag=""
            data-author="" >
             <span class="post-title" title="결제 시스템으로 알아보는 MSA 2 - 분산 트랜잭션 구현">결제 시스템으로 알아보는 MSA 2 - 분산 트랜잭션 구현</span>
@@ -1132,7 +1132,7 @@
         
         
         <a  class="모든 글 MSA Payment Kafka EDA "
-           href="/2024/12/14/MSA/MSA_Payment_Project_1/"
+           href="/2024/12/14/MSA/paymentMsa/MSA_Payment_Project_1/"
            data-tag=""
            data-author="" >
             <span class="post-title" title="결제 시스템으로 알아보는 MSA 1 - 기본 설명">결제 시스템으로 알아보는 MSA 1 - 기본 설명</span>
@@ -1697,9 +1697,9 @@
 </aside>
 <div id="post">
     <div class="pjax">
-        <article id="post-MSA/MSA_Payment_Project_3" class="article article-type-post" itemscope itemprop="blogPost">
+        <article id="post-MSA/paymentMsa/MSA_Payment_Project_1" class="article article-type-post" itemscope itemprop="blogPost">
     
-        <h1 class="article-title">결제 시스템으로 알아보는 MSA 3 - 쿼리 문제</h1>
+        <h1 class="article-title">결제 시스템으로 알아보는 MSA 1 - 기본 설명</h1>
     
     <div class="article-meta">
         
@@ -1715,9 +1715,7 @@
             
             <a  data-rel="MSA&lt;---&gt;Payment&lt;---&gt;Kafka">Kafka</a> > 
             
-            <a  data-rel="MSA&lt;---&gt;Payment&lt;---&gt;Kafka&lt;---&gt;EDA">EDA</a> > 
-            
-            <a  data-rel="MSA&lt;---&gt;Payment&lt;---&gt;Kafka&lt;---&gt;EDA&lt;---&gt;CQRS">CQRS</a>
+            <a  data-rel="MSA&lt;---&gt;Payment&lt;---&gt;Kafka&lt;---&gt;EDA">EDA</a>
             
         </span>
         
@@ -1725,7 +1723,7 @@
     </div>
     <div class="article-meta">
         
-            작성일 : <time class="date" title='수정일: 2024-12-20 16:57:33'>2024-12-16 07:47</time>
+            작성일 : <time class="date" title='수정일: 2024-12-21 15:47:16'>2024-12-14 07:47</time>
         
     </div>
     <div class="article-meta">
@@ -1747,7 +1745,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%EC%98%88%EC%A0%9C-%EC%86%8C%EC%8A%A4-%EC%BD%94%EB%93%9C"><span class="toc-text">예제 소스 코드</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#MSA-Data-Query-%EB%AC%B8%EC%A0%9C"><span class="toc-text">MSA Data Query 문제</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#CQRS-%ED%8C%A8%ED%84%B4%EC%9C%BC%EB%A1%9C-%EC%9D%B4-%EB%AC%B8%EC%A0%9C%EB%A5%BC-%ED%95%B4%EA%B2%B0%ED%95%B4-%EB%B3%B4%EC%9E%90"><span class="toc-text">CQRS 패턴으로 이 문제를 해결해 보자</span></a></li></ol></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%EC%98%88%EC%A0%9C-%EC%86%8C%EC%8A%A4-%EC%BD%94%EB%93%9C"><span class="toc-text">예제 소스 코드</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%EB%AA%A8%EB%86%80%EB%A6%AC%EC%8A%A4-%EC%95%84%ED%82%A4%ED%85%8D%EC%B2%98-Monolithic-Architecture-VS-MSA-Micro-Service-Architecture"><span class="toc-text">모놀리스 아키텍처 (Monolithic Architecture) VS MSA (Micro Service Architecture)</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%EB%AA%A8%EB%86%80%EB%A6%AC%EC%8A%A4-%EC%95%84%ED%82%A4%ED%85%8D%EC%B2%98-Monolithic-Architecture"><span class="toc-text">모놀리스 아키텍처 (Monolithic Architecture)</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%EB%AA%A8%EB%86%80%EB%A6%AC%EC%8A%A4-%EC%95%84%ED%82%A4%ED%85%8D%EC%B2%98-Monolithic-Architecture-%EC%9E%A5%EC%A0%90"><span class="toc-text">모놀리스 아키텍처 (Monolithic Architecture) 장점</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%EB%AA%A8%EB%86%80%EB%A6%AC%EC%8A%A4-%EC%95%84%ED%82%A4%ED%85%8D%EC%B2%98-Monolithic-Architecture-%EB%8B%A8%EC%A0%90"><span class="toc-text">모놀리스 아키텍처 (Monolithic Architecture) 단점</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%EB%AA%A8%EB%86%80%EB%A6%AC%EC%8A%A4-%EB%AC%B8%EC%A0%9C%EB%A1%9C-%EC%9D%B8%ED%95%9C-SOA-Service-Oriented-Architecture-%EB%93%B1%EC%9E%A5"><span class="toc-text">모놀리스 문제로 인한 SOA(Service Oriented Architecture) 등장</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#MSA-Micro-Service-Architecture-%EB%93%B1%EC%9E%A5"><span class="toc-text">MSA (Micro Service Architecture) 등장</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#MSA-%ED%8A%B9%EC%A7%95-Business-Capabilities"><span class="toc-text">MSA 특징 Business Capabilities</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#MSA-%EB%8A%94-%EB%8B%A8%EC%A0%90%EC%9D%B4-%EC%97%86%EC%9D%84%EA%B9%8C"><span class="toc-text">MSA 는 단점이 없을까?</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#MSA-Transaction-%EB%AC%B8%EC%A0%9C"><span class="toc-text">MSA Transaction 문제</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#MSA-Data-Query-%EB%AC%B8%EC%A0%9C"><span class="toc-text">MSA Data Query 문제</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#MSA-Monitoring-%EB%AC%B8%EC%A0%9C"><span class="toc-text">MSA Monitoring 문제</span></a></li></ol></li></ol></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -1765,21 +1763,52 @@
       
         <h1 id="예제-소스-코드"><a href="#예제-소스-코드" class="headerlink" title="예제 소스 코드"></a>예제 소스 코드</h1><p>이번 블로그에 사용되는 코드는 아래 링크 통해 확인 할 수 있습니다.</p>
 <p><a target="_blank" rel="noopener" href="https://github.com/syh8088/MSA_project/tree/main/paymentMsa">https://github.com/syh8088/MSA_project/tree/main/paymentMsa</a></p>
-<h2 id="MSA-Data-Query-문제"><a href="#MSA-Data-Query-문제" class="headerlink" title="MSA Data Query 문제"></a>MSA Data Query 문제</h2><p><img src="/../../img/MSA/stop_MSA_MYSQL.png" alt="MSA 쿼리 문제"><br><code>MSA</code> 경우는 각 서비스에 해당되는 데이터베이스에 이용되고 있습니다. 그래서 특정 서비스가 다른 데이터베이스에 접근 하는것을 지양해야 합니다.</p>
-<p>주문 서비스를 통해 결제된 주문 내역과 정산 서비스에서는 고객이 주문한 상품에 해당되는 Seller 의 Wallet 데이터도 조합해서 보고 싶을때는 주문 서비스 통해 조회한 주문 데이터 하고<br>정산 서비스에 조회된 Waller 데이터를 조합해서 client 에게 전달 하게 됩니다.</p>
-<p><code>모놀리스</code> 에서는 order 테이블 하고 Wallet 테이블를 JOIN 해서 간단하게 해결 할 수 있었던 것이 <code>MSA</code> 에서는 조합하기 위해서는 각각의 해당 되는 서비스에 호출해서 가져온 데이터를 조합 할 수밖에 업습니다.</p>
-<p>어느정도 단순 쿼리 통해 각각 조회해서 가져온 데이터를 조합하면 되겠지만 요구사항이 “특정 Seller 가 등록했던 상품별 총 판매된 금액” 을 원한다고 했을때 입니다.</p>
-<p><img src="/../../img/MSA/seller_query_aggretation.png" alt="특정 Seller 가 등록했던 상품별 총 판매된 금액 조회시"></p>
-<p>해당 되는 Seller 를 조회 하게 되고 Seller 정보 바탕으로 등록된 상품 정보를 조회 할 것 입니다. 그 상품 데이터를 이용해 주문 서비스에 각각의 상품 별 결제된 금액을 가져오게 될 것 입니다.</p>
-<p>이렇게 호출을 여러번 하게 될 경우 DB 서버에 부하가 생길수 있다는 점 입니다. 특히 대용량 데이터베이스 이라면 더욱 DB 서버에 부하가 생깁니다. 추가적으로 상품 서비스에서 서버 부하가 생기면<br>호출하는 입장인 Seller 서비스에서는 <code>서킷브레이커</code> 통해 이 문제를 부분적으로 해결 할 수 있습니다. (상품 데이터 조회를 못 하겠지만 고객 입장에서는 딜레이 되는 문제를 어느정도 해소 가능)</p>
-<h2 id="CQRS-패턴으로-이-문제를-해결해-보자"><a href="#CQRS-패턴으로-이-문제를-해결해-보자" class="headerlink" title="CQRS 패턴으로 이 문제를 해결해 보자"></a>CQRS 패턴으로 이 문제를 해결해 보자</h2><p><img src="/../../img/MSA/SellerQueryService.png" alt="SellerQueryService 등장"></p>
-<p> 지금까지 문제점에 대해 알아보았습니다. 이를 <code>CQRS 패턴</code>을 통해 문제를 해결하고자 합니다. <code>CQRS 패턴</code> 이란 <code>Command(쓰기)</code>, <code>Query(읽기)</code> 분리 해서 관리 하는 패턴 입니다.</p>
-<p><code>Query</code> 하고 <code>Command</code> 를 격리해서 관리 하므로 <code>단일 장애 지점(SPOF)</code> 문제 해결 그리고 확장성 및 보안을 최대화 할 수 있는 장점이 있습니다.</p>
-<p>그런데 앞서 이야기 한 부분 중에 모든 데이터는 해당되는 서비스에서만 조회 하도록 해야 한다는 점 입니다. 예를들어 Seller 조회 하는데 있어서 Seller 서비스가 아닌 Seller Query 서비스가 담당 하는 것에<br>의문이 있을 수 있습니다. 조회 담당 기능을 Seller Query 서비스가 담당하고 해당 데이터를 변동 시키는 주체는 기존 Seller 서비스에서 하면 문제가 없을 것 입니다.</p>
-<p><img src="/../../img/MSA/SellerQueryService_CQRS_architecture.png" alt="CQRS_Architecture"></p>
-<p>다음 사진은 주문 서비스 전용 Query Service 인 Order_Query_service 를 새로 만들 예정입니다. 이 서비스는 <code>query</code> 전용 담당만 할 예정입니다.</p>
-<p>처음에 고객이 주문 요청시 결제 요청이 발생되고 주문 서비스에서 결제 승인의 결과에 따른 결제 상태까지 업데이트 하게 된다면 정산 처리를 하기 위해 이벤트 메시지를 발행 하게 됩니다.<br>정산 처리가 완료 되면 다시 주문 서비스로 메시지 발행하게 되는데요. 이때 주문 서비스에서는 주문한 상품에 소속된 Seller 별로 상품별 총 금액을 Redis 에 저장 할 겁니다.</p>
-<p>이렇게 저장 까지 완료된다면 이후 Seller 가 order_query_service 로 해당 Seller 의 상품별 총 금액을 조회 할 수 있도록 합니다.</p>
+<h2 id="모놀리스-아키텍처-Monolithic-Architecture-VS-MSA-Micro-Service-Architecture"><a href="#모놀리스-아키텍처-Monolithic-Architecture-VS-MSA-Micro-Service-Architecture" class="headerlink" title="모놀리스 아키텍처 (Monolithic Architecture) VS MSA (Micro Service Architecture)"></a>모놀리스 아키텍처 (Monolithic Architecture) VS MSA (Micro Service Architecture)</h2><h3 id="모놀리스-아키텍처-Monolithic-Architecture"><a href="#모놀리스-아키텍처-Monolithic-Architecture" class="headerlink" title="모놀리스 아키텍처 (Monolithic Architecture)"></a>모놀리스 아키텍처 (Monolithic Architecture)</h3><p><code>모놀리스 아키텍처 (Monolithic Architecture)</code> 는 여러 모든 종류 서비스가 하나의 애플리케이션으로 구성되어 있는 아키텍처 입니다.</p>
+<p>즉 예를들어 하나의 서버내에 결제 서비스, 정산 서비스 등 모든 서비스가 하나의 애플리케이션으로 구성되어 있다고 볼 수 있습니다.</p>
+<p>이러한 특징으로는 만약 결제 서비스에서 코드 수정 통해 다시 배포하게 된다면 그외 서비스들까지도 다시 배포 하게 됩니다. 즉 해당 애플리케이션에 속하는<br>모든 서비스가 다시 배포 된다는 의미 입니다.</p>
+<h4 id="모놀리스-아키텍처-Monolithic-Architecture-장점"><a href="#모놀리스-아키텍처-Monolithic-Architecture-장점" class="headerlink" title="모놀리스 아키텍처 (Monolithic Architecture) 장점"></a>모놀리스 아키텍처 (Monolithic Architecture) 장점</h4><p>이렇게 단순함 때문에 장점 또한 있는데요. 하나의 애플리케이션으로 구성 되어서 관리 포인트가 <code>MSA (Micro Service Architecture)</code> 비해 적다는 것 입니다.</p>
+<p>특히 스타트업 경우 빠르게 개발하고 빠르게 서비스를 검증 해야 하는 과정이 필요해서 <code>모놀리스 아키텍처 (Monolithic Architecture)</code> 경우 큰 장점이 됩니다.<br>빠르게 개발 하고 소수의 개발자 인원과 기본적인 개발 지식으로 서비스 유지 관리가 가능 합니다.</p>
+<p><code>MSA (Micro Service Architecture)</code> 경우는 전문적인 Devops 개발자가 필요하고 서버 리소스에 있어서 비용이 많이 발생하지만 이와 반대로 <code>모놀리스 아키텍처 (Monolithic Architecture)</code> 경우<br> 단조로운 구조 아키택처로 개발자의 역량이 비교적 낮은 경우 그리고 낮은 비용으로만으로 유지가 가능한다는 점 입니다.</p>
+<h4 id="모놀리스-아키텍처-Monolithic-Architecture-단점"><a href="#모놀리스-아키텍처-Monolithic-Architecture-단점" class="headerlink" title="모놀리스 아키텍처 (Monolithic Architecture) 단점"></a>모놀리스 아키텍처 (Monolithic Architecture) 단점</h4><p>애플리케이션 <code>Scale-Out</code> 통해 서버 확장을 한다고 해도 DB 부하로 인한 문제로 DB 서버 확장시에도 고려해야 될 사항이 있습니다. </p>
+<p><img src="/../../../img/MSA/paymentMsa/Distribution.png" alt="Distribution"></p>
+<p>DB 서버 부하로 인해 DB 서버 확장 한다고 했을때 DB 경우는 데이터 일관성을 지켜야 하기 때문에 <code>분산(Distribution)</code>식 서버 확장은 큰 어려움이 있습니다. <code>분산(Distribution)</code> 방식 서버 확장은 각 DB 서버에서 데이터를 분할하여 저장하는 방식 입니다.<br>데이터를 여러 샤드로 고르게 분배 하는것이 중요하고, 잘못해서 데이터 일관성에도 문제가 발생 할 수도 있습니다. 또한 여러 샤드에 걸친 데이터를 조인하는 것이 어렵습니다.</p>
+<p>물론 장점은 있지만 상황에 따라 적절하게 선택 하면 좋은 선택지가 됩니다.</p>
+<p><img src="/../../../img/MSA/paymentMsa/Replication.png" alt="Replication"></p>
+<p>또하 나 방법은 <code>Replication</code> 방식의 분리 방법 입니다. 두 개의 이상의 DB 를 <code>Mater</code>, <code>Slave</code> 로 나눠서 동일한 데이터를 저장하는 방식 입니다.<br>Master 역활을 하고 있는 DB 서버는 쓰기 작업만 처리, Slave 는 Read 용도로만 사용해서 부하를 분산 하도록 합니다.</p>
+<p>다시 본론으로 들어가서 <code>모놀리스 아키텍처</code> 단점을 더 이야기 하자면 서비스가 확대되고 개발자 인원이 증가되면 이에 따른 유지 보수 측면에서 단점이 될 수 있습니다. 하나의 애플리케이션에서 관리 하다보니 특정 서비스에서 코드 수정시 다른 서비스에서도 영향이 미칠수가 있습니다.<br>규모가 커지면 커질수록 복합성이 증가되어 수정에 대한 부담이 증가 됩니다.</p>
+<p>그리고 점점 서비스가 무거워지면 배포까지 시간이 많이 지체됩니다. </p>
+<p><code>단일 장애 지점(SPOF)</code> 있어서도 문제가 발생됩니다. 특정 서비스에서 장애가 발생시 동일한 서버내에 다른 서비스까지 장애가 미치면서 전체적인 서비스 불능으로 빠질수 있습니다.</p>
+<h2 id="모놀리스-문제로-인한-SOA-Service-Oriented-Architecture-등장"><a href="#모놀리스-문제로-인한-SOA-Service-Oriented-Architecture-등장" class="headerlink" title="모놀리스 문제로 인한 SOA(Service Oriented Architecture) 등장"></a>모놀리스 문제로 인한 SOA(Service Oriented Architecture) 등장</h2><p><img src="/../../../img/MSA/paymentMsa/Service-OrientedvsMonolithic.png" alt="출처: https://www.virtocommerce.org/t/virto-commerce-microservices-vs-service-oriented-vs-monolithic/35"></p>
+<p>지금까지 <code>모놀리스</code> 단점을 확인 해보았습니다. 그래서 이러한 문제를 해결하기 위해 나온 아키택처가 <code>SOA(Service Oriented Architecture)</code> 입니다.</p>
+<p><code>SOA(Service Oriented Architecture)</code> 는 서비스 단위로 개발하고 서비스 간 규격화된 프로토콜 (인터페이스) 를 사용하여 통신 하는 방식 입니다.</p>
+<p>일반적으로 동일한 기술 스택을 이용해서 서비스 단위로 개발 한다는 것이 특징입니다. 가장 큰 특징 중 하나는 서비스들간 재사용 목적으로 사용 됩니다.</p>
+<p><code>ESB(Enterprise Service Bus)</code> 라는 개념을 통해 요청에 대해 어떤 서비스들을 호출 되는지 캡슐화 된 Layer 존재 합니다.</p>
+<h2 id="MSA-Micro-Service-Architecture-등장"><a href="#MSA-Micro-Service-Architecture-등장" class="headerlink" title="MSA (Micro Service Architecture) 등장"></a>MSA (Micro Service Architecture) 등장</h2><p><img src="/../../../img/MSA/paymentMsa/MSA_Architecture.png" alt="출처: https://www.virtocommerce.org/t/virto-commerce-microservices-vs-service-oriented-vs-monolithic/35"></p>
+<p><code>SOA(Service Oriented Architecture)</code> 경우는 서비스간 재사용은 지향했지만 <code>MSA (Micro Service Architecture)</code> 는 지양 하고 있습니다. 왜냐하면<br>서비스간 결합도는 낮추기 위함 입니다.</p>
+<p>이러한 낮은 결합도로 구축 해서 서비스 변화에 신속하게 배포 할수 있습니다. 즉 MSA 경우는 신속한 애자일을 통해서 고객에게 원하는 서비스를 제공 한다는 점 입니다. 고객에게 애자일 제공을 위해 서비스간의 결합도를 낮추게 되고<br>이는 MSA 로 발전 하게 되었습니다.</p>
+<p>기존 <code>모놀리스</code>, <code>SOA</code> 에서 단점으로 지적되는 서비스간의 높은 결합도, 배포, 유연성 등 문제점으로 인해 <code>변화에 빠르게 반영</code>을 즉각적으로 대응을 할 수 없으니 이를 개선하고자 <code>MSA</code> 가 탄생 하게 되었습니다.</p>
+<h2 id="MSA-특징-Business-Capabilities"><a href="#MSA-특징-Business-Capabilities" class="headerlink" title="MSA 특징 Business Capabilities"></a>MSA 특징 <code>Business Capabilities</code></h2><p>지금까지 MSA 에 대해 장점을 알아보았습니다. 개인적으로 MSA 가장 큰 장점 중 하나로 생각하는 것은 <code>Business Capabilities</code> 특징에 가장 적합 하다고 생각 합니다.</p>
+<p><code>Business Capabilities</code> 는 얼마나 빠르게 유연하고 신속하게 비지니스 변화에 대응 할 수 있는 능력을 말합니다.</p>
+<p>기존 모놀리스 경우는 “기능 조식” 에 적합한 목적을 가졌지만 MSA 경우는 “목적 조직” 에 초첨을 맞춰져 있습니다.</p>
+<h2 id="MSA-는-단점이-없을까"><a href="#MSA-는-단점이-없을까" class="headerlink" title="MSA 는 단점이 없을까?"></a>MSA 는 단점이 없을까?</h2><p>서비스간 독립적 구성인 MSA 가 Monolithic 비교해서 어렵고 복잡한 것 입니다. MSA 도 분명 단점은 존재하지만 이제 설명하는 단점에 대해<br>MSA 단점 비해 장점이 부각되어 많은 회사들이 사용되고 있는 것 같습니다.</p>
+<p>일단 단점에 대해 설명 하도록 하겠습니다.</p>
+<h3 id="MSA-Transaction-문제"><a href="#MSA-Transaction-문제" class="headerlink" title="MSA Transaction 문제"></a>MSA Transaction 문제</h3><p><img src="/../../../img/MSA/paymentMsa/MSA_problem_transaction.png" alt="MSA Transaction 문제"></p>
+<p>만약 사용자가 결제 시도를 할 경우 결제 서버에서 정산 서버 그리고 회원 서버까지 모든 비니지스 로직이 실행 되어야 전체적인 결제 시도가 완료 됩니다.</p>
+<p>하지만 결제 시도 -&gt; 정산 시도 -&gt; 회원 정보 DB 정보 업데이트 하는 과정에서 DB 문제가 발생되면 이전에 진행되었던 DB 상태 업데이트를 모두 롤백을 해야 합니다.</p>
+<p>결제 서비스 및 정산 서비스 등 각각 독립적인 DB 서버로 연결하고 있기 때문에 회원 서비스에서 DB 문제가 발생되면 이전에 진행되었던 ‘결제’, ‘정산’ 관련 DB 업데이트 된 것은 이미 <code>commit</code><br>되었기 때문에 <code>보상 트랜잭션</code> 또는 <code>Saga</code> 방식 통해 다시 이전 상태로 DB 업데이트를 해야 합니다.</p>
+<p>하지만 이미지를 보시면 결제 프로세스 진행 하는 과정에서 외부 PG 사와 결제 승인을 이루어지고 결제 관련 결과 DB 상태를 업데이트를 했다면 또 이야기는 달라집니다.</p>
+<p>외부 결제 승인 경우는 다시 이전 상태로 되돌리기가 어렵기 때문입니다.</p>
+<h3 id="MSA-Data-Query-문제"><a href="#MSA-Data-Query-문제" class="headerlink" title="MSA Data Query 문제"></a>MSA Data Query 문제</h3><p><img src="/../../../img/MSA/paymentMsa/MSA_problem_data_query.png" alt="MSA Data Query 문제"></p>
+<p>만약 특정 A 이라는 고객이 결제 내역(결제 내역 + 정산 내역 + 회원 정보) 을 조회 한다고 했을시 기존 <code>Monolithic</code> 경우는 하나의 DB 서버로 통해 구성되어 있으니<br>결제 테이블 + 정산 테이블 + 회원 테이블 을 <code>JOIN</code> 통해 쉽게 조회가 가능 할 것 입니다.</p>
+<p>하지만 MSA 경우는 각각 서비스 별로 DB 서버로 구성되어 있기 때문에 결제 내역, 정산 내역, 회원 정보 각각 DB 호출해서 추출한 데이터를 조합해 고객에게 전송 해야 합니다.</p>
+<p>이러한 데이터 조합 처리가 필요하고 기본 보다 호출 횟수로 보았을때 기존 <code>Monolithic</code> 방식 보다 더 많아 지는 경우가 발생 됩니다.</p>
+<h3 id="MSA-Monitoring-문제"><a href="#MSA-Monitoring-문제" class="headerlink" title="MSA Monitoring 문제"></a>MSA Monitoring 문제</h3><p><img src="/../../../img/MSA/paymentMsa/MSA_problem_Monitoring.png" alt="MSA Monitoring 문제"></p>
+<p>기존 <code>Monolithic</code> 경우는 대체적으로 하나의 서버로 통해 모니터링 하면 됩니다. 즉 <code>Monolithic</code> 아키텍쳐 경우 단조로움 덕분에 JVM 상태, 메모리, CPU 등<br>모니터링 경우에도 단조롭게 해결이 가능 합니다.</p>
+<p>하지만 MSA 로 보았을때는 서로 다른 각각의 서비스간 별도 노드로 구성되어 있다보니 각각의 노드들의 서버 상태 등 확인 해야 하고 또한 노드들간의 네트워크 상태 및 서비스간 요청 응답 Latency 시간 등<br>많은 것들을 확인 해야 합니다.</p>
+<p>예를들어 결제 시도를 진행 하는 과정에서 결제 서버 -&gt; 정산 서버 -&gt; 회원 서버 흐름이 있을때 회원 서버에 문제 발생시 회원 서버까지 진행되는 흐름을 전체적으로 파악 하고 있어야 합니다.</p>
+<p>그리고 특정 위치에 호출 요청 응답 Latency 너무 늦어지는 현상이 발생시 단순히 지표로 확인하는 것으로 넘어서 어디서 부터 파생되는 문제인지 전체적인 흐름도 파악 해야 합니다.</p>
+<p>지금까지 MSA 단점에 대해 알아보았습니다. 이러한 단점이 있는데도 MSA 를 사용해야 한다는 것은 단점을 상쇄 할만한 장점이 있다는 것 입니다. 즉 앞써 이야기 한 <code>Business Capabilities</code> 장점이 있다는 것 입니다.<br>그리고 이것을 재대로 효과를 얻기 위해서는 지금까지 이야기 한 단점을 보안 해야 합니다.</p>
+<p>지금부터 단점을 어떻게 극복하고 MSA 를 어떻게 구성 및 구현 해야 하는지 알아보도록 하겠습니다.</p>
 
       
        <hr><span style="font-style: italic;color: gray;"> Copyright 201- syh8088. 무단 전재 및 재배포 금지. 출처 표기 시 인용 가능. </span>
