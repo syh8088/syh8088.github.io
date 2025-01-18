@@ -1,0 +1,2049 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>결제 시스템으로 알아보는 EDA 시스템 | Seo Yang Hun Blog</title>
+  <meta name="keywords" content="">
+  <meta name="description" content="결제 시스템으로 알아보는 EDA 시스템 | Seo Yang Hun Blog">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="description" content="카프카 멱등성 (Idempotency) 및 이벤트 일관성 (Eventual Consistency) 보장하기안녕하세요. Kafka 통해 많은 용도로 사용되고 있습니다. kafka 는 설정을 통해 내가 원하는 수준의 신뢰성 확보 할 수 있다는 것이 장점 입니다. 이번에 소개 드리는 설정 통해 신뢰성을 확보하면서 Kafka 를 활용 해보도록 하겠습니다. Prod">
+<meta property="og:type" content="article">
+<meta property="og:title" content="카프카 멱등성 및 이벤트 일관성 보장하기">
+<meta property="og:url" content="https://syh8088.github.io/2024/12/23/KAFKA/idempotent/Kafka_idempotent/index.html">
+<meta property="og:site_name" content="Seo Yang Hun Blog">
+<meta property="og:description" content="카프카 멱등성 (Idempotency) 및 이벤트 일관성 (Eventual Consistency) 보장하기안녕하세요. Kafka 통해 많은 용도로 사용되고 있습니다. kafka 는 설정을 통해 내가 원하는 수준의 신뢰성 확보 할 수 있다는 것이 장점 입니다. 이번에 소개 드리는 설정 통해 신뢰성을 확보하면서 Kafka 를 활용 해보도록 하겠습니다. Prod">
+<meta property="og:locale">
+<meta property="og:image" content="https://syh8088.github.io/img/KAFKA/idempotent/Produser_Duplication.png">
+<meta property="og:image" content="https://syh8088.github.io/img/KAFKA/idempotent/Produser_EOS.png">
+<meta property="og:image" content="https://syh8088.github.io/img/KAFKA/idempotent/MissingAutocommit_1.png">
+<meta property="og:image" content="https://syh8088.github.io/img/KAFKA/idempotent/MissingAutocommit_2.png">
+<meta property="og:image" content="https://syh8088.github.io/img/KAFKA/idempotent/MissingAutocommit_3.png">
+<meta property="og:image" content="https://syh8088.github.io/img/KAFKA/idempotent/duplicationAutocommit_1.png">
+<meta property="og:image" content="https://syh8088.github.io/img/KAFKA/idempotent/duplicationAutocommit_2.png">
+<meta property="article:published_time" content="2024-12-22T22:47:42.000Z">
+<meta property="article:modified_time" content="2024-12-25T15:15:01.343Z">
+<meta property="article:author" content="Seo Yang Hun">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://syh8088.github.io/img/KAFKA/idempotent/Produser_Duplication.png">
+
+
+<link rel="icon" href="/img/avatar.jpg">
+
+<link href="/css/style.css?v=1.1.0" rel="stylesheet">
+
+<link href="/css/hl_theme/atom-light.css?v=1.1.0" rel="stylesheet">
+
+<link href="//cdn.jsdelivr.net/npm/animate.css@4.1.0/animate.min.css" rel="stylesheet">
+
+<script src="//cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"></script>
+<script src="/js/titleTip.js?v=1.1.0" ></script>
+
+<script src="//cdn.jsdelivr.net/npm/highlightjs@9.16.2/highlight.pack.min.js"></script>
+<script>
+    hljs.initHighlightingOnLoad();
+</script>
+
+<script src="//cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.js"></script>
+
+
+
+<script src="//cdn.jsdelivr.net/npm/jquery.cookie@1.4.1/jquery.cookie.min.js" ></script>
+
+<script src="/js/iconfont.js?v=1.1.0" ></script>
+
+<meta name="generator" content="Hexo 7.2.0"></head>
+<div style="display: none">
+  <input class="theme_disqus_on" value="false">
+  <input class="theme_preload_comment" value="">
+  <input class="theme_blog_path" value="">
+  <input id="theme_shortcut" value="true" />
+  <input id="theme_highlight_on" value="true" />
+  <input id="theme_code_copy" value="true" />
+</div>
+
+
+
+<body>
+<aside class="nav">
+    <div class="nav-left">
+        <a href="/"
+   class="avatar_target">
+    <img class="avatar"
+         src="/img/avatar.jpg"/>
+</a>
+<div class="author">
+    <span>Seo Yang Hun</span>
+</div>
+
+<div class="icon">
+    
+        
+            <a title="rss"
+               href="/atom.xml"
+               target="_blank">
+                
+                    <svg class="iconfont-svg" aria-hidden="true">
+                        <use xlink:href="#icon-rss"></use>
+                    </svg>
+                
+            </a>
+        
+    
+        
+            <a title="github"
+               href="https://github.com/syh8088"
+               target="_blank">
+                
+                    <svg class="iconfont-svg" aria-hidden="true">
+                        <use xlink:href="#icon-github"></use>
+                    </svg>
+                
+            </a>
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+            <a title="email"
+               href="mailto:syh8088@gmail.com"
+               target="_blank">
+                
+                    <svg class="iconfont-svg" aria-hidden="true">
+                        <use xlink:href="#icon-email"></use>
+                    </svg>
+                
+            </a>
+        
+    
+        
+            <a title="qq"
+               href="http://wpa.qq.com/msgrd?v=3&uin=872336115&site=qq&menu=yes"
+               target="_blank">
+                
+                    <svg class="iconfont-svg" aria-hidden="true">
+                        <use xlink:href="#icon-qq"></use>
+                    </svg>
+                
+            </a>
+        
+    
+        
+    
+        
+    
+</div>
+
+
+
+
+
+<ul>
+    <li>
+        <div class="all active" data-rel="All">All
+            
+                <small>(60)</small>
+            
+        </div>
+    </li>
+    
+        
+            
+                
+    <li>
+        <div data-rel="Authentication">
+            <i class="fold iconfont icon-right"></i>
+            Authentication
+            <small>(2)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="Authentication&lt;---&gt;JWT">
+            
+            JWT
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="Authentication&lt;---&gt;Oauth">
+            
+            Oauth
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="CI-CD">
+            <i class="fold iconfont icon-right"></i>
+            CI-CD
+            <small>(9)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="CI-CD&lt;---&gt;GitHubActions">
+            
+            GitHubActions
+            <small>(6)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="CI-CD&lt;---&gt;Jenkins">
+            
+            Jenkins
+            <small>(3)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="DB">
+            <i class="fold iconfont icon-right"></i>
+            DB
+            <small>(4)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="DB&lt;---&gt;Mysql">
+            <i class="fold iconfont icon-right"></i>
+            Mysql
+            <small>(4)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="DB&lt;---&gt;Mysql&lt;---&gt;DBCP">
+            
+            DBCP
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="DB&lt;---&gt;Mysql&lt;---&gt;optimizing">
+            
+            optimizing
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="DB&lt;---&gt;Mysql&lt;---&gt;Paging">
+            
+            Paging
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="J">
+            <i class="fold iconfont icon-right"></i>
+            J
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="J&lt;---&gt;Jenkins">
+            
+            Jenkins
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="JAVA">
+            <i class="fold iconfont icon-right"></i>
+            JAVA
+            <small>(29)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;HTTP">
+            <i class="fold iconfont icon-right"></i>
+            HTTP
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;HTTP&lt;---&gt;FeignClient">
+            
+            FeignClient
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;JPA">
+            
+            JPA
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;Object">
+            
+            Object
+            <small>(2)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;Payment">
+            
+            Payment
+            <small>(5)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;Security">
+            
+            Security
+            <small>(4)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;Spring">
+            <i class="fold iconfont icon-right"></i>
+            Spring
+            <small>(2)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;Spring&lt;---&gt;Payment">
+            <i class="fold iconfont icon-right"></i>
+            Payment
+            <small>(2)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;Spring&lt;---&gt;Payment&lt;---&gt;junit5">
+            <i class="fold iconfont icon-right"></i>
+            junit5
+            <small>(2)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;Spring&lt;---&gt;Payment&lt;---&gt;junit5&lt;---&gt;Mockito">
+            
+            Mockito
+            <small>(2)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;SpringBatch">
+            
+            SpringBatch
+            <small>(5)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;SpringBootAndSecurityAndJWT">
+            
+            SpringBootAndSecurityAndJWT
+            <small>(3)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;SpringCloudConfig">
+            
+            SpringCloudConfig
+            <small>(4)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;Transaction">
+            
+            Transaction
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;Validator">
+            
+            Validator
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="JavaScript">
+            <i class="fold iconfont icon-right"></i>
+            JavaScript
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="JavaScript&lt;---&gt;Webpack">
+            
+            Webpack
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="Kafka">
+            <i class="fold iconfont icon-right"></i>
+            Kafka
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="Kafka&lt;---&gt;idempotent">
+            
+            idempotent
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="KUBERNETES">
+            
+            KUBERNETES
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="MSA">
+            <i class="fold iconfont icon-right"></i>
+            MSA
+            <small>(3)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="MSA&lt;---&gt;Payment">
+            <i class="fold iconfont icon-right"></i>
+            Payment
+            <small>(3)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="MSA&lt;---&gt;Payment&lt;---&gt;Kafka">
+            <i class="fold iconfont icon-right"></i>
+            Kafka
+            <small>(3)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="MSA&lt;---&gt;Payment&lt;---&gt;Kafka&lt;---&gt;EDA">
+            <i class="fold iconfont icon-right"></i>
+            EDA
+            <small>(3)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="MSA&lt;---&gt;Payment&lt;---&gt;Kafka&lt;---&gt;EDA&lt;---&gt;CQRS">
+            
+            CQRS
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="MSA&lt;---&gt;Payment&lt;---&gt;Kafka&lt;---&gt;EDA&lt;---&gt;Saga">
+            <i class="fold iconfont icon-right"></i>
+            Saga
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="MSA&lt;---&gt;Payment&lt;---&gt;Kafka&lt;---&gt;EDA&lt;---&gt;Saga&lt;---&gt;Axon">
+            
+            Axon
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="NoSQL">
+            <i class="fold iconfont icon-right"></i>
+            NoSQL
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="NoSQL&lt;---&gt;Redis">
+            <i class="fold iconfont icon-right"></i>
+            Redis
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="NoSQL&lt;---&gt;Redis&lt;---&gt;RateLimiter">
+            
+            RateLimiter
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="R">
+            
+            R
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="대용량 트래픽">
+            <i class="fold iconfont icon-right"></i>
+            대용량 트래픽
+            <small>(3)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="대용량 트래픽&lt;---&gt;EDA">
+            <i class="fold iconfont icon-right"></i>
+            EDA
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="대용량 트래픽&lt;---&gt;EDA&lt;---&gt;Payment">
+            <i class="fold iconfont icon-right"></i>
+            Payment
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="대용량 트래픽&lt;---&gt;EDA&lt;---&gt;Payment&lt;---&gt;Redis">
+            <i class="fold iconfont icon-right"></i>
+            Redis
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="대용량 트래픽&lt;---&gt;EDA&lt;---&gt;Payment&lt;---&gt;Redis&lt;---&gt;Kafka">
+            
+            Kafka
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="대용량 트래픽&lt;---&gt;Redis">
+            <i class="fold iconfont icon-right"></i>
+            Redis
+            <small>(2)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="대용량 트래픽&lt;---&gt;Redis&lt;---&gt;Kafka">
+            
+            Kafka
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="대용량 트래픽&lt;---&gt;Redis&lt;---&gt;WebFlux">
+            <i class="fold iconfont icon-right"></i>
+            WebFlux
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="대용량 트래픽&lt;---&gt;Redis&lt;---&gt;WebFlux&lt;---&gt;접근자 대기열">
+            
+            접근자 대기열
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+</ul>
+<div class="left-bottom">
+    <div class="menus">
+        
+            
+            
+            
+    </div>
+    <div>
+        
+            <a class="about  hasFriend  site_url"
+               
+               href="/about">About</a>
+        
+        <a style="width: 50%"
+                
+                                           class="friends">Friends</a>
+        
+    </div>
+</div>
+<input type="hidden" id="yelog_site_posts_number" value="60">
+
+<div style="display: none">
+    <span id="busuanzi_value_site_uv"></span>
+    <span id="busuanzi_value_site_pv"></span>
+</div>
+
+    </div>
+    <div class="nav-right">
+        <div class="friends-area">
+    <div class="friends-title">
+        Links
+        <i class="iconfont icon-left"></i>
+    </div>
+    <div class="friends-content">
+        <ul>
+            
+            <li><a target="_blank" href="http://yelog.org/">叶落阁</a></li>
+            
+        </ul>
+    </div>
+</div>
+        <div class="title-list">
+    <div class="right-top">
+        <div id="default-panel">
+            <i class="iconfont icon-search" data-title="search shortcut key i"></i>
+            <div class="right-title">All</div>
+            <i class="iconfont icon-file-tree" data-title="switch to outline view shortcut key w"></i>
+        </div>
+        <div id="search-panel">
+            <i class="iconfont icon-left" data-title="return"></i>
+            <input id="local-search-input" autocomplete="off"/>
+            <label class="border-line" for="input"></label>
+            <i class="iconfont icon-case-sensitive" data-title="case sensitive"></i>
+            <i class="iconfont icon-tag" data-title="label"></i>
+        </div>
+        <div id="outline-panel" style="display: none">
+            <div class="right-title">outline</div>
+            <i class="iconfont icon-list" data-title="switch to article list"></i>
+        </div>
+    </div>
+
+    <div class="tags-list">
+    <input id="tag-search" />
+    <div class="tag-wrapper">
+        
+    </div>
+
+</div>
+
+    
+    <nav id="title-list-nav">
+        
+        
+        <a  class="All Kafka idempotent "
+           href="/2024/12/23/KAFKA/idempotent/Kafka_idempotent/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="카프카 멱등성 및 이벤트 일관성 보장하기">카프카 멱등성 및 이벤트 일관성 보장하기</span>
+            <span class="post-date" title="2024-12-23 07:47:42">2024/12/23</span>
+        </a>
+        
+        
+        <a  class="All MSA Payment Kafka EDA CQRS "
+           href="/2024/12/16/MSA/paymentMsa/MSA_Payment_Project_3/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="결제 시스템으로 알아보는 MSA 3 - 쿼리 문제">결제 시스템으로 알아보는 MSA 3 - 쿼리 문제</span>
+            <span class="post-date" title="2024-12-16 07:47:42">2024/12/16</span>
+        </a>
+        
+        
+        <a  class="All MSA Payment Kafka EDA Saga Axon "
+           href="/2024/12/15/MSA/paymentMsa/MSA_Payment_Project_2/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="결제 시스템으로 알아보는 MSA 2 - 분산 트랜잭션 구현">결제 시스템으로 알아보는 MSA 2 - 분산 트랜잭션 구현</span>
+            <span class="post-date" title="2024-12-15 07:47:42">2024/12/15</span>
+        </a>
+        
+        
+        <a  class="All MSA Payment Kafka EDA "
+           href="/2024/12/14/MSA/paymentMsa/MSA_Payment_Project_1/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="결제 시스템으로 알아보는 MSA 1 - 기본 설명">결제 시스템으로 알아보는 MSA 1 - 기본 설명</span>
+            <span class="post-date" title="2024-12-14 07:47:42">2024/12/14</span>
+        </a>
+        
+        
+        <a  class="All 대용량 트래픽 EDA Payment Redis Kafka "
+           href="/2024/12/13/HIGH_VOLUME_TRAFFIC/PaymentEDA/PaymentEDA/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="결제 시스템으로 알아보는 EDA 시스템">결제 시스템으로 알아보는 EDA 시스템</span>
+            <span class="post-date" title="2024-12-13 07:47:42">2024/12/13</span>
+        </a>
+        
+        
+        <a  class="All DB Mysql optimizing "
+           href="/2024/12/06/DB/Mysql/optimizing/IndexDiveOptimizaiton/IndexDiveOptimizaiton/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Index Dive 최적화">Index Dive 최적화</span>
+            <span class="post-date" title="2024-12-06 07:47:42">2024/12/06</span>
+        </a>
+        
+        
+        <a  class="All JAVA Spring Payment junit5 Mockito "
+           href="/2024/12/03/JAVA/TEST/PaymentTesting/PaymentTesting2/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="결제 Testing - 2">결제 Testing - 2</span>
+            <span class="post-date" title="2024-12-03 15:50:00">2024/12/03</span>
+        </a>
+        
+        
+        <a  class="All JAVA Spring Payment junit5 Mockito "
+           href="/2024/12/02/JAVA/TEST/PaymentTesting/PaymentTesting1/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="결제 Testing - 1">결제 Testing - 1</span>
+            <span class="post-date" title="2024-12-02 15:50:00">2024/12/02</span>
+        </a>
+        
+        
+        <a  class="All 대용량 트래픽 Redis WebFlux 접근자 대기열 "
+           href="/2024/11/28/HIGH_VOLUME_TRAFFIC/AccessorQueuingSystem/AccessorQueuingSystem/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="대용량 트래픽 - 접근자 대기열 시스템 만들기">대용량 트래픽 - 접근자 대기열 시스템 만들기</span>
+            <span class="post-date" title="2024-11-28 07:47:42">2024/11/28</span>
+        </a>
+        
+        
+        <a  class="All 대용량 트래픽 Redis Kafka "
+           href="/2024/11/22/HIGH_VOLUME_TRAFFIC/CreateCoupon/CreateCoupon/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="대용량 트래픽 - 선착순 쿠폰 등록 With Kafka, Redis">대용량 트래픽 - 선착순 쿠폰 등록 With Kafka, Redis</span>
+            <span class="post-date" title="2024-11-22 07:47:42">2024/11/22</span>
+        </a>
+        
+        
+        <a  class="All NoSQL Redis RateLimiter "
+           href="/2024/11/19/NoSQL/Redis/RateLimiter/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Request Rate Limiter 구현하기">Request Rate Limiter 구현하기</span>
+            <span class="post-date" title="2024-11-19 07:47:42">2024/11/19</span>
+        </a>
+        
+        
+        <a  class="All CI-CD GitHubActions "
+           href="/2024/10/20/CI-CD/GitHunActions/GitHubActionsCICDWithSpringBoot6/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="GitHubActions CICD With SpringBoot - 6">GitHubActions CICD With SpringBoot - 6</span>
+            <span class="post-date" title="2024-10-20 07:47:42">2024/10/20</span>
+        </a>
+        
+        
+        <a  class="All CI-CD GitHubActions "
+           href="/2024/10/19/CI-CD/GitHunActions/GitHubActionsCICDWithSpringBoot5/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="GitHubActions CICD With SpringBoot - 5">GitHubActions CICD With SpringBoot - 5</span>
+            <span class="post-date" title="2024-10-19 07:47:42">2024/10/19</span>
+        </a>
+        
+        
+        <a  class="All CI-CD GitHubActions "
+           href="/2024/10/18/CI-CD/GitHunActions/GitHubActionsCICDWithSpringBoot4/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="GitHubActions CICD With SpringBoot - 4">GitHubActions CICD With SpringBoot - 4</span>
+            <span class="post-date" title="2024-10-18 07:47:42">2024/10/18</span>
+        </a>
+        
+        
+        <a  class="All CI-CD GitHubActions "
+           href="/2024/10/17/CI-CD/GitHunActions/GitHubActionsCICDWithSpringBoot3/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="GitHubActions CICD With SpringBoot - 3">GitHubActions CICD With SpringBoot - 3</span>
+            <span class="post-date" title="2024-10-17 07:47:42">2024/10/17</span>
+        </a>
+        
+        
+        <a  class="All CI-CD GitHubActions "
+           href="/2024/10/14/CI-CD/GitHunActions/GitHubActionsCICDWithSpringBoot2/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="GitHubActions CICD With SpringBoot - 2">GitHubActions CICD With SpringBoot - 2</span>
+            <span class="post-date" title="2024-10-14 07:47:42">2024/10/14</span>
+        </a>
+        
+        
+        <a  class="All CI-CD GitHubActions "
+           href="/2024/10/14/CI-CD/GitHunActions/GitHubActionsCICDWithSpringBoot1/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="GitHubActions CICD With SpringBoot - 1">GitHubActions CICD With SpringBoot - 1</span>
+            <span class="post-date" title="2024-10-14 07:47:42">2024/10/14</span>
+        </a>
+        
+        
+        <a  class="All DB Mysql Paging "
+           href="/2024/10/06/DB/Mysql/PagingQuery/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Paging Query 성능 개선 및 처리 방법 - 튜닝편">Paging Query 성능 개선 및 처리 방법 - 튜닝편</span>
+            <span class="post-date" title="2024-10-06 07:47:42">2024/10/06</span>
+        </a>
+        
+        
+        <a  class="All DB Mysql DBCP "
+           href="/2024/10/02/DB/Mysql/mysqlDBCP/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="DBCP 설정 방법">DBCP 설정 방법</span>
+            <span class="post-date" title="2024-10-02 07:47:42">2024/10/02</span>
+        </a>
+        
+        
+        <a  class="All JAVA Object "
+           href="/2024/08/24/JAVA/Object/InheritanceComposition2/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="상속과 합성 이야기-2">상속과 합성 이야기-2</span>
+            <span class="post-date" title="2024-08-24 15:50:00">2024/08/24</span>
+        </a>
+        
+        
+        <a  class="All JAVA Object "
+           href="/2024/08/23/JAVA/Object/InheritanceComposition1/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="상속과 합성 이야기-1">상속과 합성 이야기-1</span>
+            <span class="post-date" title="2024-08-23 15:50:00">2024/08/23</span>
+        </a>
+        
+        
+        <a  class="All JAVA Payment "
+           href="/2024/08/06/JAVA/Payment/PaymentTransactionalOutboxpattern/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="결제 시스템 구축 - 5">결제 시스템 구축 - 5</span>
+            <span class="post-date" title="2024-08-06 15:50:00">2024/08/06</span>
+        </a>
+        
+        
+        <a  class="All JAVA Payment "
+           href="/2024/08/05/JAVA/Payment/PaymentRetry/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="결제 시스템 구축 - 4">결제 시스템 구축 - 4</span>
+            <span class="post-date" title="2024-08-05 15:50:00">2024/08/05</span>
+        </a>
+        
+        
+        <a  class="All JAVA Payment "
+           href="/2024/07/28/JAVA/Payment/BuildingPaymentSystem/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="결제 시스템 구축 - 1">결제 시스템 구축 - 1</span>
+            <span class="post-date" title="2024-07-28 15:50:00">2024/07/28</span>
+        </a>
+        
+        
+        <a  class="All JAVA Payment "
+           href="/2024/07/28/JAVA/Payment/PaymentCheckOut/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="결제 시스템 구축 - 2">결제 시스템 구축 - 2</span>
+            <span class="post-date" title="2024-07-28 15:50:00">2024/07/28</span>
+        </a>
+        
+        
+        <a  class="All JAVA Payment "
+           href="/2024/07/28/JAVA/Payment/PaymentConfirm/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="결제 시스템 구축 - 3">결제 시스템 구축 - 3</span>
+            <span class="post-date" title="2024-07-28 15:50:00">2024/07/28</span>
+        </a>
+        
+        
+        <a  class="All "
+           href="/2024/05/31/hello-world/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Hello World">Hello World</span>
+            <span class="post-date" title="2024-05-31 22:32:19">2024/05/31</span>
+        </a>
+        
+        
+        <a  class="All "
+           href="/2024/05/31/README/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title=""></span>
+            <span class="post-date" title="2024-05-31 22:32:19">2024/05/31</span>
+        </a>
+        
+        
+        <a  class="All JAVA Security "
+           href="/2024/05/30/JAVA/Security/AnonymousAuthenticationFilter/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="AnonymousAuthenticationFilter">AnonymousAuthenticationFilter</span>
+            <span class="post-date" title="2024-05-30 10:04:43">2024/05/30</span>
+        </a>
+        
+        
+        <a  class="All "
+           href="/2024/02/01/HIGH_VOLUME_TRAFFIC/AccessorQueuingSystem2/AccessorQueuingSystem/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="패스트캠퍼스 9개 프로젝트로 경험하는 대용량 트래픽 &amp; 데이터 처리 초격차 패키지 Online. 수강">패스트캠퍼스 9개 프로젝트로 경험하는 대용량 트래픽 &amp; 데이터 처리 초격차 패키지 Online. 수강</span>
+            <span class="post-date" title="2024-02-01 00:00:00">2024/02/01</span>
+        </a>
+        
+        
+        <a  class="All Authentication JWT "
+           href="/2021/11/27/AUTHTICATION/JWT/jwt/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="JWT (JSON Web Token) 이해하기">JWT (JSON Web Token) 이해하기</span>
+            <span class="post-date" title="2021-11-27 07:47:42">2021/11/27</span>
+        </a>
+        
+        
+        <a  class="All Authentication Oauth "
+           href="/2021/11/27/AUTHTICATION/OAUTH/oauth/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="OAUTH 2.0 이해하기">OAUTH 2.0 이해하기</span>
+            <span class="post-date" title="2021-11-27 07:47:42">2021/11/27</span>
+        </a>
+        
+        
+        <a  class="All JAVA HTTP FeignClient "
+           href="/2021/11/08/JAVA/HTTP/FeignClient/FeignClient/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="FeignClient 활용도">FeignClient 활용도</span>
+            <span class="post-date" title="2021-11-08 10:04:43">2021/11/08</span>
+        </a>
+        
+        
+        <a  class="All JAVA SpringBatch "
+           href="/2021/11/04/JAVA/Batch/SpringBatch5/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Batch - Chunk 5">Spring Batch - Chunk 5</span>
+            <span class="post-date" title="2021-11-04 07:47:42">2021/11/04</span>
+        </a>
+        
+        
+        <a  class="All JAVA SpringBatch "
+           href="/2021/10/30/JAVA/Batch/SpringBatch4/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Batch - Flow 4">Spring Batch - Flow 4</span>
+            <span class="post-date" title="2021-10-30 07:47:42">2021/10/30</span>
+        </a>
+        
+        
+        <a  class="All JAVA SpringBatch "
+           href="/2021/10/24/JAVA/Batch/SpringBatch3/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Batch - 메타데이터 스키마 3">Spring Batch - 메타데이터 스키마 3</span>
+            <span class="post-date" title="2021-10-24 07:47:42">2021/10/24</span>
+        </a>
+        
+        
+        <a  class="All JAVA SpringBatch "
+           href="/2021/10/19/JAVA/Batch/SpringBatch2/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Batch - Job, Step 2">Spring Batch - Job, Step 2</span>
+            <span class="post-date" title="2021-10-19 07:47:42">2021/10/19</span>
+        </a>
+        
+        
+        <a  class="All JAVA SpringBatch "
+           href="/2021/10/17/JAVA/Batch/SpringBatch1/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Batch 1">Spring Batch 1</span>
+            <span class="post-date" title="2021-10-17 07:47:42">2021/10/17</span>
+        </a>
+        
+        
+        <a  class="All JAVA SpringCloudConfig "
+           href="/2021/09/13/JAVA/SpringCloudConfig/spring-cloud-config4/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="비대칭키를 이용한 application.yml 설정값 암호화">비대칭키를 이용한 application.yml 설정값 암호화</span>
+            <span class="post-date" title="2021-09-13 07:47:45">2021/09/13</span>
+        </a>
+        
+        
+        <a  class="All JAVA SpringCloudConfig "
+           href="/2021/09/13/JAVA/SpringCloudConfig/spring-cloud-config3/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Cloud Bus">Spring Cloud Bus</span>
+            <span class="post-date" title="2021-09-13 07:47:44">2021/09/13</span>
+        </a>
+        
+        
+        <a  class="All JAVA SpringCloudConfig "
+           href="/2021/09/13/JAVA/SpringCloudConfig/spring-cloud-config2/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Boot Actuator">Spring Boot Actuator</span>
+            <span class="post-date" title="2021-09-13 07:47:43">2021/09/13</span>
+        </a>
+        
+        
+        <a  class="All JAVA SpringCloudConfig "
+           href="/2021/09/13/JAVA/SpringCloudConfig/spring-cloud-config/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Cloud Config">Spring Cloud Config</span>
+            <span class="post-date" title="2021-09-13 07:47:42">2021/09/13</span>
+        </a>
+        
+        
+        <a  class="All JAVA Transaction "
+           href="/2021/03/14/JAVA/Transaction/multi-transaction/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Java Multi-Transaction 관리">Java Multi-Transaction 관리</span>
+            <span class="post-date" title="2021-03-14 07:47:42">2021/03/14</span>
+        </a>
+        
+        
+        <a  class="All JAVA Validator "
+           href="/2020/12/18/JAVA/VALIDATOR/validator/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Java Validator 관리">Java Validator 관리</span>
+            <span class="post-date" title="2020-12-18 07:47:42">2020/12/18</span>
+        </a>
+        
+        
+        <a  class="All JAVA Security "
+           href="/2020/11/19/JAVA/Security/SessionManagementFilterAndConcurrentSessionFilter/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="SessionManagementFilterAndConcurrentSessionFilter">SessionManagementFilterAndConcurrentSessionFilter</span>
+            <span class="post-date" title="2020-11-19 18:02:23">2020/11/19</span>
+        </a>
+        
+        
+        <a  class="All JAVA Security "
+           href="/2020/11/14/JAVA/Security/RememberMeAuthenticationFilter/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="RememberMeAuthenticationFilter">RememberMeAuthenticationFilter</span>
+            <span class="post-date" title="2020-11-14 07:40:06">2020/11/14</span>
+        </a>
+        
+        
+        <a  class="All JAVA Security "
+           href="/2020/11/13/JAVA/Security/UsernamePasswordAuthenticationFilter/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="UsernamePasswordAuthenticationFilter">UsernamePasswordAuthenticationFilter</span>
+            <span class="post-date" title="2020-11-13 08:51:13">2020/11/13</span>
+        </a>
+        
+        
+        <a  class="All CI-CD Jenkins "
+           href="/2020/11/09/CI-CD/Jenkins/JenkinsGitLabConnect/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Jenkins_GitLab_연동">Jenkins_GitLab_연동</span>
+            <span class="post-date" title="2020-11-09 07:47:42">2020/11/09</span>
+        </a>
+        
+        
+        <a  class="All CI-CD Jenkins "
+           href="/2020/11/08/CI-CD/Jenkins/JenkinsGitLabSshConnect/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="젠킨스와 GitLab ssh 연동하기">젠킨스와 GitLab ssh 연동하기</span>
+            <span class="post-date" title="2020-11-08 07:47:42">2020/11/08</span>
+        </a>
+        
+        
+        <a  class="All JAVA JPA "
+           href="/2020/11/08/JAVA/JPA/eagerJpqlNplus1/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="eagerJpqlNplus1">eagerJpqlNplus1</span>
+            <span class="post-date" title="2020-11-08 07:47:42">2020/11/08</span>
+        </a>
+        
+        
+        <a  class="All JAVA SpringBootAndSecurityAndJWT "
+           href="/2020/11/08/JAVA/SpringBootAndSecurityAndJWT/spring-boot-security-jwt-social/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Boot 를 이용해 JWT + Social 로그인 처리 - Authorization Server (일반 로그인)">Spring Boot 를 이용해 JWT + Social 로그인 처리 - Authorization Server (일반 로그인)</span>
+            <span class="post-date" title="2020-11-08 07:47:42">2020/11/08</span>
+        </a>
+        
+        
+        <a  class="All JAVA SpringBootAndSecurityAndJWT "
+           href="/2020/11/08/JAVA/SpringBootAndSecurityAndJWT/spring-boot-security-jwt-social2/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Boot 를 이용해 JWT + Social 로그인 처리 - Authorization Server (Social 로그인)">Spring Boot 를 이용해 JWT + Social 로그인 처리 - Authorization Server (Social 로그인)</span>
+            <span class="post-date" title="2020-11-08 07:47:42">2020/11/08</span>
+        </a>
+        
+        
+        <a  class="All JAVA SpringBootAndSecurityAndJWT "
+           href="/2020/11/08/JAVA/SpringBootAndSecurityAndJWT/spring-boot-security-jwt-social3/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Boot 를 이용해 JWT + Social 로그인 처리 - Resource Server">Spring Boot 를 이용해 JWT + Social 로그인 처리 - Resource Server</span>
+            <span class="post-date" title="2020-11-08 07:47:42">2020/11/08</span>
+        </a>
+        
+        
+        <a  class="All J Jenkins "
+           href="/2020/11/07/JAVA/Security/JKSGenerate/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="JKSGenerate">JKSGenerate</span>
+            <span class="post-date" title="2020-11-07 13:46:21">2020/11/07</span>
+        </a>
+        
+        
+        <a  class="All CI-CD Jenkins "
+           href="/2020/11/07/CI-CD/Jenkins/JenkinsInstall/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="쿠버네티스 환경 구성">쿠버네티스 환경 구성</span>
+            <span class="post-date" title="2020-11-07 07:47:42">2020/11/07</span>
+        </a>
+        
+        
+        <a  class="All DB Mysql "
+           href="/2020/11/07/DB/Mysql/mysqlReplicationSetting/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Mysql_Replication_설정">Mysql_Replication_설정</span>
+            <span class="post-date" title="2020-11-07 07:47:42">2020/11/07</span>
+        </a>
+        
+        
+        <a  class="All KUBERNETES "
+           href="/2020/11/07/KUBERNETES/%EC%89%BD%EA%B2%8C_%EC%8B%9C%EC%9E%91%ED%95%98%EB%8A%94_%EC%BF%A0%EB%B2%84%EB%84%A4%ED%8B%B0%EC%8A%A4/%EC%BF%A0%EB%B2%84%EB%84%A4%ED%8B%B0%EC%8A%A4_%ED%99%98%EA%B2%BD_%EA%B5%AC%EC%84%B1/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Jenkins_설치">Jenkins_설치</span>
+            <span class="post-date" title="2020-11-07 07:47:42">2020/11/07</span>
+        </a>
+        
+        
+        <a  class="All R "
+           href="/2020/10/17/R/RServerInstall/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="RServer 설치">RServer 설치</span>
+            <span class="post-date" title="2020-10-17 07:47:42">2020/10/17</span>
+        </a>
+        
+        
+        <a  class="All JavaScript Webpack "
+           href="/2020/10/17/JAVASCRIPT/Webpack/devtool/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="WebPack - DevTool">WebPack - DevTool</span>
+            <span class="post-date" title="2020-10-17 07:47:42">2020/10/17</span>
+        </a>
+        
+        
+        <a  class="All "
+           href="/2018/12/02/%EB%A9%B4%EC%A0%91%EC%A4%80%EB%B9%84/test/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="그냥... 잡다한 지식 모음집">그냥... 잡다한 지식 모음집</span>
+            <span class="post-date" title="2018-12-02 15:50:00">2018/12/02</span>
+        </a>
+        
+        <div id="no-item-tips">
+
+        </div>
+    </nav>
+    <div id="outline-list">
+    </div>
+</div>
+
+    </div>
+    <div class="hide-list">
+        <div class="semicircle" data-title="Toggle full screen shortcut key s">
+            <div class="brackets first"><</div>
+            <div class="brackets">&gt;</div>
+        </div>
+    </div>
+</aside>
+<div id="post">
+    <div class="pjax">
+        <article id="post-HIGH_VOLUME_TRAFFIC/PaymentEDA/PaymentEDA" class="article article-type-post" itemscope itemprop="blogPost">
+    
+        <h1 class="article-title">결제 시스템으로 알아보는 EDA 시스템</h1>
+    
+    <div class="article-meta">
+        
+        
+        
+        <span class="book">
+            <i class="iconfont icon-category"></i>
+            
+            
+            <a  data-rel="대용량 트래픽">대용량 트래픽</a> > 
+            
+            <a  data-rel="대용량 트래픽&lt;---&gt;EDA">EDA</a> > 
+            
+            <a  data-rel="대용량 트래픽&lt;---&gt;EDA&lt;---&gt;Payment">Payment</a> > 
+            
+            <a  data-rel="대용량 트래픽&lt;---&gt;EDA&lt;---&gt;Payment&lt;---&gt;Redis">Redis</a> > 
+            
+            <a  data-rel="대용량 트래픽&lt;---&gt;EDA&lt;---&gt;Payment&lt;---&gt;Redis&lt;---&gt;Kafka">Kafka</a>
+            
+        </span>
+        
+        
+    </div>
+    <div class="article-meta">
+        
+            Created At : <time class="date" title='Updated At: 2025-01-13 19:29:10'>2024-12-13 07:47</time>
+        
+    </div>
+    <div class="article-meta">
+        
+        
+        <span id="busuanzi_container_page_pv">
+            Views 👀 :<span id="busuanzi_value_page_pv">
+                <span class="count-comment">
+                    <span class="spinner">
+                      <div class="cube1"></div>
+                      <div class="cube2"></div>
+                    </span>
+                </span>
+            </span>
+        </span>
+        
+        
+    </div>
+    
+    <div class="toc-ref">
+    
+        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%EC%98%88%EC%A0%9C-%EC%86%8C%EC%8A%A4-%EC%BD%94%EB%93%9C"><span class="toc-text">예제 소스 코드</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%EA%B2%B0%EC%A0%9C-%EC%8B%9C%EC%8A%A4%ED%85%9C%EC%9C%BC%EB%A1%9C-%EC%95%8C%EC%95%84%EB%B3%B4%EB%8A%94-EDA-%EC%8B%9C%EC%8A%A4%ED%85%9C"><span class="toc-text">결제 시스템으로 알아보는 EDA 시스템</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%EA%B8%89%EA%B2%A9%ED%95%98%EA%B2%8C-%EB%8C%80%EB%9F%89%EC%9D%98-%EC%9A%94%EC%B2%AD%EC%9D%B4-%EB%93%A4%EC%96%B4%EC%98%A8%EB%8B%A4%EB%A9%B4"><span class="toc-text">급격하게 대량의 요청이 들어온다면?</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Scale-Up-VS-Scale-Out"><span class="toc-text">Scale-Up VS Scale-Out</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%ED%99%95%EC%9E%A5%EC%9C%BC%EB%A1%9C-%ED%86%B5%ED%95%B4-%ED%95%B4%EA%B2%B0%EB%90%98%EC%A7%80-%EC%95%8A%EB%8A%94-%EB%AC%B8%EC%A0%9C"><span class="toc-text">확장으로 통해 해결되지 않는 문제</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#EDA-Event-Driven-Architecture-%EB%9E%80"><span class="toc-text">EDA (Event Driven Architecture) 란??</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%EA%B2%B0%EC%A0%9C-%EC%8B%9C%EC%8A%A4%ED%85%9C-EDA"><span class="toc-text">결제 시스템 EDA</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%EB%A9%94%EC%8B%9C%EC%A7%80-%EC%A0%84%EB%8B%AC-%EB%B3%B4%EC%9E%A5-Message-Delivery-Guarantees-%EA%B3%A0%EB%A0%A4-%ED%95%B4%EB%B3%B4%EA%B8%B0"><span class="toc-text">메시지 전달 보장 (Message Delivery Guarantees) 고려 해보기</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Idempotency-%EB%A9%B1%EB%93%B1%EC%84%B1"><span class="toc-text">Idempotency (멱등성)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Optimistic-Locking-%EC%9D%B4%EC%9A%A9%ED%95%B4%EC%84%9C-%EB%8D%B0%EC%9D%B4%ED%84%B0-%EC%9D%BC%EA%B4%80%EC%84%B1-%EC%9C%A0%EC%A7%80%ED%95%98%EA%B8%B0"><span class="toc-text">Optimistic Locking 이용해서 데이터 일관성 유지하기</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Retry-Queue-%EC%99%80-Dead-Letter-Queue-%EC%9D%B4%EC%9A%A9%ED%95%B4%EC%84%9C-%EB%A9%94%EC%8B%9C%EC%A7%80-%EB%B3%B4%EC%9E%A5-%ED%9A%8D%EB%93%9D-%ED%95%98%EA%B8%B0"><span class="toc-text">Retry Queue 와 Dead Letter Queue 이용해서 메시지 보장 획득 하기</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Transaction-OutBox-Pattern-%EB%8F%84%EC%9E%85%ED%95%98%EA%B8%B0"><span class="toc-text">Transaction OutBox Pattern 도입하기</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%EA%B2%B0%EC%A0%9C-%EC%8B%9C%EC%8A%A4%ED%85%9C-Sequence-Diagram"><span class="toc-text">결제 시스템 Sequence Diagram</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%EC%A0%95%EC%82%B0-%EC%8B%9C%EC%8A%A4%ED%85%9C-Sequence-Diagram"><span class="toc-text">정산 시스템 Sequence Diagram</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-text">Reference</span></a></li></ol></li></ol>
+    
+<style>
+    .left-col .switch-btn,
+    .left-col .switch-area {
+        display: none;
+    }
+    .toc-level-3 i,
+    .toc-level-3 ol {
+        display: none !important;
+    }
+</style>
+</div>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="예제-소스-코드"><a href="#예제-소스-코드" class="headerlink" title="예제 소스 코드"></a>예제 소스 코드</h1><p>이번 블로그에 사용되는 코드는 아래 링크 통해 확인 할 수 있습니다.</p>
+<p><a target="_blank" rel="noopener" href="https://github.com/syh8088/high_volume_traffic/tree/main/payment_eda">https://github.com/syh8088/high_volume_traffic/tree/main/payment_eda</a></p>
+<h1 id="결제-시스템으로-알아보는-EDA-시스템"><a href="#결제-시스템으로-알아보는-EDA-시스템" class="headerlink" title="결제 시스템으로 알아보는 EDA 시스템"></a>결제 시스템으로 알아보는 EDA 시스템</h1><p>안녕하세요. 이번에 결제 시스템 대상으로 EDA 에 대해 알아보는 시간을 갖도록 하겠습니다. 분산된 시스템에서 이벤트 메시지를 발행 하고 발행 된<br>메시지를 수신 하므로써 프로세스를 처리 하는 과정입니다.</p>
+<p>이러한 EDA 아키텍처 장점으로는 서버간에 <code>느슨한 결합</code>, <code>확장성</code>, <code>실시간 처리</code> 등이 있습니다. 이제부터 결제 시스템을 대상으로 EDA 를 알아보는 시간을 갖도록 하겠습니다.</p>
+<h2 id="급격하게-대량의-요청이-들어온다면"><a href="#급격하게-대량의-요청이-들어온다면" class="headerlink" title="급격하게 대량의 요청이 들어온다면?"></a>급격하게 대량의 요청이 들어온다면?</h2><p><img src="/../../../img/HIGH_VOLUME_TRAFFIC/PaymentEDA/request.png" alt="서비스 처리"></p>
+<p>일반적으로 한대의 서버로 대량의 요청이 들어온다면 어떻게 될까요? 예를들어 해당 서버가 RPS 초당 200 까지 견딜수 있다고 가정 한다면 초당 1000 까지 요청시<br>많은 서버 부하가 발생 할 것 입니다. </p>
+<p>나중에 들어오는 요청은 Timeout 으로 성공적인 응답을 받지 못 할 것이고 더 큰 문제는 SPOF (단일 장애 지점, Single Point of Failure) 발생할 수 있다는 점 입니다.<br>하나의 서버가 여러가지 서비스로 구성 되어있을시 전체적인 사이드 이펙트로 해당 서버가 불능 상태에 빠질수 있다는 점 입니다.</p>
+<h2 id="Scale-Up-VS-Scale-Out"><a href="#Scale-Up-VS-Scale-Out" class="headerlink" title="Scale-Up VS Scale-Out"></a>Scale-Up VS Scale-Out</h2><p>이러한 문제를 해결 하기 위해 서버를 확장 해야 합니다. (그외 방법으로 충분히 해결 할수 있다면 가능하지만 이번 주제에 맞게 확장 통해 해결 하고자 합니다.)<br>그 중에서 Scale-Up 경우 해당 서버의 자원을 업그레이드 하는 방식 입니다. 하지만 이러한 방법은 확장시 일시적인 중단이 필요하며 추가적인 요청 수 증가시 즉각적으로 대응이 힘들고 금방 한계가 도달 하게 됩니다.</p>
+<p>그에 반해 <code>Scale-Out</code> 경우는 동일한 서버를 추가 설치 해서 가장 큰 장점은 일시적인 중단 필요 없이 확장이 가능한다는 점 입니다. 이론상 무한으로 서버 확장이 가능 한다는 점 인데요.<br>즉 유연하다고 볼 수 있겠습니다. 하지만 단점도 있습니다. 서버 <code>Scale-Out</code> 통해 데이터 일관성도 생각 해봐야 합니다. 데이터베이스로 생각해보면 (확장시 복제가 아닌 분산 방식으로 구성시)<br>특정 데이터를 각각의 어느 데이터베이스 서버로 저장을 해야 하는지 즉 복잡성이 증가 되고 안전하게 해당 데이터는 특정 데이터베이스에 저장 해야 하고 잘못해서 다른곳에 저장시 데이터 일관성에도 문제가 발생 하게 됩니다.</p>
+<h2 id="확장으로-통해-해결되지-않는-문제"><a href="#확장으로-통해-해결되지-않는-문제" class="headerlink" title="확장으로 통해 해결되지 않는 문제"></a>확장으로 통해 해결되지 않는 문제</h2><p>Scale-Out 해도 요청량이 갑자기 급변 할때 즉 확장의 속도가 요청량의 속도를 따라잡지 못 할때가 있습니다. 확장이 빨리 되지 않으므로 서버 증설까지 기존 서버로 대응 해야 한다는 점인데요.</p>
+<p>이러한 단점들을 보완 할 수 있는 방법은 여러가지 있겠지만 이번 주제에 맞는 EDA (Event Driven Architecture) 에 대해 알아볼려고 합니다.</p>
+<h2 id="EDA-Event-Driven-Architecture-란"><a href="#EDA-Event-Driven-Architecture-란" class="headerlink" title="EDA (Event Driven Architecture) 란??"></a>EDA (Event Driven Architecture) 란??</h2><p><img src="/../../../img/HIGH_VOLUME_TRAFFIC/PaymentEDA/EDA_Architecture.png" alt="EDA 아키텍처 예시"></p>
+<p>EDA 란 메시지 (이벤트) 기반으로 비동기 통신을 이용해서 상호작용 하는 구조 입니다. 중요한것은 메시지 (이벤트) 기반이고 비동기 통신으로 이루어져 있다는 점 입니다.</p>
+<p>‘Server A’ 가 Event <code>Event Broker</code> 에게 publish 하게 된다면 <code>Event Broker</code> 는 해당 메시지를 보관 하게 되고 이 메시지를 소비하는 서버는 언제든지 메시지를 Consume 해서 사용 할수 있습니다.</p>
+<p>이러한 이벤트 기반 처리 방식으로 가져올수 있는 장점은 급변하게 급등하는 요청량에 대한 탄력적으로 대응이 가능 한다는 점 입니다. 만약 대량의 트래픽 요청이 있으면<br>해당 메시지들은 <code>Event Broker</code> 에 일단 일정 시간 동안 보관하게 될것이고 Consume 하는 입장인 서버들은 자기 페이스 조절에 맞게 메시지를 가져와서 처리 할 수 있다는 것 입니다.</p>
+<p>또 하나 큰 장점은 서로 통신하는 서버들끼리 느슨한 결합으로 인한 장점이라고 볼 수 있겠습니다. A 서버는 직접 B 서버 하고 C 서버를 알 필요가 없고 consume 하는 서버가 여러 서버로 증설 된다고 해도 중간에 <code>Event Broker</code> 서버가 있으므로<br>직접적으로 A 서버는 이에 따른 후속 처리 할 필요가 없게 됩니다.</p>
+<p>그래서 느슨한 결합으로 특정 서버가 문제가 발생시 독립적인 형태로 구성되어 있기 때문에 다른 서버로 영향을 최소화 할 수 있다는 점 인데요. 만약 B 서버가 장애 발생시 느슨한 결합으로 A 서버로 영향은 최소화 하게 되며 이후<br>복구가 된다면 <code>Event Broker</code> 에 저장 되어 있던 메시지를 가져와 다시 처리 하면 됩니다.</p>
+<p>하지만 어떤 기술이든 모두 트레이드 오브가 있습니다. 물론 EDA 에서도 단점이 존재하는데요. 대표적으로 구현 기술 난이도 그리고 데이터 일관성 문제 입니다.<br>비동기 통신 메시지 기반 때문에 데이터 순차적으로 수신 하는 보장이 없습니다. 즉 데이터 일관성이 어긋날수 있다는 점 입니다.<br>특정 서비스에서는 데이터 순서 보장을 원해야 한다면 이러한 문제는 큰 에러로 올수 있습니다. 그리고 동일한 메시지가 1번 이상 수신할때 문제가 발생 할 수 있습니다.<br>메시지는 꼭 1번만 수신 한다는 보장이 없고 동일한 메시지를 여러면 수신 될수 있다는 점 입니다. 이 부분은 <code>메시지 전달 보장 (Message Delivery Guarantees) 전략</code>에 따라 달라질수 있는데요.</p>
+<p>만약 <code>At least once (최소 한 번)</code> 으로 전략 선택시 메시지를 여러번 수신 되더라도 데이터 일관성을 보장 해야 합니다. 지금까지 이러한 문제들은 <code>멱등성</code> 등 여러가지 방법으로 해결 하고자 합니다.</p>
+<h2 id="결제-시스템-EDA"><a href="#결제-시스템-EDA" class="headerlink" title="결제 시스템 EDA"></a>결제 시스템 EDA</h2><p><img src="/../../../img/HIGH_VOLUME_TRAFFIC/PaymentEDA/EDA_Payment_Architecture.png" alt="결제 EDA 아키텍처"></p>
+<p>EDA 를 알아보기 위해 실습 하게 될 결제 시스템을 소개 하도록 하겠습니다. 크게 <code>Paymenr Service</code> 하고 <code>Wallet Service</code> 가 있습니다.</p>
+<p><code>Paymenr Service</code> 는 결제 시스템 역활을 담당 하게 되고 <code>Wallet Service</code> 경우는 정산 시스템 역활을 담당 하게 됩니다.</p>
+<p>전체적인 아키텍처를 설명 하도록 하겠습니다.</p>
+<ol>
+<li>클라이언트가 결제 시도를 합니다.</li>
+<li>PG사 (Toss 사) 에 결제 승인을 요청 하게 됩니다.</li>
+<li>결제 승인 응답이 오면 결제 상태 업데이트를 하고 이후 정산 프로세스를 진행 하기 위해 <code>Event Broker</code> 에 이벤트 메시지 요청 합니다.</li>
+<li><code>Wallet Server</code> 는 publish 한 이벤트 메시지를 가져와서 정산 프로세스를 진행 합니다.</li>
+<li><code>Wallet Server</code> 서버는 정산 프로세스 결과를 <code>Event Broker</code> 에 이벤트 메시지를 요청 합니다.</li>
+<li><code>Payment Service</code> 서버로 정산 프로세스 결과 이벤트 메시지를 수신 하게 됩니다.</li>
+<li>정산 프로세스 결과 성공 여부에 따른 <code>Seller</code> 에게 알림 Push 요청을 하게 됩니다.</li>
+</ol>
+<h2 id="메시지-전달-보장-Message-Delivery-Guarantees-고려-해보기"><a href="#메시지-전달-보장-Message-Delivery-Guarantees-고려-해보기" class="headerlink" title="메시지 전달 보장 (Message Delivery Guarantees) 고려 해보기"></a>메시지 전달 보장 (Message Delivery Guarantees) 고려 해보기</h2><p>메시지 전달 보장 (Message Delivery Guarantees) 수준에 대해 고려 해야 합니다. 다음 3가지 수준이 있는데요.</p>
+<ol>
+<li>At-most-once (최대 한번)</li>
+</ol>
+<p>메시지를 최대 한번만 전송 하게 됩니다. (딱 한 번만 전송 합니다.) 한번만 처리 되기 때문에 그만큼 오버헤드가 없다고 볼수 있고 구현이 간단 합니다.</p>
+<ol start="2">
+<li>At-least-once (최소 한번)</li>
+</ol>
+<p>최소 한번이므로 여러번 호출을 통해 누락되지 않도록 합니다.</p>
+<ol start="3">
+<li>Exactly-once (정확히 한번)</li>
+</ol>
+<p>메시지를 정확히 한 번만 전송 하지만 정확하게 누락없이 메시지를 전달 할 수 있어야 합니다.</p>
+<p>결제 시스템 경우는 이벤트 메시지 발행시 누락없이 전송 해야 합니다. 결제 경우는 비용 관련 민감한 데이터를 조작 하는 일이 많아 메시지는 분명하게 전달 되어야 합니다.<br>그래서 <code>At least once (최소 한 번)</code> 적절하다고 생각 했습니다. </p>
+<p>하지만 여러번 호출 한다고 하면 결제 관련 데이터 일관성 문제로 이어질수 있습니다. 이러한 문제는 <code>멱등성</code> 그리고 <code>Optimistic Locking</code> 을 이용해서 해결 하고자 합니다.</p>
+<h2 id="Idempotency-멱등성"><a href="#Idempotency-멱등성" class="headerlink" title="Idempotency (멱등성)"></a>Idempotency (멱등성)</h2><p>멱등성 처리은 요청이 여러 번 들어와도 딱 한번만 처리하도록 설계하는 방식을 의미 합니다.</p>
+<p><img src="/../../../img/JAVA/Payment/Idempotency.png" alt="멱등성1.png"><br><img src="/../../../img/JAVA/Payment/Idempotency2.png" alt="멱등성2.png"></p>
+<p>예를 들어 최종 결제 승인을 위해 PSP 에 요청시 결제 승인 이후 내부적으로 Exception 이 발생되거나 그리고 실제로는 결제 승인이 되었지만 PSP 사로부터 응답시<br>timeout 발생으로 재시도 할 필요가 있습니다. </p>
+<p>이때 만약 재시도 하게 된다면 두번 결제 승인 요청을 하지 않도록 해야 합니다. 그래서 멱등성 키 값을 이용해서 PSP 사부터 최초 요청 할때 사용된 멱등성 키 값으로<br>다시 요청 할 것이고 동일한 키값으로 요청 할 수 없다는 응답을 받게 하므로써 결제 재등록을 방지 하도록 합니다.</p>
+<p>결제 관련 데이터 베이스 테이블에 insert 할때도 멱등성 키값을 잘 활용 할 수 있습니다. 멱등성 키값 통해 유니크한 칼럼으로 설정하면 2번 이상 insert 시 무결성 제약 조건으로 인해 실패하게 하도록 합니다.</p>
+<h2 id="Optimistic-Locking-이용해서-데이터-일관성-유지하기"><a href="#Optimistic-Locking-이용해서-데이터-일관성-유지하기" class="headerlink" title="Optimistic Locking 이용해서 데이터 일관성 유지하기"></a>Optimistic Locking 이용해서 데이터 일관성 유지하기</h2><p><img src="/../../../img/HIGH_VOLUME_TRAFFIC/PaymentEDA/OptimisticLockingExample.png" alt="Lost Update 문제 발생 예시"></p>
+<p><code>Payment Server</code> 에서 <code>Event Broker</code> 로 정산 프로세스 진행 하기 위해 이벤트 메시지 발행 하는 과정에서 동일한 시간에 특정 Seller 에 포함된<br>서로 다른 각각의 주문 한 내역을 가지고 특정 Seller 에 최종 balance 데이터 업데이트시 동시성 문제인 <code>lost update</code> 가 발생 할 수 있습니다.</p>
+<p>이러한 문제를 해결하기 위해서는 <code>Optimistic Locking</code> 을 이용해서 해결 하고자 합니다. <code>wallet</code> 테이블에 <code>version</code> 이라는 필드를 추가해서<br>동시성 문제를 해결하는 메카니즘 인데요. 동일한 version 으로 데이터 업데이트시  <code>OptimisticLockingException</code> 발생시켜 문제를 해결하는 것 입니다.</p>
+<p>해당 Exception 이 발생 시키면 Retry 이용해서 다시 최신 해당 wallet 의 balance 데이터 값을 조회 해서 계산 하도록 합니다.</p>
+<p>동시화 기법에 있어서 여러가지 방법이 있지만 이러한 이슈 경우 빈번하게 발생하지 않을 것 같아 <code>Optimistic Locking</code> 기법으로 선택 하였습니다.</p>
+<h2 id="Retry-Queue-와-Dead-Letter-Queue-이용해서-메시지-보장-획득-하기"><a href="#Retry-Queue-와-Dead-Letter-Queue-이용해서-메시지-보장-획득-하기" class="headerlink" title="Retry Queue 와 Dead Letter Queue 이용해서 메시지 보장 획득 하기"></a>Retry Queue 와 Dead Letter Queue 이용해서 메시지 보장 획득 하기</h2><p><code>wallet server</code> 역활은 <code>payment server</code> 에서 이벤트 메시지를 발행하면 <code>wallet server</code> 는 해당 메시지를 수신 해서 정산 프로세스를 진행 합니다.<br>하지만 정산 프로세스 진행 하는 과정에서 예상치 않는 에러로 인해서 문제가 발생 해서 방치 하게 된다면 최종 결제에 있어서 데이터 일관성 문제가 발생 하게 됩니다.</p>
+<p>에러 발생시 이에 대한 후속 처리를 해야 하는데요. 이와 대응 하는 방법으로는 <code>Retry Queue</code> 를 이용해서 다시 재시도를 하도록 합니다. </p>
+<p><code>재시도 제한 횟수</code>를 3회까지만 지정하고 이후 실패시에는 <code>Dead Letter Queue</code> 에 따로 보관해서 이후 개발자가 수동으로 처리 하도록 하였습니다.</p>
+<p>즉 이벤트 발생하고 이에 수신 해서 처리하는 과정까지 이 과정에서 에러가 발생된다면 이에 대한 후속 처리를 할 수 있도록 프로세스를 개선 하도록 합니다.</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">spring:</span><br><span class="line">  cloud:</span><br><span class="line"><span class="code">    function:</span></span><br><span class="line"><span class="code">      definition: kafkaConsumer;</span></span><br><span class="line"><span class="code">    stream:</span></span><br><span class="line"><span class="code">      kafka:</span></span><br><span class="line"><span class="code">        bindings:</span></span><br><span class="line"><span class="code">          kafkaConsumer-in-0:</span></span><br><span class="line"><span class="code">            consumer:</span></span><br><span class="line"><span class="code">              enable-dlq: true</span></span><br><span class="line"><span class="code">              dlq-name: payment_wallet_dlq</span></span><br><span class="line"><span class="code">        binder:</span></span><br><span class="line"><span class="code">          brokers: 127.0.0.1:9092</span></span><br><span class="line"><span class="code">      bindings:</span></span><br><span class="line"><span class="code">        kafkaConsumer-in-0:</span></span><br><span class="line"><span class="code">          destination: payment # topic</span></span><br><span class="line"><span class="code">          group: wallet-service</span></span><br><span class="line"><span class="code">          consumer:</span></span><br><span class="line"><span class="code">            max-attempts: 3</span></span><br></pre></td></tr></table></figure>
+<p>Spring Cloud Stream 에서 <code>max-attempts</code> 속성 기능 통해 재시도를 몇번 할지 지정 할수 있습니다. 그리고 3회 이상시에도 문제가 발생 된다면<br>메시지 처리의 신뢰성을 보장하기 위해서 <code>dlq-name: payment_wallet_dlq</code> 지정한 해당 kafka topic 으로 <code>Dead Letter Queue</code> 메시지 큐로 메시지가 저장 하게 됩니다.</p>
+<h2 id="Transaction-OutBox-Pattern-도입하기"><a href="#Transaction-OutBox-Pattern-도입하기" class="headerlink" title="Transaction OutBox Pattern 도입하기"></a>Transaction OutBox Pattern 도입하기</h2><p>결제 승인이 완료되고 이후 @Transaction 영역 안에서 처리 해야 하는 프로세스는 다음과 같습니다.</p>
+<ol>
+<li>결제 승인 결과에 따른 결제 상태 업데이트</li>
+<li>정산 처리 이벤트 메시지 발행</li>
+</ol>
+<p><img src="/../../../img/HIGH_VOLUME_TRAFFIC/PaymentEDA/TransactionalOutboxPattern1.png" alt="메시지 발행 rollback 불가능"></p>
+<p>둘중에 하나라도 실패가 된다고 하면 진행 했던 프로세스를 모두 롤백 해야 합니다. 예를들어서 <code>정산 처리 이벤트 메시지 발행</code> 성공적으로 진행하고<br><code>결제 승인 결과에 따른 결제 상태 업데이트</code> 진행하는 과정에 에러가 발생 된다고 하면 <code>정산 처리 이벤트 메시지 발행</code> 처리는 롤백 해야 합니다. 하지만<br>메시지 발행 된건은 롤백이 쉽지 않습니다.</p>
+<p>반대로 순서를 바꾸어서 <code>결제 승인 결과에 따른 결제 상태 업데이트</code> 성공적으로 처리되고 <code>정산 처리 이벤트 메시지 발행</code> 처리 하는 과정에서 문제가 발생되면<br><code>결제 승인 결과에 따른 결제 상태 업데이트</code> 프로세스는 데이버베이스 Transaction 원리로 롤백이 가능 할것 입니다.</p>
+<p>하지만 <code>정산 처리 이벤트 메시지 발행</code> 프로세스 까지 처리가 완료되고 이후 <code>commit</code> 하는 과정에서 문제가 발생 된다면 <code>정산 처리 이벤트 메시지 발행</code> 프로세스는 롤백이 되어야 하는데 쉽지 않습니다.</p>
+<p>이러한 문제를 해결하기 위해 <code>Transactional Outbox Pattern</code> 을 사용 합니다.</p>
+<p><img src="/../../../img/HIGH_VOLUME_TRAFFIC/PaymentEDA/TransactionalOutboxPattern2.png" alt="Transactional Outbox Pattern 도입"></p>
+<p><code>Transactional Outbox Pattern</code> 경우 메시지 큐에 발행할 이벤트 메시지 내용을 <code>outbox</code> 테이블에 저장하고 트랜잭션에 포함 하도록 합니다.</p>
+<p>만약 이후 프로세스가 하나라도 실패할 경우 <code>outbox</code> 테이블에 저장 했던 프로세스는 롤백이 되고 결국 메시지 발행은 하지 않도록 됩니다.</p>
+<h2 id="결제-시스템-Sequence-Diagram"><a href="#결제-시스템-Sequence-Diagram" class="headerlink" title="결제 시스템 Sequence Diagram"></a>결제 시스템 Sequence Diagram</h2><p><img src="/../../../img/HIGH_VOLUME_TRAFFIC/PaymentEDA/payment_SequenceDiagram.png" alt="결제 시스템 Sequence Diagram"></p>
+<p>고객이 결제 요청이 들어오면 결제 요청 데이터 기반으로 Toss 페이먼츠에 결제 승인 요청을 합니다. 결과 응답이 전달 받으면 이에 따른 결제 상태 업데이트 작업이<br>이루어 집니다. 동시에 이벤트 메시지 발행 앞서 이벤트 메시지 내역을 OutBox 데이터 베이스 테이블에 저장 합니다.</p>
+<p>그 다음 <code>Kafka Event Broker</code> 에 이벤트 메시지 발행 하도록 합니다. 동시에 고객에게 결제 진행 데이터를 응답 하게 됩니다. </p>
+<h2 id="정산-시스템-Sequence-Diagram"><a href="#정산-시스템-Sequence-Diagram" class="headerlink" title="정산 시스템 Sequence Diagram"></a>정산 시스템 Sequence Diagram</h2><p><img src="/../../../img/HIGH_VOLUME_TRAFFIC/PaymentEDA/wallet_SequenceDiagram.png" alt="정산 시스템 Sequence Diagram"></p>
+<p>결제 진행 후 <code>Kafka Event Broker</code> 에 정산 프로세스를 진행 하기 위한 이벤트 메시지 발행한 것을 수신 받아 처리 하게 됩니다.<br>해당 주문 아이디값을 이용해 이미 진행한 정산인지 체크를 하고 진행하지 않았던 주문 아이디값이라면 주문 내역을 조회해서 각각의 판매자 (Seller) 에 포함된<br>balance 데이터 값을 계산해서 업데이트를 하도록 합니다.</p>
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><p><a target="_blank" rel="noopener" href="https://www.daddyprogrammer.org/post/14097/springboot-kafka-producer-consumer/">https://www.daddyprogrammer.org/post/14097/springboot-kafka-producer-consumer/</a></p>
+
+      
+       <hr><span style="font-style: italic;color: gray;"> Copyright 201- syh8088. 무단 전재 및 재배포 금지. 출처 표기 시 인용 가능. </span>
+    </div>
+</article>
+
+
+<p>
+    <a  class="dashang" onclick="dashangToggle()">💰</a>
+</p>
+
+
+
+
+
+
+    
+
+
+
+
+    </div>
+    <div class="copyright">
+        <p class="footer-entry">
+    ©2017 Seo Yang Hun
+</p>
+<p class="footer-entry">Built with <a href="https://hexo.io/" target="_blank">Hexo</a> and <a href="https://github.com/yelog/hexo-theme-3-hexo" target="_blank">3-hexo</a> theme</p>
+
+    </div>
+    <div class="full-toc">
+        <button class="full" data-title="Toggle full screen shortcut key s"><span class="min "></span></button>
+<a class="" id="rocket" ></a>
+
+    </div>
+</div>
+
+<div class="hide_box" onclick="dashangToggle()"></div>
+<div class="shang_box">
+    <a class="shang_close"  onclick="dashangToggle()">×</a>
+    <div class="shang_tit">
+        <p>Help us with donation</p>
+    </div>
+    <div class="shang_payimg">
+        <div class="pay_img">
+            <img src="/img/alipay.jpg" class="alipay" title="扫码支持">
+            <img src="/img/weixin.jpg" class="weixin" title="扫码支持">
+        </div>
+    </div>
+    <div class="shang_payselect">
+        <span><label><input type="radio" name="pay" checked value="alipay">alipay</label></span><span><label><input type="radio" name="pay" value="weixin">weixin</label></span>
+    </div>
+</div>
+
+
+</body>
+<script src="/js/jquery.pjax.js?v=1.1.0" ></script>
+
+<script src="/js/script.js?v=1.1.0" ></script>
+<script>
+    var img_resize = 'default';
+    function initArticle() {
+        /*渲染对应的表格样式*/
+        
+            $("#post .pjax table").addClass("green_title");
+        
+
+        /*渲染打赏样式*/
+        
+        $("input[name=pay]").on("click", function () {
+            if($("input[name=pay]:checked").val()=="weixin"){
+                $(".shang_box .shang_payimg .pay_img").addClass("weixin_img");
+            } else {
+                $(".shang_box .shang_payimg .pay_img").removeClass("weixin_img");
+            }
+        })
+        
+
+        /*高亮代码块行号*/
+        
+
+        /*访问数量*/
+        
+        $.getScript("//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js");
+        
+
+        /*代码高亮，行号对齐*/
+        $('.pre-numbering').css('line-height',$('.has-numbering').css('line-height'));
+
+        
+        
+    }
+
+    /*打赏页面隐藏与展示*/
+    
+    function dashangToggle() {
+        $(".shang_box").fadeToggle();
+        $(".hide_box").fadeToggle();
+    }
+    
+
+</script>
+
+<!--加入行号的高亮代码块样式-->
+
+<!--自定义样式设置-->
+<style>
+    
+    
+    .nav {
+        width: 542px;
+    }
+    .nav.fullscreen {
+        margin-left: -542px;
+    }
+    .nav-left {
+        width: 120px;
+    }
+    
+    
+    @media screen and (max-width: 1468px) {
+        .nav {
+            width: 492px;
+        }
+        .nav.fullscreen {
+            margin-left: -492px;
+        }
+        .nav-left {
+            width: 100px;
+        }
+    }
+    
+    
+    @media screen and (max-width: 1024px) {
+        .nav {
+            width: 492px;
+            margin-left: -492px
+        }
+        .nav.fullscreen {
+            margin-left: 0;
+        }
+    }
+    
+    @media screen and (max-width: 426px) {
+        .nav {
+            width: 100%;
+        }
+        .nav-left {
+            width: 100%;
+        }
+    }
+    
+    
+    .nav-right .title-list nav a .post-title, .nav-right .title-list #local-search-result a .post-title {
+        color: #383636;
+    }
+    
+    
+    .nav-right .title-list nav a .post-date, .nav-right .title-list #local-search-result a .post-date {
+        color: #5e5e5f;
+    }
+    
+    
+    .nav-right nav a.hover, #local-search-result a.hover{
+        background-color: #e2e0e0;
+    }
+    
+    
+
+    /*列表样式*/
+    
+
+    /* 背景图样式 */
+    
+    
+
+
+    /*引用块样式*/
+    
+
+    /*文章列表背景图*/
+    
+
+    
+</style>
+
+
+
+
+
+
+
+</html>

@@ -1,0 +1,2152 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Spring Batch - Job, Step 2 | Seo Yang Hun Blog</title>
+  <meta name="keywords" content="">
+  <meta name="description" content="Spring Batch - Job, Step 2 | Seo Yang Hun Blog">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="description" content="카프카 멱등성 (Idempotency) 및 이벤트 일관성 (Eventual Consistency) 보장하기안녕하세요. Kafka 통해 많은 용도로 사용되고 있습니다. kafka 는 설정을 통해 내가 원하는 수준의 신뢰성 확보 할 수 있다는 것이 장점 입니다. 이번에 소개 드리는 설정 통해 신뢰성을 확보하면서 Kafka 를 활용 해보도록 하겠습니다. Prod">
+<meta property="og:type" content="article">
+<meta property="og:title" content="카프카 멱등성 및 이벤트 일관성 보장하기">
+<meta property="og:url" content="https://syh8088.github.io/2024/12/23/KAFKA/idempotent/Kafka_idempotent/index.html">
+<meta property="og:site_name" content="Seo Yang Hun Blog">
+<meta property="og:description" content="카프카 멱등성 (Idempotency) 및 이벤트 일관성 (Eventual Consistency) 보장하기안녕하세요. Kafka 통해 많은 용도로 사용되고 있습니다. kafka 는 설정을 통해 내가 원하는 수준의 신뢰성 확보 할 수 있다는 것이 장점 입니다. 이번에 소개 드리는 설정 통해 신뢰성을 확보하면서 Kafka 를 활용 해보도록 하겠습니다. Prod">
+<meta property="og:locale">
+<meta property="og:image" content="https://syh8088.github.io/img/KAFKA/idempotent/Produser_Duplication.png">
+<meta property="og:image" content="https://syh8088.github.io/img/KAFKA/idempotent/Produser_EOS.png">
+<meta property="og:image" content="https://syh8088.github.io/img/KAFKA/idempotent/MissingAutocommit_1.png">
+<meta property="og:image" content="https://syh8088.github.io/img/KAFKA/idempotent/MissingAutocommit_2.png">
+<meta property="og:image" content="https://syh8088.github.io/img/KAFKA/idempotent/MissingAutocommit_3.png">
+<meta property="og:image" content="https://syh8088.github.io/img/KAFKA/idempotent/duplicationAutocommit_1.png">
+<meta property="og:image" content="https://syh8088.github.io/img/KAFKA/idempotent/duplicationAutocommit_2.png">
+<meta property="article:published_time" content="2024-12-22T22:47:42.000Z">
+<meta property="article:modified_time" content="2024-12-25T15:15:01.343Z">
+<meta property="article:author" content="Seo Yang Hun">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://syh8088.github.io/img/KAFKA/idempotent/Produser_Duplication.png">
+
+
+<link rel="icon" href="/img/avatar.jpg">
+
+<link href="/css/style.css?v=1.1.0" rel="stylesheet">
+
+<link href="/css/hl_theme/atom-light.css?v=1.1.0" rel="stylesheet">
+
+<link href="//cdn.jsdelivr.net/npm/animate.css@4.1.0/animate.min.css" rel="stylesheet">
+
+<script src="//cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"></script>
+<script src="/js/titleTip.js?v=1.1.0" ></script>
+
+<script src="//cdn.jsdelivr.net/npm/highlightjs@9.16.2/highlight.pack.min.js"></script>
+<script>
+    hljs.initHighlightingOnLoad();
+</script>
+
+<script src="//cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.js"></script>
+
+
+
+<script src="//cdn.jsdelivr.net/npm/jquery.cookie@1.4.1/jquery.cookie.min.js" ></script>
+
+<script src="/js/iconfont.js?v=1.1.0" ></script>
+
+<meta name="generator" content="Hexo 7.2.0"></head>
+<div style="display: none">
+  <input class="theme_disqus_on" value="false">
+  <input class="theme_preload_comment" value="">
+  <input class="theme_blog_path" value="">
+  <input id="theme_shortcut" value="true" />
+  <input id="theme_highlight_on" value="true" />
+  <input id="theme_code_copy" value="true" />
+</div>
+
+
+
+<body>
+<aside class="nav">
+    <div class="nav-left">
+        <a href="/"
+   class="avatar_target">
+    <img class="avatar"
+         src="/img/avatar.jpg"/>
+</a>
+<div class="author">
+    <span>Seo Yang Hun</span>
+</div>
+
+<div class="icon">
+    
+        
+            <a title="rss"
+               href="/atom.xml"
+               target="_blank">
+                
+                    <svg class="iconfont-svg" aria-hidden="true">
+                        <use xlink:href="#icon-rss"></use>
+                    </svg>
+                
+            </a>
+        
+    
+        
+            <a title="github"
+               href="https://github.com/syh8088"
+               target="_blank">
+                
+                    <svg class="iconfont-svg" aria-hidden="true">
+                        <use xlink:href="#icon-github"></use>
+                    </svg>
+                
+            </a>
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+            <a title="email"
+               href="mailto:syh8088@gmail.com"
+               target="_blank">
+                
+                    <svg class="iconfont-svg" aria-hidden="true">
+                        <use xlink:href="#icon-email"></use>
+                    </svg>
+                
+            </a>
+        
+    
+        
+            <a title="qq"
+               href="http://wpa.qq.com/msgrd?v=3&uin=872336115&site=qq&menu=yes"
+               target="_blank">
+                
+                    <svg class="iconfont-svg" aria-hidden="true">
+                        <use xlink:href="#icon-qq"></use>
+                    </svg>
+                
+            </a>
+        
+    
+        
+    
+        
+    
+</div>
+
+
+
+
+
+<ul>
+    <li>
+        <div class="all active" data-rel="All">All
+            
+                <small>(60)</small>
+            
+        </div>
+    </li>
+    
+        
+            
+                
+    <li>
+        <div data-rel="Authentication">
+            <i class="fold iconfont icon-right"></i>
+            Authentication
+            <small>(2)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="Authentication&lt;---&gt;JWT">
+            
+            JWT
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="Authentication&lt;---&gt;Oauth">
+            
+            Oauth
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="CI-CD">
+            <i class="fold iconfont icon-right"></i>
+            CI-CD
+            <small>(9)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="CI-CD&lt;---&gt;GitHubActions">
+            
+            GitHubActions
+            <small>(6)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="CI-CD&lt;---&gt;Jenkins">
+            
+            Jenkins
+            <small>(3)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="DB">
+            <i class="fold iconfont icon-right"></i>
+            DB
+            <small>(4)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="DB&lt;---&gt;Mysql">
+            <i class="fold iconfont icon-right"></i>
+            Mysql
+            <small>(4)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="DB&lt;---&gt;Mysql&lt;---&gt;DBCP">
+            
+            DBCP
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="DB&lt;---&gt;Mysql&lt;---&gt;optimizing">
+            
+            optimizing
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="DB&lt;---&gt;Mysql&lt;---&gt;Paging">
+            
+            Paging
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="J">
+            <i class="fold iconfont icon-right"></i>
+            J
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="J&lt;---&gt;Jenkins">
+            
+            Jenkins
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="JAVA">
+            <i class="fold iconfont icon-right"></i>
+            JAVA
+            <small>(29)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;HTTP">
+            <i class="fold iconfont icon-right"></i>
+            HTTP
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;HTTP&lt;---&gt;FeignClient">
+            
+            FeignClient
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;JPA">
+            
+            JPA
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;Object">
+            
+            Object
+            <small>(2)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;Payment">
+            
+            Payment
+            <small>(5)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;Security">
+            
+            Security
+            <small>(4)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;Spring">
+            <i class="fold iconfont icon-right"></i>
+            Spring
+            <small>(2)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;Spring&lt;---&gt;Payment">
+            <i class="fold iconfont icon-right"></i>
+            Payment
+            <small>(2)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;Spring&lt;---&gt;Payment&lt;---&gt;junit5">
+            <i class="fold iconfont icon-right"></i>
+            junit5
+            <small>(2)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;Spring&lt;---&gt;Payment&lt;---&gt;junit5&lt;---&gt;Mockito">
+            
+            Mockito
+            <small>(2)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;SpringBatch">
+            
+            SpringBatch
+            <small>(5)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;SpringBootAndSecurityAndJWT">
+            
+            SpringBootAndSecurityAndJWT
+            <small>(3)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;SpringCloudConfig">
+            
+            SpringCloudConfig
+            <small>(4)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;Transaction">
+            
+            Transaction
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;Validator">
+            
+            Validator
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="JavaScript">
+            <i class="fold iconfont icon-right"></i>
+            JavaScript
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="JavaScript&lt;---&gt;Webpack">
+            
+            Webpack
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="Kafka">
+            <i class="fold iconfont icon-right"></i>
+            Kafka
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="Kafka&lt;---&gt;idempotent">
+            
+            idempotent
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="KUBERNETES">
+            
+            KUBERNETES
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="MSA">
+            <i class="fold iconfont icon-right"></i>
+            MSA
+            <small>(3)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="MSA&lt;---&gt;Payment">
+            <i class="fold iconfont icon-right"></i>
+            Payment
+            <small>(3)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="MSA&lt;---&gt;Payment&lt;---&gt;Kafka">
+            <i class="fold iconfont icon-right"></i>
+            Kafka
+            <small>(3)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="MSA&lt;---&gt;Payment&lt;---&gt;Kafka&lt;---&gt;EDA">
+            <i class="fold iconfont icon-right"></i>
+            EDA
+            <small>(3)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="MSA&lt;---&gt;Payment&lt;---&gt;Kafka&lt;---&gt;EDA&lt;---&gt;CQRS">
+            
+            CQRS
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="MSA&lt;---&gt;Payment&lt;---&gt;Kafka&lt;---&gt;EDA&lt;---&gt;Saga">
+            <i class="fold iconfont icon-right"></i>
+            Saga
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="MSA&lt;---&gt;Payment&lt;---&gt;Kafka&lt;---&gt;EDA&lt;---&gt;Saga&lt;---&gt;Axon">
+            
+            Axon
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="NoSQL">
+            <i class="fold iconfont icon-right"></i>
+            NoSQL
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="NoSQL&lt;---&gt;Redis">
+            <i class="fold iconfont icon-right"></i>
+            Redis
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="NoSQL&lt;---&gt;Redis&lt;---&gt;RateLimiter">
+            
+            RateLimiter
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="R">
+            
+            R
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="대용량 트래픽">
+            <i class="fold iconfont icon-right"></i>
+            대용량 트래픽
+            <small>(3)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="대용량 트래픽&lt;---&gt;EDA">
+            <i class="fold iconfont icon-right"></i>
+            EDA
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="대용량 트래픽&lt;---&gt;EDA&lt;---&gt;Payment">
+            <i class="fold iconfont icon-right"></i>
+            Payment
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="대용량 트래픽&lt;---&gt;EDA&lt;---&gt;Payment&lt;---&gt;Redis">
+            <i class="fold iconfont icon-right"></i>
+            Redis
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="대용량 트래픽&lt;---&gt;EDA&lt;---&gt;Payment&lt;---&gt;Redis&lt;---&gt;Kafka">
+            
+            Kafka
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="대용량 트래픽&lt;---&gt;Redis">
+            <i class="fold iconfont icon-right"></i>
+            Redis
+            <small>(2)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="대용량 트래픽&lt;---&gt;Redis&lt;---&gt;Kafka">
+            
+            Kafka
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="대용량 트래픽&lt;---&gt;Redis&lt;---&gt;WebFlux">
+            <i class="fold iconfont icon-right"></i>
+            WebFlux
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="대용량 트래픽&lt;---&gt;Redis&lt;---&gt;WebFlux&lt;---&gt;접근자 대기열">
+            
+            접근자 대기열
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+</ul>
+<div class="left-bottom">
+    <div class="menus">
+        
+            
+            
+            
+    </div>
+    <div>
+        
+            <a class="about  hasFriend  site_url"
+               
+               href="/about">About</a>
+        
+        <a style="width: 50%"
+                
+                                           class="friends">Friends</a>
+        
+    </div>
+</div>
+<input type="hidden" id="yelog_site_posts_number" value="60">
+
+<div style="display: none">
+    <span id="busuanzi_value_site_uv"></span>
+    <span id="busuanzi_value_site_pv"></span>
+</div>
+
+    </div>
+    <div class="nav-right">
+        <div class="friends-area">
+    <div class="friends-title">
+        Links
+        <i class="iconfont icon-left"></i>
+    </div>
+    <div class="friends-content">
+        <ul>
+            
+            <li><a target="_blank" href="http://yelog.org/">叶落阁</a></li>
+            
+        </ul>
+    </div>
+</div>
+        <div class="title-list">
+    <div class="right-top">
+        <div id="default-panel">
+            <i class="iconfont icon-search" data-title="search shortcut key i"></i>
+            <div class="right-title">All</div>
+            <i class="iconfont icon-file-tree" data-title="switch to outline view shortcut key w"></i>
+        </div>
+        <div id="search-panel">
+            <i class="iconfont icon-left" data-title="return"></i>
+            <input id="local-search-input" autocomplete="off"/>
+            <label class="border-line" for="input"></label>
+            <i class="iconfont icon-case-sensitive" data-title="case sensitive"></i>
+            <i class="iconfont icon-tag" data-title="label"></i>
+        </div>
+        <div id="outline-panel" style="display: none">
+            <div class="right-title">outline</div>
+            <i class="iconfont icon-list" data-title="switch to article list"></i>
+        </div>
+    </div>
+
+    <div class="tags-list">
+    <input id="tag-search" />
+    <div class="tag-wrapper">
+        
+    </div>
+
+</div>
+
+    
+    <nav id="title-list-nav">
+        
+        
+        <a  class="All Kafka idempotent "
+           href="/2024/12/23/KAFKA/idempotent/Kafka_idempotent/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="카프카 멱등성 및 이벤트 일관성 보장하기">카프카 멱등성 및 이벤트 일관성 보장하기</span>
+            <span class="post-date" title="2024-12-23 07:47:42">2024/12/23</span>
+        </a>
+        
+        
+        <a  class="All MSA Payment Kafka EDA CQRS "
+           href="/2024/12/16/MSA/paymentMsa/MSA_Payment_Project_3/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="결제 시스템으로 알아보는 MSA 3 - 쿼리 문제">결제 시스템으로 알아보는 MSA 3 - 쿼리 문제</span>
+            <span class="post-date" title="2024-12-16 07:47:42">2024/12/16</span>
+        </a>
+        
+        
+        <a  class="All MSA Payment Kafka EDA Saga Axon "
+           href="/2024/12/15/MSA/paymentMsa/MSA_Payment_Project_2/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="결제 시스템으로 알아보는 MSA 2 - 분산 트랜잭션 구현">결제 시스템으로 알아보는 MSA 2 - 분산 트랜잭션 구현</span>
+            <span class="post-date" title="2024-12-15 07:47:42">2024/12/15</span>
+        </a>
+        
+        
+        <a  class="All MSA Payment Kafka EDA "
+           href="/2024/12/14/MSA/paymentMsa/MSA_Payment_Project_1/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="결제 시스템으로 알아보는 MSA 1 - 기본 설명">결제 시스템으로 알아보는 MSA 1 - 기본 설명</span>
+            <span class="post-date" title="2024-12-14 07:47:42">2024/12/14</span>
+        </a>
+        
+        
+        <a  class="All 대용량 트래픽 EDA Payment Redis Kafka "
+           href="/2024/12/13/HIGH_VOLUME_TRAFFIC/PaymentEDA/PaymentEDA/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="결제 시스템으로 알아보는 EDA 시스템">결제 시스템으로 알아보는 EDA 시스템</span>
+            <span class="post-date" title="2024-12-13 07:47:42">2024/12/13</span>
+        </a>
+        
+        
+        <a  class="All DB Mysql optimizing "
+           href="/2024/12/06/DB/Mysql/optimizing/IndexDiveOptimizaiton/IndexDiveOptimizaiton/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Index Dive 최적화">Index Dive 최적화</span>
+            <span class="post-date" title="2024-12-06 07:47:42">2024/12/06</span>
+        </a>
+        
+        
+        <a  class="All JAVA Spring Payment junit5 Mockito "
+           href="/2024/12/03/JAVA/TEST/PaymentTesting/PaymentTesting2/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="결제 Testing - 2">결제 Testing - 2</span>
+            <span class="post-date" title="2024-12-03 15:50:00">2024/12/03</span>
+        </a>
+        
+        
+        <a  class="All JAVA Spring Payment junit5 Mockito "
+           href="/2024/12/02/JAVA/TEST/PaymentTesting/PaymentTesting1/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="결제 Testing - 1">결제 Testing - 1</span>
+            <span class="post-date" title="2024-12-02 15:50:00">2024/12/02</span>
+        </a>
+        
+        
+        <a  class="All 대용량 트래픽 Redis WebFlux 접근자 대기열 "
+           href="/2024/11/28/HIGH_VOLUME_TRAFFIC/AccessorQueuingSystem/AccessorQueuingSystem/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="대용량 트래픽 - 접근자 대기열 시스템 만들기">대용량 트래픽 - 접근자 대기열 시스템 만들기</span>
+            <span class="post-date" title="2024-11-28 07:47:42">2024/11/28</span>
+        </a>
+        
+        
+        <a  class="All 대용량 트래픽 Redis Kafka "
+           href="/2024/11/22/HIGH_VOLUME_TRAFFIC/CreateCoupon/CreateCoupon/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="대용량 트래픽 - 선착순 쿠폰 등록 With Kafka, Redis">대용량 트래픽 - 선착순 쿠폰 등록 With Kafka, Redis</span>
+            <span class="post-date" title="2024-11-22 07:47:42">2024/11/22</span>
+        </a>
+        
+        
+        <a  class="All NoSQL Redis RateLimiter "
+           href="/2024/11/19/NoSQL/Redis/RateLimiter/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Request Rate Limiter 구현하기">Request Rate Limiter 구현하기</span>
+            <span class="post-date" title="2024-11-19 07:47:42">2024/11/19</span>
+        </a>
+        
+        
+        <a  class="All CI-CD GitHubActions "
+           href="/2024/10/20/CI-CD/GitHunActions/GitHubActionsCICDWithSpringBoot6/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="GitHubActions CICD With SpringBoot - 6">GitHubActions CICD With SpringBoot - 6</span>
+            <span class="post-date" title="2024-10-20 07:47:42">2024/10/20</span>
+        </a>
+        
+        
+        <a  class="All CI-CD GitHubActions "
+           href="/2024/10/19/CI-CD/GitHunActions/GitHubActionsCICDWithSpringBoot5/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="GitHubActions CICD With SpringBoot - 5">GitHubActions CICD With SpringBoot - 5</span>
+            <span class="post-date" title="2024-10-19 07:47:42">2024/10/19</span>
+        </a>
+        
+        
+        <a  class="All CI-CD GitHubActions "
+           href="/2024/10/18/CI-CD/GitHunActions/GitHubActionsCICDWithSpringBoot4/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="GitHubActions CICD With SpringBoot - 4">GitHubActions CICD With SpringBoot - 4</span>
+            <span class="post-date" title="2024-10-18 07:47:42">2024/10/18</span>
+        </a>
+        
+        
+        <a  class="All CI-CD GitHubActions "
+           href="/2024/10/17/CI-CD/GitHunActions/GitHubActionsCICDWithSpringBoot3/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="GitHubActions CICD With SpringBoot - 3">GitHubActions CICD With SpringBoot - 3</span>
+            <span class="post-date" title="2024-10-17 07:47:42">2024/10/17</span>
+        </a>
+        
+        
+        <a  class="All CI-CD GitHubActions "
+           href="/2024/10/14/CI-CD/GitHunActions/GitHubActionsCICDWithSpringBoot2/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="GitHubActions CICD With SpringBoot - 2">GitHubActions CICD With SpringBoot - 2</span>
+            <span class="post-date" title="2024-10-14 07:47:42">2024/10/14</span>
+        </a>
+        
+        
+        <a  class="All CI-CD GitHubActions "
+           href="/2024/10/14/CI-CD/GitHunActions/GitHubActionsCICDWithSpringBoot1/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="GitHubActions CICD With SpringBoot - 1">GitHubActions CICD With SpringBoot - 1</span>
+            <span class="post-date" title="2024-10-14 07:47:42">2024/10/14</span>
+        </a>
+        
+        
+        <a  class="All DB Mysql Paging "
+           href="/2024/10/06/DB/Mysql/PagingQuery/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Paging Query 성능 개선 및 처리 방법 - 튜닝편">Paging Query 성능 개선 및 처리 방법 - 튜닝편</span>
+            <span class="post-date" title="2024-10-06 07:47:42">2024/10/06</span>
+        </a>
+        
+        
+        <a  class="All DB Mysql DBCP "
+           href="/2024/10/02/DB/Mysql/mysqlDBCP/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="DBCP 설정 방법">DBCP 설정 방법</span>
+            <span class="post-date" title="2024-10-02 07:47:42">2024/10/02</span>
+        </a>
+        
+        
+        <a  class="All JAVA Object "
+           href="/2024/08/24/JAVA/Object/InheritanceComposition2/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="상속과 합성 이야기-2">상속과 합성 이야기-2</span>
+            <span class="post-date" title="2024-08-24 15:50:00">2024/08/24</span>
+        </a>
+        
+        
+        <a  class="All JAVA Object "
+           href="/2024/08/23/JAVA/Object/InheritanceComposition1/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="상속과 합성 이야기-1">상속과 합성 이야기-1</span>
+            <span class="post-date" title="2024-08-23 15:50:00">2024/08/23</span>
+        </a>
+        
+        
+        <a  class="All JAVA Payment "
+           href="/2024/08/06/JAVA/Payment/PaymentTransactionalOutboxpattern/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="결제 시스템 구축 - 5">결제 시스템 구축 - 5</span>
+            <span class="post-date" title="2024-08-06 15:50:00">2024/08/06</span>
+        </a>
+        
+        
+        <a  class="All JAVA Payment "
+           href="/2024/08/05/JAVA/Payment/PaymentRetry/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="결제 시스템 구축 - 4">결제 시스템 구축 - 4</span>
+            <span class="post-date" title="2024-08-05 15:50:00">2024/08/05</span>
+        </a>
+        
+        
+        <a  class="All JAVA Payment "
+           href="/2024/07/28/JAVA/Payment/BuildingPaymentSystem/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="결제 시스템 구축 - 1">결제 시스템 구축 - 1</span>
+            <span class="post-date" title="2024-07-28 15:50:00">2024/07/28</span>
+        </a>
+        
+        
+        <a  class="All JAVA Payment "
+           href="/2024/07/28/JAVA/Payment/PaymentCheckOut/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="결제 시스템 구축 - 2">결제 시스템 구축 - 2</span>
+            <span class="post-date" title="2024-07-28 15:50:00">2024/07/28</span>
+        </a>
+        
+        
+        <a  class="All JAVA Payment "
+           href="/2024/07/28/JAVA/Payment/PaymentConfirm/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="결제 시스템 구축 - 3">결제 시스템 구축 - 3</span>
+            <span class="post-date" title="2024-07-28 15:50:00">2024/07/28</span>
+        </a>
+        
+        
+        <a  class="All "
+           href="/2024/05/31/hello-world/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Hello World">Hello World</span>
+            <span class="post-date" title="2024-05-31 22:32:19">2024/05/31</span>
+        </a>
+        
+        
+        <a  class="All "
+           href="/2024/05/31/README/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title=""></span>
+            <span class="post-date" title="2024-05-31 22:32:19">2024/05/31</span>
+        </a>
+        
+        
+        <a  class="All JAVA Security "
+           href="/2024/05/30/JAVA/Security/AnonymousAuthenticationFilter/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="AnonymousAuthenticationFilter">AnonymousAuthenticationFilter</span>
+            <span class="post-date" title="2024-05-30 10:04:43">2024/05/30</span>
+        </a>
+        
+        
+        <a  class="All "
+           href="/2024/02/01/HIGH_VOLUME_TRAFFIC/AccessorQueuingSystem2/AccessorQueuingSystem/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="패스트캠퍼스 9개 프로젝트로 경험하는 대용량 트래픽 &amp; 데이터 처리 초격차 패키지 Online. 수강">패스트캠퍼스 9개 프로젝트로 경험하는 대용량 트래픽 &amp; 데이터 처리 초격차 패키지 Online. 수강</span>
+            <span class="post-date" title="2024-02-01 00:00:00">2024/02/01</span>
+        </a>
+        
+        
+        <a  class="All Authentication JWT "
+           href="/2021/11/27/AUTHTICATION/JWT/jwt/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="JWT (JSON Web Token) 이해하기">JWT (JSON Web Token) 이해하기</span>
+            <span class="post-date" title="2021-11-27 07:47:42">2021/11/27</span>
+        </a>
+        
+        
+        <a  class="All Authentication Oauth "
+           href="/2021/11/27/AUTHTICATION/OAUTH/oauth/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="OAUTH 2.0 이해하기">OAUTH 2.0 이해하기</span>
+            <span class="post-date" title="2021-11-27 07:47:42">2021/11/27</span>
+        </a>
+        
+        
+        <a  class="All JAVA HTTP FeignClient "
+           href="/2021/11/08/JAVA/HTTP/FeignClient/FeignClient/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="FeignClient 활용도">FeignClient 활용도</span>
+            <span class="post-date" title="2021-11-08 10:04:43">2021/11/08</span>
+        </a>
+        
+        
+        <a  class="All JAVA SpringBatch "
+           href="/2021/11/04/JAVA/Batch/SpringBatch5/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Batch - Chunk 5">Spring Batch - Chunk 5</span>
+            <span class="post-date" title="2021-11-04 07:47:42">2021/11/04</span>
+        </a>
+        
+        
+        <a  class="All JAVA SpringBatch "
+           href="/2021/10/30/JAVA/Batch/SpringBatch4/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Batch - Flow 4">Spring Batch - Flow 4</span>
+            <span class="post-date" title="2021-10-30 07:47:42">2021/10/30</span>
+        </a>
+        
+        
+        <a  class="All JAVA SpringBatch "
+           href="/2021/10/24/JAVA/Batch/SpringBatch3/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Batch - 메타데이터 스키마 3">Spring Batch - 메타데이터 스키마 3</span>
+            <span class="post-date" title="2021-10-24 07:47:42">2021/10/24</span>
+        </a>
+        
+        
+        <a  class="All JAVA SpringBatch "
+           href="/2021/10/19/JAVA/Batch/SpringBatch2/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Batch - Job, Step 2">Spring Batch - Job, Step 2</span>
+            <span class="post-date" title="2021-10-19 07:47:42">2021/10/19</span>
+        </a>
+        
+        
+        <a  class="All JAVA SpringBatch "
+           href="/2021/10/17/JAVA/Batch/SpringBatch1/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Batch 1">Spring Batch 1</span>
+            <span class="post-date" title="2021-10-17 07:47:42">2021/10/17</span>
+        </a>
+        
+        
+        <a  class="All JAVA SpringCloudConfig "
+           href="/2021/09/13/JAVA/SpringCloudConfig/spring-cloud-config4/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="비대칭키를 이용한 application.yml 설정값 암호화">비대칭키를 이용한 application.yml 설정값 암호화</span>
+            <span class="post-date" title="2021-09-13 07:47:45">2021/09/13</span>
+        </a>
+        
+        
+        <a  class="All JAVA SpringCloudConfig "
+           href="/2021/09/13/JAVA/SpringCloudConfig/spring-cloud-config3/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Cloud Bus">Spring Cloud Bus</span>
+            <span class="post-date" title="2021-09-13 07:47:44">2021/09/13</span>
+        </a>
+        
+        
+        <a  class="All JAVA SpringCloudConfig "
+           href="/2021/09/13/JAVA/SpringCloudConfig/spring-cloud-config2/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Boot Actuator">Spring Boot Actuator</span>
+            <span class="post-date" title="2021-09-13 07:47:43">2021/09/13</span>
+        </a>
+        
+        
+        <a  class="All JAVA SpringCloudConfig "
+           href="/2021/09/13/JAVA/SpringCloudConfig/spring-cloud-config/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Cloud Config">Spring Cloud Config</span>
+            <span class="post-date" title="2021-09-13 07:47:42">2021/09/13</span>
+        </a>
+        
+        
+        <a  class="All JAVA Transaction "
+           href="/2021/03/14/JAVA/Transaction/multi-transaction/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Java Multi-Transaction 관리">Java Multi-Transaction 관리</span>
+            <span class="post-date" title="2021-03-14 07:47:42">2021/03/14</span>
+        </a>
+        
+        
+        <a  class="All JAVA Validator "
+           href="/2020/12/18/JAVA/VALIDATOR/validator/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Java Validator 관리">Java Validator 관리</span>
+            <span class="post-date" title="2020-12-18 07:47:42">2020/12/18</span>
+        </a>
+        
+        
+        <a  class="All JAVA Security "
+           href="/2020/11/19/JAVA/Security/SessionManagementFilterAndConcurrentSessionFilter/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="SessionManagementFilterAndConcurrentSessionFilter">SessionManagementFilterAndConcurrentSessionFilter</span>
+            <span class="post-date" title="2020-11-19 18:02:23">2020/11/19</span>
+        </a>
+        
+        
+        <a  class="All JAVA Security "
+           href="/2020/11/14/JAVA/Security/RememberMeAuthenticationFilter/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="RememberMeAuthenticationFilter">RememberMeAuthenticationFilter</span>
+            <span class="post-date" title="2020-11-14 07:40:06">2020/11/14</span>
+        </a>
+        
+        
+        <a  class="All JAVA Security "
+           href="/2020/11/13/JAVA/Security/UsernamePasswordAuthenticationFilter/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="UsernamePasswordAuthenticationFilter">UsernamePasswordAuthenticationFilter</span>
+            <span class="post-date" title="2020-11-13 08:51:13">2020/11/13</span>
+        </a>
+        
+        
+        <a  class="All CI-CD Jenkins "
+           href="/2020/11/09/CI-CD/Jenkins/JenkinsGitLabConnect/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Jenkins_GitLab_연동">Jenkins_GitLab_연동</span>
+            <span class="post-date" title="2020-11-09 07:47:42">2020/11/09</span>
+        </a>
+        
+        
+        <a  class="All CI-CD Jenkins "
+           href="/2020/11/08/CI-CD/Jenkins/JenkinsGitLabSshConnect/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="젠킨스와 GitLab ssh 연동하기">젠킨스와 GitLab ssh 연동하기</span>
+            <span class="post-date" title="2020-11-08 07:47:42">2020/11/08</span>
+        </a>
+        
+        
+        <a  class="All JAVA JPA "
+           href="/2020/11/08/JAVA/JPA/eagerJpqlNplus1/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="eagerJpqlNplus1">eagerJpqlNplus1</span>
+            <span class="post-date" title="2020-11-08 07:47:42">2020/11/08</span>
+        </a>
+        
+        
+        <a  class="All JAVA SpringBootAndSecurityAndJWT "
+           href="/2020/11/08/JAVA/SpringBootAndSecurityAndJWT/spring-boot-security-jwt-social/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Boot 를 이용해 JWT + Social 로그인 처리 - Authorization Server (일반 로그인)">Spring Boot 를 이용해 JWT + Social 로그인 처리 - Authorization Server (일반 로그인)</span>
+            <span class="post-date" title="2020-11-08 07:47:42">2020/11/08</span>
+        </a>
+        
+        
+        <a  class="All JAVA SpringBootAndSecurityAndJWT "
+           href="/2020/11/08/JAVA/SpringBootAndSecurityAndJWT/spring-boot-security-jwt-social2/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Boot 를 이용해 JWT + Social 로그인 처리 - Authorization Server (Social 로그인)">Spring Boot 를 이용해 JWT + Social 로그인 처리 - Authorization Server (Social 로그인)</span>
+            <span class="post-date" title="2020-11-08 07:47:42">2020/11/08</span>
+        </a>
+        
+        
+        <a  class="All JAVA SpringBootAndSecurityAndJWT "
+           href="/2020/11/08/JAVA/SpringBootAndSecurityAndJWT/spring-boot-security-jwt-social3/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Boot 를 이용해 JWT + Social 로그인 처리 - Resource Server">Spring Boot 를 이용해 JWT + Social 로그인 처리 - Resource Server</span>
+            <span class="post-date" title="2020-11-08 07:47:42">2020/11/08</span>
+        </a>
+        
+        
+        <a  class="All J Jenkins "
+           href="/2020/11/07/JAVA/Security/JKSGenerate/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="JKSGenerate">JKSGenerate</span>
+            <span class="post-date" title="2020-11-07 13:46:21">2020/11/07</span>
+        </a>
+        
+        
+        <a  class="All CI-CD Jenkins "
+           href="/2020/11/07/CI-CD/Jenkins/JenkinsInstall/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="쿠버네티스 환경 구성">쿠버네티스 환경 구성</span>
+            <span class="post-date" title="2020-11-07 07:47:42">2020/11/07</span>
+        </a>
+        
+        
+        <a  class="All DB Mysql "
+           href="/2020/11/07/DB/Mysql/mysqlReplicationSetting/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Mysql_Replication_설정">Mysql_Replication_설정</span>
+            <span class="post-date" title="2020-11-07 07:47:42">2020/11/07</span>
+        </a>
+        
+        
+        <a  class="All KUBERNETES "
+           href="/2020/11/07/KUBERNETES/%EC%89%BD%EA%B2%8C_%EC%8B%9C%EC%9E%91%ED%95%98%EB%8A%94_%EC%BF%A0%EB%B2%84%EB%84%A4%ED%8B%B0%EC%8A%A4/%EC%BF%A0%EB%B2%84%EB%84%A4%ED%8B%B0%EC%8A%A4_%ED%99%98%EA%B2%BD_%EA%B5%AC%EC%84%B1/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Jenkins_설치">Jenkins_설치</span>
+            <span class="post-date" title="2020-11-07 07:47:42">2020/11/07</span>
+        </a>
+        
+        
+        <a  class="All R "
+           href="/2020/10/17/R/RServerInstall/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="RServer 설치">RServer 설치</span>
+            <span class="post-date" title="2020-10-17 07:47:42">2020/10/17</span>
+        </a>
+        
+        
+        <a  class="All JavaScript Webpack "
+           href="/2020/10/17/JAVASCRIPT/Webpack/devtool/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="WebPack - DevTool">WebPack - DevTool</span>
+            <span class="post-date" title="2020-10-17 07:47:42">2020/10/17</span>
+        </a>
+        
+        
+        <a  class="All "
+           href="/2018/12/02/%EB%A9%B4%EC%A0%91%EC%A4%80%EB%B9%84/test/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="그냥... 잡다한 지식 모음집">그냥... 잡다한 지식 모음집</span>
+            <span class="post-date" title="2018-12-02 15:50:00">2018/12/02</span>
+        </a>
+        
+        <div id="no-item-tips">
+
+        </div>
+    </nav>
+    <div id="outline-list">
+    </div>
+</div>
+
+    </div>
+    <div class="hide-list">
+        <div class="semicircle" data-title="Toggle full screen shortcut key s">
+            <div class="brackets first"><</div>
+            <div class="brackets">&gt;</div>
+        </div>
+    </div>
+</aside>
+<div id="post">
+    <div class="pjax">
+        <article id="post-JAVA/Batch/SpringBatch2" class="article article-type-post" itemscope itemprop="blogPost">
+    
+        <h1 class="article-title">Spring Batch - Job, Step 2</h1>
+    
+    <div class="article-meta">
+        
+        
+        
+        <span class="book">
+            <i class="iconfont icon-category"></i>
+            
+            
+            <a  data-rel="JAVA">JAVA</a> > 
+            
+            <a  data-rel="JAVA&lt;---&gt;SpringBatch">SpringBatch</a>
+            
+        </span>
+        
+        
+    </div>
+    <div class="article-meta">
+        
+            Created At : <time class="date" title='Updated At: 2024-05-31 22:32:19'>2021-10-19 07:47</time>
+        
+    </div>
+    <div class="article-meta">
+        
+        
+        <span id="busuanzi_container_page_pv">
+            Views 👀 :<span id="busuanzi_value_page_pv">
+                <span class="count-comment">
+                    <span class="spinner">
+                      <div class="cube1"></div>
+                      <div class="cube2"></div>
+                    </span>
+                </span>
+            </span>
+        </span>
+        
+        
+    </div>
+    
+    <div class="toc-ref">
+    
+        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Spring-Batch-Job-Step"><span class="toc-text">Spring Batch - Job, Step</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Spring-Batch-%EC%97%90%EC%84%9C-Job-%EC%9D%80-%EC%96%B4%EB%96%BB%EA%B2%8C-%EC%8B%A4%ED%96%89%ED%95%A0%EA%B9%8C"><span class="toc-text">Spring Batch 에서 Job 은 어떻게 실행할까?</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8-%EA%B8%B0%EB%8F%99"><span class="toc-text">프로젝트 기동</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%EB%B0%B0%EC%B9%98-%EC%8B%A4%ED%96%89"><span class="toc-text">배치 실행</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Job-%EA%B0%9D%EC%B2%B4"><span class="toc-text">Job 객체</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Job"><span class="toc-text">Job</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#AbstractJob"><span class="toc-text">AbstractJob</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#SimpleJob"><span class="toc-text">SimpleJob</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#FlowJob"><span class="toc-text">FlowJob</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#JobInstance-JobExecution-%EC%9E%90%EC%84%B8%ED%9E%88-%EC%95%8C%EC%95%84%EB%B3%B4%EC%9E%90"><span class="toc-text">JobInstance, JobExecution 자세히 알아보자</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Spring-Batch-%EC%97%90%EC%84%9C-Step-%EC%9D%80-%EC%96%B4%EB%96%BB%EA%B2%8C-%EC%8B%A4%ED%96%89%ED%95%A0%EA%B9%8C"><span class="toc-text">Spring Batch 에서 Step 은 어떻게 실행할까?</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8-%EA%B8%B0%EB%8F%99-1"><span class="toc-text">프로젝트 기동</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%EB%B0%B0%EC%B9%98-%EC%8B%A4%ED%96%89-1"><span class="toc-text">배치 실행</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Step-%EA%B0%9D%EC%B2%B4"><span class="toc-text">Step 객체</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Step"><span class="toc-text">Step</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Step-1"><span class="toc-text">Step</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#AbstractStep"><span class="toc-text">AbstractStep</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#TaskletStep"><span class="toc-text">TaskletStep</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#TaskletStep-%EC%A0%95%EB%A6%AC"><span class="toc-text">TaskletStep 정리</span></a></li></ol></li></ol>
+    
+<style>
+    .left-col .switch-btn,
+    .left-col .switch-area {
+        display: none;
+    }
+    .toc-level-3 i,
+    .toc-level-3 ol {
+        display: none !important;
+    }
+</style>
+</div>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="Spring-Batch-Job-Step"><a href="#Spring-Batch-Job-Step" class="headerlink" title="Spring Batch - Job, Step"></a>Spring Batch - Job, Step</h1><p>이번시간은 Job 에 대해서 자세히 알아보는 시간을 갖겠습니다.</p>
+<p>Spring Batch 에서 ‘Job’ 이란 하나의 배치 작업에서 최상위 개념으로 특정 하나의 배치 작업이라고 생각하면 이해하기 쉽습니다.</p>
+<h2 id="Spring-Batch-에서-Job-은-어떻게-실행할까"><a href="#Spring-Batch-에서-Job-은-어떻게-실행할까" class="headerlink" title="Spring Batch 에서 Job 은 어떻게 실행할까?"></a>Spring Batch 에서 Job 은 어떻게 실행할까?</h2><p>우선 Spring Batch 에서 Job 은 어떻게 실행 하는지 알아보겠습니다.</p>
+<p>이전에 우리가 생성한 ‘BasicJobConfiguration’ 클래스 기준으로 말씀드리겠습니다.</p>
+<p>BasicJobConfiguration 클래스는 @Configuration 선언했습니다.</p>
+<p>그럼 @bean 으로 선언한것은 Spring Ioc 컨테이너가 관리 하게 될 것 입니다.</p>
+<p>프로젝트를 기동 합니다.</p>
+<h3 id="프로젝트-기동"><a href="#프로젝트-기동" class="headerlink" title="프로젝트 기동"></a>프로젝트 기동</h3><p><img src="/../../../img/JAVA/Batch/BasicJobConfigurationStart.PNG" alt="BasicJobConfigurationStart"></p>
+<p><img src="/../../../img/JAVA/Batch/baseJob.PNG" alt="baseJob"></p>
+<p>그럼 우리가 선언한 메소드 basicJob 이 실행됩니다. 그리고 Job 이라는 객체를 반환 하게 됩니다.</p>
+<p>어떻게 생성 하는지 한번 알아봅시다.</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">public class JobBuilderFactory &#123;</span><br><span class="line"></span><br><span class="line"><span class="code">	private JobRepository jobRepository;</span></span><br><span class="line"><span class="code"></span></span><br><span class="line"><span class="code">	public JobBuilderFactory(JobRepository jobRepository) &#123;</span></span><br><span class="line"><span class="code">		this.jobRepository = jobRepository;</span></span><br><span class="line"><span class="code">	&#125;</span></span><br><span class="line"><span class="code"></span></span><br><span class="line"><span class="code">	public JobBuilder get(String name) &#123;</span></span><br><span class="line"><span class="code">		JobBuilder builder = new JobBuilder(name).repository(jobRepository);</span></span><br><span class="line"><span class="code">		return builder;</span></span><br><span class="line"><span class="code">	&#125;</span></span><br><span class="line"><span class="code">&#125;</span></span><br></pre></td></tr></table></figure>
+<p>get 메소드를 실행해서 우리가 Job 이름을 설정한 ‘BasicJob’ 와  메타데이터 조회 및 저장 전용 ‘jobRepository’ 객체 함께 ‘JobBuilder’ 객체를 생성합니다.</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">public class JobBuilder extends JobBuilderHelper<span class="language-xml"><span class="tag">&lt;<span class="name">JobBuilder</span>&gt;</span></span> &#123;</span><br><span class="line"></span><br><span class="line"><span class="code">	public SimpleJobBuilder start(Step step) &#123;</span></span><br><span class="line"><span class="code">		return new SimpleJobBuilder(this).start(step);</span></span><br><span class="line"><span class="code">	&#125;</span></span><br><span class="line"><span class="code">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">public class SimpleJobBuilder extends JobBuilderHelper<span class="language-xml"><span class="tag">&lt;<span class="name">SimpleJobBuilder</span>&gt;</span></span> &#123;</span><br><span class="line"><span class="code">	public SimpleJobBuilder start(Step step) &#123;</span></span><br><span class="line"><span class="code">		if (steps.isEmpty()) &#123;</span></span><br><span class="line"><span class="code">			steps.add(step);</span></span><br><span class="line"><span class="code">		&#125;</span></span><br><span class="line"><span class="code">		else &#123;</span></span><br><span class="line"><span class="code">			steps.set(0, step);</span></span><br><span class="line"><span class="code">		&#125;</span></span><br><span class="line"><span class="code">		return this;</span></span><br><span class="line"><span class="code">	&#125;</span></span><br><span class="line"><span class="code">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>이번에는 start 메소드 입니다. 기존에 생성한 JobBuilder 클래스에 SimpleJobBuilder 클래스를 생성합니다. 동시에 우리가 Step 객체를 생성한 객체도 전달해서</p>
+<p>steps 변수에 add 하게 됩니다.</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">public class SimpleJobBuilder extends JobBuilderHelper<span class="language-xml"><span class="tag">&lt;<span class="name">SimpleJobBuilder</span>&gt;</span></span> &#123;</span><br><span class="line"><span class="code">	public SimpleJobBuilder next(Step step) &#123;</span></span><br><span class="line"><span class="code">		steps.add(step);</span></span><br><span class="line"><span class="code">		return this;</span></span><br><span class="line"><span class="code">	&#125;</span></span><br><span class="line"><span class="code">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>start 메소드와 크게 다르지 않습니다. steps 변수에 add 하게 됩니다.</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">public class SimpleJobBuilder extends JobBuilderHelper<span class="language-xml"><span class="tag">&lt;<span class="name">SimpleJobBuilder</span>&gt;</span></span> &#123;</span><br><span class="line"></span><br><span class="line"><span class="code">	private List&lt;Step&gt; steps = new ArrayList&lt;&gt;();</span></span><br><span class="line"><span class="code"></span></span><br><span class="line"><span class="code">	private JobFlowBuilder builder;</span></span><br><span class="line"><span class="code"></span></span><br><span class="line"><span class="code">	public Job build() &#123;</span></span><br><span class="line"><span class="code">		if (builder != null) &#123;</span></span><br><span class="line"><span class="code">			return builder.end().build();</span></span><br><span class="line"><span class="code">		&#125;</span></span><br><span class="line"><span class="code">		SimpleJob job = new SimpleJob(getName());</span></span><br><span class="line"><span class="code">		super.enhance(job);</span></span><br><span class="line"><span class="code">		job.setSteps(steps);</span></span><br><span class="line"><span class="code">		try &#123;</span></span><br><span class="line"><span class="code">			job.afterPropertiesSet();</span></span><br><span class="line"><span class="code">		&#125;</span></span><br><span class="line"><span class="code">		catch (Exception e) &#123;</span></span><br><span class="line"><span class="code">			throw new JobBuilderException(e);</span></span><br><span class="line"><span class="code">		&#125;</span></span><br><span class="line"><span class="code">		return job;</span></span><br><span class="line"><span class="code">	&#125;</span></span><br><span class="line"><span class="code">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>마지막인 build 메소드 입니다. </p>
+<p>가장 중요한 부분은 SimpleJob 객체 생성 입니다. 그외 최상위 인터페이스 중 Job 이라는 객체가 있고 그중 하위 클래스 중 하나가 SimpleJob 입니다.</p>
+<p>기존에 steps 변수에 저장했던 Step 객체를 SimpleJob 객체에 저장 하게 됩니다.</p>
+<p>즉 Job 하나는 우리가 설정한 Step 을 저장하고 있다는 의미입니다.</p>
+<h3 id="배치-실행"><a href="#배치-실행" class="headerlink" title="배치 실행"></a>배치 실행</h3><p>기동시 우리가 설정한 Job, Step 은 Spring Batch 관리 하고 등록 되어 있다는것을 알아보았습니다.</p>
+<p>그럼 등록했던 Job, Step 을 실행해야 하는데요.</p>
+<p>이전에서 실행해봐서 알겠지만 기동과 동시에 Batch 를 실행 한다는 것을 알 수 있었습니다.</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">public class BatchAutoConfiguration &#123;</span><br><span class="line"></span><br><span class="line"><span class="code">	@Bean</span></span><br><span class="line"><span class="code">	@ConditionalOnMissingBean</span></span><br><span class="line"><span class="code">	@ConditionalOnProperty(prefix = &quot;spring.batch.job&quot;, name = &quot;enabled&quot;, havingValue = &quot;true&quot;, matchIfMissing = true)</span></span><br><span class="line"><span class="code">	public JobLauncherApplicationRunner jobLauncherApplicationRunner(JobLauncher jobLauncher, JobExplorer jobExplorer,</span></span><br><span class="line"><span class="code">			JobRepository jobRepository, BatchProperties properties) &#123;</span></span><br><span class="line"><span class="code">		JobLauncherApplicationRunner runner = new JobLauncherApplicationRunner(jobLauncher, jobExplorer, jobRepository);</span></span><br><span class="line"><span class="code">		String jobNames = properties.getJob().getNames();</span></span><br><span class="line"><span class="code">		if (StringUtils.hasText(jobNames)) &#123;</span></span><br><span class="line"><span class="code">			runner.setJobNames(jobNames);</span></span><br><span class="line"><span class="code">		&#125;</span></span><br><span class="line"><span class="code">		return runner;</span></span><br><span class="line"><span class="code">	&#125;	</span></span><br><span class="line"><span class="code">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>우리가 등록한 Job, Step 을 실행하는 주범은 바로 JobLauncherApplicationRunner 입니다.</p>
+<p>JobLauncherApplicationRunner 클래스는 Spring 에서 관리하는 ApplicationRunner 구현체 입니다.</p>
+<p>즉 JobLauncherApplicationRunner 를 bean 으로 등록하고 최종적으로 SimpleJobLauncher 클래스의 run 메소드를 호출 하게 됩니다.</p>
+<p>일단 다시 정리해서 말씀드리자면 Job 을 실행하기에 반드시 ‘Job’ 객체, ‘Job Parameter’ 이 두가지 입니다. </p>
+<p>여기서 Job 은 실행 할수 있는 객체 단위라고 보면 될것 같습니다. 이후에 Job 객체에 대해 설명 하도록 하겠습니다. 그리고 Job parameter 는 해당 Job 을 실행할때 한번만 실행되지 않을겁니다.</p>
+<p>오늘 Job 실행 했으면 내일도 실행 할것 입니다. 앞으로 실행될때 마다 각각의 실행을 분별 하기 용도라고 생각하시면 되겠습니다.</p>
+<p>어느 하나의 Job ‘TestJob’ 이름이 있다면 파라미터는 ‘2021-06-06’ 지정 하고 내일은 ‘2021-06-07’ 로 지정 해서 앞으로 실행될 Job 을 구분짓는 것 입니다.</p>
+<p>Job 실행시 ‘JobLauncher’ 가 담당 하게 됩니다.</p>
+<p>그럼 JobLauncher 구현체인 SimpleJobLauncher run 메소드를 알아봅시다.</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line">public class SimpleJobLauncher implements JobLauncher, InitializingBean &#123;</span><br><span class="line"></span><br><span class="line"><span class="code">    @Override</span></span><br><span class="line"><span class="code">	public JobExecution run(final Job job, final JobParameters jobParameters)</span></span><br><span class="line"><span class="code">			throws JobExecutionAlreadyRunningException, JobRestartException, JobInstanceAlreadyCompleteException,</span></span><br><span class="line"><span class="code">			JobParametersInvalidException &#123;</span></span><br><span class="line"><span class="code"></span></span><br><span class="line"><span class="code">        // .. 생략 ..</span></span><br><span class="line"><span class="code">	    final JobExecution jobExecution;</span></span><br><span class="line"><span class="code">        JobExecution lastExecution = jobRepository.getLastJobExecution(job.getName(), jobParameters);</span></span><br><span class="line"><span class="code">        if (lastExecution != null) &#123;</span></span><br><span class="line"><span class="code">            if (!job.isRestartable()) &#123;</span></span><br><span class="line"><span class="code">                throw new JobRestartException(&quot;JobInstance already exists and is not restartable&quot;);</span></span><br><span class="line"><span class="code">            &#125;</span></span><br><span class="line"><span class="code"></span></span><br><span class="line"><span class="code">            // .. 생략 ..</span></span><br><span class="line"><span class="code">        &#125;</span></span><br><span class="line"><span class="code"></span></span><br><span class="line"><span class="code">    &#125;</span></span><br><span class="line"><span class="code"></span></span><br><span class="line"><span class="code">    job.getJobParametersValidator().validate(jobParameters);</span></span><br><span class="line"><span class="code">    jobExecution = jobRepository.createJobExecution(job.getName(), jobParameters);</span></span><br><span class="line"><span class="code"></span></span><br><span class="line"><span class="code">    taskExecutor.execute(new Runnable() &#123;</span></span><br><span class="line"><span class="code"></span></span><br><span class="line"><span class="code">        // .. 생략 ..</span></span><br><span class="line"><span class="code"></span></span><br><span class="line"><span class="code">        @Override</span></span><br><span class="line"><span class="code">        public void run() &#123;</span></span><br><span class="line"><span class="code">            // .. 생략 ..</span></span><br><span class="line"><span class="code">            job.execute(jobExecution);</span></span><br><span class="line"><span class="code">        &#125;</span></span><br><span class="line"><span class="code"></span></span><br><span class="line"><span class="code">    &#125;</span></span><br><span class="line"><span class="code">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>여기서 <code>JobExecution lastExecution = jobRepository.getLastJobExecution(job.getName(), jobParameters);</code></p>
+<p>위에 설명한대로 job 이름, 실행되는 job parameter 를 인자값으로 가져오고 있습니다.</p>
+<p>‘JobExecution’ 이라는 객체를 반환 받는데요. 앞서 설명한 배치 실행에 관리 및 히스토리를 보관하는 메타데이터 통해 JobExecution 객체를 가져옵니다.</p>
+<p>즉 JobExecution 는 해당 Job 실행 단위로 보면 되겠습니다. 특정 Job 이라는 뼈대가 있다면 그것을 실행하는 주체가 JobExecution 입니다.</p>
+<p>메타 데이터 통해 JobExecution 가져온 값이 만약이 있다면 여기서 job.isRestartable() false 면 이미 실행한 JobInstance 라고 경고가 나옵니다.</p>
+<p>job.isRestartable() 는 옵션 설정인데 Job 재시작 여부 스위치 역활입니다. default 는 false 입니다.</p>
+<p><code>job.getJobParametersValidator().validate(jobParameters);</code></p>
+<p>만약 새로운 JobExecution 라면 입력한 파라미터 값 JobParametersValidator 객체 통해 올바른지 체크 하고</p>
+<p><code>jobExecution = jobRepository.createJobExecution(job.getName(), jobParameters);</code></p>
+<p>Job Name 하고 Job Parameter 인자값을 통해 새로운 JobExecution 을 생성 하게 됩니다.</p>
+<p>SimpleJobLauncher.java</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">@Override</span><br><span class="line">public JobExecution createJobExecution(String jobName, JobParameters jobParameters)</span><br><span class="line"><span class="code">		throws JobExecutionAlreadyRunningException, JobRestartException, JobInstanceAlreadyCompleteException &#123;</span></span><br><span class="line"><span class="code"></span></span><br><span class="line"><span class="code">       JobInstance jobInstance = jobInstanceDao.getJobInstance(jobName, jobParameters);</span></span><br><span class="line"><span class="code">       if (jobInstance != null) &#123;      </span></span><br><span class="line"><span class="code">           // .. 생략 ..</span></span><br><span class="line"><span class="code">           executionContext = ecDao.getExecutionContext(jobExecutionDao.getLastJobExecution(jobInstance));</span></span><br><span class="line"><span class="code">       &#125; else &#123;</span></span><br><span class="line"><span class="code">           jobInstance = jobInstanceDao.createJobInstance(jobName, jobParameters);</span></span><br><span class="line"><span class="code">           executionContext = new ExecutionContext();</span></span><br><span class="line"><span class="code">       &#125;</span></span><br><span class="line"><span class="code"></span></span><br><span class="line"><span class="code">	JobExecution jobExecution = new JobExecution(jobInstance, jobParameters, null);</span></span><br><span class="line"><span class="code">	jobExecution.setExecutionContext(executionContext);</span></span><br><span class="line"><span class="code">	jobExecution.setLastUpdated(new Date(System.currentTimeMillis()));</span></span><br><span class="line"><span class="code"></span></span><br><span class="line"><span class="code">	// Save the JobExecution so that it picks up an ID (useful for clients</span></span><br><span class="line"><span class="code">	// monitoring asynchronous executions):</span></span><br><span class="line"><span class="code">	jobExecutionDao.saveJobExecution(jobExecution);</span></span><br><span class="line"><span class="code">	ecDao.saveExecutionContext(jobExecution);</span></span><br><span class="line"><span class="code"></span></span><br><span class="line"><span class="code">	return jobExecution;</span></span><br><span class="line"><span class="code">   &#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>JobExecution 생성 하는 메소드 입니다.</p>
+<p><code>JobInstance jobInstance = jobInstanceDao.getJobInstance(jobName, jobParameters);</code></p>
+<p>jobName, jobParameters 통해 메타데이터 저장소(우리는 Mysql 로 설정했으니 해당 DB 테이블에서 가져온다.) 에서 JobInstance 를 가져오게 됩니다.</p>
+<p>JobInstance 는 Job 의 실행 단위라고 보면 되겠습니다. 그럼 JobExecution 와 차이점이 무엇이냐</p>
+<ul>
+<li>JobInstance: 배치 처리에서 Job 이 실행될 때 하나의 Job 실행 단위</li>
+<li>JobExecution: 해당 JobInstance 대한 한 번의 실행을 나타내는 객체</li>
+</ul>
+<p>즉 Job Name 을 ‘TestJob’, Job Parameter 를 ‘2021-05-05’ 통해 실행 한다면 한번의 JobInstance 만들어 지고 하나의 JobExecution 가 만들어 집니다.</p>
+<p>그리고 Job Name 을 ‘TestJob’, Job Parameter 를 ‘2021-05-06’ 통해 실행 후 실패 한다고 가정시 </p>
+<p>한번의 JobInstance 만들어 지고, 하나의 JobExecution 가 만들어 집니다. 해당 JobInstance 가 실패한다면 다시 실행이 가능한데</p>
+<p>여기서 실패한 Job Name 을 ‘TestJob’, Job Parameter 를 ‘2021-05-06’ 통해 다시 실행 한다면</p>
+<p>JobInstance 는 이전에 만들어졌으니 생성은 안하지만 JobExecution 는 새롭게 생성 하게 됩니다.</p>
+<p>즉 JobInstance (1) vs JobExecution(N) 관계 입니다.</p>
+<p>이후 SimpleJobLauncher 클래스로 돌아와서</p>
+<p><code>job.execute(jobExecution);</code></p>
+<p>Runnable 통해 run 메소드를 호출 하게 되면 job.execute 가 실행되는데</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">public abstract class AbstractJob implements Job, StepLocator, BeanNameAware,</span><br><span class="line">InitializingBean &#123;</span><br><span class="line"></span><br><span class="line">@Override</span><br><span class="line"><span class="code">	public final void execute(JobExecution execution) &#123;</span></span><br><span class="line"><span class="code"></span></span><br><span class="line"><span class="code">         // .. 생략 ..</span></span><br><span class="line"><span class="code"></span></span><br><span class="line"><span class="code">				try &#123;</span></span><br><span class="line"><span class="code">					doExecute(execution);</span></span><br><span class="line"><span class="code">					if (logger.isDebugEnabled()) &#123;</span></span><br><span class="line"><span class="code">						logger.debug(&quot;Job execution complete: &quot; + execution);</span></span><br><span class="line"><span class="code">					&#125;</span></span><br><span class="line"><span class="code">				&#125; </span></span><br><span class="line"><span class="code">		 // .. 생략 ..</span></span><br><span class="line"><span class="code">	&#125;</span></span><br><span class="line"><span class="code">&#125;</span></span><br></pre></td></tr></table></figure>
+<p>execute 메소드 에서는 doExecute 메소드를 호출 하게 됩니다.</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">public class SimpleJob extends AbstractJob &#123;</span><br><span class="line"></span><br><span class="line"><span class="code">	@Override</span></span><br><span class="line"><span class="code">	protected void doExecute(JobExecution execution) throws JobInterruptedException, JobRestartException,</span></span><br><span class="line"><span class="code">	StartLimitExceededException &#123;</span></span><br><span class="line"><span class="code"></span></span><br><span class="line"><span class="code">		StepExecution stepExecution = null;</span></span><br><span class="line"><span class="code">		for (Step step : steps) &#123;</span></span><br><span class="line"><span class="code">			stepExecution = handleStep(step, execution);</span></span><br><span class="line"><span class="code">            // .. 생략 ..</span></span><br><span class="line"><span class="code">		&#125;</span></span><br><span class="line"><span class="code"></span></span><br><span class="line"><span class="code">        // .. 생략 ..</span></span><br><span class="line"><span class="code">	&#125;</span></span><br><span class="line"><span class="code">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>기존에 Step 들을 steps 변수에 저장했었는데 for 문 통해 handleStep 메소드를 호출 하게 됩니다.</p>
+<p>이후 Step 영역이기 때문에 다음 부분에서 설명을 하도록 하겠습니다.</p>
+<h3 id="Job-객체"><a href="#Job-객체" class="headerlink" title="Job 객체"></a>Job 객체</h3><p><img src="/../../../img/JAVA/Batch/job.PNG" alt="job"><br><img src="/../../../img/JAVA/Batch/job_interface.PNG" alt="job_interface"></p>
+<p>Spring Batch 에서 사용되는 Job 객체에 대해 알아보겠습니다.</p>
+<h4 id="Job"><a href="#Job" class="headerlink" title="Job"></a>Job</h4><p>Spring Batch ‘Job’ 은 최상위 인터페이지로 구성되어 있습니다.</p>
+<p>대표적인 메소드를 보면</p>
+<ul>
+<li>getName(): 설정한 해당 job 의 이름을 가져오는 메소드 입니다.</li>
+<li>execute(): 설정한 해당 job 을 실행 하는 메소드 입니다. </li>
+<li>getJobParametersValidator(): 해당 job 을 실행 할려면 ‘job’, ‘parameter’ 인자값 통해 실행합니다. 이 중 두개의 인자값이 이전 실행한 job 과 중복이 일어나면 다시 실행 되지 않습니다.<br>예를들어 job: ‘testJob’, parameter: ‘2021-05-05’ 이렇게 파라미터 통해 실행한다면 다음에는 job: ‘testJob’, parameter: ‘2021-05-06’ 이렇게 다르게 인자값을 달리 해서 호출 해야 합니다.</li>
+</ul>
+<h4 id="AbstractJob"><a href="#AbstractJob" class="headerlink" title="AbstractJob"></a>AbstractJob</h4><p><img src="/../../../img/JAVA/Batch/AbstractJob.PNG" alt="AbstractJob"></p>
+<p>AbstractJob 입니다. 여기서 관리하는 대표적인 필드만 알아보겠습니다.</p>
+<ul>
+<li>name: 설정한 해당 job 의 이름 입니다.</li>
+<li>restartable: 해당 Job 이 재시작 여부 입니다.</li>
+<li>jobRepository: 앞서 설명한 배치 실행에 관련한 데이터 관리를 하는 메타데이터 저장소 입니다.</li>
+<li>jobParametersIncrementer: Job 실행하기 위해 이전에 실행한 파라미터와 비교해서 기록이 없다면 실행이 가능한데 이것을 가능 하도록 파라미터를 증가시킬수 있는 객체 입니다. </li>
+<li>jobParametersValidator: 위에 Job 객체를 설명하면서 Job 객체가 실행전 인자값으로 전달받은 해당 파라미터 값을 검증하는 객체 입니다.  </li>
+<li>stepHandler: Job 안에 설정한 Step 을 실행하기 위한 핸드러 입니다.</li>
+</ul>
+<h4 id="SimpleJob"><a href="#SimpleJob" class="headerlink" title="SimpleJob"></a>SimpleJob</h4><p>Spring Batch 여러 Job 객체 중 가장 대표적인 SimpleJob 입니다. 순차적으로 Step 을 실행 시키는 Job 입니다.</p>
+<h4 id="FlowJob"><a href="#FlowJob" class="headerlink" title="FlowJob"></a>FlowJob</h4><p><img src="/../../../img/JAVA/Batch/FlowJobDomain.PNG" alt="FlowJobDomain"></p>
+<p>SimpleJob 은 순차적으로 실행 된다고 한다면 FlowJob 은 순차적으로 Step 을 실행하다가 어느 조건에 의해 Step2 로 실행 할지</p>
+<p>아니면 Step3 로 진행 할지 분기 처리 방식 입니다.</p>
+<h3 id="JobInstance-JobExecution-자세히-알아보자"><a href="#JobInstance-JobExecution-자세히-알아보자" class="headerlink" title="JobInstance, JobExecution 자세히 알아보자"></a>JobInstance, JobExecution 자세히 알아보자</h3><p><img src="/../../../img/JAVA/Batch/job_instance_execution_domain.PNG" alt="job_instance_execution_domain"></p>
+<p>지금까지 Job 은 어떻게 실행하는지 알아보았습니다. 복잡한 로직 때문에 이해가 어려워 쉽게 이미지로 만들어보았습니다.</p>
+<p>우리가 앞서 BasicJobConfiguration 클래스에서 Job 이름을 ‘basicJob’ 이라고 정했습니다.</p>
+<p>그럼 Job 이름 basicJob 라고 구조체를 만들고 그 해당 Job 을 실행하면 실행단위을 나타내는 ‘JobInstance’ 객체가 생성 됩니다.</p>
+<p>물론 여기서 먼저 JobParameter 객체를 만들고  JobName 와 JobParameter 객체를 가지고 JobInstance 생성 합니다.</p>
+<p>그런 다음 생성한 JobInstance 의 하위 객체인 JobExecution 객체가 생성 됩니다. 실행단위을 나타내는 것이 ‘JobInstance’ 라면</p>
+<p>JobExecution 는 해당 실행 단위를 더 구체적인 상태정보를 담고 있습니다.</p>
+<p>즉 우리가 구성한 Job (JobName: basicJob) 이 실행하면 이전에 실행한 JobParameter 가 같지 않는 이상  JobInstance 가 생성되고</p>
+<p>JobExecution 생성 됩니다. 하지만 여기서 비지니스 로직 수행 중 Exception 일어나고 다시 실행 하게 된다면</p>
+<p>기존 JobInstance 는 유지 되고 JobExecution 한번 더 생성 하게 됩니다. 물론 성공 후에는 이전과 같은 JobParameter 라면 다시 Job 이 실행 되지 않습니다.</p>
+<p>이러한 상태정보는 후에 자세히 배우게 되는데요 메타데이터 저장소에 모두 관리 하게 됩니다.</p>
+<h2 id="Spring-Batch-에서-Step-은-어떻게-실행할까"><a href="#Spring-Batch-에서-Step-은-어떻게-실행할까" class="headerlink" title="Spring Batch 에서 Step 은 어떻게 실행할까?"></a>Spring Batch 에서 Step 은 어떻게 실행할까?</h2><p>이번에는 Job 이러 Step 실행 과정에 대해 알아보겠습니다.</p>
+<p>Step 은 다시 말씀드리자면 하나의 배치 작업 즉 Job 이 실행 하는 과정에서 그 안에 독립적으로 구성되고 역활 하는 하나하나가 Step 이라고 생각 하시면 됩니다.</p>
+<h3 id="프로젝트-기동-1"><a href="#프로젝트-기동-1" class="headerlink" title="프로젝트 기동"></a>프로젝트 기동</h3><figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">@Bean</span><br><span class="line">public Step basicStep1() &#123;</span><br><span class="line"><span class="code">    return stepBuilderFactory.get(&quot;basicStep1&quot;)</span></span><br><span class="line"><span class="code">            .tasklet(new Tasklet() &#123;</span></span><br><span class="line"><span class="code">                @Override</span></span><br><span class="line"><span class="code">                public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception &#123;</span></span><br><span class="line"><span class="code">                    System.out.println(&quot;basicStep1&quot;);</span></span><br><span class="line"><span class="code">                    return RepeatStatus.FINISHED;</span></span><br><span class="line"><span class="code">                &#125;</span></span><br><span class="line"><span class="code">            &#125;)</span></span><br><span class="line"><span class="code">            .build();</span></span><br><span class="line"><span class="code">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>우리가 만들었던 BasicJobConfiguration 클래스 확인 해보면 Step 을 설정하는 곳이 보입니다.</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">public class StepBuilderFactory &#123;</span><br><span class="line"></span><br><span class="line"><span class="code">	private JobRepository jobRepository;</span></span><br><span class="line"><span class="code">	private PlatformTransactionManager transactionManager;</span></span><br><span class="line"><span class="code">	</span></span><br><span class="line"><span class="code">    public StepBuilder get(String name) &#123;</span></span><br><span class="line"><span class="code">        StepBuilder builder = new StepBuilder(name).repository(jobRepository).transactionManager(</span></span><br><span class="line"><span class="code">                transactionManager);</span></span><br><span class="line"><span class="code">        return builder;</span></span><br><span class="line"><span class="code">    &#125;</span></span><br><span class="line"><span class="code">&#125;</span></span><br></pre></td></tr></table></figure>
+<p>StepBuilderFactory 가 StepBuilder 를 생성합니다. 이후 StepBuilder 는 하위 빌더 클래스 중 가장 기본이 되는 TaskletStepBuilder 생성 합니다. </p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">public class StepBuilder extends StepBuilderHelper<span class="language-xml"><span class="tag">&lt;<span class="name">StepBuilder</span>&gt;</span></span> &#123;</span><br><span class="line"></span><br><span class="line"><span class="code">	public TaskletStepBuilder tasklet(Tasklet tasklet) &#123;</span></span><br><span class="line"><span class="code">		return new TaskletStepBuilder(this).tasklet(tasklet);</span></span><br><span class="line"><span class="code">	&#125;</span></span><br></pre></td></tr></table></figure>
+<p>TaskletStepBuilder 클래스를 생성하고 우리가 배치 비지니스를 정의한 tasklet 인자로 받아서 </p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">public class TaskletStepBuilder extends AbstractTaskletStepBuilder<span class="language-xml"><span class="tag">&lt;<span class="name">TaskletStepBuilder</span>&gt;</span></span> &#123;</span><br><span class="line"></span><br><span class="line"><span class="code">	private Tasklet tasklet;</span></span><br><span class="line"><span class="code">	</span></span><br><span class="line"><span class="code">	public TaskletStepBuilder tasklet(Tasklet tasklet) &#123;</span></span><br><span class="line"><span class="code">		this.tasklet = tasklet;</span></span><br><span class="line"><span class="code">		return this;</span></span><br><span class="line"><span class="code">	&#125;</span></span><br><span class="line"><span class="code">&#125;</span></span><br></pre></td></tr></table></figure>
+<p>Tasklet 전역변수에 값을 저장 합니다.</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">public abstract class AbstractTaskletStepBuilder<span class="language-xml"><span class="tag">&lt;<span class="name">B</span> <span class="attr">extends</span> <span class="attr">AbstractTaskletStepBuilder</span>&lt;<span class="attr">B</span>&gt;</span></span>&gt; extends</span><br><span class="line">StepBuilderHelper<span class="language-xml">&lt;AbstractTaskletStepBuilder<span class="tag">&lt;<span class="name">B</span>&gt;</span></span>&gt; &#123;</span><br><span class="line"></span><br><span class="line"><span class="code">    public TaskletStep build() &#123;</span></span><br><span class="line"><span class="code"></span></span><br><span class="line"><span class="code">		// .. 생략 ..</span></span><br><span class="line"><span class="code"></span></span><br><span class="line"><span class="code">		TaskletStep step = new TaskletStep(getName());</span></span><br><span class="line"><span class="code"></span></span><br><span class="line"><span class="code">		// .. 생략 ..</span></span><br><span class="line"><span class="code">		</span></span><br><span class="line"><span class="code">		step.setTasklet(createTasklet());</span></span><br><span class="line"><span class="code"></span></span><br><span class="line"><span class="code">		// .. 생략 ..</span></span><br><span class="line"><span class="code"></span></span><br><span class="line"><span class="code">		try &#123;</span></span><br><span class="line"><span class="code">			step.afterPropertiesSet();</span></span><br><span class="line"><span class="code">		&#125;</span></span><br><span class="line"><span class="code">		catch (Exception e) &#123;</span></span><br><span class="line"><span class="code">			throw new StepBuilderException(e);</span></span><br><span class="line"><span class="code">		&#125;</span></span><br><span class="line"><span class="code"></span></span><br><span class="line"><span class="code">		return step;</span></span><br><span class="line"><span class="code"></span></span><br><span class="line"><span class="code">	&#125;</span></span><br><span class="line"><span class="code"></span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>마지막으로 build 메소드를 호출 하게 된다면 AbstractTaskletStepBuilder 클래스에서 build 메소드로 호출 하게 됩니다.</p>
+<p>그럼 <code>TaskletStep step = new TaskletStep(getName());</code></p>
+<p>getName 을 호출해서 우리가 ‘basicStep1’ 이라고 Step 이름을 지정한것을 불러오고 TaskletStep 클래스를 생성하게 됩니다.</p>
+<p><code>step.setTasklet(createTasklet());</code></p>
+<p>createTasklet() 메소드를 통해 바로 전에 TaskletStepBuilder 클래스에서 우리가 만든 비지니스 로직을 tasklet 변수에 저장한것을 </p>
+<p>불러오게 되고 생성한 TaskletStep 에 setter 하게 됩니다.</p>
+<p>BasicJobConfiguration.java</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">@Bean</span><br><span class="line">public Job basicJob() &#123;</span><br><span class="line"><span class="code">    return this.jobBuilderFactory.get(&quot;BasicJob&quot;)</span></span><br><span class="line"><span class="code">            .start(basicStep1())</span></span><br><span class="line"><span class="code">            .next(basicStep2())</span></span><br><span class="line"><span class="code">            .build();</span></span><br><span class="line"><span class="code">&#125;</span></span><br></pre></td></tr></table></figure>
+<p>그 다음 이전에 설명한대로 최종적으로 Job 객체를 생성하기 위한 build() 메소드를 호출 하게 됩니다. 이 단계는 위 Job 단계에서 설명해드렸습니다.</p>
+<h3 id="배치-실행-1"><a href="#배치-실행-1" class="headerlink" title="배치 실행"></a>배치 실행</h3><figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">public class SimpleJob extends AbstractJob &#123;</span><br><span class="line"></span><br><span class="line"><span class="code">	@Override</span></span><br><span class="line"><span class="code">	protected void doExecute(JobExecution execution) throws JobInterruptedException, JobRestartException,</span></span><br><span class="line"><span class="code">	StartLimitExceededException &#123;</span></span><br><span class="line"><span class="code"></span></span><br><span class="line"><span class="code">		StepExecution stepExecution = null;</span></span><br><span class="line"><span class="code">		for (Step step : steps) &#123;</span></span><br><span class="line"><span class="code">			stepExecution = handleStep(step, execution);</span></span><br><span class="line"><span class="code">            // .. 생략 ..</span></span><br><span class="line"><span class="code">		&#125;</span></span><br><span class="line"><span class="code"></span></span><br><span class="line"><span class="code">        // .. 생략 ..</span></span><br><span class="line"><span class="code">	&#125;</span></span><br><span class="line"><span class="code">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>상단에 SimpleJob 클래스가 doExecute 메소드까지 호출한다고 설명해드렸습니다.</p>
+<p>여기서 Step 역활로 바뀌는데요 </p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line">public class SimpleStepHandler implements StepHandler, InitializingBean &#123;</span><br><span class="line"></span><br><span class="line"><span class="code">	@Override</span></span><br><span class="line"><span class="code">	public StepExecution handleStep(Step step, JobExecution execution) throws JobInterruptedException,</span></span><br><span class="line"><span class="code">	JobRestartException, StartLimitExceededException &#123;</span></span><br><span class="line"><span class="code">	</span></span><br><span class="line"><span class="code">        // .. 생략 ..</span></span><br><span class="line"><span class="code">        </span></span><br><span class="line"><span class="code">        JobInstance jobInstance = execution.getJobInstance();</span></span><br><span class="line"><span class="code"></span></span><br><span class="line"><span class="code">        StepExecution lastStepExecution = jobRepository.getLastStepExecution(jobInstance, step.getName());</span></span><br><span class="line"><span class="code">        </span></span><br><span class="line"><span class="code">        // .. 생략 ..</span></span><br><span class="line"><span class="code">        </span></span><br><span class="line"><span class="code">        StepExecution currentStepExecution = lastStepExecution;</span></span><br><span class="line"><span class="code"></span></span><br><span class="line"><span class="code">        if (shouldStart(lastStepExecution, execution, step)) &#123;</span></span><br><span class="line"><span class="code"></span></span><br><span class="line"><span class="code">            currentStepExecution = execution.createStepExecution(step.getName());</span></span><br><span class="line"><span class="code"></span></span><br><span class="line"><span class="code">             // .. 생략 ..</span></span><br><span class="line"><span class="code"></span></span><br><span class="line"><span class="code">            jobRepository.add(currentStepExecution);</span></span><br><span class="line"><span class="code"></span></span><br><span class="line"><span class="code">            // .. 생략 ..</span></span><br><span class="line"><span class="code">            try &#123;</span></span><br><span class="line"><span class="code">                step.execute(currentStepExecution);</span></span><br><span class="line"><span class="code">                currentStepExecution.getExecutionContext().put(&quot;batch.executed&quot;, true);</span></span><br><span class="line"><span class="code">            &#125;</span></span><br><span class="line"><span class="code">            // .. 생략 ..</span></span><br><span class="line"><span class="code"></span></span><br><span class="line"><span class="code">            jobRepository.updateExecutionContext(execution);</span></span><br><span class="line"><span class="code"></span></span><br><span class="line"><span class="code">             // .. 생략 ..</span></span><br><span class="line"><span class="code"></span></span><br><span class="line"><span class="code">        &#125;</span></span><br><span class="line"><span class="code"></span></span><br><span class="line"><span class="code">        return currentStepExecution;</span></span><br><span class="line"><span class="code"></span></span><br><span class="line"><span class="code">	&#125;</span></span><br><span class="line"><span class="code"></span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Job 에서 생성한 JobInstance 를 가져와서 </p>
+<p><code>StepExecution lastStepExecution = jobRepository.getLastStepExecution(jobInstance, step.getName());</code></p>
+<p>StepExecution 가져옵니다. 만약 메타데이터 저장소에 해당 Step 이 이전에 실패한 Step 이라면 가져 옵니다.</p>
+<p><code>currentStepExecution = execution.createStepExecution(step.getName());</code></p>
+<p>이전에 실행한 Step 이 아니라면 새로 생성을 합니다.</p>
+<p><code>step.execute(currentStepExecution);</code></p>
+<p>마지막으로 step 을 실행 하는 메소드로 진행 하게 됩니다.</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br></pre></td><td class="code"><pre><span class="line">public abstract class AbstractStep implements Step, InitializingBean, BeanNameAware &#123;</span><br><span class="line"></span><br><span class="line"><span class="code">    @Override</span></span><br><span class="line"><span class="code">    public final void execute(StepExecution stepExecution) throws JobInterruptedException,</span></span><br><span class="line"><span class="code">    UnexpectedJobExecutionException &#123;</span></span><br><span class="line"><span class="code"></span></span><br><span class="line"><span class="code">         // .. 생략 ..</span></span><br><span class="line"><span class="code"></span></span><br><span class="line"><span class="code">        stepExecution.setStartTime(new Date());</span></span><br><span class="line"><span class="code">        stepExecution.setStatus(BatchStatus.STARTED);</span></span><br><span class="line"><span class="code">        </span></span><br><span class="line"><span class="code">        Timer.Sample sample = BatchMetrics.createTimerSample();</span></span><br><span class="line"><span class="code">        getJobRepository().update(stepExecution);</span></span><br><span class="line"><span class="code"></span></span><br><span class="line"><span class="code">      // .. 생략 ..</span></span><br><span class="line"><span class="code">        try &#123;</span></span><br><span class="line"><span class="code">            getCompositeListener().beforeStep(stepExecution);</span></span><br><span class="line"><span class="code">            // .. 생략 ..</span></span><br><span class="line"><span class="code"></span></span><br><span class="line"><span class="code">            try &#123;</span></span><br><span class="line"><span class="code">                doExecute(stepExecution);</span></span><br><span class="line"><span class="code">            &#125;</span></span><br><span class="line"><span class="code">    </span></span><br><span class="line"><span class="code">            exitStatus = ExitStatus.COMPLETED.and(stepExecution.getExitStatus());</span></span><br><span class="line"><span class="code"></span></span><br><span class="line"><span class="code">        &#125;</span></span><br><span class="line"><span class="code">        catch (Throwable e) &#123;</span></span><br><span class="line"><span class="code">             // .. 생략 ..</span></span><br><span class="line"><span class="code">        &#125;</span></span><br><span class="line"><span class="code">        finally &#123;</span></span><br><span class="line"><span class="code"></span></span><br><span class="line"><span class="code">            try &#123;</span></span><br><span class="line"><span class="code">                // Update the step execution to the latest known value so the</span></span><br><span class="line"><span class="code">                // listeners can act on it</span></span><br><span class="line"><span class="code">                exitStatus = exitStatus.and(stepExecution.getExitStatus());</span></span><br><span class="line"><span class="code">                stepExecution.setExitStatus(exitStatus);</span></span><br><span class="line"><span class="code">                exitStatus = exitStatus.and(getCompositeListener().afterStep(stepExecution));</span></span><br><span class="line"><span class="code">            &#125;</span></span><br><span class="line"><span class="code">              // .. 생략 ..</span></span><br><span class="line"><span class="code">            try &#123;</span></span><br><span class="line"><span class="code">                getJobRepository().updateExecutionContext(stepExecution);</span></span><br><span class="line"><span class="code">            &#125;</span></span><br><span class="line"><span class="code">             // .. 생략 ..</span></span><br><span class="line"><span class="code"></span></span><br><span class="line"><span class="code">           </span></span><br><span class="line"><span class="code">            stepExecution.setEndTime(new Date());</span></span><br><span class="line"><span class="code">            stepExecution.setExitStatus(exitStatus);</span></span><br><span class="line"><span class="code">            </span></span><br><span class="line"><span class="code">             // .. 생략 ..</span></span><br><span class="line"><span class="code">            try &#123;</span></span><br><span class="line"><span class="code">                getJobRepository().update(stepExecution);</span></span><br><span class="line"><span class="code">            &#125;</span></span><br><span class="line"><span class="code">             // .. 생략 ..</span></span><br><span class="line"><span class="code"></span></span><br><span class="line"><span class="code">            try &#123;</span></span><br><span class="line"><span class="code">                close(stepExecution.getExecutionContext());</span></span><br><span class="line"><span class="code">            &#125;</span></span><br><span class="line"><span class="code">              // .. 생략 ..</span></span><br><span class="line"><span class="code"></span></span><br><span class="line"><span class="code">            doExecutionRelease();</span></span><br><span class="line"><span class="code"></span></span><br><span class="line"><span class="code">             // .. 생략 ..</span></span><br><span class="line"><span class="code">        &#125;</span></span><br><span class="line"><span class="code">    &#125;</span></span><br><span class="line"><span class="code">&#125;</span></span><br></pre></td></tr></table></figure>
+<p><code>        stepExecution.setStartTime(new Date());           stepExecution.setStatus(BatchStatus.STARTED);</code></p>
+<p>여기서 stepExecution 을 배치 실행 시간과 상태값을 변경 합니다. (나중에 메타데이터 저장소에 저장 하게 됩니다.)</p>
+<p><code>doExecute(stepExecution);</code></p>
+<p>doExecute 메소드를 호출하게 됩니다. 여기서 stepExecution 인자값으로 전달하는데 앞서 설명한 JobExecution Job 실행단위 관련된 상태 저장 관리 이고</p>
+<p>stepExecution 도 배치 시작 날짜 및 상태값 등 실행 단위 관련된 데이터 관리 한다고 생각하시면 되겠습니다.</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">public class TaskletStep extends AbstractStep &#123;</span><br><span class="line"></span><br><span class="line"><span class="code">    @Override</span></span><br><span class="line"><span class="code">	protected void doExecute(StepExecution stepExecution) throws Exception &#123;</span></span><br><span class="line"><span class="code">        // .. 생략 ..</span></span><br><span class="line"><span class="code"></span></span><br><span class="line"><span class="code">		stepOperations.iterate(new StepContextRepeatCallback(stepExecution) &#123;</span></span><br><span class="line"><span class="code"></span></span><br><span class="line"><span class="code">			 // .. 생략 ..</span></span><br><span class="line"><span class="code">		&#125;);</span></span><br><span class="line"><span class="code"></span></span><br><span class="line"><span class="code">	&#125;</span></span><br><span class="line"><span class="code"></span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>AbstractStep 구현체인 TaskletStep 클래스 doExecute 메소드로 호출하게 됩니다.</p>
+<p><code>stepOperations.iterate(new StepContextRepeatCallback(stepExecution) &#123;</code></p>
+<p>여기서 iterate 통해 호출하게 되고 반복 수행하는데 여기서 TaskletStep 클래스인 doInTransaction 메소드를 실행 하게 되는 것으로 보입니다.</p>
+<p>사실 어떻게 doInTransaction 메소드로 호출 되는 경로는 파악이 되지 않는 상태 입니다. 만약 아신다면 피드백 부탁드립니다.</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">public class TaskletStep extends AbstractStep &#123;</span><br><span class="line"><span class="code">    @Override</span></span><br><span class="line"><span class="code">    public RepeatStatus doInTransaction(TransactionStatus status) &#123;</span></span><br><span class="line"><span class="code">        // .. 생략 ..</span></span><br><span class="line"><span class="code">        result = tasklet.execute(contribution, chunkContext);</span></span><br><span class="line"><span class="code">        // .. 생략 ..</span></span><br><span class="line"><span class="code">    &#125;</span></span><br><span class="line"><span class="code">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p><code>result = tasklet.execute(contribution, chunkContext);</code></p>
+<p>초기 우리가 BasicJobConfiguration 클래스에서 Step 에 tasklet 정의한 것을 execute 메소드 호출하는데요.</p>
+<p>즉 이것은 Job 에 설정한 Step 에서 Tasklet 구현체에 호출 합니다.</p>
+<p><img src="/../../../img/JAVA/Batch/basicStep.PNG" alt="basicStep"></p>
+<p>우리가 Step 의 Tasklet 에 비지니스 로직을 구현한 곳에 가게 됩니다.</p>
+<p>여기서 우리가 로직을 구성한것을 수행하게 됩니다.</p>
+<h2 id="Step-객체"><a href="#Step-객체" class="headerlink" title="Step 객체"></a>Step 객체</h2><p>Spring Batch 에서 사용되는 Step 인터페이스 대해 알아보겠습니다.</p>
+<h3 id="Step"><a href="#Step" class="headerlink" title="Step"></a>Step</h3><p><img src="/../../../img/JAVA/Batch/step.PNG" alt="step"></p>
+<p><img src="/../../../img/JAVA/Batch/step_interface.PNG" alt="step_interface"></p>
+<h3 id="Step-1"><a href="#Step-1" class="headerlink" title="Step"></a>Step</h3><p>Spring Batch ‘Step’ 은 최상위 인터페이지로 구성되어 있습니다.</p>
+<p>대표적인 메소드를 보면</p>
+<ul>
+<li>execute(): 설정한 Step 을 실행 하는 메소드 입니다.</li>
+</ul>
+<h3 id="AbstractStep"><a href="#AbstractStep" class="headerlink" title="AbstractStep"></a>AbstractStep</h3><p>AbstractStep 입니다. 대표적인 필드만 알아보겠습니다.</p>
+<ul>
+<li>name: 설정한 해당 Step 의 이름 입니다.</li>
+<li>startLimit: Step 실행 제한 횟수 입니다.</li>
+<li>allowStartIfComplete: 해당 Step 이 실행 완료 후 재 실행 여부 입니다.</li>
+<li>jobRepository: Step 메타데이터 저장소 입니다.</li>
+</ul>
+<h3 id="TaskletStep"><a href="#TaskletStep" class="headerlink" title="TaskletStep"></a>TaskletStep</h3><p>Step 구현체 중 가장 기본이 되는 객체가 TaskletStep 입니다.</p>
+<h2 id="TaskletStep-정리"><a href="#TaskletStep-정리" class="headerlink" title="TaskletStep 정리"></a>TaskletStep 정리</h2><p>Job 에서 TaskletStep 을 실행 한다면 BatchStatus 값은 ‘STARTED’, ExitStatus 값은 ‘EXECUTING’ 로 변경됩니다.</p>
+<p>여기서 우리가 비지니스 로직을 구현한 Tasklet 을 수행하게 되는데요.</p>
+<p><img src="/../../img/JAVA/Batch/step_business_logic.PNG" alt="step_business_logic"></p>
+<p>우리가 만든 비지니스 로직이 수행 하는데 중요한것은 loop 를 돌면서 수행한다는 점 입니다. 반드시 어느 시점에 loop 를 빠져나가고 싶으면</p>
+<p><code>RepeatStatus.FINISHED</code> 값을 return 해야 합니다. 참고로 null 로 return 해도 됩니다.</p>
+<p>동시에 RepeatStatus 값은 ‘FINISHED’ 로 변경 됩니다.</p>
+<p>최종 해당 Step 완료 되면 BatchStatus 값은 ‘COMPLETED’ 로 변경 됩니다.</p>
+
+      
+       <hr><span style="font-style: italic;color: gray;"> Copyright 201- syh8088. 무단 전재 및 재배포 금지. 출처 표기 시 인용 가능. </span>
+    </div>
+</article>
+
+
+<p>
+    <a  class="dashang" onclick="dashangToggle()">💰</a>
+</p>
+
+
+
+
+
+
+    
+
+
+
+
+    </div>
+    <div class="copyright">
+        <p class="footer-entry">
+    ©2017 Seo Yang Hun
+</p>
+<p class="footer-entry">Built with <a href="https://hexo.io/" target="_blank">Hexo</a> and <a href="https://github.com/yelog/hexo-theme-3-hexo" target="_blank">3-hexo</a> theme</p>
+
+    </div>
+    <div class="full-toc">
+        <button class="full" data-title="Toggle full screen shortcut key s"><span class="min "></span></button>
+<a class="" id="rocket" ></a>
+
+    </div>
+</div>
+
+<div class="hide_box" onclick="dashangToggle()"></div>
+<div class="shang_box">
+    <a class="shang_close"  onclick="dashangToggle()">×</a>
+    <div class="shang_tit">
+        <p>Help us with donation</p>
+    </div>
+    <div class="shang_payimg">
+        <div class="pay_img">
+            <img src="/img/alipay.jpg" class="alipay" title="扫码支持">
+            <img src="/img/weixin.jpg" class="weixin" title="扫码支持">
+        </div>
+    </div>
+    <div class="shang_payselect">
+        <span><label><input type="radio" name="pay" checked value="alipay">alipay</label></span><span><label><input type="radio" name="pay" value="weixin">weixin</label></span>
+    </div>
+</div>
+
+
+</body>
+<script src="/js/jquery.pjax.js?v=1.1.0" ></script>
+
+<script src="/js/script.js?v=1.1.0" ></script>
+<script>
+    var img_resize = 'default';
+    function initArticle() {
+        /*渲染对应的表格样式*/
+        
+            $("#post .pjax table").addClass("green_title");
+        
+
+        /*渲染打赏样式*/
+        
+        $("input[name=pay]").on("click", function () {
+            if($("input[name=pay]:checked").val()=="weixin"){
+                $(".shang_box .shang_payimg .pay_img").addClass("weixin_img");
+            } else {
+                $(".shang_box .shang_payimg .pay_img").removeClass("weixin_img");
+            }
+        })
+        
+
+        /*高亮代码块行号*/
+        
+
+        /*访问数量*/
+        
+        $.getScript("//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js");
+        
+
+        /*代码高亮，行号对齐*/
+        $('.pre-numbering').css('line-height',$('.has-numbering').css('line-height'));
+
+        
+        
+    }
+
+    /*打赏页面隐藏与展示*/
+    
+    function dashangToggle() {
+        $(".shang_box").fadeToggle();
+        $(".hide_box").fadeToggle();
+    }
+    
+
+</script>
+
+<!--加入行号的高亮代码块样式-->
+
+<!--自定义样式设置-->
+<style>
+    
+    
+    .nav {
+        width: 542px;
+    }
+    .nav.fullscreen {
+        margin-left: -542px;
+    }
+    .nav-left {
+        width: 120px;
+    }
+    
+    
+    @media screen and (max-width: 1468px) {
+        .nav {
+            width: 492px;
+        }
+        .nav.fullscreen {
+            margin-left: -492px;
+        }
+        .nav-left {
+            width: 100px;
+        }
+    }
+    
+    
+    @media screen and (max-width: 1024px) {
+        .nav {
+            width: 492px;
+            margin-left: -492px
+        }
+        .nav.fullscreen {
+            margin-left: 0;
+        }
+    }
+    
+    @media screen and (max-width: 426px) {
+        .nav {
+            width: 100%;
+        }
+        .nav-left {
+            width: 100%;
+        }
+    }
+    
+    
+    .nav-right .title-list nav a .post-title, .nav-right .title-list #local-search-result a .post-title {
+        color: #383636;
+    }
+    
+    
+    .nav-right .title-list nav a .post-date, .nav-right .title-list #local-search-result a .post-date {
+        color: #5e5e5f;
+    }
+    
+    
+    .nav-right nav a.hover, #local-search-result a.hover{
+        background-color: #e2e0e0;
+    }
+    
+    
+
+    /*列表样式*/
+    
+
+    /* 背景图样式 */
+    
+    
+
+
+    /*引用块样式*/
+    
+
+    /*文章列表背景图*/
+    
+
+    
+</style>
+
+
+
+
+
+
+
+</html>
