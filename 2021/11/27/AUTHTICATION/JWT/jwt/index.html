@@ -6,22 +6,25 @@
   <meta name="keywords" content="">
   <meta name="description" content="JWT (JSON Web Token) 이해하기 | Seo Yang Hun Blog">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-<meta name="description" content="예제 소스 코드이번 블로그에 사용되는 코드는 아래 링크 통해 확인 할 수 있습니다. https:&#x2F;&#x2F;github.com&#x2F;syh8088&#x2F;MSA_project&#x2F;tree&#x2F;main&#x2F;paymentMsa MSA Data Query 문제MSA 경우는 각 서비스에 해당되는 데이터베이스에 이용되고 있습니다. 그래서 특정 서비스가 다른 데이터베이스에 접근 하는것을 지양해야 합">
+<meta name="description" content="카프카 멱등성 (Idempotency) 및 이벤트 일관성 (Eventual Consistency) 보장하기안녕하세요. Kafka 통해 많은 용도로 사용되고 있습니다. kafka 는 설정을 통해 내가 원하는 수준의 신뢰성 확보 할 수 있다는 것이 장점 입니다. 이번에 소개 드리는 설정 통해 신뢰성을 확보하면서 Kafka 를 활용 해보도록 하겠습니다. Prod">
 <meta property="og:type" content="article">
-<meta property="og:title" content="결제 시스템으로 알아보는 MSA 3 - 쿼리 문제">
-<meta property="og:url" content="https://syh8088.github.io/2024/12/16/MSA/paymentMsa/MSA_Payment_Project_3/index.html">
+<meta property="og:title" content="카프카 멱등성 및 이벤트 일관성 보장하기">
+<meta property="og:url" content="https://syh8088.github.io/2024/12/23/KAFKA/idempotent/Kafka_idempotent/index.html">
 <meta property="og:site_name" content="Seo Yang Hun Blog">
-<meta property="og:description" content="예제 소스 코드이번 블로그에 사용되는 코드는 아래 링크 통해 확인 할 수 있습니다. https:&#x2F;&#x2F;github.com&#x2F;syh8088&#x2F;MSA_project&#x2F;tree&#x2F;main&#x2F;paymentMsa MSA Data Query 문제MSA 경우는 각 서비스에 해당되는 데이터베이스에 이용되고 있습니다. 그래서 특정 서비스가 다른 데이터베이스에 접근 하는것을 지양해야 합">
+<meta property="og:description" content="카프카 멱등성 (Idempotency) 및 이벤트 일관성 (Eventual Consistency) 보장하기안녕하세요. Kafka 통해 많은 용도로 사용되고 있습니다. kafka 는 설정을 통해 내가 원하는 수준의 신뢰성 확보 할 수 있다는 것이 장점 입니다. 이번에 소개 드리는 설정 통해 신뢰성을 확보하면서 Kafka 를 활용 해보도록 하겠습니다. Prod">
 <meta property="og:locale">
-<meta property="og:image" content="https://syh8088.github.io/img/MSA/paymentMsa/stop_MSA_MYSQL.png">
-<meta property="og:image" content="https://syh8088.github.io/img/MSA/paymentMsa/seller_query_aggretation.png">
-<meta property="og:image" content="https://syh8088.github.io/img/MSA/paymentMsa/SellerQueryService.png">
-<meta property="og:image" content="https://syh8088.github.io/img/MSA/paymentMsa/SellerQueryService_CQRS_architecture.png">
-<meta property="article:published_time" content="2024-12-15T22:47:42.000Z">
-<meta property="article:modified_time" content="2024-12-21T06:53:14.474Z">
+<meta property="og:image" content="https://syh8088.github.io/img/KAFKA/idempotent/Produser_Duplication.png">
+<meta property="og:image" content="https://syh8088.github.io/img/KAFKA/idempotent/Produser_EOS.png">
+<meta property="og:image" content="https://syh8088.github.io/img/KAFKA/idempotent/MissingAutocommit_1.png">
+<meta property="og:image" content="https://syh8088.github.io/img/KAFKA/idempotent/MissingAutocommit_2.png">
+<meta property="og:image" content="https://syh8088.github.io/img/KAFKA/idempotent/MissingAutocommit_3.png">
+<meta property="og:image" content="https://syh8088.github.io/img/KAFKA/idempotent/duplicationAutocommit_1.png">
+<meta property="og:image" content="https://syh8088.github.io/img/KAFKA/idempotent/duplicationAutocommit_2.png">
+<meta property="article:published_time" content="2024-12-22T22:47:42.000Z">
+<meta property="article:modified_time" content="2024-12-25T15:15:01.343Z">
 <meta property="article:author" content="Seo Yang Hun">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://syh8088.github.io/img/MSA/paymentMsa/stop_MSA_MYSQL.png">
+<meta name="twitter:image" content="https://syh8088.github.io/img/KAFKA/idempotent/Produser_Duplication.png">
 
 
 <link rel="icon" href="/img/avatar.jpg">
