@@ -1,0 +1,2116 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Flink | Seo Yang Hun Blog</title>
+  <meta name="keywords" content="">
+  <meta name="description" content="Flink | Seo Yang Hun Blog">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="description" content="Flink 이용해서 실시간 데이터 스트림 처리 해보기Flink 는 무엇인가? Flink 는 독일어로 ‘민첩함’ 민첩함 상징으로 빨간 다람쥐 통해 로고로 사용되고 있습니다. 처음에는 베를린 TU 대학교에서 시작된 아파치 프로젝트에서 2011년에 Stratosphere 0.1 릴리즈를 시작하였으며 2015년에는 Apache Flink 0.9 버전으로 릴리즈 하">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Flink">
+<meta property="og:url" content="https://syh8088.github.io/2025/04/05/FLINK/introduction/Flink-Introduction/index.html">
+<meta property="og:site_name" content="Seo Yang Hun Blog">
+<meta property="og:description" content="Flink 이용해서 실시간 데이터 스트림 처리 해보기Flink 는 무엇인가? Flink 는 독일어로 ‘민첩함’ 민첩함 상징으로 빨간 다람쥐 통해 로고로 사용되고 있습니다. 처음에는 베를린 TU 대학교에서 시작된 아파치 프로젝트에서 2011년에 Stratosphere 0.1 릴리즈를 시작하였으며 2015년에는 Apache Flink 0.9 버전으로 릴리즈 하">
+<meta property="og:locale">
+<meta property="og:image" content="https://syh8088.github.io/img/FLINK/introduction/Flink_log.jpg">
+<meta property="og:image" content="https://syh8088.github.io/img/FLINK/introduction/Flink_introduction.png">
+<meta property="og:image" content="https://syh8088.github.io/img/FLINK/introduction/usecases-analytics.png">
+<meta property="og:image" content="https://syh8088.github.io/img/FLINK/introduction/Non_State_Data_Stream.png">
+<meta property="og:image" content="https://syh8088.github.io/img/FLINK/introduction/State_Data_Stream.png">
+<meta property="og:image" content="https://syh8088.github.io/img/FLINK/introduction/managing-state-in-flink-visual-1.png">
+<meta property="og:image" content="https://syh8088.github.io/img/FLINK/introduction/Flink_example.jpg">
+<meta property="og:image" content="https://syh8088.github.io/img/FLINK/introduction/flink_structure.png">
+<meta property="og:image" content="https://syh8088.github.io/img/FLINK/introduction/flink_architecture.png">
+<meta property="og:image" content="https://syh8088.github.io/img/FLINK/introduction/tumbling-windows.png">
+<meta property="og:image" content="https://syh8088.github.io/img/FLINK/introduction/sliding-windows.png">
+<meta property="og:image" content="https://syh8088.github.io/img/FLINK/introduction/session-windows.png">
+<meta property="article:published_time" content="2025-04-04T22:47:42.000Z">
+<meta property="article:modified_time" content="2025-04-05T13:48:12.966Z">
+<meta property="article:author" content="Seo Yang Hun">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://syh8088.github.io/img/FLINK/introduction/Flink_log.jpg">
+
+
+<link rel="icon" href="/img/avatar.jpg">
+
+<link href="/css/style.css?v=1.1.0" rel="stylesheet">
+
+<link href="/css/hl_theme/atom-light.css?v=1.1.0" rel="stylesheet">
+
+<link href="//cdn.jsdelivr.net/npm/animate.css@4.1.0/animate.min.css" rel="stylesheet">
+
+<script src="//cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"></script>
+<script src="/js/titleTip.js?v=1.1.0" ></script>
+
+<script src="//cdn.jsdelivr.net/npm/highlightjs@9.16.2/highlight.pack.min.js"></script>
+<script>
+    hljs.initHighlightingOnLoad();
+</script>
+
+<script src="//cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.js"></script>
+
+
+
+<script src="//cdn.jsdelivr.net/npm/jquery.cookie@1.4.1/jquery.cookie.min.js" ></script>
+
+<script src="/js/iconfont.js?v=1.1.0" ></script>
+
+<meta name="generator" content="Hexo 7.2.0"></head>
+<div style="display: none">
+  <input class="theme_disqus_on" value="false">
+  <input class="theme_preload_comment" value="">
+  <input class="theme_blog_path" value="">
+  <input id="theme_shortcut" value="true" />
+  <input id="theme_highlight_on" value="true" />
+  <input id="theme_code_copy" value="true" />
+</div>
+
+
+
+<body>
+<aside class="nav">
+    <div class="nav-left">
+        <a href="/"
+   class="avatar_target">
+    <img class="avatar"
+         src="/img/avatar.jpg"/>
+</a>
+<div class="author">
+    <span>Seo Yang Hun</span>
+</div>
+
+<div class="icon">
+    
+        
+            <a title="rss"
+               href="/atom.xml"
+               target="_blank">
+                
+                    <svg class="iconfont-svg" aria-hidden="true">
+                        <use xlink:href="#icon-rss"></use>
+                    </svg>
+                
+            </a>
+        
+    
+        
+            <a title="github"
+               href="https://github.com/syh8088"
+               target="_blank">
+                
+                    <svg class="iconfont-svg" aria-hidden="true">
+                        <use xlink:href="#icon-github"></use>
+                    </svg>
+                
+            </a>
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+            <a title="email"
+               href="mailto:syh8088@gmail.com"
+               target="_blank">
+                
+                    <svg class="iconfont-svg" aria-hidden="true">
+                        <use xlink:href="#icon-email"></use>
+                    </svg>
+                
+            </a>
+        
+    
+        
+            <a title="qq"
+               href="http://wpa.qq.com/msgrd?v=3&uin=872336115&site=qq&menu=yes"
+               target="_blank">
+                
+                    <svg class="iconfont-svg" aria-hidden="true">
+                        <use xlink:href="#icon-qq"></use>
+                    </svg>
+                
+            </a>
+        
+    
+        
+    
+        
+    
+</div>
+
+
+
+
+
+<ul>
+    <li>
+        <div class="all active" data-rel="All">All
+            
+                <small>(61)</small>
+            
+        </div>
+    </li>
+    
+        
+            
+                
+    <li>
+        <div data-rel="Authentication">
+            <i class="fold iconfont icon-right"></i>
+            Authentication
+            <small>(2)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="Authentication&lt;---&gt;JWT">
+            
+            JWT
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="Authentication&lt;---&gt;Oauth">
+            
+            Oauth
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="CI-CD">
+            <i class="fold iconfont icon-right"></i>
+            CI-CD
+            <small>(9)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="CI-CD&lt;---&gt;GitHubActions">
+            
+            GitHubActions
+            <small>(6)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="CI-CD&lt;---&gt;Jenkins">
+            
+            Jenkins
+            <small>(3)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="DB">
+            <i class="fold iconfont icon-right"></i>
+            DB
+            <small>(4)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="DB&lt;---&gt;Mysql">
+            <i class="fold iconfont icon-right"></i>
+            Mysql
+            <small>(4)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="DB&lt;---&gt;Mysql&lt;---&gt;DBCP">
+            
+            DBCP
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="DB&lt;---&gt;Mysql&lt;---&gt;optimizing">
+            
+            optimizing
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="DB&lt;---&gt;Mysql&lt;---&gt;Paging">
+            
+            Paging
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="Flink">
+            <i class="fold iconfont icon-right"></i>
+            Flink
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="Flink&lt;---&gt;Real Time">
+            <i class="fold iconfont icon-right"></i>
+            Real Time
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="Flink&lt;---&gt;Real Time&lt;---&gt;Kafka">
+            
+            Kafka
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="J">
+            <i class="fold iconfont icon-right"></i>
+            J
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="J&lt;---&gt;Jenkins">
+            
+            Jenkins
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="JAVA">
+            <i class="fold iconfont icon-right"></i>
+            JAVA
+            <small>(29)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;HTTP">
+            <i class="fold iconfont icon-right"></i>
+            HTTP
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;HTTP&lt;---&gt;FeignClient">
+            
+            FeignClient
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;JPA">
+            
+            JPA
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;Object">
+            
+            Object
+            <small>(2)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;Payment">
+            
+            Payment
+            <small>(5)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;Security">
+            
+            Security
+            <small>(4)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;Spring">
+            <i class="fold iconfont icon-right"></i>
+            Spring
+            <small>(2)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;Spring&lt;---&gt;Payment">
+            <i class="fold iconfont icon-right"></i>
+            Payment
+            <small>(2)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;Spring&lt;---&gt;Payment&lt;---&gt;junit5">
+            <i class="fold iconfont icon-right"></i>
+            junit5
+            <small>(2)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;Spring&lt;---&gt;Payment&lt;---&gt;junit5&lt;---&gt;Mockito">
+            
+            Mockito
+            <small>(2)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;SpringBatch">
+            
+            SpringBatch
+            <small>(5)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;SpringBootAndSecurityAndJWT">
+            
+            SpringBootAndSecurityAndJWT
+            <small>(3)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;SpringCloudConfig">
+            
+            SpringCloudConfig
+            <small>(4)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;Transaction">
+            
+            Transaction
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;Validator">
+            
+            Validator
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="JavaScript">
+            <i class="fold iconfont icon-right"></i>
+            JavaScript
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="JavaScript&lt;---&gt;Webpack">
+            
+            Webpack
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="Kafka">
+            <i class="fold iconfont icon-right"></i>
+            Kafka
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="Kafka&lt;---&gt;idempotent">
+            
+            idempotent
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="KUBERNETES">
+            
+            KUBERNETES
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="MSA">
+            <i class="fold iconfont icon-right"></i>
+            MSA
+            <small>(3)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="MSA&lt;---&gt;Payment">
+            <i class="fold iconfont icon-right"></i>
+            Payment
+            <small>(3)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="MSA&lt;---&gt;Payment&lt;---&gt;Kafka">
+            <i class="fold iconfont icon-right"></i>
+            Kafka
+            <small>(3)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="MSA&lt;---&gt;Payment&lt;---&gt;Kafka&lt;---&gt;EDA">
+            <i class="fold iconfont icon-right"></i>
+            EDA
+            <small>(3)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="MSA&lt;---&gt;Payment&lt;---&gt;Kafka&lt;---&gt;EDA&lt;---&gt;CQRS">
+            
+            CQRS
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="MSA&lt;---&gt;Payment&lt;---&gt;Kafka&lt;---&gt;EDA&lt;---&gt;Saga">
+            <i class="fold iconfont icon-right"></i>
+            Saga
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="MSA&lt;---&gt;Payment&lt;---&gt;Kafka&lt;---&gt;EDA&lt;---&gt;Saga&lt;---&gt;Axon">
+            
+            Axon
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="NoSQL">
+            <i class="fold iconfont icon-right"></i>
+            NoSQL
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="NoSQL&lt;---&gt;Redis">
+            <i class="fold iconfont icon-right"></i>
+            Redis
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="NoSQL&lt;---&gt;Redis&lt;---&gt;RateLimiter">
+            
+            RateLimiter
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="R">
+            
+            R
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="대용량 트래픽">
+            <i class="fold iconfont icon-right"></i>
+            대용량 트래픽
+            <small>(3)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="대용량 트래픽&lt;---&gt;EDA">
+            <i class="fold iconfont icon-right"></i>
+            EDA
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="대용량 트래픽&lt;---&gt;EDA&lt;---&gt;Payment">
+            <i class="fold iconfont icon-right"></i>
+            Payment
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="대용량 트래픽&lt;---&gt;EDA&lt;---&gt;Payment&lt;---&gt;Redis">
+            <i class="fold iconfont icon-right"></i>
+            Redis
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="대용량 트래픽&lt;---&gt;EDA&lt;---&gt;Payment&lt;---&gt;Redis&lt;---&gt;Kafka">
+            
+            Kafka
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="대용량 트래픽&lt;---&gt;Redis">
+            <i class="fold iconfont icon-right"></i>
+            Redis
+            <small>(2)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="대용량 트래픽&lt;---&gt;Redis&lt;---&gt;Kafka">
+            
+            Kafka
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="대용량 트래픽&lt;---&gt;Redis&lt;---&gt;WebFlux">
+            <i class="fold iconfont icon-right"></i>
+            WebFlux
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="대용량 트래픽&lt;---&gt;Redis&lt;---&gt;WebFlux&lt;---&gt;접근자 대기열">
+            
+            접근자 대기열
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+</ul>
+<div class="left-bottom">
+    <div class="menus">
+        
+            
+            
+            
+    </div>
+    <div>
+        
+            <a class="about  hasFriend  site_url"
+               
+               href="/about">About</a>
+        
+        <a style="width: 50%"
+                
+                                           class="friends">Friends</a>
+        
+    </div>
+</div>
+<input type="hidden" id="yelog_site_posts_number" value="61">
+
+<div style="display: none">
+    <span id="busuanzi_value_site_uv"></span>
+    <span id="busuanzi_value_site_pv"></span>
+</div>
+
+    </div>
+    <div class="nav-right">
+        <div class="friends-area">
+    <div class="friends-title">
+        Links
+        <i class="iconfont icon-left"></i>
+    </div>
+    <div class="friends-content">
+        <ul>
+            
+            <li><a target="_blank" href="http://yelog.org/">叶落阁</a></li>
+            
+        </ul>
+    </div>
+</div>
+        <div class="title-list">
+    <div class="right-top">
+        <div id="default-panel">
+            <i class="iconfont icon-search" data-title="search shortcut key i"></i>
+            <div class="right-title">All</div>
+            <i class="iconfont icon-file-tree" data-title="switch to outline view shortcut key w"></i>
+        </div>
+        <div id="search-panel">
+            <i class="iconfont icon-left" data-title="return"></i>
+            <input id="local-search-input" autocomplete="off"/>
+            <label class="border-line" for="input"></label>
+            <i class="iconfont icon-case-sensitive" data-title="case sensitive"></i>
+            <i class="iconfont icon-tag" data-title="label"></i>
+        </div>
+        <div id="outline-panel" style="display: none">
+            <div class="right-title">outline</div>
+            <i class="iconfont icon-list" data-title="switch to article list"></i>
+        </div>
+    </div>
+
+    <div class="tags-list">
+    <input id="tag-search" />
+    <div class="tag-wrapper">
+        
+    </div>
+
+</div>
+
+    
+    <nav id="title-list-nav">
+        
+        
+        <a  class="All Flink Real Time Kafka "
+           href="/2025/04/05/FLINK/introduction/Flink-Introduction/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Flink">Flink</span>
+            <span class="post-date" title="2025-04-05 07:47:42">2025/04/05</span>
+        </a>
+        
+        
+        <a  class="All Kafka idempotent "
+           href="/2024/12/23/KAFKA/idempotent/Kafka_idempotent/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="카프카 멱등성 및 이벤트 일관성 보장하기">카프카 멱등성 및 이벤트 일관성 보장하기</span>
+            <span class="post-date" title="2024-12-23 07:47:42">2024/12/23</span>
+        </a>
+        
+        
+        <a  class="All MSA Payment Kafka EDA CQRS "
+           href="/2024/12/16/MSA/paymentMsa/MSA_Payment_Project_3/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="결제 시스템으로 알아보는 MSA 3 - 쿼리 문제">결제 시스템으로 알아보는 MSA 3 - 쿼리 문제</span>
+            <span class="post-date" title="2024-12-16 07:47:42">2024/12/16</span>
+        </a>
+        
+        
+        <a  class="All MSA Payment Kafka EDA Saga Axon "
+           href="/2024/12/15/MSA/paymentMsa/MSA_Payment_Project_2/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="결제 시스템으로 알아보는 MSA 2 - 분산 트랜잭션 구현">결제 시스템으로 알아보는 MSA 2 - 분산 트랜잭션 구현</span>
+            <span class="post-date" title="2024-12-15 07:47:42">2024/12/15</span>
+        </a>
+        
+        
+        <a  class="All MSA Payment Kafka EDA "
+           href="/2024/12/14/MSA/paymentMsa/MSA_Payment_Project_1/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="결제 시스템으로 알아보는 MSA 1 - 기본 설명">결제 시스템으로 알아보는 MSA 1 - 기본 설명</span>
+            <span class="post-date" title="2024-12-14 07:47:42">2024/12/14</span>
+        </a>
+        
+        
+        <a  class="All 대용량 트래픽 EDA Payment Redis Kafka "
+           href="/2024/12/13/HIGH_VOLUME_TRAFFIC/PaymentEDA/PaymentEDA/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="결제 시스템으로 알아보는 EDA 시스템">결제 시스템으로 알아보는 EDA 시스템</span>
+            <span class="post-date" title="2024-12-13 07:47:42">2024/12/13</span>
+        </a>
+        
+        
+        <a  class="All DB Mysql optimizing "
+           href="/2024/12/06/DB/Mysql/optimizing/IndexDiveOptimizaiton/IndexDiveOptimizaiton/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Index Dive 최적화">Index Dive 최적화</span>
+            <span class="post-date" title="2024-12-06 07:47:42">2024/12/06</span>
+        </a>
+        
+        
+        <a  class="All JAVA Spring Payment junit5 Mockito "
+           href="/2024/12/03/JAVA/TEST/PaymentTesting/PaymentTesting2/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="결제 Testing - 2">결제 Testing - 2</span>
+            <span class="post-date" title="2024-12-03 15:50:00">2024/12/03</span>
+        </a>
+        
+        
+        <a  class="All JAVA Spring Payment junit5 Mockito "
+           href="/2024/12/02/JAVA/TEST/PaymentTesting/PaymentTesting1/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="결제 Testing - 1">결제 Testing - 1</span>
+            <span class="post-date" title="2024-12-02 15:50:00">2024/12/02</span>
+        </a>
+        
+        
+        <a  class="All 대용량 트래픽 Redis WebFlux 접근자 대기열 "
+           href="/2024/11/28/HIGH_VOLUME_TRAFFIC/AccessorQueuingSystem/AccessorQueuingSystem/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="대용량 트래픽 - 접근자 대기열 시스템 만들기">대용량 트래픽 - 접근자 대기열 시스템 만들기</span>
+            <span class="post-date" title="2024-11-28 07:47:42">2024/11/28</span>
+        </a>
+        
+        
+        <a  class="All 대용량 트래픽 Redis Kafka "
+           href="/2024/11/22/HIGH_VOLUME_TRAFFIC/CreateCoupon/CreateCoupon/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="대용량 트래픽 - 선착순 쿠폰 등록 With Kafka, Redis">대용량 트래픽 - 선착순 쿠폰 등록 With Kafka, Redis</span>
+            <span class="post-date" title="2024-11-22 07:47:42">2024/11/22</span>
+        </a>
+        
+        
+        <a  class="All NoSQL Redis RateLimiter "
+           href="/2024/11/19/NoSQL/Redis/RateLimiter/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Request Rate Limiter 구현하기">Request Rate Limiter 구현하기</span>
+            <span class="post-date" title="2024-11-19 07:47:42">2024/11/19</span>
+        </a>
+        
+        
+        <a  class="All CI-CD GitHubActions "
+           href="/2024/10/20/CI-CD/GitHunActions/GitHubActionsCICDWithSpringBoot6/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="GitHubActions CICD With SpringBoot - 6">GitHubActions CICD With SpringBoot - 6</span>
+            <span class="post-date" title="2024-10-20 07:47:42">2024/10/20</span>
+        </a>
+        
+        
+        <a  class="All CI-CD GitHubActions "
+           href="/2024/10/19/CI-CD/GitHunActions/GitHubActionsCICDWithSpringBoot5/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="GitHubActions CICD With SpringBoot - 5">GitHubActions CICD With SpringBoot - 5</span>
+            <span class="post-date" title="2024-10-19 07:47:42">2024/10/19</span>
+        </a>
+        
+        
+        <a  class="All CI-CD GitHubActions "
+           href="/2024/10/18/CI-CD/GitHunActions/GitHubActionsCICDWithSpringBoot4/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="GitHubActions CICD With SpringBoot - 4">GitHubActions CICD With SpringBoot - 4</span>
+            <span class="post-date" title="2024-10-18 07:47:42">2024/10/18</span>
+        </a>
+        
+        
+        <a  class="All CI-CD GitHubActions "
+           href="/2024/10/17/CI-CD/GitHunActions/GitHubActionsCICDWithSpringBoot3/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="GitHubActions CICD With SpringBoot - 3">GitHubActions CICD With SpringBoot - 3</span>
+            <span class="post-date" title="2024-10-17 07:47:42">2024/10/17</span>
+        </a>
+        
+        
+        <a  class="All CI-CD GitHubActions "
+           href="/2024/10/14/CI-CD/GitHunActions/GitHubActionsCICDWithSpringBoot2/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="GitHubActions CICD With SpringBoot - 2">GitHubActions CICD With SpringBoot - 2</span>
+            <span class="post-date" title="2024-10-14 07:47:42">2024/10/14</span>
+        </a>
+        
+        
+        <a  class="All CI-CD GitHubActions "
+           href="/2024/10/14/CI-CD/GitHunActions/GitHubActionsCICDWithSpringBoot1/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="GitHubActions CICD With SpringBoot - 1">GitHubActions CICD With SpringBoot - 1</span>
+            <span class="post-date" title="2024-10-14 07:47:42">2024/10/14</span>
+        </a>
+        
+        
+        <a  class="All DB Mysql Paging "
+           href="/2024/10/06/DB/Mysql/PagingQuery/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Paging Query 성능 개선 및 처리 방법 - 튜닝편">Paging Query 성능 개선 및 처리 방법 - 튜닝편</span>
+            <span class="post-date" title="2024-10-06 07:47:42">2024/10/06</span>
+        </a>
+        
+        
+        <a  class="All DB Mysql DBCP "
+           href="/2024/10/02/DB/Mysql/mysqlDBCP/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="DBCP 설정 방법">DBCP 설정 방법</span>
+            <span class="post-date" title="2024-10-02 07:47:42">2024/10/02</span>
+        </a>
+        
+        
+        <a  class="All JAVA Object "
+           href="/2024/08/24/JAVA/Object/InheritanceComposition2/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="상속과 합성 이야기-2">상속과 합성 이야기-2</span>
+            <span class="post-date" title="2024-08-24 15:50:00">2024/08/24</span>
+        </a>
+        
+        
+        <a  class="All JAVA Object "
+           href="/2024/08/23/JAVA/Object/InheritanceComposition1/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="상속과 합성 이야기-1">상속과 합성 이야기-1</span>
+            <span class="post-date" title="2024-08-23 15:50:00">2024/08/23</span>
+        </a>
+        
+        
+        <a  class="All JAVA Payment "
+           href="/2024/08/06/JAVA/Payment/PaymentTransactionalOutboxpattern/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="결제 시스템 구축 - 5">결제 시스템 구축 - 5</span>
+            <span class="post-date" title="2024-08-06 15:50:00">2024/08/06</span>
+        </a>
+        
+        
+        <a  class="All JAVA Payment "
+           href="/2024/08/05/JAVA/Payment/PaymentRetry/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="결제 시스템 구축 - 4">결제 시스템 구축 - 4</span>
+            <span class="post-date" title="2024-08-05 15:50:00">2024/08/05</span>
+        </a>
+        
+        
+        <a  class="All JAVA Payment "
+           href="/2024/07/28/JAVA/Payment/BuildingPaymentSystem/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="결제 시스템 구축 - 1">결제 시스템 구축 - 1</span>
+            <span class="post-date" title="2024-07-28 15:50:00">2024/07/28</span>
+        </a>
+        
+        
+        <a  class="All JAVA Payment "
+           href="/2024/07/28/JAVA/Payment/PaymentCheckOut/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="결제 시스템 구축 - 2">결제 시스템 구축 - 2</span>
+            <span class="post-date" title="2024-07-28 15:50:00">2024/07/28</span>
+        </a>
+        
+        
+        <a  class="All JAVA Payment "
+           href="/2024/07/28/JAVA/Payment/PaymentConfirm/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="결제 시스템 구축 - 3">결제 시스템 구축 - 3</span>
+            <span class="post-date" title="2024-07-28 15:50:00">2024/07/28</span>
+        </a>
+        
+        
+        <a  class="All "
+           href="/2024/05/31/hello-world/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Hello World">Hello World</span>
+            <span class="post-date" title="2024-05-31 22:32:19">2024/05/31</span>
+        </a>
+        
+        
+        <a  class="All "
+           href="/2024/05/31/README/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title=""></span>
+            <span class="post-date" title="2024-05-31 22:32:19">2024/05/31</span>
+        </a>
+        
+        
+        <a  class="All JAVA Security "
+           href="/2024/05/30/JAVA/Security/AnonymousAuthenticationFilter/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="AnonymousAuthenticationFilter">AnonymousAuthenticationFilter</span>
+            <span class="post-date" title="2024-05-30 10:04:43">2024/05/30</span>
+        </a>
+        
+        
+        <a  class="All "
+           href="/2024/02/01/HIGH_VOLUME_TRAFFIC/AccessorQueuingSystem2/AccessorQueuingSystem/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="패스트캠퍼스 9개 프로젝트로 경험하는 대용량 트래픽 &amp; 데이터 처리 초격차 패키지 Online. 수강">패스트캠퍼스 9개 프로젝트로 경험하는 대용량 트래픽 &amp; 데이터 처리 초격차 패키지 Online. 수강</span>
+            <span class="post-date" title="2024-02-01 00:00:00">2024/02/01</span>
+        </a>
+        
+        
+        <a  class="All Authentication JWT "
+           href="/2021/11/27/AUTHTICATION/JWT/jwt/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="JWT (JSON Web Token) 이해하기">JWT (JSON Web Token) 이해하기</span>
+            <span class="post-date" title="2021-11-27 07:47:42">2021/11/27</span>
+        </a>
+        
+        
+        <a  class="All Authentication Oauth "
+           href="/2021/11/27/AUTHTICATION/OAUTH/oauth/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="OAUTH 2.0 이해하기">OAUTH 2.0 이해하기</span>
+            <span class="post-date" title="2021-11-27 07:47:42">2021/11/27</span>
+        </a>
+        
+        
+        <a  class="All JAVA HTTP FeignClient "
+           href="/2021/11/08/JAVA/HTTP/FeignClient/FeignClient/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="FeignClient 활용도">FeignClient 활용도</span>
+            <span class="post-date" title="2021-11-08 10:04:43">2021/11/08</span>
+        </a>
+        
+        
+        <a  class="All JAVA SpringBatch "
+           href="/2021/11/04/JAVA/Batch/SpringBatch5/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Batch - Chunk 5">Spring Batch - Chunk 5</span>
+            <span class="post-date" title="2021-11-04 07:47:42">2021/11/04</span>
+        </a>
+        
+        
+        <a  class="All JAVA SpringBatch "
+           href="/2021/10/30/JAVA/Batch/SpringBatch4/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Batch - Flow 4">Spring Batch - Flow 4</span>
+            <span class="post-date" title="2021-10-30 07:47:42">2021/10/30</span>
+        </a>
+        
+        
+        <a  class="All JAVA SpringBatch "
+           href="/2021/10/24/JAVA/Batch/SpringBatch3/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Batch - 메타데이터 스키마 3">Spring Batch - 메타데이터 스키마 3</span>
+            <span class="post-date" title="2021-10-24 07:47:42">2021/10/24</span>
+        </a>
+        
+        
+        <a  class="All JAVA SpringBatch "
+           href="/2021/10/19/JAVA/Batch/SpringBatch2/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Batch - Job, Step 2">Spring Batch - Job, Step 2</span>
+            <span class="post-date" title="2021-10-19 07:47:42">2021/10/19</span>
+        </a>
+        
+        
+        <a  class="All JAVA SpringBatch "
+           href="/2021/10/17/JAVA/Batch/SpringBatch1/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Batch 1">Spring Batch 1</span>
+            <span class="post-date" title="2021-10-17 07:47:42">2021/10/17</span>
+        </a>
+        
+        
+        <a  class="All JAVA SpringCloudConfig "
+           href="/2021/09/13/JAVA/SpringCloudConfig/spring-cloud-config4/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="비대칭키를 이용한 application.yml 설정값 암호화">비대칭키를 이용한 application.yml 설정값 암호화</span>
+            <span class="post-date" title="2021-09-13 07:47:45">2021/09/13</span>
+        </a>
+        
+        
+        <a  class="All JAVA SpringCloudConfig "
+           href="/2021/09/13/JAVA/SpringCloudConfig/spring-cloud-config3/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Cloud Bus">Spring Cloud Bus</span>
+            <span class="post-date" title="2021-09-13 07:47:44">2021/09/13</span>
+        </a>
+        
+        
+        <a  class="All JAVA SpringCloudConfig "
+           href="/2021/09/13/JAVA/SpringCloudConfig/spring-cloud-config2/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Boot Actuator">Spring Boot Actuator</span>
+            <span class="post-date" title="2021-09-13 07:47:43">2021/09/13</span>
+        </a>
+        
+        
+        <a  class="All JAVA SpringCloudConfig "
+           href="/2021/09/13/JAVA/SpringCloudConfig/spring-cloud-config/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Cloud Config">Spring Cloud Config</span>
+            <span class="post-date" title="2021-09-13 07:47:42">2021/09/13</span>
+        </a>
+        
+        
+        <a  class="All JAVA Transaction "
+           href="/2021/03/14/JAVA/Transaction/multi-transaction/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Java Multi-Transaction 관리">Java Multi-Transaction 관리</span>
+            <span class="post-date" title="2021-03-14 07:47:42">2021/03/14</span>
+        </a>
+        
+        
+        <a  class="All JAVA Validator "
+           href="/2020/12/18/JAVA/VALIDATOR/validator/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Java Validator 관리">Java Validator 관리</span>
+            <span class="post-date" title="2020-12-18 07:47:42">2020/12/18</span>
+        </a>
+        
+        
+        <a  class="All JAVA Security "
+           href="/2020/11/19/JAVA/Security/SessionManagementFilterAndConcurrentSessionFilter/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="SessionManagementFilterAndConcurrentSessionFilter">SessionManagementFilterAndConcurrentSessionFilter</span>
+            <span class="post-date" title="2020-11-19 18:02:23">2020/11/19</span>
+        </a>
+        
+        
+        <a  class="All JAVA Security "
+           href="/2020/11/14/JAVA/Security/RememberMeAuthenticationFilter/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="RememberMeAuthenticationFilter">RememberMeAuthenticationFilter</span>
+            <span class="post-date" title="2020-11-14 07:40:06">2020/11/14</span>
+        </a>
+        
+        
+        <a  class="All JAVA Security "
+           href="/2020/11/13/JAVA/Security/UsernamePasswordAuthenticationFilter/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="UsernamePasswordAuthenticationFilter">UsernamePasswordAuthenticationFilter</span>
+            <span class="post-date" title="2020-11-13 08:51:13">2020/11/13</span>
+        </a>
+        
+        
+        <a  class="All CI-CD Jenkins "
+           href="/2020/11/09/CI-CD/Jenkins/JenkinsGitLabConnect/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Jenkins_GitLab_연동">Jenkins_GitLab_연동</span>
+            <span class="post-date" title="2020-11-09 07:47:42">2020/11/09</span>
+        </a>
+        
+        
+        <a  class="All CI-CD Jenkins "
+           href="/2020/11/08/CI-CD/Jenkins/JenkinsGitLabSshConnect/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="젠킨스와 GitLab ssh 연동하기">젠킨스와 GitLab ssh 연동하기</span>
+            <span class="post-date" title="2020-11-08 07:47:42">2020/11/08</span>
+        </a>
+        
+        
+        <a  class="All JAVA JPA "
+           href="/2020/11/08/JAVA/JPA/eagerJpqlNplus1/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="eagerJpqlNplus1">eagerJpqlNplus1</span>
+            <span class="post-date" title="2020-11-08 07:47:42">2020/11/08</span>
+        </a>
+        
+        
+        <a  class="All JAVA SpringBootAndSecurityAndJWT "
+           href="/2020/11/08/JAVA/SpringBootAndSecurityAndJWT/spring-boot-security-jwt-social/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Boot 를 이용해 JWT + Social 로그인 처리 - Authorization Server (일반 로그인)">Spring Boot 를 이용해 JWT + Social 로그인 처리 - Authorization Server (일반 로그인)</span>
+            <span class="post-date" title="2020-11-08 07:47:42">2020/11/08</span>
+        </a>
+        
+        
+        <a  class="All JAVA SpringBootAndSecurityAndJWT "
+           href="/2020/11/08/JAVA/SpringBootAndSecurityAndJWT/spring-boot-security-jwt-social2/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Boot 를 이용해 JWT + Social 로그인 처리 - Authorization Server (Social 로그인)">Spring Boot 를 이용해 JWT + Social 로그인 처리 - Authorization Server (Social 로그인)</span>
+            <span class="post-date" title="2020-11-08 07:47:42">2020/11/08</span>
+        </a>
+        
+        
+        <a  class="All JAVA SpringBootAndSecurityAndJWT "
+           href="/2020/11/08/JAVA/SpringBootAndSecurityAndJWT/spring-boot-security-jwt-social3/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Boot 를 이용해 JWT + Social 로그인 처리 - Resource Server">Spring Boot 를 이용해 JWT + Social 로그인 처리 - Resource Server</span>
+            <span class="post-date" title="2020-11-08 07:47:42">2020/11/08</span>
+        </a>
+        
+        
+        <a  class="All J Jenkins "
+           href="/2020/11/07/JAVA/Security/JKSGenerate/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="JKSGenerate">JKSGenerate</span>
+            <span class="post-date" title="2020-11-07 13:46:21">2020/11/07</span>
+        </a>
+        
+        
+        <a  class="All CI-CD Jenkins "
+           href="/2020/11/07/CI-CD/Jenkins/JenkinsInstall/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="쿠버네티스 환경 구성">쿠버네티스 환경 구성</span>
+            <span class="post-date" title="2020-11-07 07:47:42">2020/11/07</span>
+        </a>
+        
+        
+        <a  class="All DB Mysql "
+           href="/2020/11/07/DB/Mysql/mysqlReplicationSetting/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Mysql_Replication_설정">Mysql_Replication_설정</span>
+            <span class="post-date" title="2020-11-07 07:47:42">2020/11/07</span>
+        </a>
+        
+        
+        <a  class="All KUBERNETES "
+           href="/2020/11/07/KUBERNETES/%EC%89%BD%EA%B2%8C_%EC%8B%9C%EC%9E%91%ED%95%98%EB%8A%94_%EC%BF%A0%EB%B2%84%EB%84%A4%ED%8B%B0%EC%8A%A4/%EC%BF%A0%EB%B2%84%EB%84%A4%ED%8B%B0%EC%8A%A4_%ED%99%98%EA%B2%BD_%EA%B5%AC%EC%84%B1/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Jenkins_설치">Jenkins_설치</span>
+            <span class="post-date" title="2020-11-07 07:47:42">2020/11/07</span>
+        </a>
+        
+        
+        <a  class="All R "
+           href="/2020/10/17/R/RServerInstall/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="RServer 설치">RServer 설치</span>
+            <span class="post-date" title="2020-10-17 07:47:42">2020/10/17</span>
+        </a>
+        
+        
+        <a  class="All JavaScript Webpack "
+           href="/2020/10/17/JAVASCRIPT/Webpack/devtool/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="WebPack - DevTool">WebPack - DevTool</span>
+            <span class="post-date" title="2020-10-17 07:47:42">2020/10/17</span>
+        </a>
+        
+        
+        <a  class="All "
+           href="/2018/12/02/%EB%A9%B4%EC%A0%91%EC%A4%80%EB%B9%84/test/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="그냥... 잡다한 지식 모음집">그냥... 잡다한 지식 모음집</span>
+            <span class="post-date" title="2018-12-02 15:50:00">2018/12/02</span>
+        </a>
+        
+        <div id="no-item-tips">
+
+        </div>
+    </nav>
+    <div id="outline-list">
+    </div>
+</div>
+
+    </div>
+    <div class="hide-list">
+        <div class="semicircle" data-title="Toggle full screen shortcut key s">
+            <div class="brackets first"><</div>
+            <div class="brackets">&gt;</div>
+        </div>
+    </div>
+</aside>
+<div id="post">
+    <div class="pjax">
+        <article id="post-FLINK/introduction/Flink-Introduction" class="article article-type-post" itemscope itemprop="blogPost">
+    
+        <h1 class="article-title">Flink</h1>
+    
+    <div class="article-meta">
+        
+        
+        
+        <span class="book">
+            <i class="iconfont icon-category"></i>
+            
+            
+            <a  data-rel="Flink">Flink</a> > 
+            
+            <a  data-rel="Flink&lt;---&gt;Real Time">Real Time</a> > 
+            
+            <a  data-rel="Flink&lt;---&gt;Real Time&lt;---&gt;Kafka">Kafka</a>
+            
+        </span>
+        
+        
+    </div>
+    <div class="article-meta">
+        
+            Created At : <time class="date" title='Updated At: 2025-04-05 22:48:12'>2025-04-05 07:47</time>
+        
+    </div>
+    <div class="article-meta">
+        
+        
+        <span id="busuanzi_container_page_pv">
+            Views 👀 :<span id="busuanzi_value_page_pv">
+                <span class="count-comment">
+                    <span class="spinner">
+                      <div class="cube1"></div>
+                      <div class="cube2"></div>
+                    </span>
+                </span>
+            </span>
+        </span>
+        
+        
+    </div>
+    
+    <div class="toc-ref">
+    
+        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Flink-%EC%9D%B4%EC%9A%A9%ED%95%B4%EC%84%9C-%EC%8B%A4%EC%8B%9C%EA%B0%84-%EB%8D%B0%EC%9D%B4%ED%84%B0-%EC%8A%A4%ED%8A%B8%EB%A6%BC-%EC%B2%98%EB%A6%AC-%ED%95%B4%EB%B3%B4%EA%B8%B0"><span class="toc-text">Flink 이용해서 실시간 데이터 스트림 처리 해보기</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Flink-%EB%8A%94-%EB%AC%B4%EC%97%87%EC%9D%B8%EA%B0%80"><span class="toc-text">Flink 는 무엇인가?</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%EC%83%81%ED%83%9C%EA%B0%80-%EC%9E%88%EB%8A%94-%EC%8A%A4%ED%8A%B8%EB%A6%BC-%EC%B2%98%EB%A6%AC-Stateful-Stream-Processing-%EA%B0%9C%EB%85%90-%EC%86%8C%EA%B0%9C"><span class="toc-text">상태가 있는 스트림 처리 (Stateful Stream Processing) 개념 소개</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Flink-%EB%8A%94-%EC%96%B4%EB%96%BB%EA%B2%8C-State-%EB%A5%BC-%EA%B4%80%EB%A6%AC%EB%A5%BC-%ED%95%A0%EA%B9%8C"><span class="toc-text">Flink 는 어떻게 State 를 관리를 할까?</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Flink-%EC%82%AC%EC%9A%A9-%EC%98%88%EC%8B%9C"><span class="toc-text">Flink 사용 예시</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Flink-%ED%81%B4%EB%9F%AC%EC%8A%A4%ED%84%B0-%EA%B5%AC%EC%A1%B0"><span class="toc-text">Flink 클러스터 구조</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%EC%8B%A4%EC%8A%B5-%ED%95%B4%EB%B3%B4%EA%B8%B0"><span class="toc-text">실습 해보기</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#CCTV-Event-Server"><span class="toc-text">CCTV Event Server</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#KafkaSource-%EC%84%A4%EC%A0%95-%ED%95%98%EA%B8%B0"><span class="toc-text">KafkaSource 설정 하기</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#WatermarkStrategy-%EC%84%A4%EC%A0%95-%ED%95%98%EA%B8%B0"><span class="toc-text">WatermarkStrategy 설정 하기</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Window-%EC%84%A4%EC%A0%95-%ED%95%98%EA%B8%B0"><span class="toc-text">Window 설정 하기</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Mysql-Sink-%EC%84%A4%EC%A0%95-%ED%95%98%EA%B8%B0"><span class="toc-text">Mysql Sink 설정 하기</span></a></li></ol></li></ol></li></ol>
+    
+<style>
+    .left-col .switch-btn,
+    .left-col .switch-area {
+        display: none;
+    }
+    .toc-level-3 i,
+    .toc-level-3 ol {
+        display: none !important;
+    }
+</style>
+</div>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="Flink-이용해서-실시간-데이터-스트림-처리-해보기"><a href="#Flink-이용해서-실시간-데이터-스트림-처리-해보기" class="headerlink" title="Flink 이용해서 실시간 데이터 스트림 처리 해보기"></a>Flink 이용해서 실시간 데이터 스트림 처리 해보기</h1><h2 id="Flink-는-무엇인가"><a href="#Flink-는-무엇인가" class="headerlink" title="Flink 는 무엇인가?"></a>Flink 는 무엇인가?</h2><p><img src="/../../../img/FLINK/introduction/Flink_log.jpg" alt="Flink Logo"></p>
+<p><code>Flink</code> 는 독일어로 ‘민첩함’ 민첩함 상징으로 빨간 다람쥐 통해 로고로 사용되고 있습니다.</p>
+<p>처음에는 베를린 TU 대학교에서 시작된 아파치 프로젝트에서 2011년에 Stratosphere 0.1 릴리즈를 시작하였으며 2015년에는 Apache Flink 0.9 버전으로 릴리즈 하게 되었습니다.</p>
+<p>현재는 세계 유명 대기업 (우버, 알리바바, 넥플릭스) 에서 대규모 스트림 처리를 하기 위해 Flink 를 사용 하고 있습니다.</p>
+<p><img src="/../../../img/FLINK/introduction/Flink_introduction.png" alt="Flink Introduction"></p>
+<p><a target="_blank" rel="noopener" href="https://flink.apache.org/">https://flink.apache.org/</a> 에 접속하시면 첫화면에 Flink 에 대한 간단하게 소개하는 글이 있습니다.</p>
+<p><code>stateful computations over unbounded and bounded data streams.</code></p>
+<p>상태가 있는 스트림 처리 하는데 있어서  <code>unbounded</code> (무한한 데이터) 와 <code>bounded</code> (유한한 데이터) 를 모두 데이터 처리가 가능 한다는 점 입니다.</p>
+<p><img src="/../../../img/FLINK/introduction/usecases-analytics.png" alt="출처: https://flink.apache.org/what-is-flink/use-cases/"></p>
+<p>즉 배치 처리와 스트림 데이터 처리를 모두 가능하다는 말이 됩니다. </p>
+<p>여기서 배치 처리란 기존에 어디간 저장되어 있는 데이터를 가져와서 주기적으로 처리 후 가공된 데이터를 또 다른 어딘가에 저장 하는 프로세스이고<br>스트림 처리란 <code>실시간</code> 으로 데이터 이벤트가 발생되는 상황에 Flink 가 발생된 이벤트 데이터를 가지고 분석 후 실시간으로 또 다른 어딘가에 저장 하는 프로세르 라고 생각 하시면 됩니다.</p>
+<p><code>at in-memory speed and at any scale.</code></p>
+<p>데이터 규모 스케일이 상관 없이 in-memory 속도 수준으로 처리가 가능 하다고 소개 되어 있습니다.</p>
+<p>초당 수천만으로 발생한 이벤트 처리를 <code>throughput</code> 제공 하고 1초 미만 <code>latency</code> 제공 하고 있습니다. 그리고 수십 terabyte state 관리 및 복구가 가능 합니다.</p>
+<h2 id="상태가-있는-스트림-처리-Stateful-Stream-Processing-개념-소개"><a href="#상태가-있는-스트림-처리-Stateful-Stream-Processing-개념-소개" class="headerlink" title="상태가 있는 스트림 처리 (Stateful Stream Processing) 개념 소개"></a>상태가 있는 스트림 처리 (Stateful Stream Processing) 개념 소개</h2><p>상태가 있는 데이터 스트림 설명하기전에 상태가 없는 데이터 스트림을 먼저 설명 하도록 하겠습니다.</p>
+<p><img src="/../../../img/FLINK/introduction/Non_State_Data_Stream.png" alt="Non_State_Data_Stream"></p>
+<p><code>Source</code> 로부터 1, 4, 6 데이터를 받는 과정에서 1번 오퍼레이션에서는 5이상 데이터를 필터링 한다고 하면 1, 4 데이터만 필터링 하게 될 것 입니다.<br>그런 후 각각의 데이터들을 특정 코드로 변환해서 <code>Sink</code> 하게 되는 과정이 단순히 각각 요청 받는 데이터를 미리 구현한 오퍼레이션 통해 데이터를 필터링 하고 변환 하는 과정<br>즉 상태가 없는 스트림 처리라고 생각 하시면 됩니다.</p>
+<p><img src="/../../../img/FLINK/introduction/State_Data_Stream.png" alt="State_Data_Stream"></p>
+<p>그럼 상태가 있는 데이터 스트림 처리 경우에는 연속적으로 (실시간으로) 데이터 스트림 처리하는 과정에서 5초 단위로 윈도우로 설정 하고 각각의 윈도우를<br>특정 오퍼레이션에 도달 했을때 특정 윈도우에서 가장 큰수를 추출 하고자 할려면 요청 받은 데이터를 기억해서 연산 후 처리 하게 됩니다.</p>
+<p>각 윈도우에서 처리가 완료되면 기억했던 가장 큰 숫자를 <code>Sink</code> 로 보내지게 됩니다.</p>
+<p>이렇게 분단위 및 시간 단위로 설정해서 이벤트를 aggregation 하고 중간 aggregation 결과를 상태값 기억하고 처리시 활용 할 수 있습니다.</p>
+<p>Flink 는 이러한 상태가 있는 데이터를 일관성 유지하면서 데이터 처리가 가능하기 때문에 여러 방면으로 활용이 가능 합니다.</p>
+<h2 id="Flink-는-어떻게-State-를-관리를-할까"><a href="#Flink-는-어떻게-State-를-관리를-할까" class="headerlink" title="Flink 는 어떻게 State 를 관리를 할까?"></a>Flink 는 어떻게 State 를 관리를 할까?</h2><p><img src="/../../../img/FLINK/introduction/managing-state-in-flink-visual-1.png" alt="출처: https://flink.apache.org/2020/01/29/state-unlocked-interacting-with-state-in-apache-flink/"></p>
+<p><code>User code</code> 에서 특정 값을 State 하겠다고 하면 Flink 는 주기적으로 <code>Local state backend</code> 에서 내려 쓰게 됩니다. 이러한 과정을 <code>Checkpoint</code> 라고 합니다.<br>사용자가 지정한 주기마다 정해진 주기 단위로 중간 연산값들을 스냅샵 통해 내려 받게 되고, 만약 연산 하는 과정에서 문제가 있어서 복구 해야 하는 상황이 발생 되면 저장된 <code>Checkpoint</code> 를 복구 해서 다시 연산을 이어지게 됩니다. (Consistency 유지)</p>
+<p>특정 시점에 분산 되어있는 전역 state 에 대한 snapshot. HDFS, S3등에 저장. Flink 업그레이드, 코드 변경 등의 작업 시 사용자가 직접 활용 할 수 있습니다. 이를 <code>Savepoint</code> 이라고 합니다.</p>
+<h2 id="Flink-사용-예시"><a href="#Flink-사용-예시" class="headerlink" title="Flink 사용 예시"></a>Flink 사용 예시</h2><p><img src="/../../../img/FLINK/introduction/Flink_example.jpg" alt="Flink 사용 예시"></p>
+<p>TMAP 앱에서 활용되고 있는 예시 하나 설명 하겠습니다. 지하철 실시간 혼잡도 기능인데요. 열차의 칸마다 실시간으로 혼잡도를 사용자에게 보여주는 기능이고 이러한 기능을 구현하기 위해서는 실시간 데이터 스트림을 처리 하기 위해 실제로 <code>Flink</code> 로 활용해서 구현 하고 있다고 합니다.</p>
+<p>이렇게 실시간으로 정해진 단위로 어떠한 값들을 연산 및 처리 하기 위해서 Flink 를 많이 활용 되고 있습니다.</p>
+<h2 id="Flink-클러스터-구조"><a href="#Flink-클러스터-구조" class="headerlink" title="Flink 클러스터 구조"></a>Flink 클러스터 구조</h2><p><img src="/../../../img/FLINK/introduction/flink_structure.png" alt="flink_structure"></p>
+<p>Flink 클러스터 구조 이미지 입니다. Flink 를 설치 하고 클러스터를 띄우게 되면 크게 2가지 종류의 프로세스를 띄우게 된다고 생각하시면 되는데요.</p>
+<ol>
+<li>JobManager<br><code>JobManager</code>는 Flink 클러스터에서 마스터 노드의 역할을 수행하며, 여러 핵심 기능을 제공합니다.</li>
+</ol>
+<ul>
+<li>클러스터 내 리소스 할당&#x2F;해제</li>
+<li>Task 스케쥴링</li>
+<li>Checkpoint 관리</li>
+<li>Recovery 관리</li>
+</ul>
+<ol start="2">
+<li>TaskManager<br>Flink 클러스터 내에서 실제 데이터 처리 작업을 수행하는 컴포넌트입니다. <code>TaskManager</code>는 클러스터의 워커 노드 역할을 하며, <code>JobManager</code>로부터 할당받은 작업(Task)을 실행합니다. 각 <code>TaskManager</code>는 여러 태스크를 병렬로 처리할 수 있는 하나 이상의 슬롯을 가집니다.</li>
+</ol>
+<h2 id="실습-해보기"><a href="#실습-해보기" class="headerlink" title="실습 해보기"></a>실습 해보기</h2><p><img src="/../../../img/FLINK/introduction/flink_architecture.png" alt="flink 실습 Architecture"></p>
+<p>실습 하고자 하는 내용을 설명 하겠습니다. 우선 CCTV 에 설치된 구역을 <code>SPACE</code> 로 지칭 하겠습니다. 각각의 SPACE 에서 CCTV 통해 사람의 카운트를 추출 해서 <code>Kafka</code>로 전송하게 됩니다.</p>
+<p>그런 다음 <code>Consume</code> 하는 <code>Flink</code> 서버는 <code>spaceId</code> 값과 실시간으로 CCTV 로 영상 촬영된 <code>사람의 카운트</code> 값을 받아서 <code>spaceId</code> 값 기준으로 <code>KeyBy</code> 하게 됩니다.</p>
+<p>5초 간격으로 <code>Tumbling Window</code> 방식으로 평균 사람의 카운트 값을 추출해 DB 에 저장 하도록 하겠습니다.</p>
+<h3 id="CCTV-Event-Server"><a href="#CCTV-Event-Server" class="headerlink" title="CCTV Event Server"></a>CCTV Event Server</h3><figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">public class EventMain &#123;</span><br><span class="line"></span><br><span class="line"><span class="code">    public static final int EVENTS_PER_WINDOW = 1000;</span></span><br><span class="line"><span class="code">    private static final List&lt;String&gt; SPACE_ID_LIST = Arrays.asList(&quot;AAA&quot;, &quot;BBB&quot;, &quot;CCC&quot;, &quot;DDD&quot;, &quot;EEE&quot;, &quot;FFF&quot;);</span></span><br><span class="line"><span class="code"></span></span><br><span class="line"></span><br><span class="line"><span class="code">    public static void main(String[] args) throws Exception &#123;</span></span><br><span class="line"><span class="code"></span></span><br><span class="line"><span class="code">        final ParameterTool params = ParameterTool.fromArgs(args);</span></span><br><span class="line"><span class="code"></span></span><br><span class="line"><span class="code">        String topic = params.get(&quot;topic&quot;, &quot;input&quot;);</span></span><br><span class="line"><span class="code"></span></span><br><span class="line"><span class="code">        Properties kafkaProps = createKafkaProperties(params);</span></span><br><span class="line"><span class="code"></span></span><br><span class="line"><span class="code">        KafkaProducer&lt;byte[], byte[]&gt; producer = new KafkaProducer&lt;&gt;(kafkaProps);</span></span><br><span class="line"><span class="code"></span></span><br><span class="line"><span class="code">        SpaceCongestionIterator spaceCongestionIterator = new SpaceCongestionIterator();</span></span><br><span class="line"><span class="code"></span></span><br><span class="line"><span class="code">        while (true) &#123;</span></span><br><span class="line"><span class="code"></span></span><br><span class="line"><span class="code">            ProducerRecord&lt;byte[], byte[]&gt; record = new SpaceCongestionEventSerializationSchema(topic).serialize(</span></span><br><span class="line"><span class="code">                    spaceCongestionIterator.next(),</span></span><br><span class="line"><span class="code">                    null</span></span><br><span class="line"><span class="code">            );</span></span><br><span class="line"><span class="code"></span></span><br><span class="line"><span class="code">            producer.send(record);</span></span><br><span class="line"><span class="code"></span></span><br><span class="line"><span class="code">            //Thread.sleep(DELAY);</span></span><br><span class="line"><span class="code"></span></span><br><span class="line"><span class="code">            Thread.sleep((long) ((Math.random() * (10 - 1)) + 1));</span></span><br><span class="line"><span class="code">        &#125;</span></span><br><span class="line"><span class="code">    &#125;</span></span><br><span class="line"><span class="code"></span></span><br><span class="line"><span class="code">    ... 생략 ...</span></span><br><span class="line"><span class="code">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>여기서는 CCTV 로 부터 현재 실시간으로 촬영된 사람 카운트 숫자는 임의로 랜덤값을 지정 해서 설정 하도록 하겠습니다. 랜덤값으로 사람 카운트를 만들어서 랜덤으로 spaceId 값을 추출해<br>지정된 Kafka 에 데이터를 전송 하도록 구현 해보았습니다.</p>
+<h3 id="KafkaSource-설정-하기"><a href="#KafkaSource-설정-하기" class="headerlink" title="KafkaSource 설정 하기"></a>KafkaSource 설정 하기</h3><figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">String inputTopic = params.get(&quot;input-topic&quot;, &quot;input&quot;);</span><br><span class="line">String brokers = params.get(&quot;bootstrap.servers&quot;, &quot;localhost:9094&quot;);</span><br><span class="line">Properties kafkaProps = new Properties();</span><br><span class="line">kafkaProps.setProperty(ProducerConfig.BOOTSTRAP<span class="emphasis">_SERVERS_</span>CONFIG, brokers);</span><br><span class="line">kafkaProps.setProperty(ConsumerConfig.GROUP<span class="emphasis">_ID_</span>CONFIG, &quot;space-congestion-event-count&quot;);</span><br><span class="line"></span><br><span class="line">KafkaSource<span class="language-xml"><span class="tag">&lt;<span class="name">SpaceCongestionEvent</span>&gt;</span></span> source = KafkaSource.<span class="language-xml"><span class="tag">&lt;<span class="name">SpaceCongestionEvent</span>&gt;</span></span>builder()</span><br><span class="line"><span class="code">        .setProperties(kafkaProps)</span></span><br><span class="line"><span class="code">        .setTopics(inputTopic)</span></span><br><span class="line"><span class="code">        .setValueOnlyDeserializer(new SpaceCongestionEventDeserializationSchema())</span></span><br><span class="line"><span class="code">        .setStartingOffsets(OffsetsInitializer.earliest())</span></span><br><span class="line"><span class="code">        .build();</span></span><br></pre></td></tr></table></figure>
+<p>CCTV 로 부터 가져온 데이터를 <code>Kafka</code> 로 적재된 부분을 <code>KafkaSource</code> 이용해서 <code>Consume</code> 하는 과정 입니다. 우선 해당 Kafka 로 부터 데이터를 읽어오기 위해 Kafka 주소와 <code>Topic</code> 을 설정 하였습니다.</p>
+<p>그런 다음 <code>KafkaSource</code> 를 만들게 됩니다. 어떤 토픽에서 가져 올 것인지 그리고 <code>Deserializer</code> 설정 해야 하는데 <code>SpaceCongestionEventDeserializationSchema</code> 객체 통해 어떻게 Deserialization 할 것인지 정의 합니다.</p>
+<p><code>Offset</code> 설정이 있는데 <code>OffsetsInitializer.earliest()</code> 방식으로 Offset 설정 한다고 정의 내렸습니다.</p>
+<h3 id="WatermarkStrategy-설정-하기"><a href="#WatermarkStrategy-설정-하기" class="headerlink" title="WatermarkStrategy 설정 하기"></a>WatermarkStrategy 설정 하기</h3><figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">WatermarkStrategy<span class="language-xml"><span class="tag">&lt;<span class="name">SpaceCongestionEvent</span>&gt;</span></span> watermarkStrategy = WatermarkStrategy</span><br><span class="line"><span class="code">        .&lt;SpaceCongestionEvent&gt;forBoundedOutOfOrderness(Duration.ofMillis(200))</span></span><br><span class="line"><span class="code">        .withIdleness(Duration.ofSeconds(5))</span></span><br><span class="line"><span class="code">        .withTimestampAssigner((spaceCongestionEvent, l) -&gt; spaceCongestionEvent.getTimestamp().getTime());</span></span><br></pre></td></tr></table></figure>
+
+<p>그 다음은 <code>WatermarkStrategy</code> 설정 하는 구간 입니다. Flink 에서 지원하는 시간 전략을 두가지 종류로 선택 할 수 있는데</p>
+<ol>
+<li>Processing Time</li>
+<li>Event Time</li>
+</ol>
+<p>있습니다. 여기서는 <code>Event Time</code> 형식으로 전략을 선택 하도록 하겠습니다. 그러기 위해서는 Event Time 이 발생한 데이터가 어떤 것인지 지정 해야 하는데요, <code>SpaceCongestionEvent</code> 객체서 <code>timestamp</code> 프로퍼티로 지정 하겠습니다.</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">WatermarkStrategy</span><br><span class="line">.<span class="language-xml"><span class="tag">&lt;<span class="name">SpaceCongestionEvent</span>&gt;</span></span>forBoundedOutOfOrderness(Duration.ofMillis(200))</span><br></pre></td></tr></table></figure>
+
+<p>그 다음은 <code>Built-in Watermark Generator</code> 설정 하는 방법 입니다. <code>Watermark</code> 생성을 <code>forBoundedOutOfOrderness</code> 방식으로 설정 하겠다는 건데요.<br>현재까지 들어온 이벤트 중에 (설정 한 Window 구역 마다) 가장 큰 timestamp 하고 지정한 특정 시간 (<code>Duration.ofMillis(200)</code>) 하고 빼서 Watermark Generator 합니다.</p>
+<p>즉 각각의 데이터 이벤트가 환경에 따라 늦게 들어 올 수가 있는데 최대 200 millis 정도 늦게 도착 한다고 가정한다는 의미 입니다.</p>
+<h3 id="Window-설정-하기"><a href="#Window-설정-하기" class="headerlink" title="Window 설정 하기"></a>Window 설정 하기</h3><figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">DataStream<span class="language-xml"><span class="tag">&lt;<span class="name">SpaceCongestionEvent</span>&gt;</span></span> clicks = env.fromSource(source, watermarkStrategy, &quot;SpaceCongestionEvent Source&quot;);</span><br><span class="line"></span><br><span class="line">WindowAssigner<span class="language-xml">&lt;Object, TimeWindow&gt;</span> assigner = params.has(EVENT<span class="emphasis">_TIME_</span>OPTION) ?</span><br><span class="line"><span class="code">        TumblingEventTimeWindows.of(WINDOW_SIZE) :</span></span><br><span class="line"><span class="code">        TumblingProcessingTimeWindows.of(WINDOW_SIZE);</span></span><br><span class="line"><span class="code"></span></span><br><span class="line">DataStream<span class="language-xml"><span class="tag">&lt;<span class="name">SpaceCongestionEventStatistics</span>&gt;</span></span> statistics = clicks</span><br><span class="line"><span class="code">        .keyBy(SpaceCongestionEvent::getSpaceId)</span></span><br><span class="line"><span class="code">        .window(assigner)</span></span><br><span class="line"><span class="code">        .aggregate(</span></span><br><span class="line"><span class="code">                new SpaceCongestionAverageAggregator(),</span></span><br><span class="line"><span class="code">                new SpaceCongestionEventStatisticsCollector()</span></span><br><span class="line"><span class="code">        )</span></span><br><span class="line"><span class="code">        .name(&quot;SpaceCongestionEvent&quot;);</span></span><br></pre></td></tr></table></figure>
+
+<p>그 다음은 <code>Window</code> 설정 하는 방법 입니다. 크게 flink 에서 window 설정 하는 방법은 3가지 있습니다.</p>
+<ol>
+<li><p>Tumbling Window<br><img src="/../../../img/FLINK/introduction/tumbling-windows.png" alt="tumbling-windows.png"><br>시간의 단위 기준 (window size) 으로 들어오는 모든 데이터들을 단순하게 자르는 방식 입니다.</p>
+</li>
+<li><p>Sliding Window<br><img src="/../../../img/FLINK/introduction/sliding-windows.png" alt="sliding-windows.png"><br>시간 단위 기준으로 (window size) 으로 들어와서 모든 데이터들을 단순하게 자르고 처리 하는 방식은 같은데<br>윈도우가 오버랩팅 되면서 지정한 window slide 기준으로 미끄러듯이 움직이면서 시간 단위 구역을 지정 한다고 생각 하시면 됩니다.  </p>
+</li>
+<li><p>Session Window<br><img src="/../../../img/FLINK/introduction/session-windows.png" alt="session-windows.png"></p>
+</li>
+</ol>
+<p>window 설정시 시작하는 단위하고 끝 단위를 지정하는 것이 아니라 데이터가 계속 들어오다가 특정 시간동안만 데이터가 들어오지 않으면 window 단위를 자르고<br>새로운 window 단위로 설정해서 각각의 구역을 지정 하겠다는 의미 입니다.</p>
+<p>여기서는 flink 프로세스 띄울때 파라미터 값을 <code>--event-time</code> 이 지정되어 있으면 <code>Tumbling Event Time Window</code> 방식으로 처리 하고 해당 파라미터 값이 존재하지 않으면 <code>Tumbling Processing Time Window</code> 방식으로 처리 하도록 했습니다.</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">.keyBy(SpaceCongestionEvent::getSpaceId)</span><br></pre></td></tr></table></figure>
+<p>각각의 window 구역마다 <code>keyBy</code> 를 <code>spaceId</code> 값 기준으로 그룹핑 해서 처리 하도록 하겠다는 의미 입니다.</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">.aggregate(</span><br><span class="line"><span class="code">                new SpaceCongestionAverageAggregator(),</span></span><br><span class="line"><span class="code">                new SpaceCongestionEventStatisticsCollector()</span></span><br><span class="line"><span class="code">        )</span></span><br></pre></td></tr></table></figure>
+
+<p>다음은 <code>aggregate</code> 설정 하는 방법인데 <code>SpaceCongestionAverageAggregator</code> 객체를 확인 해보면 실시간으로 처리 되는 각각의 윈도우 구역에 요청 받은 <code>PeopleCount</code> 값들 중 평균값을 처리 하도록 설정 하였습니다.<br>그런 다음 <code>SpaceCongestionEventStatisticsCollector</code> 객체를 확인 해보면 <code>SpaceCongestionEventStatistics</code> 객체로 변환 시켜서 내보내겠다는 설정 방식 입니다.</p>
+<h3 id="Mysql-Sink-설정-하기"><a href="#Mysql-Sink-설정-하기" class="headerlink" title="Mysql Sink 설정 하기"></a>Mysql Sink 설정 하기</h3><figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">statistics.addSink(</span><br><span class="line"><span class="code">                JdbcSink.sink(</span></span><br><span class="line"><span class="code">                        &quot;INSERT INTO space_congestion_event_report (window_start, window_end, space_id, space_congestion) VALUES (?, ?, ?, ?)&quot;,</span></span><br><span class="line"><span class="code">                        (statement, stat) -&gt; &#123;</span></span><br><span class="line"><span class="code">                            statement.setString(1, sdf.format(stat.getWindowStart()));</span></span><br><span class="line"><span class="code">                            statement.setString(2, sdf.format(stat.getWindowEnd()));</span></span><br><span class="line"><span class="code">                            statement.setString(3, stat.getSpaceId());</span></span><br><span class="line"><span class="code">                            statement.setDouble(4, stat.getSpaceCongestion());</span></span><br><span class="line"><span class="code">                        &#125;,</span></span><br><span class="line"><span class="code">                        JdbcExecutionOptions.builder()</span></span><br><span class="line"><span class="code">                                .withBatchSize(1000)</span></span><br><span class="line"><span class="code">                                .withBatchIntervalMs(15000)</span></span><br><span class="line"><span class="code">                                .withMaxRetries(5)</span></span><br><span class="line"><span class="code">                                .build(),</span></span><br><span class="line"><span class="code">                        new JdbcConnectionOptions.JdbcConnectionOptionsBuilder()</span></span><br><span class="line"><span class="code">                                .withUrl(&quot;jdbc:mysql://localhost:3306/space_congestion&quot;)</span></span><br><span class="line"><span class="code">                                .withDriverName(&quot;com.mysql.jdbc.Driver&quot;)</span></span><br><span class="line"><span class="code">                                .withUsername(&quot;root&quot;)</span></span><br><span class="line"><span class="code">                                .withPassword(&quot;1234&quot;)</span></span><br><span class="line"><span class="code">                                .build()</span></span><br><span class="line"><span class="code">                ))</span></span><br><span class="line"><span class="code">        .name(&quot;SpaceCongestionEventStatistics MySQL Sink&quot;);</span></span><br></pre></td></tr></table></figure>
+
+<p>마지막으로 각각의 window 구역마다 분석 처리된 데이터를 <code>Mysql</code> 디비에 저장 하는 과정 입니다.</p>
+
+      
+       <hr><span style="font-style: italic;color: gray;"> Copyright 201- syh8088. 무단 전재 및 재배포 금지. 출처 표기 시 인용 가능. </span>
+    </div>
+</article>
+
+
+<p>
+    <a  class="dashang" onclick="dashangToggle()">💰</a>
+</p>
+
+
+
+
+
+
+    
+
+
+
+
+    </div>
+    <div class="copyright">
+        <p class="footer-entry">
+    ©2017 Seo Yang Hun
+</p>
+<p class="footer-entry">Built with <a href="https://hexo.io/" target="_blank">Hexo</a> and <a href="https://github.com/yelog/hexo-theme-3-hexo" target="_blank">3-hexo</a> theme</p>
+
+    </div>
+    <div class="full-toc">
+        <button class="full" data-title="Toggle full screen shortcut key s"><span class="min "></span></button>
+<a class="" id="rocket" ></a>
+
+    </div>
+</div>
+
+<div class="hide_box" onclick="dashangToggle()"></div>
+<div class="shang_box">
+    <a class="shang_close"  onclick="dashangToggle()">×</a>
+    <div class="shang_tit">
+        <p>Help us with donation</p>
+    </div>
+    <div class="shang_payimg">
+        <div class="pay_img">
+            <img src="/img/alipay.jpg" class="alipay" title="扫码支持">
+            <img src="/img/weixin.jpg" class="weixin" title="扫码支持">
+        </div>
+    </div>
+    <div class="shang_payselect">
+        <span><label><input type="radio" name="pay" checked value="alipay">alipay</label></span><span><label><input type="radio" name="pay" value="weixin">weixin</label></span>
+    </div>
+</div>
+
+
+</body>
+<script src="/js/jquery.pjax.js?v=1.1.0" ></script>
+
+<script src="/js/script.js?v=1.1.0" ></script>
+<script>
+    var img_resize = 'default';
+    function initArticle() {
+        /*渲染对应的表格样式*/
+        
+            $("#post .pjax table").addClass("green_title");
+        
+
+        /*渲染打赏样式*/
+        
+        $("input[name=pay]").on("click", function () {
+            if($("input[name=pay]:checked").val()=="weixin"){
+                $(".shang_box .shang_payimg .pay_img").addClass("weixin_img");
+            } else {
+                $(".shang_box .shang_payimg .pay_img").removeClass("weixin_img");
+            }
+        })
+        
+
+        /*高亮代码块行号*/
+        
+
+        /*访问数量*/
+        
+        $.getScript("//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js");
+        
+
+        /*代码高亮，行号对齐*/
+        $('.pre-numbering').css('line-height',$('.has-numbering').css('line-height'));
+
+        
+        
+    }
+
+    /*打赏页面隐藏与展示*/
+    
+    function dashangToggle() {
+        $(".shang_box").fadeToggle();
+        $(".hide_box").fadeToggle();
+    }
+    
+
+</script>
+
+<!--加入行号的高亮代码块样式-->
+
+<!--自定义样式设置-->
+<style>
+    
+    
+    .nav {
+        width: 542px;
+    }
+    .nav.fullscreen {
+        margin-left: -542px;
+    }
+    .nav-left {
+        width: 120px;
+    }
+    
+    
+    @media screen and (max-width: 1468px) {
+        .nav {
+            width: 492px;
+        }
+        .nav.fullscreen {
+            margin-left: -492px;
+        }
+        .nav-left {
+            width: 100px;
+        }
+    }
+    
+    
+    @media screen and (max-width: 1024px) {
+        .nav {
+            width: 492px;
+            margin-left: -492px
+        }
+        .nav.fullscreen {
+            margin-left: 0;
+        }
+    }
+    
+    @media screen and (max-width: 426px) {
+        .nav {
+            width: 100%;
+        }
+        .nav-left {
+            width: 100%;
+        }
+    }
+    
+    
+    .nav-right .title-list nav a .post-title, .nav-right .title-list #local-search-result a .post-title {
+        color: #383636;
+    }
+    
+    
+    .nav-right .title-list nav a .post-date, .nav-right .title-list #local-search-result a .post-date {
+        color: #5e5e5f;
+    }
+    
+    
+    .nav-right nav a.hover, #local-search-result a.hover{
+        background-color: #e2e0e0;
+    }
+    
+    
+
+    /*列表样式*/
+    
+
+    /* 背景图样式 */
+    
+    
+
+
+    /*引用块样式*/
+    
+
+    /*文章列表背景图*/
+    
+
+    
+</style>
+
+
+
+
+
+
+
+</html>
