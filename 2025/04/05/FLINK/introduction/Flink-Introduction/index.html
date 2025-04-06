@@ -6,12 +6,12 @@
   <meta name="keywords" content="">
   <meta name="description" content="Flink 이용해서 실시간 데이터 스트림 처리 해보기 | Seo Yang Hun Blog">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-<meta name="description" content="Flink 이용해서 실시간 데이터 스트림 처리 해보기Flink 는 무엇인가? Flink 는 독일어로 ‘민첩함’ 민첩함 상징으로 빨간 다람쥐 통해 로고로 사용되고 있습니다. 처음에는 베를린 TU 대학교에서 시작된 아파치 프로젝트에서 2011년에 Stratosphere 0.1 릴리즈를 시작하였으며 2015년에는 Apache Flink 0.9 버전으로 릴리즈 하">
+<meta name="description" content="예제 소스 코드이번 블로그에 사용되는 코드는 아래 링크 통해 확인 할 수 있습니다. flink serverhttps:&#x2F;&#x2F;github.com&#x2F;syh8088&#x2F;flink_study&#x2F;tree&#x2F;main&#x2F;flink_space_congestion&#x2F;flink_server Flink 이용해서 실시간 데이터 스트림 처리 해보기Flink 는 무엇인가? Flink 는 독일어로">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Flink 이용해서 실시간 데이터 스트림 처리 해보기">
 <meta property="og:url" content="https://syh8088.github.io/2025/04/05/FLINK/introduction/Flink-Introduction/index.html">
 <meta property="og:site_name" content="Seo Yang Hun Blog">
-<meta property="og:description" content="Flink 이용해서 실시간 데이터 스트림 처리 해보기Flink 는 무엇인가? Flink 는 독일어로 ‘민첩함’ 민첩함 상징으로 빨간 다람쥐 통해 로고로 사용되고 있습니다. 처음에는 베를린 TU 대학교에서 시작된 아파치 프로젝트에서 2011년에 Stratosphere 0.1 릴리즈를 시작하였으며 2015년에는 Apache Flink 0.9 버전으로 릴리즈 하">
+<meta property="og:description" content="예제 소스 코드이번 블로그에 사용되는 코드는 아래 링크 통해 확인 할 수 있습니다. flink serverhttps:&#x2F;&#x2F;github.com&#x2F;syh8088&#x2F;flink_study&#x2F;tree&#x2F;main&#x2F;flink_space_congestion&#x2F;flink_server Flink 이용해서 실시간 데이터 스트림 처리 해보기Flink 는 무엇인가? Flink 는 독일어로">
 <meta property="og:locale">
 <meta property="og:image" content="https://syh8088.github.io/img/FLINK/introduction/Flink_log.jpg">
 <meta property="og:image" content="https://syh8088.github.io/img/FLINK/introduction/Flink_introduction.png">
@@ -27,7 +27,7 @@
 <meta property="og:image" content="https://syh8088.github.io/img/FLINK/introduction/sliding-windows.png">
 <meta property="og:image" content="https://syh8088.github.io/img/FLINK/introduction/session-windows.png">
 <meta property="article:published_time" content="2025-04-04T22:47:42.000Z">
-<meta property="article:modified_time" content="2025-04-06T00:25:06.836Z">
+<meta property="article:modified_time" content="2025-04-06T00:31:47.560Z">
 <meta property="article:author" content="Seo Yang Hun">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https://syh8088.github.io/img/FLINK/introduction/Flink_log.jpg">
@@ -1799,7 +1799,7 @@
     </div>
     <div class="article-meta">
         
-            작성일 : <time class="date" title='수정일: 2025-04-06 09:25:06'>2025-04-05 07:47</time>
+            작성일 : <time class="date" title='수정일: 2025-04-06 09:31:47'>2025-04-05 07:47</time>
         
     </div>
     <div class="article-meta">
@@ -1821,7 +1821,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Flink-%EC%9D%B4%EC%9A%A9%ED%95%B4%EC%84%9C-%EC%8B%A4%EC%8B%9C%EA%B0%84-%EB%8D%B0%EC%9D%B4%ED%84%B0-%EC%8A%A4%ED%8A%B8%EB%A6%BC-%EC%B2%98%EB%A6%AC-%ED%95%B4%EB%B3%B4%EA%B8%B0"><span class="toc-text">Flink 이용해서 실시간 데이터 스트림 처리 해보기</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Flink-%EB%8A%94-%EB%AC%B4%EC%97%87%EC%9D%B8%EA%B0%80"><span class="toc-text">Flink 는 무엇인가?</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%EC%83%81%ED%83%9C%EA%B0%80-%EC%9E%88%EB%8A%94-%EC%8A%A4%ED%8A%B8%EB%A6%BC-%EC%B2%98%EB%A6%AC-Stateful-Stream-Processing-%EA%B0%9C%EB%85%90-%EC%86%8C%EA%B0%9C"><span class="toc-text">상태가 있는 스트림 처리 (Stateful Stream Processing) 개념 소개</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Flink-%EB%8A%94-%EC%96%B4%EB%96%BB%EA%B2%8C-State-%EB%A5%BC-%EA%B4%80%EB%A6%AC%EB%A5%BC-%ED%95%A0%EA%B9%8C"><span class="toc-text">Flink 는 어떻게 State 를 관리를 할까?</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Flink-%EC%82%AC%EC%9A%A9-%EC%98%88%EC%8B%9C"><span class="toc-text">Flink 사용 예시</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Flink-%ED%81%B4%EB%9F%AC%EC%8A%A4%ED%84%B0-%EA%B5%AC%EC%A1%B0"><span class="toc-text">Flink 클러스터 구조</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%EC%8B%A4%EC%8A%B5-%ED%95%B4%EB%B3%B4%EA%B8%B0"><span class="toc-text">실습 해보기</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#CCTV-Event-Server"><span class="toc-text">CCTV Event Server</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#KafkaSource-%EC%84%A4%EC%A0%95-%ED%95%98%EA%B8%B0"><span class="toc-text">KafkaSource 설정 하기</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#WatermarkStrategy-%EC%84%A4%EC%A0%95-%ED%95%98%EA%B8%B0"><span class="toc-text">WatermarkStrategy 설정 하기</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Window-%EC%84%A4%EC%A0%95-%ED%95%98%EA%B8%B0"><span class="toc-text">Window 설정 하기</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Mysql-Sink-%EC%84%A4%EC%A0%95-%ED%95%98%EA%B8%B0"><span class="toc-text">Mysql Sink 설정 하기</span></a></li></ol></li></ol></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%EC%98%88%EC%A0%9C-%EC%86%8C%EC%8A%A4-%EC%BD%94%EB%93%9C"><span class="toc-text">예제 소스 코드</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Flink-%EC%9D%B4%EC%9A%A9%ED%95%B4%EC%84%9C-%EC%8B%A4%EC%8B%9C%EA%B0%84-%EB%8D%B0%EC%9D%B4%ED%84%B0-%EC%8A%A4%ED%8A%B8%EB%A6%BC-%EC%B2%98%EB%A6%AC-%ED%95%B4%EB%B3%B4%EA%B8%B0"><span class="toc-text">Flink 이용해서 실시간 데이터 스트림 처리 해보기</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Flink-%EB%8A%94-%EB%AC%B4%EC%97%87%EC%9D%B8%EA%B0%80"><span class="toc-text">Flink 는 무엇인가?</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%EC%83%81%ED%83%9C%EA%B0%80-%EC%9E%88%EB%8A%94-%EC%8A%A4%ED%8A%B8%EB%A6%BC-%EC%B2%98%EB%A6%AC-Stateful-Stream-Processing-%EA%B0%9C%EB%85%90-%EC%86%8C%EA%B0%9C"><span class="toc-text">상태가 있는 스트림 처리 (Stateful Stream Processing) 개념 소개</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Flink-%EB%8A%94-%EC%96%B4%EB%96%BB%EA%B2%8C-State-%EB%A5%BC-%EA%B4%80%EB%A6%AC%EB%A5%BC-%ED%95%A0%EA%B9%8C"><span class="toc-text">Flink 는 어떻게 State 를 관리를 할까?</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Flink-%EC%82%AC%EC%9A%A9-%EC%98%88%EC%8B%9C"><span class="toc-text">Flink 사용 예시</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Flink-%ED%81%B4%EB%9F%AC%EC%8A%A4%ED%84%B0-%EA%B5%AC%EC%A1%B0"><span class="toc-text">Flink 클러스터 구조</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%EC%8B%A4%EC%8A%B5-%ED%95%B4%EB%B3%B4%EA%B8%B0"><span class="toc-text">실습 해보기</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#CCTV-Event-Server"><span class="toc-text">CCTV Event Server</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#KafkaSource-%EC%84%A4%EC%A0%95-%ED%95%98%EA%B8%B0"><span class="toc-text">KafkaSource 설정 하기</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#WatermarkStrategy-%EC%84%A4%EC%A0%95-%ED%95%98%EA%B8%B0"><span class="toc-text">WatermarkStrategy 설정 하기</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Window-%EC%84%A4%EC%A0%95-%ED%95%98%EA%B8%B0"><span class="toc-text">Window 설정 하기</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Mysql-Sink-%EC%84%A4%EC%A0%95-%ED%95%98%EA%B8%B0"><span class="toc-text">Mysql Sink 설정 하기</span></a></li></ol></li></ol></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -1837,7 +1837,9 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h1 id="Flink-이용해서-실시간-데이터-스트림-처리-해보기"><a href="#Flink-이용해서-실시간-데이터-스트림-처리-해보기" class="headerlink" title="Flink 이용해서 실시간 데이터 스트림 처리 해보기"></a>Flink 이용해서 실시간 데이터 스트림 처리 해보기</h1><h2 id="Flink-는-무엇인가"><a href="#Flink-는-무엇인가" class="headerlink" title="Flink 는 무엇인가?"></a>Flink 는 무엇인가?</h2><p><img src="/../../../img/FLINK/introduction/Flink_log.jpg" alt="Flink Logo"></p>
+        <h1 id="예제-소스-코드"><a href="#예제-소스-코드" class="headerlink" title="예제 소스 코드"></a>예제 소스 코드</h1><p>이번 블로그에 사용되는 코드는 아래 링크 통해 확인 할 수 있습니다.</p>
+<p>flink server<br><a target="_blank" rel="noopener" href="https://github.com/syh8088/flink_study/tree/main/flink_space_congestion/flink_server">https://github.com/syh8088/flink_study/tree/main/flink_space_congestion/flink_server</a></p>
+<h1 id="Flink-이용해서-실시간-데이터-스트림-처리-해보기"><a href="#Flink-이용해서-실시간-데이터-스트림-처리-해보기" class="headerlink" title="Flink 이용해서 실시간 데이터 스트림 처리 해보기"></a>Flink 이용해서 실시간 데이터 스트림 처리 해보기</h1><h2 id="Flink-는-무엇인가"><a href="#Flink-는-무엇인가" class="headerlink" title="Flink 는 무엇인가?"></a>Flink 는 무엇인가?</h2><p><img src="/../../../img/FLINK/introduction/Flink_log.jpg" alt="Flink Logo"></p>
 <p><code>Flink</code> 는 독일어로 ‘민첩함’ 민첩함 상징으로 빨간 다람쥐 통해 로고로 사용되고 있습니다.</p>
 <p>처음에는 베를린 TU 대학교에서 시작된 아파치 프로젝트에서 2011년에 Stratosphere 0.1 릴리즈를 시작하였으며 2015년에는 Apache Flink 0.9 버전으로 릴리즈 하게 되었습니다.</p>
 <p>현재는 세계 유명 대기업 (우버, 알리바바, 넥플릭스) 에서 대규모 스트림 처리를 하기 위해 Flink 를 사용 하고 있습니다.</p>
