@@ -6,12 +6,12 @@
   <meta name="keywords" content="">
   <meta name="description" content="Flink 이용해서 실시간 데이터 스트림 처리 해보기 | Seo Yang Hun Blog">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-<meta name="description" content="예제 소스 코드이번 블로그에 사용되는 코드는 아래 링크 통해 확인 할 수 있습니다. flink serverhttps:&#x2F;&#x2F;github.com&#x2F;syh8088&#x2F;flink_study&#x2F;tree&#x2F;main&#x2F;flink_space_congestion&#x2F;flink_server Flink 이용해서 실시간 데이터 스트림 처리 해보기Flink 는 무엇인가? Flink 는 독일어로">
+<meta name="description" content="예제 소스 코드이번 블로그에 사용되는 코드는 아래 링크 통해 확인 할 수 있습니다. Flink serverhttps:&#x2F;&#x2F;github.com&#x2F;syh8088&#x2F;flink_study&#x2F;tree&#x2F;main&#x2F;flink_space_congestion&#x2F;flink_server Flink 이용해서 실시간 데이터 스트림 처리 해보기Flink 는 무엇인가? Flink 는 독일어로">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Flink 이용해서 실시간 데이터 스트림 처리 해보기">
 <meta property="og:url" content="https://syh8088.github.io/2025/04/05/FLINK/introduction/Flink-Introduction/index.html">
 <meta property="og:site_name" content="Seo Yang Hun Blog">
-<meta property="og:description" content="예제 소스 코드이번 블로그에 사용되는 코드는 아래 링크 통해 확인 할 수 있습니다. flink serverhttps:&#x2F;&#x2F;github.com&#x2F;syh8088&#x2F;flink_study&#x2F;tree&#x2F;main&#x2F;flink_space_congestion&#x2F;flink_server Flink 이용해서 실시간 데이터 스트림 처리 해보기Flink 는 무엇인가? Flink 는 독일어로">
+<meta property="og:description" content="예제 소스 코드이번 블로그에 사용되는 코드는 아래 링크 통해 확인 할 수 있습니다. Flink serverhttps:&#x2F;&#x2F;github.com&#x2F;syh8088&#x2F;flink_study&#x2F;tree&#x2F;main&#x2F;flink_space_congestion&#x2F;flink_server Flink 이용해서 실시간 데이터 스트림 처리 해보기Flink 는 무엇인가? Flink 는 독일어로">
 <meta property="og:locale">
 <meta property="og:image" content="https://syh8088.github.io/img/FLINK/introduction/Flink_log.jpg">
 <meta property="og:image" content="https://syh8088.github.io/img/FLINK/introduction/Flink_introduction.png">
@@ -21,13 +21,17 @@
 <meta property="og:image" content="https://syh8088.github.io/img/FLINK/introduction/managing-state-in-flink-visual-1.png">
 <meta property="og:image" content="https://syh8088.github.io/img/FLINK/introduction/Flink_example.jpg">
 <meta property="og:image" content="https://syh8088.github.io/img/FLINK/introduction/flink_structure.png">
+<meta property="og:image" content="https://syh8088.github.io/img/FLINK/introduction/flink_time_setting.png">
+<meta property="og:image" content="https://syh8088.github.io/img/FLINK/introduction/event_processing_time.png">
+<meta property="og:image" content="https://syh8088.github.io/img/FLINK/introduction/ProcessingTimeVSEventTime.png">
+<meta property="og:image" content="https://syh8088.github.io/img/FLINK/introduction/Watermark.png">
 <meta property="og:image" content="https://syh8088.github.io/img/FLINK/introduction/flink_architecture.png">
 <meta property="og:image" content="https://syh8088.github.io/img/FLINK/introduction/flink_aggregate.png">
 <meta property="og:image" content="https://syh8088.github.io/img/FLINK/introduction/tumbling-windows.png">
 <meta property="og:image" content="https://syh8088.github.io/img/FLINK/introduction/sliding-windows.png">
 <meta property="og:image" content="https://syh8088.github.io/img/FLINK/introduction/session-windows.png">
 <meta property="article:published_time" content="2025-04-04T22:47:42.000Z">
-<meta property="article:modified_time" content="2025-04-06T00:31:47.560Z">
+<meta property="article:modified_time" content="2025-04-06T08:07:58.427Z">
 <meta property="article:author" content="Seo Yang Hun">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https://syh8088.github.io/img/FLINK/introduction/Flink_log.jpg">
@@ -1799,7 +1803,7 @@
     </div>
     <div class="article-meta">
         
-            작성일 : <time class="date" title='수정일: 2025-04-06 09:31:47'>2025-04-05 07:47</time>
+            작성일 : <time class="date" title='수정일: 2025-04-06 17:07:58'>2025-04-05 07:47</time>
         
     </div>
     <div class="article-meta">
@@ -1821,7 +1825,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%EC%98%88%EC%A0%9C-%EC%86%8C%EC%8A%A4-%EC%BD%94%EB%93%9C"><span class="toc-text">예제 소스 코드</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Flink-%EC%9D%B4%EC%9A%A9%ED%95%B4%EC%84%9C-%EC%8B%A4%EC%8B%9C%EA%B0%84-%EB%8D%B0%EC%9D%B4%ED%84%B0-%EC%8A%A4%ED%8A%B8%EB%A6%BC-%EC%B2%98%EB%A6%AC-%ED%95%B4%EB%B3%B4%EA%B8%B0"><span class="toc-text">Flink 이용해서 실시간 데이터 스트림 처리 해보기</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Flink-%EB%8A%94-%EB%AC%B4%EC%97%87%EC%9D%B8%EA%B0%80"><span class="toc-text">Flink 는 무엇인가?</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%EC%83%81%ED%83%9C%EA%B0%80-%EC%9E%88%EB%8A%94-%EC%8A%A4%ED%8A%B8%EB%A6%BC-%EC%B2%98%EB%A6%AC-Stateful-Stream-Processing-%EA%B0%9C%EB%85%90-%EC%86%8C%EA%B0%9C"><span class="toc-text">상태가 있는 스트림 처리 (Stateful Stream Processing) 개념 소개</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Flink-%EB%8A%94-%EC%96%B4%EB%96%BB%EA%B2%8C-State-%EB%A5%BC-%EA%B4%80%EB%A6%AC%EB%A5%BC-%ED%95%A0%EA%B9%8C"><span class="toc-text">Flink 는 어떻게 State 를 관리를 할까?</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Flink-%EC%82%AC%EC%9A%A9-%EC%98%88%EC%8B%9C"><span class="toc-text">Flink 사용 예시</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Flink-%ED%81%B4%EB%9F%AC%EC%8A%A4%ED%84%B0-%EA%B5%AC%EC%A1%B0"><span class="toc-text">Flink 클러스터 구조</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%EC%8B%A4%EC%8A%B5-%ED%95%B4%EB%B3%B4%EA%B8%B0"><span class="toc-text">실습 해보기</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#CCTV-Event-Server"><span class="toc-text">CCTV Event Server</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#KafkaSource-%EC%84%A4%EC%A0%95-%ED%95%98%EA%B8%B0"><span class="toc-text">KafkaSource 설정 하기</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#WatermarkStrategy-%EC%84%A4%EC%A0%95-%ED%95%98%EA%B8%B0"><span class="toc-text">WatermarkStrategy 설정 하기</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Window-%EC%84%A4%EC%A0%95-%ED%95%98%EA%B8%B0"><span class="toc-text">Window 설정 하기</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Mysql-Sink-%EC%84%A4%EC%A0%95-%ED%95%98%EA%B8%B0"><span class="toc-text">Mysql Sink 설정 하기</span></a></li></ol></li></ol></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%EC%98%88%EC%A0%9C-%EC%86%8C%EC%8A%A4-%EC%BD%94%EB%93%9C"><span class="toc-text">예제 소스 코드</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Flink-%EC%9D%B4%EC%9A%A9%ED%95%B4%EC%84%9C-%EC%8B%A4%EC%8B%9C%EA%B0%84-%EB%8D%B0%EC%9D%B4%ED%84%B0-%EC%8A%A4%ED%8A%B8%EB%A6%BC-%EC%B2%98%EB%A6%AC-%ED%95%B4%EB%B3%B4%EA%B8%B0"><span class="toc-text">Flink 이용해서 실시간 데이터 스트림 처리 해보기</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Flink-%EB%8A%94-%EB%AC%B4%EC%97%87%EC%9D%B8%EA%B0%80"><span class="toc-text">Flink 는 무엇인가?</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%EC%83%81%ED%83%9C%EA%B0%80-%EC%9E%88%EB%8A%94-%EC%8A%A4%ED%8A%B8%EB%A6%BC-%EC%B2%98%EB%A6%AC-Stateful-Stream-Processing-%EA%B0%9C%EB%85%90-%EC%86%8C%EA%B0%9C"><span class="toc-text">상태가 있는 스트림 처리 (Stateful Stream Processing) 개념 소개</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Flink-%EB%8A%94-%EC%96%B4%EB%96%BB%EA%B2%8C-State-%EB%A5%BC-%EA%B4%80%EB%A6%AC%EB%A5%BC-%ED%95%A0%EA%B9%8C"><span class="toc-text">Flink 는 어떻게 State 를 관리를 할까?</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Flink-%EC%82%AC%EC%9A%A9-%EC%98%88%EC%8B%9C"><span class="toc-text">Flink 사용 예시</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Flink-%ED%81%B4%EB%9F%AC%EC%8A%A4%ED%84%B0-%EA%B5%AC%EC%A1%B0"><span class="toc-text">Flink 클러스터 구조</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Flink-%EC%9D%98-%EC%8B%9C%EA%B0%84-%EA%B0%9C%EB%85%90-%EC%95%8C%EC%95%84%EB%B3%B4%EA%B8%B0"><span class="toc-text">Flink 의 시간 개념 알아보기</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Processing-Time"><span class="toc-text">Processing Time</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Event-Time"><span class="toc-text">Event Time</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Processing-Time-VS-Event-Time"><span class="toc-text">Processing Time VS Event Time</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Watermark-%EC%84%A4%EC%A0%95-%ED%95%98%EA%B8%B0"><span class="toc-text">Watermark 설정 하기</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%EC%8B%A4%EC%8A%B5-%ED%95%B4%EB%B3%B4%EA%B8%B0"><span class="toc-text">실습 해보기</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#CCTV-Event-Server"><span class="toc-text">CCTV Event Server</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#KafkaSource-%EC%84%A4%EC%A0%95-%ED%95%98%EA%B8%B0"><span class="toc-text">KafkaSource 설정 하기</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#WatermarkStrategy-%EC%84%A4%EC%A0%95-%ED%95%98%EA%B8%B0"><span class="toc-text">WatermarkStrategy 설정 하기</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Window-%EC%84%A4%EC%A0%95-%ED%95%98%EA%B8%B0"><span class="toc-text">Window 설정 하기</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Mysql-Sink-%EC%84%A4%EC%A0%95-%ED%95%98%EA%B8%B0"><span class="toc-text">Mysql Sink 설정 하기</span></a></li></ol></li></ol></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -1838,7 +1842,7 @@
     <div class="article-entry" itemprop="articleBody">
       
         <h1 id="예제-소스-코드"><a href="#예제-소스-코드" class="headerlink" title="예제 소스 코드"></a>예제 소스 코드</h1><p>이번 블로그에 사용되는 코드는 아래 링크 통해 확인 할 수 있습니다.</p>
-<p>flink server<br><a target="_blank" rel="noopener" href="https://github.com/syh8088/flink_study/tree/main/flink_space_congestion/flink_server">https://github.com/syh8088/flink_study/tree/main/flink_space_congestion/flink_server</a></p>
+<p>Flink server<br><a target="_blank" rel="noopener" href="https://github.com/syh8088/flink_study/tree/main/flink_space_congestion/flink_server">https://github.com/syh8088/flink_study/tree/main/flink_space_congestion/flink_server</a></p>
 <h1 id="Flink-이용해서-실시간-데이터-스트림-처리-해보기"><a href="#Flink-이용해서-실시간-데이터-스트림-처리-해보기" class="headerlink" title="Flink 이용해서 실시간 데이터 스트림 처리 해보기"></a>Flink 이용해서 실시간 데이터 스트림 처리 해보기</h1><h2 id="Flink-는-무엇인가"><a href="#Flink-는-무엇인가" class="headerlink" title="Flink 는 무엇인가?"></a>Flink 는 무엇인가?</h2><p><img src="/../../../img/FLINK/introduction/Flink_log.jpg" alt="Flink Logo"></p>
 <p><code>Flink</code> 는 독일어로 ‘민첩함’ 민첩함 상징으로 빨간 다람쥐 통해 로고로 사용되고 있습니다.</p>
 <p>처음에는 베를린 TU 대학교에서 시작된 아파치 프로젝트에서 2011년에 Stratosphere 0.1 릴리즈를 시작하였으며 2015년에는 Apache Flink 0.9 버전으로 릴리즈 하게 되었습니다.</p>
@@ -1881,10 +1885,37 @@
 <ol start="2">
 <li>TaskManager<br>Flink 클러스터 내에서 실제 데이터 처리 작업을 수행하는 컴포넌트입니다. <code>TaskManager</code>는 클러스터의 워커 노드 역할을 하며, <code>JobManager</code>로부터 할당받은 작업(Task)을 실행합니다. 각 <code>TaskManager</code>는 여러 태스크를 병렬로 처리할 수 있는 하나 이상의 슬롯을 가집니다.</li>
 </ol>
+<h2 id="Flink-의-시간-개념-알아보기"><a href="#Flink-의-시간-개념-알아보기" class="headerlink" title="Flink 의 시간 개념 알아보기"></a>Flink 의 시간 개념 알아보기</h2><p><img src="/../../../img/FLINK/introduction/flink_time_setting.png" alt="Flink 에서 시간 개념"></p>
+<p><code>Stream Processing</code> 에서 (<code>Batch Processing</code> 틀리게) 시간의 개념을 어떻게 설정 하느냐에 따라 최종 연산 결과가 달라질 수 있습니다. 그러니깐 <code>Stream Processing</code> 는 <code>Real Time (실시간)</code> 상황에서 연속적으로 데이터가 들어오는 상황에서 시간의 개념을 어떻게 지정 하느냐에 따라 연산 처리가 각각 달라질 수 있습니다.</p>
+<p>바로 상단 이미지를 보시면 5분 마다 윈도우 박스를 설정하는데 저 시간을 어느 시점에 설정 할 것인지 그러니깐 <code>Flink Server</code> 에 데이터를 도착 할 시점에 시간을 설정 할 것인지 아니면 <code>Flink Server</code> 에 데이터 도착 이전에 실질적으로 이벤트가 발생 한 시점에 시간을 설정 할 것인지에 따라 달라 질 것 입니다.   </p>
+<p><img src="/../../../img/FLINK/introduction/event_processing_time.png" alt="출처: https://nightlies.apache.org/flink/flink-docs-release-1.16/docs/concepts/time/"></p>
+<p>Flink 에서 시간의 설정 종류 방식을 크게 2가지 방식이 있습니다.</p>
+<ol>
+<li>Processing Time</li>
+<li>Event Time</li>
+</ol>
+<p>각각 하나씩 알아보도록 하겠습니다.</p>
+<h3 id="Processing-Time"><a href="#Processing-Time" class="headerlink" title="Processing Time"></a>Processing Time</h3><p><code>Processing Time</code> 는 연산을 실행되는 머신의 시스템 시간 입니다. 예를들어 5초 마다 윈도우 박스를 설정하고 각각의 박스권 내에서 최대값을 구할때 시간을 연산이 실행되는 머신의 시간 기준으로 설정 하는 것이 <code>Processing Time</code> 입니다. </p>
+<p>장점으로는 시간 설정이 간단하기 때문에 성능상 우수하지만 단점으로는 시간을 머신의 시간 기준으로 설정 하기 때문에 문제가 발생 될 수 있습니다. 즉 각각의 데이터들을 Flink Server 로 전달하는 과정에서 항상 동일한 시간내에 도착 하지 않기 때문에 네트워크 불안정한 상태라면 늦게 도착 되면서 연산 하는데 결과가 달라질 수 있습니다.  </p>
+<h3 id="Event-Time"><a href="#Event-Time" class="headerlink" title="Event Time"></a>Event Time</h3><p><code>Event Time</code> 는 개별 각각의 이벤트가 발생한 시점의 이벤트가 발생한 시스템의 시간 입니다. 즉 최초 이벤트가 발생한 시점 동시에 이벤트 발생된 시간 데이터를 포함해서 Flink Server 로 전송 되기 때문에 각각의 데이터가 Flink Server 로 들어왔을때 이미 시간 데이터를 포함해서 수신 하게 됩니다.</p>
+<p>장점으로는 각각의 이벤트가 발생되고 Flink Server 로 전송 하는 과정에서 네트워크 불안정한 환경이라도 이미 미리 이벤트 시간을 설정한 상태이기 때문에 이론적으로 동일한 연산 처리가 가능 하게 됩니다. 데이터를 재처리시에도 항상 동일한 연산 결과를 보장 하는 것이 특징 입니다.</p>
+<p>단점은 <code>Event Time</code> 으로 시간 설정시 특정 이벤트가 Flink Server 로 전송하는 과정에서 늦게 도착 하는 케이스 경우 이때 언제까지 기다릴 것인가? 즉 <code>실시간 처리</code>를 보장 받기 위해 무작정 끝까지 기다릴수 없는 상황에서 언제까지 기다릴 것인가 라는 고려 해야 될 상황이 있습니다.</p>
+<h3 id="Processing-Time-VS-Event-Time"><a href="#Processing-Time-VS-Event-Time" class="headerlink" title="Processing Time VS Event Time"></a>Processing Time VS Event Time</h3><p><img src="/../../../img/FLINK/introduction/ProcessingTimeVSEventTime.png" alt="Processing Time VS Event Time"></p>
+<p>앞써 이야기 한대로 Flink 에서 어떤 시간 개념을 설정 하느냐에 따라 <code>Window</code> 영역 구간 설정이 달라집니다. 즉 연산 처리가 달라지는데요. 예시로 설명 하도록 해보겠습니다.</p>
+<p>12:00 부터 12:09 까지 시간이 흐르는 상태에서 이미지 최상단은 이벤트가 몇시 몇분에 발생 (Producing Machine 에서 발생한 최초 이벤트 시간) 했는지 표시 하고 있습니다.</p>
+<p>여기서 <code>Event Time</code> 기준으로 설정 하게 된다면 최초 <code>Producing Machine</code> 에서 발생한 시간 기준으로 <code>Window</code> 영역 구간을 설정 하기 때문에 12:00 ~ 12:02 시간에 발생한 이벤트가 <code>Flink Server</code> 에 각각 12:01, 12:03, 12:02 에 도착 하더라도 최초 이벤트 발생한 시간 기준으로 설정 하기 때문에 같은 빨간색 구역으로 취급 하게 됩니다.</p>
+<p>반면 <code>Processing Time</code> 기준으로 설정 하게 된다면 <code>Flink Server</code> 에 도착한 시점 부터 시간 설정 기준으로 <code>Window</code> 영역 구간을 정하기 때문에 12:01, 12:02 에 각각 도착한 시간 기준으로 빨간색 구역으로 취급 하게 됩니다.</p>
+<h3 id="Watermark-설정-하기"><a href="#Watermark-설정-하기" class="headerlink" title="Watermark 설정 하기"></a>Watermark 설정 하기</h3><p><code>Event Time</code> 기반으로 <code>Data Processing</code> 처리시 해결해야 할 문제가 있습니다. <code>Event Time</code> 기준으로 데이터 처리시 Event Time 이 얼마나 흘렀는지를 어떻게 판단 할 것인가? 인데요. 즉 <code>Flink Server</code> 내에서 특정 <code>Operation</code> 을 수행 하는 시스템에서는 현재 시간이 몇시 몇분인지 알 수가 없다는 점 입니다.  </p>
+<p>예를들어 3분 단위로 <code>Windowing</code> 구역을 설정 할때 어떻게 3분이 흘렀는지 판단하고 <code>Window</code> 구역을 닫을 것 인가 입니다. <code>Event Time</code> 경우 데이터를 처리하는 시스템의 시간과 별개로 결정 되는 부분이기 때문에 어려문 문제 입니다.</p>
+<p>이러한 문제를 해결 하기 위해서는 <code>Flink</code> 에서는 <code>Watermark</code> 라는 기능을 활용 하게 됩니다.</p>
+<p><code>Watermark</code> 란 <code>Stream Processing</code> 에서 <code>Event Time</code> 의 흐름을 측정하기 위한 매카니즘 입니다. 데이터 스트림 하는 과정에서 데이터가 흘러가는데 데이터 중간에 <code>Watermark</code> 도 함께 전송 하게 됩니다. <code>Watermark</code> 는 특별한 데이터가 있는 것이 아니고 <code>Timestamp(t)</code> 를 가지고 있습니다. </p>
+<p><code>Flink</code> 에게 <code>Watermark</code> 인 <code>Timestamp(t)</code> 을 알려주면서 현재시간을 알려줍니다. 현재 시간을 알려주면서 이를 근간으로 <code>Flink</code> 는 <code>Window</code> 영역 구간을 설정 할 수 있게 됩니다.</p>
+<p><img src="/../../../img/FLINK/introduction/Watermark.png" alt="Watermark 예시"></p>
+<p>실시간 <code>Stream Processing</code> 처리 과정에서 <code>Watermark (10)</code> 만나게 된다면 지금까지 <code>Event</code> 데이터 들을 받았던 것 중에 <code>Event timestamp</code> 값이 10 이하 인 것만 추출해서 <code>Windowing</code> 구역을 설정 하게 됩니다. 다시 반복해서 데이터 스트림 받는 과정에서  <code>Watermark (20)</code> 을 만나게 된다면 지금까지 <code>Event</code> 데이터 들을 받았던 것 중에 <code>Event timestamp</code> 값이 20 이하 인 것만 추출해서 <code>Windowing</code> 구역을 설정 하게 됩니다.  </p>
 <h2 id="실습-해보기"><a href="#실습-해보기" class="headerlink" title="실습 해보기"></a>실습 해보기</h2><p><img src="/../../../img/FLINK/introduction/flink_architecture.png" alt="flink 실습 Architecture"></p>
 <p>실습 하고자 하는 내용을 설명 하겠습니다. 우선 CCTV 에 설치된 구역을 <code>SPACE</code> 로 지칭 하겠습니다. 각각의 SPACE 에서 CCTV 통해 사람의 카운트를 추출 해서 <code>Kafka</code>로 전송하게 됩니다.</p>
 <p>그런 다음 <code>Consume</code> 하는 <code>Flink</code> 서버는 <code>spaceId</code> 값과 실시간으로 CCTV 로 영상 촬영된 <code>사람의 카운트</code> 값을 받아서 <code>spaceId</code> 값 기준으로 <code>KeyBy</code> 하게 됩니다.</p>
-<p>5초 간격으로 <code>Tumbling Window</code> 방식으로 평균 사람의 카운트 값을 추출해 DB 에 저장 하도록 하겠습니다.</p>
+<p>15초 간격으로 <code>Tumbling Window</code> 방식으로 평균 사람의 카운트 값을 추출해 DB 에 저장 하도록 하겠습니다.</p>
 <p><img src="/../../../img/FLINK/introduction/flink_aggregate.png" alt="flink 실습 Aggregate 방법"></p>
 <p>실시간으로 CCTV 로부터 사람 숫자를 계산한 값 포함해서 촬영된 SPACE_ID 값 함께 <code>Kafka</code> 서버로 전송 하게 됩니다. 그럼 Fink 서버는 <code>Kafka</code> 서버로 전송된 값을 <code>consume</code> 하게 되고 15초 윈도우 간격으로 SPACE 값 <code>KeyBy</code> 해서 CCTV 로 부터 입력된 계산된 사람 숫자 평균값을 구하게 됩니다. (aggregate() 함수를 사용하여 각 윈도우 내에서 평균을 계산)</p>
 <p>계산된 값은 <code>spaceId</code> 별로 <code>Sink</code> 하게 됩니다.</p>
