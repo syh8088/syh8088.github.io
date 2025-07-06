@@ -1,0 +1,2199 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>AWS Image Resizing 구현하기 | Seo Yang Hun Blog</title>
+  <meta name="keywords" content="">
+  <meta name="description" content="AWS Image Resizing 구현하기 | Seo Yang Hun Blog">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="description" content="이미지 갤러리              body {             font-family: sans-serif;             padding: 20px;             background-color: #f7f7f7;         }         .gallery {             display: grid;">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Seo Yang Hun Blog">
+<meta property="og:url" content="https://syh8088.github.io/2025/06/27/AWS/ImageResizing/imageTest/index.html">
+<meta property="og:site_name" content="Seo Yang Hun Blog">
+<meta property="og:description" content="이미지 갤러리              body {             font-family: sans-serif;             padding: 20px;             background-color: #f7f7f7;         }         .gallery {             display: grid;">
+<meta property="og:locale">
+<meta property="og:image" content="https://j31bpdwbfl.execute-api.ap-northeast-2.amazonaws.com/prod/1.jpg?w=100&h=100">
+<meta property="og:image" content="https://j31bpdwbfl.execute-api.ap-northeast-2.amazonaws.com/prod/2.jpg?w=100&h=100">
+<meta property="og:image" content="https://j31bpdwbfl.execute-api.ap-northeast-2.amazonaws.com/prod/3.jpg?w=100&h=100">
+<meta property="og:image" content="https://j31bpdwbfl.execute-api.ap-northeast-2.amazonaws.com/prod/4.jpg?w=100&h=100">
+<meta property="og:image" content="https://j31bpdwbfl.execute-api.ap-northeast-2.amazonaws.com/prod/5.jpg?w=100&h=100">
+<meta property="og:image" content="https://j31bpdwbfl.execute-api.ap-northeast-2.amazonaws.com/prod/6.jpg?w=100&h=100">
+<meta property="og:image" content="https://j31bpdwbfl.execute-api.ap-northeast-2.amazonaws.com/prod/7.jpg?w=100&h=100">
+<meta property="og:image" content="https://j31bpdwbfl.execute-api.ap-northeast-2.amazonaws.com/prod/8.jpg?w=100&h=100">
+<meta property="og:image" content="https://j31bpdwbfl.execute-api.ap-northeast-2.amazonaws.com/prod/9.jpg?w=100&h=100">
+<meta property="og:image" content="https://j31bpdwbfl.execute-api.ap-northeast-2.amazonaws.com/prod/10.jpg?w=100&h=100">
+<meta property="article:published_time" content="2025-06-27T11:10:06.139Z">
+<meta property="article:modified_time" content="2025-06-27T11:29:33.572Z">
+<meta property="article:author" content="Seo Yang Hun">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://j31bpdwbfl.execute-api.ap-northeast-2.amazonaws.com/prod/1.jpg?w=100&h=100">
+
+
+<link rel="icon" href="/img/avatar.jpg">
+
+<link href="/css/style.css?v=1.1.0" rel="stylesheet">
+
+<link href="/css/hl_theme/atom-light.css?v=1.1.0" rel="stylesheet">
+
+<link href="//cdn.jsdelivr.net/npm/animate.css@4.1.0/animate.min.css" rel="stylesheet">
+
+<script src="//cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"></script>
+<script src="/js/titleTip.js?v=1.1.0" ></script>
+
+<script src="//cdn.jsdelivr.net/npm/highlightjs@9.16.2/highlight.pack.min.js"></script>
+<script>
+    hljs.initHighlightingOnLoad();
+</script>
+
+<script src="//cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.js"></script>
+
+
+
+<script src="//cdn.jsdelivr.net/npm/jquery.cookie@1.4.1/jquery.cookie.min.js" ></script>
+
+<script src="/js/iconfont.js?v=1.1.0" ></script>
+
+<meta name="generator" content="Hexo 7.2.0"></head>
+<div style="display: none">
+  <input class="theme_disqus_on" value="false">
+  <input class="theme_preload_comment" value="">
+  <input class="theme_blog_path" value="">
+  <input id="theme_shortcut" value="true" />
+  <input id="theme_highlight_on" value="true" />
+  <input id="theme_code_copy" value="true" />
+</div>
+
+
+
+<body>
+<aside class="nav">
+    <div class="nav-left">
+        <a href="/"
+   class="avatar_target">
+    <img class="avatar"
+         src="/img/avatar.jpg"/>
+</a>
+<div class="author">
+    <span>Seo Yang Hun</span>
+</div>
+
+<div class="icon">
+    
+        
+            <a title="rss"
+               href="/atom.xml"
+               target="_blank">
+                
+                    <svg class="iconfont-svg" aria-hidden="true">
+                        <use xlink:href="#icon-rss"></use>
+                    </svg>
+                
+            </a>
+        
+    
+        
+            <a title="github"
+               href="https://github.com/syh8088"
+               target="_blank">
+                
+                    <svg class="iconfont-svg" aria-hidden="true">
+                        <use xlink:href="#icon-github"></use>
+                    </svg>
+                
+            </a>
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+            <a title="email"
+               href="mailto:syh8088@gmail.com"
+               target="_blank">
+                
+                    <svg class="iconfont-svg" aria-hidden="true">
+                        <use xlink:href="#icon-email"></use>
+                    </svg>
+                
+            </a>
+        
+    
+        
+            <a title="qq"
+               href="http://wpa.qq.com/msgrd?v=3&uin=872336115&site=qq&menu=yes"
+               target="_blank">
+                
+                    <svg class="iconfont-svg" aria-hidden="true">
+                        <use xlink:href="#icon-qq"></use>
+                    </svg>
+                
+            </a>
+        
+    
+        
+    
+        
+    
+</div>
+
+
+
+
+
+<ul>
+    <li>
+        <div class="all active" data-rel="All">All
+            
+                <small>(64)</small>
+            
+        </div>
+    </li>
+    
+        
+            
+                
+    <li>
+        <div data-rel="Authentication">
+            <i class="fold iconfont icon-right"></i>
+            Authentication
+            <small>(2)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="Authentication&lt;---&gt;JWT">
+            
+            JWT
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="Authentication&lt;---&gt;Oauth">
+            
+            Oauth
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="AWS">
+            <i class="fold iconfont icon-right"></i>
+            AWS
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="AWS&lt;---&gt;Image Resizing">
+            
+            Image Resizing
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="CI-CD">
+            <i class="fold iconfont icon-right"></i>
+            CI-CD
+            <small>(9)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="CI-CD&lt;---&gt;GitHubActions">
+            
+            GitHubActions
+            <small>(6)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="CI-CD&lt;---&gt;Jenkins">
+            
+            Jenkins
+            <small>(3)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="DB">
+            <i class="fold iconfont icon-right"></i>
+            DB
+            <small>(4)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="DB&lt;---&gt;Mysql">
+            <i class="fold iconfont icon-right"></i>
+            Mysql
+            <small>(4)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="DB&lt;---&gt;Mysql&lt;---&gt;DBCP">
+            
+            DBCP
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="DB&lt;---&gt;Mysql&lt;---&gt;optimizing">
+            
+            optimizing
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="DB&lt;---&gt;Mysql&lt;---&gt;Paging">
+            
+            Paging
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="Elastic Search">
+            
+            Elastic Search
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="Flink">
+            <i class="fold iconfont icon-right"></i>
+            Flink
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="Flink&lt;---&gt;Real Time">
+            <i class="fold iconfont icon-right"></i>
+            Real Time
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="Flink&lt;---&gt;Real Time&lt;---&gt;Kafka">
+            
+            Kafka
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="J">
+            <i class="fold iconfont icon-right"></i>
+            J
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="J&lt;---&gt;Jenkins">
+            
+            Jenkins
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="JAVA">
+            <i class="fold iconfont icon-right"></i>
+            JAVA
+            <small>(29)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;HTTP">
+            <i class="fold iconfont icon-right"></i>
+            HTTP
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;HTTP&lt;---&gt;FeignClient">
+            
+            FeignClient
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;JPA">
+            
+            JPA
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;Object">
+            
+            Object
+            <small>(2)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;Payment">
+            
+            Payment
+            <small>(5)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;Security">
+            
+            Security
+            <small>(4)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;Spring">
+            <i class="fold iconfont icon-right"></i>
+            Spring
+            <small>(2)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;Spring&lt;---&gt;Payment">
+            <i class="fold iconfont icon-right"></i>
+            Payment
+            <small>(2)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;Spring&lt;---&gt;Payment&lt;---&gt;junit5">
+            <i class="fold iconfont icon-right"></i>
+            junit5
+            <small>(2)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;Spring&lt;---&gt;Payment&lt;---&gt;junit5&lt;---&gt;Mockito">
+            
+            Mockito
+            <small>(2)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;SpringBatch">
+            
+            SpringBatch
+            <small>(5)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;SpringBootAndSecurityAndJWT">
+            
+            SpringBootAndSecurityAndJWT
+            <small>(3)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;SpringCloudConfig">
+            
+            SpringCloudConfig
+            <small>(4)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;Transaction">
+            
+            Transaction
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;Validator">
+            
+            Validator
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="JavaScript">
+            <i class="fold iconfont icon-right"></i>
+            JavaScript
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="JavaScript&lt;---&gt;Webpack">
+            
+            Webpack
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="Kafka">
+            <i class="fold iconfont icon-right"></i>
+            Kafka
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="Kafka&lt;---&gt;idempotent">
+            
+            idempotent
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="KUBERNETES">
+            
+            KUBERNETES
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="MSA">
+            <i class="fold iconfont icon-right"></i>
+            MSA
+            <small>(3)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="MSA&lt;---&gt;Payment">
+            <i class="fold iconfont icon-right"></i>
+            Payment
+            <small>(3)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="MSA&lt;---&gt;Payment&lt;---&gt;Kafka">
+            <i class="fold iconfont icon-right"></i>
+            Kafka
+            <small>(3)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="MSA&lt;---&gt;Payment&lt;---&gt;Kafka&lt;---&gt;EDA">
+            <i class="fold iconfont icon-right"></i>
+            EDA
+            <small>(3)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="MSA&lt;---&gt;Payment&lt;---&gt;Kafka&lt;---&gt;EDA&lt;---&gt;CQRS">
+            
+            CQRS
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="MSA&lt;---&gt;Payment&lt;---&gt;Kafka&lt;---&gt;EDA&lt;---&gt;Saga">
+            <i class="fold iconfont icon-right"></i>
+            Saga
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="MSA&lt;---&gt;Payment&lt;---&gt;Kafka&lt;---&gt;EDA&lt;---&gt;Saga&lt;---&gt;Axon">
+            
+            Axon
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="NoSQL">
+            <i class="fold iconfont icon-right"></i>
+            NoSQL
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="NoSQL&lt;---&gt;Redis">
+            <i class="fold iconfont icon-right"></i>
+            Redis
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="NoSQL&lt;---&gt;Redis&lt;---&gt;RateLimiter">
+            
+            RateLimiter
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="R">
+            
+            R
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="대용량 트래픽">
+            <i class="fold iconfont icon-right"></i>
+            대용량 트래픽
+            <small>(3)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="대용량 트래픽&lt;---&gt;EDA">
+            <i class="fold iconfont icon-right"></i>
+            EDA
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="대용량 트래픽&lt;---&gt;EDA&lt;---&gt;Payment">
+            <i class="fold iconfont icon-right"></i>
+            Payment
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="대용량 트래픽&lt;---&gt;EDA&lt;---&gt;Payment&lt;---&gt;Redis">
+            <i class="fold iconfont icon-right"></i>
+            Redis
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="대용량 트래픽&lt;---&gt;EDA&lt;---&gt;Payment&lt;---&gt;Redis&lt;---&gt;Kafka">
+            
+            Kafka
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="대용량 트래픽&lt;---&gt;Redis">
+            <i class="fold iconfont icon-right"></i>
+            Redis
+            <small>(2)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="대용량 트래픽&lt;---&gt;Redis&lt;---&gt;Kafka">
+            
+            Kafka
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="대용량 트래픽&lt;---&gt;Redis&lt;---&gt;WebFlux">
+            <i class="fold iconfont icon-right"></i>
+            WebFlux
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="대용량 트래픽&lt;---&gt;Redis&lt;---&gt;WebFlux&lt;---&gt;접근자 대기열">
+            
+            접근자 대기열
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+</ul>
+<div class="left-bottom">
+    <div class="menus">
+        
+            
+            
+            
+    </div>
+    <div>
+        
+            <a class="about  hasFriend  site_url"
+               
+               href="/about">About</a>
+        
+        <a style="width: 50%"
+                
+                                           class="friends">Friends</a>
+        
+    </div>
+</div>
+<input type="hidden" id="yelog_site_posts_number" value="64">
+
+<div style="display: none">
+    <span id="busuanzi_value_site_uv"></span>
+    <span id="busuanzi_value_site_pv"></span>
+</div>
+
+    </div>
+    <div class="nav-right">
+        <div class="friends-area">
+    <div class="friends-title">
+        Links
+        <i class="iconfont icon-left"></i>
+    </div>
+    <div class="friends-content">
+        <ul>
+            
+            <li><a target="_blank" href="http://yelog.org/">叶落阁</a></li>
+            
+        </ul>
+    </div>
+</div>
+        <div class="title-list">
+    <div class="right-top">
+        <div id="default-panel">
+            <i class="iconfont icon-search" data-title="search shortcut key i"></i>
+            <div class="right-title">All</div>
+            <i class="iconfont icon-file-tree" data-title="switch to outline view shortcut key w"></i>
+        </div>
+        <div id="search-panel">
+            <i class="iconfont icon-left" data-title="return"></i>
+            <input id="local-search-input" autocomplete="off"/>
+            <label class="border-line" for="input"></label>
+            <i class="iconfont icon-case-sensitive" data-title="case sensitive"></i>
+            <i class="iconfont icon-tag" data-title="label"></i>
+        </div>
+        <div id="outline-panel" style="display: none">
+            <div class="right-title">outline</div>
+            <i class="iconfont icon-list" data-title="switch to article list"></i>
+        </div>
+    </div>
+
+    <div class="tags-list">
+    <input id="tag-search" />
+    <div class="tag-wrapper">
+        
+    </div>
+
+</div>
+
+    
+    <nav id="title-list-nav">
+        
+        
+        <a  class="All "
+           href="/2025/06/27/AWS/ImageResizing/imageTest/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title=""></span>
+            <span class="post-date" title="2025-06-27 20:10:06">2025/06/27</span>
+        </a>
+        
+        
+        <a  class="All AWS Image Resizing "
+           href="/2025/06/26/AWS/ImageResizing/aws-image-resizing/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="AWS Image Resizing 구현하기">AWS Image Resizing 구현하기</span>
+            <span class="post-date" title="2025-06-26 07:47:42">2025/06/26</span>
+        </a>
+        
+        
+        <a  class="All Elastic Search "
+           href="/2025/06/16/ELASTIC_SEARCH/introduction/elasticsearch-introduction/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Elastic Search 검색 활용기">Elastic Search 검색 활용기</span>
+            <span class="post-date" title="2025-06-16 07:47:42">2025/06/16</span>
+        </a>
+        
+        
+        <a  class="All Flink Real Time Kafka "
+           href="/2025/04/05/FLINK/introduction/Flink-Introduction/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Flink 이용해서 실시간 데이터 스트림 처리 해보기">Flink 이용해서 실시간 데이터 스트림 처리 해보기</span>
+            <span class="post-date" title="2025-04-05 07:47:42">2025/04/05</span>
+        </a>
+        
+        
+        <a  class="All Kafka idempotent "
+           href="/2024/12/23/KAFKA/idempotent/Kafka_idempotent/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="카프카 멱등성 및 이벤트 일관성 보장하기">카프카 멱등성 및 이벤트 일관성 보장하기</span>
+            <span class="post-date" title="2024-12-23 07:47:42">2024/12/23</span>
+        </a>
+        
+        
+        <a  class="All MSA Payment Kafka EDA CQRS "
+           href="/2024/12/16/MSA/paymentMsa/MSA_Payment_Project_3/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="결제 시스템으로 알아보는 MSA 3 - 쿼리 문제">결제 시스템으로 알아보는 MSA 3 - 쿼리 문제</span>
+            <span class="post-date" title="2024-12-16 07:47:42">2024/12/16</span>
+        </a>
+        
+        
+        <a  class="All MSA Payment Kafka EDA Saga Axon "
+           href="/2024/12/15/MSA/paymentMsa/MSA_Payment_Project_2/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="결제 시스템으로 알아보는 MSA 2 - 분산 트랜잭션 구현">결제 시스템으로 알아보는 MSA 2 - 분산 트랜잭션 구현</span>
+            <span class="post-date" title="2024-12-15 07:47:42">2024/12/15</span>
+        </a>
+        
+        
+        <a  class="All MSA Payment Kafka EDA "
+           href="/2024/12/14/MSA/paymentMsa/MSA_Payment_Project_1/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="결제 시스템으로 알아보는 MSA 1 - 기본 설명">결제 시스템으로 알아보는 MSA 1 - 기본 설명</span>
+            <span class="post-date" title="2024-12-14 07:47:42">2024/12/14</span>
+        </a>
+        
+        
+        <a  class="All 대용량 트래픽 EDA Payment Redis Kafka "
+           href="/2024/12/13/HIGH_VOLUME_TRAFFIC/PaymentEDA/PaymentEDA/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="결제 시스템으로 알아보는 EDA 시스템">결제 시스템으로 알아보는 EDA 시스템</span>
+            <span class="post-date" title="2024-12-13 07:47:42">2024/12/13</span>
+        </a>
+        
+        
+        <a  class="All DB Mysql optimizing "
+           href="/2024/12/06/DB/Mysql/optimizing/IndexDiveOptimizaiton/IndexDiveOptimizaiton/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Index Dive 최적화">Index Dive 최적화</span>
+            <span class="post-date" title="2024-12-06 07:47:42">2024/12/06</span>
+        </a>
+        
+        
+        <a  class="All JAVA Spring Payment junit5 Mockito "
+           href="/2024/12/03/JAVA/TEST/PaymentTesting/PaymentTesting2/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="결제 Testing - 2">결제 Testing - 2</span>
+            <span class="post-date" title="2024-12-03 15:50:00">2024/12/03</span>
+        </a>
+        
+        
+        <a  class="All JAVA Spring Payment junit5 Mockito "
+           href="/2024/12/02/JAVA/TEST/PaymentTesting/PaymentTesting1/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="결제 Testing - 1">결제 Testing - 1</span>
+            <span class="post-date" title="2024-12-02 15:50:00">2024/12/02</span>
+        </a>
+        
+        
+        <a  class="All 대용량 트래픽 Redis WebFlux 접근자 대기열 "
+           href="/2024/11/28/HIGH_VOLUME_TRAFFIC/AccessorQueuingSystem/AccessorQueuingSystem/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="대용량 트래픽 - 접근자 대기열 시스템 만들기">대용량 트래픽 - 접근자 대기열 시스템 만들기</span>
+            <span class="post-date" title="2024-11-28 07:47:42">2024/11/28</span>
+        </a>
+        
+        
+        <a  class="All 대용량 트래픽 Redis Kafka "
+           href="/2024/11/22/HIGH_VOLUME_TRAFFIC/CreateCoupon/CreateCoupon/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="대용량 트래픽 - 선착순 쿠폰 등록 With Kafka, Redis">대용량 트래픽 - 선착순 쿠폰 등록 With Kafka, Redis</span>
+            <span class="post-date" title="2024-11-22 07:47:42">2024/11/22</span>
+        </a>
+        
+        
+        <a  class="All NoSQL Redis RateLimiter "
+           href="/2024/11/19/NoSQL/Redis/RateLimiter/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Request Rate Limiter 구현하기">Request Rate Limiter 구현하기</span>
+            <span class="post-date" title="2024-11-19 07:47:42">2024/11/19</span>
+        </a>
+        
+        
+        <a  class="All CI-CD GitHubActions "
+           href="/2024/10/20/CI-CD/GitHunActions/GitHubActionsCICDWithSpringBoot6/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="GitHubActions CICD With SpringBoot - 6">GitHubActions CICD With SpringBoot - 6</span>
+            <span class="post-date" title="2024-10-20 07:47:42">2024/10/20</span>
+        </a>
+        
+        
+        <a  class="All CI-CD GitHubActions "
+           href="/2024/10/19/CI-CD/GitHunActions/GitHubActionsCICDWithSpringBoot5/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="GitHubActions CICD With SpringBoot - 5">GitHubActions CICD With SpringBoot - 5</span>
+            <span class="post-date" title="2024-10-19 07:47:42">2024/10/19</span>
+        </a>
+        
+        
+        <a  class="All CI-CD GitHubActions "
+           href="/2024/10/18/CI-CD/GitHunActions/GitHubActionsCICDWithSpringBoot4/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="GitHubActions CICD With SpringBoot - 4">GitHubActions CICD With SpringBoot - 4</span>
+            <span class="post-date" title="2024-10-18 07:47:42">2024/10/18</span>
+        </a>
+        
+        
+        <a  class="All CI-CD GitHubActions "
+           href="/2024/10/17/CI-CD/GitHunActions/GitHubActionsCICDWithSpringBoot3/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="GitHubActions CICD With SpringBoot - 3">GitHubActions CICD With SpringBoot - 3</span>
+            <span class="post-date" title="2024-10-17 07:47:42">2024/10/17</span>
+        </a>
+        
+        
+        <a  class="All CI-CD GitHubActions "
+           href="/2024/10/14/CI-CD/GitHunActions/GitHubActionsCICDWithSpringBoot2/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="GitHubActions CICD With SpringBoot - 2">GitHubActions CICD With SpringBoot - 2</span>
+            <span class="post-date" title="2024-10-14 07:47:42">2024/10/14</span>
+        </a>
+        
+        
+        <a  class="All CI-CD GitHubActions "
+           href="/2024/10/14/CI-CD/GitHunActions/GitHubActionsCICDWithSpringBoot1/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="GitHubActions CICD With SpringBoot - 1">GitHubActions CICD With SpringBoot - 1</span>
+            <span class="post-date" title="2024-10-14 07:47:42">2024/10/14</span>
+        </a>
+        
+        
+        <a  class="All DB Mysql Paging "
+           href="/2024/10/06/DB/Mysql/PagingQuery/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Paging Query 성능 개선 및 처리 방법 - 튜닝편">Paging Query 성능 개선 및 처리 방법 - 튜닝편</span>
+            <span class="post-date" title="2024-10-06 07:47:42">2024/10/06</span>
+        </a>
+        
+        
+        <a  class="All DB Mysql DBCP "
+           href="/2024/10/02/DB/Mysql/mysqlDBCP/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="DBCP 설정 방법">DBCP 설정 방법</span>
+            <span class="post-date" title="2024-10-02 07:47:42">2024/10/02</span>
+        </a>
+        
+        
+        <a  class="All JAVA Object "
+           href="/2024/08/24/JAVA/Object/InheritanceComposition2/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="상속과 합성 이야기-2">상속과 합성 이야기-2</span>
+            <span class="post-date" title="2024-08-24 15:50:00">2024/08/24</span>
+        </a>
+        
+        
+        <a  class="All JAVA Object "
+           href="/2024/08/23/JAVA/Object/InheritanceComposition1/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="상속과 합성 이야기-1">상속과 합성 이야기-1</span>
+            <span class="post-date" title="2024-08-23 15:50:00">2024/08/23</span>
+        </a>
+        
+        
+        <a  class="All JAVA Payment "
+           href="/2024/08/06/JAVA/Payment/PaymentTransactionalOutboxpattern/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="결제 시스템 구축 - 5">결제 시스템 구축 - 5</span>
+            <span class="post-date" title="2024-08-06 15:50:00">2024/08/06</span>
+        </a>
+        
+        
+        <a  class="All JAVA Payment "
+           href="/2024/08/05/JAVA/Payment/PaymentRetry/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="결제 시스템 구축 - 4">결제 시스템 구축 - 4</span>
+            <span class="post-date" title="2024-08-05 15:50:00">2024/08/05</span>
+        </a>
+        
+        
+        <a  class="All JAVA Payment "
+           href="/2024/07/28/JAVA/Payment/BuildingPaymentSystem/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="결제 시스템 구축 - 1">결제 시스템 구축 - 1</span>
+            <span class="post-date" title="2024-07-28 15:50:00">2024/07/28</span>
+        </a>
+        
+        
+        <a  class="All JAVA Payment "
+           href="/2024/07/28/JAVA/Payment/PaymentCheckOut/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="결제 시스템 구축 - 2">결제 시스템 구축 - 2</span>
+            <span class="post-date" title="2024-07-28 15:50:00">2024/07/28</span>
+        </a>
+        
+        
+        <a  class="All JAVA Payment "
+           href="/2024/07/28/JAVA/Payment/PaymentConfirm/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="결제 시스템 구축 - 3">결제 시스템 구축 - 3</span>
+            <span class="post-date" title="2024-07-28 15:50:00">2024/07/28</span>
+        </a>
+        
+        
+        <a  class="All "
+           href="/2024/05/31/hello-world/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Hello World">Hello World</span>
+            <span class="post-date" title="2024-05-31 22:32:19">2024/05/31</span>
+        </a>
+        
+        
+        <a  class="All "
+           href="/2024/05/31/README/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title=""></span>
+            <span class="post-date" title="2024-05-31 22:32:19">2024/05/31</span>
+        </a>
+        
+        
+        <a  class="All JAVA Security "
+           href="/2024/05/30/JAVA/Security/AnonymousAuthenticationFilter/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="AnonymousAuthenticationFilter">AnonymousAuthenticationFilter</span>
+            <span class="post-date" title="2024-05-30 10:04:43">2024/05/30</span>
+        </a>
+        
+        
+        <a  class="All "
+           href="/2024/02/01/HIGH_VOLUME_TRAFFIC/AccessorQueuingSystem2/AccessorQueuingSystem/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="패스트캠퍼스 9개 프로젝트로 경험하는 대용량 트래픽 &amp; 데이터 처리 초격차 패키지 Online. 수강">패스트캠퍼스 9개 프로젝트로 경험하는 대용량 트래픽 &amp; 데이터 처리 초격차 패키지 Online. 수강</span>
+            <span class="post-date" title="2024-02-01 00:00:00">2024/02/01</span>
+        </a>
+        
+        
+        <a  class="All Authentication JWT "
+           href="/2021/11/27/AUTHTICATION/JWT/jwt/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="JWT (JSON Web Token) 이해하기">JWT (JSON Web Token) 이해하기</span>
+            <span class="post-date" title="2021-11-27 07:47:42">2021/11/27</span>
+        </a>
+        
+        
+        <a  class="All Authentication Oauth "
+           href="/2021/11/27/AUTHTICATION/OAUTH/oauth/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="OAUTH 2.0 이해하기">OAUTH 2.0 이해하기</span>
+            <span class="post-date" title="2021-11-27 07:47:42">2021/11/27</span>
+        </a>
+        
+        
+        <a  class="All JAVA HTTP FeignClient "
+           href="/2021/11/08/JAVA/HTTP/FeignClient/FeignClient/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="FeignClient 활용도">FeignClient 활용도</span>
+            <span class="post-date" title="2021-11-08 10:04:43">2021/11/08</span>
+        </a>
+        
+        
+        <a  class="All JAVA SpringBatch "
+           href="/2021/11/04/JAVA/Batch/SpringBatch5/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Batch - Chunk 5">Spring Batch - Chunk 5</span>
+            <span class="post-date" title="2021-11-04 07:47:42">2021/11/04</span>
+        </a>
+        
+        
+        <a  class="All JAVA SpringBatch "
+           href="/2021/10/30/JAVA/Batch/SpringBatch4/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Batch - Flow 4">Spring Batch - Flow 4</span>
+            <span class="post-date" title="2021-10-30 07:47:42">2021/10/30</span>
+        </a>
+        
+        
+        <a  class="All JAVA SpringBatch "
+           href="/2021/10/24/JAVA/Batch/SpringBatch3/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Batch - 메타데이터 스키마 3">Spring Batch - 메타데이터 스키마 3</span>
+            <span class="post-date" title="2021-10-24 07:47:42">2021/10/24</span>
+        </a>
+        
+        
+        <a  class="All JAVA SpringBatch "
+           href="/2021/10/19/JAVA/Batch/SpringBatch2/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Batch - Job, Step 2">Spring Batch - Job, Step 2</span>
+            <span class="post-date" title="2021-10-19 07:47:42">2021/10/19</span>
+        </a>
+        
+        
+        <a  class="All JAVA SpringBatch "
+           href="/2021/10/17/JAVA/Batch/SpringBatch1/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Batch 1">Spring Batch 1</span>
+            <span class="post-date" title="2021-10-17 07:47:42">2021/10/17</span>
+        </a>
+        
+        
+        <a  class="All JAVA SpringCloudConfig "
+           href="/2021/09/13/JAVA/SpringCloudConfig/spring-cloud-config4/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="비대칭키를 이용한 application.yml 설정값 암호화">비대칭키를 이용한 application.yml 설정값 암호화</span>
+            <span class="post-date" title="2021-09-13 07:47:45">2021/09/13</span>
+        </a>
+        
+        
+        <a  class="All JAVA SpringCloudConfig "
+           href="/2021/09/13/JAVA/SpringCloudConfig/spring-cloud-config3/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Cloud Bus">Spring Cloud Bus</span>
+            <span class="post-date" title="2021-09-13 07:47:44">2021/09/13</span>
+        </a>
+        
+        
+        <a  class="All JAVA SpringCloudConfig "
+           href="/2021/09/13/JAVA/SpringCloudConfig/spring-cloud-config2/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Boot Actuator">Spring Boot Actuator</span>
+            <span class="post-date" title="2021-09-13 07:47:43">2021/09/13</span>
+        </a>
+        
+        
+        <a  class="All JAVA SpringCloudConfig "
+           href="/2021/09/13/JAVA/SpringCloudConfig/spring-cloud-config/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Cloud Config">Spring Cloud Config</span>
+            <span class="post-date" title="2021-09-13 07:47:42">2021/09/13</span>
+        </a>
+        
+        
+        <a  class="All JAVA Transaction "
+           href="/2021/03/14/JAVA/Transaction/multi-transaction/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Java Multi-Transaction 관리">Java Multi-Transaction 관리</span>
+            <span class="post-date" title="2021-03-14 07:47:42">2021/03/14</span>
+        </a>
+        
+        
+        <a  class="All JAVA Validator "
+           href="/2020/12/18/JAVA/VALIDATOR/validator/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Java Validator 관리">Java Validator 관리</span>
+            <span class="post-date" title="2020-12-18 07:47:42">2020/12/18</span>
+        </a>
+        
+        
+        <a  class="All JAVA Security "
+           href="/2020/11/19/JAVA/Security/SessionManagementFilterAndConcurrentSessionFilter/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="SessionManagementFilterAndConcurrentSessionFilter">SessionManagementFilterAndConcurrentSessionFilter</span>
+            <span class="post-date" title="2020-11-19 18:02:23">2020/11/19</span>
+        </a>
+        
+        
+        <a  class="All JAVA Security "
+           href="/2020/11/14/JAVA/Security/RememberMeAuthenticationFilter/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="RememberMeAuthenticationFilter">RememberMeAuthenticationFilter</span>
+            <span class="post-date" title="2020-11-14 07:40:06">2020/11/14</span>
+        </a>
+        
+        
+        <a  class="All JAVA Security "
+           href="/2020/11/13/JAVA/Security/UsernamePasswordAuthenticationFilter/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="UsernamePasswordAuthenticationFilter">UsernamePasswordAuthenticationFilter</span>
+            <span class="post-date" title="2020-11-13 08:51:13">2020/11/13</span>
+        </a>
+        
+        
+        <a  class="All CI-CD Jenkins "
+           href="/2020/11/09/CI-CD/Jenkins/JenkinsGitLabConnect/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Jenkins_GitLab_연동">Jenkins_GitLab_연동</span>
+            <span class="post-date" title="2020-11-09 07:47:42">2020/11/09</span>
+        </a>
+        
+        
+        <a  class="All CI-CD Jenkins "
+           href="/2020/11/08/CI-CD/Jenkins/JenkinsGitLabSshConnect/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="젠킨스와 GitLab ssh 연동하기">젠킨스와 GitLab ssh 연동하기</span>
+            <span class="post-date" title="2020-11-08 07:47:42">2020/11/08</span>
+        </a>
+        
+        
+        <a  class="All JAVA JPA "
+           href="/2020/11/08/JAVA/JPA/eagerJpqlNplus1/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="eagerJpqlNplus1">eagerJpqlNplus1</span>
+            <span class="post-date" title="2020-11-08 07:47:42">2020/11/08</span>
+        </a>
+        
+        
+        <a  class="All JAVA SpringBootAndSecurityAndJWT "
+           href="/2020/11/08/JAVA/SpringBootAndSecurityAndJWT/spring-boot-security-jwt-social/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Boot 를 이용해 JWT + Social 로그인 처리 - Authorization Server (일반 로그인)">Spring Boot 를 이용해 JWT + Social 로그인 처리 - Authorization Server (일반 로그인)</span>
+            <span class="post-date" title="2020-11-08 07:47:42">2020/11/08</span>
+        </a>
+        
+        
+        <a  class="All JAVA SpringBootAndSecurityAndJWT "
+           href="/2020/11/08/JAVA/SpringBootAndSecurityAndJWT/spring-boot-security-jwt-social2/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Boot 를 이용해 JWT + Social 로그인 처리 - Authorization Server (Social 로그인)">Spring Boot 를 이용해 JWT + Social 로그인 처리 - Authorization Server (Social 로그인)</span>
+            <span class="post-date" title="2020-11-08 07:47:42">2020/11/08</span>
+        </a>
+        
+        
+        <a  class="All JAVA SpringBootAndSecurityAndJWT "
+           href="/2020/11/08/JAVA/SpringBootAndSecurityAndJWT/spring-boot-security-jwt-social3/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Boot 를 이용해 JWT + Social 로그인 처리 - Resource Server">Spring Boot 를 이용해 JWT + Social 로그인 처리 - Resource Server</span>
+            <span class="post-date" title="2020-11-08 07:47:42">2020/11/08</span>
+        </a>
+        
+        
+        <a  class="All J Jenkins "
+           href="/2020/11/07/JAVA/Security/JKSGenerate/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="JKSGenerate">JKSGenerate</span>
+            <span class="post-date" title="2020-11-07 13:46:21">2020/11/07</span>
+        </a>
+        
+        
+        <a  class="All CI-CD Jenkins "
+           href="/2020/11/07/CI-CD/Jenkins/JenkinsInstall/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="쿠버네티스 환경 구성">쿠버네티스 환경 구성</span>
+            <span class="post-date" title="2020-11-07 07:47:42">2020/11/07</span>
+        </a>
+        
+        
+        <a  class="All DB Mysql "
+           href="/2020/11/07/DB/Mysql/mysqlReplicationSetting/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Mysql_Replication_설정">Mysql_Replication_설정</span>
+            <span class="post-date" title="2020-11-07 07:47:42">2020/11/07</span>
+        </a>
+        
+        
+        <a  class="All KUBERNETES "
+           href="/2020/11/07/KUBERNETES/%EC%89%BD%EA%B2%8C_%EC%8B%9C%EC%9E%91%ED%95%98%EB%8A%94_%EC%BF%A0%EB%B2%84%EB%84%A4%ED%8B%B0%EC%8A%A4/%EC%BF%A0%EB%B2%84%EB%84%A4%ED%8B%B0%EC%8A%A4_%ED%99%98%EA%B2%BD_%EA%B5%AC%EC%84%B1/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Jenkins_설치">Jenkins_설치</span>
+            <span class="post-date" title="2020-11-07 07:47:42">2020/11/07</span>
+        </a>
+        
+        
+        <a  class="All R "
+           href="/2020/10/17/R/RServerInstall/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="RServer 설치">RServer 설치</span>
+            <span class="post-date" title="2020-10-17 07:47:42">2020/10/17</span>
+        </a>
+        
+        
+        <a  class="All JavaScript Webpack "
+           href="/2020/10/17/JAVASCRIPT/Webpack/devtool/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="WebPack - DevTool">WebPack - DevTool</span>
+            <span class="post-date" title="2020-10-17 07:47:42">2020/10/17</span>
+        </a>
+        
+        
+        <a  class="All "
+           href="/2018/12/02/%EB%A9%B4%EC%A0%91%EC%A4%80%EB%B9%84/test/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="그냥... 잡다한 지식 모음집">그냥... 잡다한 지식 모음집</span>
+            <span class="post-date" title="2018-12-02 15:50:00">2018/12/02</span>
+        </a>
+        
+        <div id="no-item-tips">
+
+        </div>
+    </nav>
+    <div id="outline-list">
+    </div>
+</div>
+
+    </div>
+    <div class="hide-list">
+        <div class="semicircle" data-title="Toggle full screen shortcut key s">
+            <div class="brackets first"><</div>
+            <div class="brackets">&gt;</div>
+        </div>
+    </div>
+</aside>
+<div id="post">
+    <div class="pjax">
+        <article id="post-AWS/ImageResizing/aws-image-resizing" class="article article-type-post" itemscope itemprop="blogPost">
+    
+        <h1 class="article-title">AWS Image Resizing 구현하기</h1>
+    
+    <div class="article-meta">
+        
+        
+        
+        <span class="book">
+            <i class="iconfont icon-category"></i>
+            
+            
+            <a  data-rel="AWS">AWS</a> > 
+            
+            <a  data-rel="AWS&lt;---&gt;Image Resizing">Image Resizing</a>
+            
+        </span>
+        
+        
+    </div>
+    <div class="article-meta">
+        
+            Created At : <time class="date" title='Updated At: 2025-06-27 20:09:49'>2025-06-26 07:47</time>
+        
+    </div>
+    <div class="article-meta">
+        
+        
+        <span id="busuanzi_container_page_pv">
+            Views 👀 :<span id="busuanzi_value_page_pv">
+                <span class="count-comment">
+                    <span class="spinner">
+                      <div class="cube1"></div>
+                      <div class="cube2"></div>
+                    </span>
+                </span>
+            </span>
+        </span>
+        
+        
+    </div>
+    
+    <div class="toc-ref">
+    
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%EC%B5%9C%EC%B4%88-%EC%9D%B4%EB%AF%B8%EC%A7%80-%EB%93%B1%EB%A1%9D-%EC%8B%9C-%EC%9B%90%ED%95%98%EB%8A%94-%ED%81%AC%EA%B8%B0%EB%A1%9C-image-resizing-%EC%9D%84-%ED%95%B4%EC%84%9C-S3-%EC%97%90-%EC%A0%80%EC%9E%A5-%ED%95%98%EB%8A%94-%EB%B0%A9%EB%B2%95"><span class="toc-text">1. 최초 이미지 등록 시 원하는 크기로 image-resizing 을 해서 S3 에 저장 하는 방법</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-S3-Lambda-CloudFront-API-Gateway-Image-Handler-%EC%84%9C%EB%B2%84%EB%A6%AC%EC%8A%A4-%EB%B0%A9%EC%8B%9D"><span class="toc-text">2. S3 + Lambda + CloudFront + API Gateway +Image Handler (서버리스 방식)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#AWS-%EA%B5%AC%EC%B6%95-%EB%B0%A9%EB%B2%95"><span class="toc-text">AWS 구축 방법</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#S3-%EB%B2%84%ED%82%B7-%EC%83%9D%EC%84%B1"><span class="toc-text">S3 버킷 생성</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#IAM-%EC%83%9D%EC%84%B1"><span class="toc-text">IAM 생성</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Lambda-%EC%83%9D%EC%84%B1"><span class="toc-text">Lambda 생성</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#API-Gateway-%EC%83%9D%EC%84%B1"><span class="toc-text">API Gateway 생성</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Cloud-Front-%EC%83%9D%EC%84%B1"><span class="toc-text">Cloud Front 생성</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%EC%8B%A4%ED%97%98-%ED%95%B4%EB%B3%B4%EA%B8%B0"><span class="toc-text">실험 해보기</span></a></li></ol></li></ol>
+    
+<style>
+    .left-col .switch-btn,
+    .left-col .switch-area {
+        display: none;
+    }
+    .toc-level-3 i,
+    .toc-level-3 ol {
+        display: none !important;
+    }
+</style>
+</div>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>이미지 리사이징 기능을 구현하기 위해 AWS 에서 <code>S3</code> 와 <code>Lambda</code> 를 이용해서 이미지 리사이징을 거쳐 사용자에게 빠른 로딩 응답을 보장 할 수 있습니다.</p>
+<p>AWS 에서 <code>S3</code> 와 <code>Lambda</code> 를 이용해서 <code>image-resizing</code> 을 구현하기 위해 대표적으로 2가지 방법이 존재 합니다.</p>
+<h2 id="1-최초-이미지-등록-시-원하는-크기로-image-resizing-을-해서-S3-에-저장-하는-방법"><a href="#1-최초-이미지-등록-시-원하는-크기로-image-resizing-을-해서-S3-에-저장-하는-방법" class="headerlink" title="1. 최초 이미지 등록 시 원하는 크기로 image-resizing 을 해서 S3 에 저장 하는 방법"></a>1. 최초 이미지 등록 시 원하는 크기로 <code>image-resizing</code> 을 해서 <code>S3</code> 에 저장 하는 방법</h2><p>이 방법은 최초 이미지를 등록 할때 마다 <code>image-resizing</code>  해서 <code>S3</code> 에 저장 하는 방식 입니다.</p>
+<p>자세하게 말하자면 특정 <code>S3</code> 의 <code>bucket</code> 에 저장 하면 <code>Lambda</code> 에서 특정 트리거로 인해 <code>image-resizing</code>  작업을 거쳐 원본 이미지 데이터와 함께 resizing 된 이미지도 저장 하는 방식 입니다.</p>
+<p>단점 으로는 개발 기간이 많이 필요 하고 기존 <code>S3</code> 에 원본 이미지 파일 저장 함께 resizing 된 이미지 파일도 저장 해야 합니다.</p>
+<h2 id="2-S3-Lambda-CloudFront-API-Gateway-Image-Handler-서버리스-방식"><a href="#2-S3-Lambda-CloudFront-API-Gateway-Image-Handler-서버리스-방식" class="headerlink" title="2. S3 + Lambda + CloudFront + API Gateway +Image Handler (서버리스 방식)"></a>2. S3 + Lambda + CloudFront + API Gateway +Image Handler (서버리스 방식)</h2><p><img src="/../../../img/AWS/ImageResizing/ImageResizingArchitecture.png" alt="ImageResizingArchitecture"></p>
+<p>두번째 방식은 기존에 저장되어 있던 원본 이미지 파일을 유지 하되 프론트 환경에서 이미지를 불러 올때 마다 먼저 image resizing 전용 <code>Cloud Front</code> 서버로 호출하고 해당 캐시된 리사이징 이미지가 존재 하지 않으면 <code>API gateway</code> 로 호출을 해서 <code>image-resizing</code>  작업(<code>Lambda</code> 함수 호출) 이 발생 하는 <code>Lambda</code> 서버로 트리거 됩니다. 이때 이미지는 리사이징 되면서 리사이징 된 이미지는 <code>S3</code> 에 저장하고 응답 하는 방식 입니다.</p>
+<ol>
+<li><strong>원하는 해상도 포함해서 이미지를 요청 (Cloud Front 서버에 호출 한다.)</strong> ex) https:&#x2F;&#x2F;{아이디값}.cloudfront.net&#x2F;test2.png?w&#x3D;200&amp;h&#x3D;200</li>
+<li><strong>CloudFront 서버에서 캐싱된 이미지가 있으면 바로 응답하지만 만약 존재하지 않으면</strong> <code>API gateway</code><strong>서버에 호출 합니다.</strong></li>
+<li><code>API gateway</code> 서버에서는 <code>S3</code> 에 원본 이미지 파일을 가져와서 resizing 작업을 거친 후 최종적으로 사용자에게 응답을 하게 됩니다.</li>
+<li><code>Lambda</code> 서버에서는 요청 받는 이미지를 <code>resizing</code> 하게 되고 <code>resizing</code> 한 이미지는 <code>S3</code> 에 저장을 하게 됩니다. 동시에 사용자에게 응답을 하게 됩니다.</li>
+</ol>
+<h2 id="AWS-구축-방법"><a href="#AWS-구축-방법" class="headerlink" title="AWS 구축 방법"></a>AWS 구축 방법</h2><h3 id="S3-버킷-생성"><a href="#S3-버킷-생성" class="headerlink" title="S3 버킷 생성"></a><strong>S3 버킷 생성</strong></h3><p><img src="/../../../img/AWS/ImageResizing/S3BucketCreate1.png" alt="S3 버킷 생성"><br><img src="/../../../img/AWS/ImageResizing/S3BucketCreate2.png" alt="S3 버킷 생성"><br>S3 콘솔 에서 <code>bucket</code> 을 생성 하도록 합니다.</p>
+<p>생성한 <code>bucket</code> 에 이동하고 <code>권한</code> → <code>버킷 정책</code> 으로 이동 해서 버킷 정책을 변경 합니다.</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line"><span class="code">	&quot;Version&quot;: &quot;2012-10-17&quot;,</span></span><br><span class="line"><span class="code">	&quot;Statement&quot;: [</span></span><br><span class="line"><span class="code">			&#123;</span></span><br><span class="line"><span class="code">				&quot;Sid&quot;: &quot;PublicReadGetObject&quot;,</span></span><br><span class="line"><span class="code">				&quot;Effect&quot;: &quot;Allow&quot;,</span></span><br><span class="line"><span class="code">				&quot;Principal&quot;: &quot;&quot;,</span></span><br><span class="line"><span class="code">				&quot;Action&quot;: &quot;s3:GetObject&quot;,</span></span><br><span class="line"><span class="code">				&quot;Resource&quot;: &quot;arn:aws:s3:::$&#123;버킷 아이디값&#125;/&quot;</span></span><br><span class="line"><span class="code">			&#125;</span></span><br><span class="line"><span class="code">	]</span></span><br><span class="line"><span class="code">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="IAM-생성"><a href="#IAM-생성" class="headerlink" title="IAM 생성"></a>IAM 생성</h3><p><img src="/../../../img/AWS/ImageResizing/IAM-Policy-Create1.png" alt="IAM-Policy-Create1.png"></p>
+<p>AWS <code>IAM</code> 콘솔 접속 해서 왼쪽 메뉴에  <code>정책</code> 우측 상단에 <code>정책 생성</code> 을 클릭 합니다.</p>
+<p><img src="/../../../img/AWS/ImageResizing/IAM-Policy-Create2.png" alt="IAM-Policy-Create2.png"></p>
+<p><code>JSON</code> 탭 선택 후 다음과 같이 입력 합니다.</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">	<span class="attr">&quot;Version&quot;</span><span class="punctuation">:</span> <span class="string">&quot;2012-10-17&quot;</span><span class="punctuation">,</span></span><br><span class="line">	<span class="attr">&quot;Statement&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">			<span class="punctuation">&#123;</span></span><br><span class="line">				<span class="attr">&quot;Sid&quot;</span><span class="punctuation">:</span> <span class="string">&quot;VisualEditor0&quot;</span><span class="punctuation">,</span></span><br><span class="line">				<span class="attr">&quot;Effect&quot;</span><span class="punctuation">:</span> <span class="string">&quot;Allow&quot;</span><span class="punctuation">,</span></span><br><span class="line">				<span class="attr">&quot;Action&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">						<span class="string">&quot;lambda:GetFunction&quot;</span><span class="punctuation">,</span></span><br><span class="line">						<span class="string">&quot;lambda:EnableReplication*&quot;</span><span class="punctuation">,</span></span><br><span class="line">						<span class="string">&quot;cloudfront:UpdateDistribution&quot;</span><span class="punctuation">,</span></span><br><span class="line">						<span class="string">&quot;s3:GetObject&quot;</span><span class="punctuation">,</span></span><br><span class="line">						<span class="string">&quot;s3:PutObject&quot;</span><span class="punctuation">,</span></span><br><span class="line">						<span class="string">&quot;logs:PutLogEvents&quot;</span></span><br><span class="line">				<span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">				<span class="attr">&quot;Resource&quot;</span><span class="punctuation">:</span> <span class="string">&quot;*&quot;</span></span><br><span class="line">			<span class="punctuation">&#125;</span></span><br><span class="line">	<span class="punctuation">]</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="/../../../img/AWS/ImageResizing/IAM-Role-Create1.png" alt="IAM-Role-Create1.png"></p>
+<p>이번에는 역할을 생성 해야 합니다. AWS <code>IAM</code> 콘솔 접속 해서 왼쪽 메뉴에  <code>역할</code> 우측 상단에 <code>역할 생성</code> 을 클릭 합니다.</p>
+<p><img src="/../../../img/AWS/ImageResizing/IAM-Role-Create2.png" alt="IAM-Role-Create2.png"></p>
+<p><code>신뢰할 수 있는 엔티티 유형</code> 에서 <code>AWS 서비스</code> 를 선택하고 <code>사용 사례</code> 를 <code>Lambda</code> 로 선택 하도록 합니다.</p>
+<p><img src="/../../../img/AWS/ImageResizing/IAM-Role-Create3.png" alt="IAM-Role-Create3.png"></p>
+<p>이전에 생성했던 <code>정책</code> 명을 검색해서 선택 후 다음을 눌러서 역할을 생성 합니다.</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br></pre></td><td class="code"><pre><span class="line">const AWS = require(&#x27;aws-sdk&#x27;);</span><br><span class="line">const sharp = require(&#x27;sharp&#x27;);</span><br><span class="line"></span><br><span class="line">const s3 = new AWS.S3(&#123; region: &#x27;ap-northeast-2&#x27; &#125;);</span><br><span class="line">const SOURCE<span class="emphasis">_BUCKET = &#x27;$&#123;원본 이미지 저장 된 버킷명&#125;&#x27;;</span></span><br><span class="line"><span class="emphasis">const CACHE_</span>BUCKET = &#x27;$&#123;저장 하고자 하는 리사이징 된 이미지 버킷명&#125;&#x27;;</span><br><span class="line">const CACHE<span class="emphasis">_PREFIX = &#x27;resized/&#x27;;</span></span><br><span class="line"><span class="emphasis"></span></span><br><span class="line"><span class="emphasis">exports.handler = async (event) =&gt; &#123;</span></span><br><span class="line"><span class="emphasis">    try &#123;</span></span><br><span class="line"><span class="emphasis">        const path = event.pathParameters?.proxy;</span></span><br><span class="line"><span class="emphasis">        const query = event.queryStringParameters || &#123;&#125;;</span></span><br><span class="line"><span class="emphasis">        const width = parseInt(query.w, 10);</span></span><br><span class="line"><span class="emphasis">        const height = parseInt(query.h, 10);</span></span><br><span class="line"><span class="emphasis">    </span></span><br><span class="line"><span class="emphasis">        if (!path || (!width &amp;&amp; !height)) &#123;</span></span><br><span class="line"><span class="emphasis">          console.error(&quot;Invalid path or dimensions:&quot;, path, width, height);</span></span><br><span class="line"><span class="emphasis">          return &#123;</span></span><br><span class="line"><span class="emphasis">            statusCode: 400,</span></span><br><span class="line"><span class="emphasis">            body: &#x27;Invalid image path or dimensions.&#x27;</span></span><br><span class="line"><span class="emphasis">          &#125;;</span></span><br><span class="line"><span class="emphasis">        &#125;</span></span><br><span class="line"><span class="emphasis">    </span></span><br><span class="line"><span class="emphasis">        const dotIndex = path.lastIndexOf(&#x27;.&#x27;);</span></span><br><span class="line"><span class="emphasis">        if (dotIndex === -1) &#123;</span></span><br><span class="line"><span class="emphasis">          console.error(&quot;Invalid file path (no extension):&quot;, path);</span></span><br><span class="line"><span class="emphasis">          return &#123;</span></span><br><span class="line"><span class="emphasis">            statusCode: 400,</span></span><br><span class="line"><span class="emphasis">            body: &#x27;Invalid file path.&#x27;</span></span><br><span class="line"><span class="emphasis">          &#125;;</span></span><br><span class="line"><span class="emphasis">        &#125;</span></span><br><span class="line"><span class="emphasis">    </span></span><br><span class="line"><span class="emphasis">        const filename = path.substring(0, dotIndex);</span></span><br><span class="line"><span class="emphasis">        const ext = path.substring(dotIndex + 1).toLowerCase();</span></span><br><span class="line"><span class="emphasis">        const format = ext === &#x27;jpg&#x27; ? &#x27;jpeg&#x27; : ext;</span></span><br><span class="line"><span class="emphasis">        const supportedFormats = [&#x27;jpeg&#x27;, &#x27;png&#x27;, &#x27;webp&#x27;, &#x27;avif&#x27;];</span></span><br><span class="line"><span class="emphasis">    </span></span><br><span class="line"><span class="emphasis">        if (!supportedFormats.includes(format)) &#123;</span></span><br><span class="line"><span class="emphasis">          return &#123;</span></span><br><span class="line"><span class="emphasis">            statusCode: 415,</span></span><br><span class="line"><span class="emphasis">            body: `Unsupported format: $&#123;format&#125;`</span></span><br><span class="line"><span class="emphasis">          &#125;;</span></span><br><span class="line"><span class="emphasis">        &#125;</span></span><br><span class="line"><span class="emphasis">    </span></span><br><span class="line"><span class="emphasis">        const sourceKey = decodeURIComponent(path);</span></span><br><span class="line"><span class="emphasis">        const resizedKey = `$&#123;CACHE_</span>PREFIX&#125;$&#123;filename&#125;-$&#123;width || &#x27;&#x27;&#125;x$&#123;height || &#x27;&#x27;&#125;.$&#123;format&#125;`;</span><br><span class="line"><span class="code">    </span></span><br><span class="line"><span class="code">        console.log(&quot;event:&quot;, JSON.stringify(event, null, 2));</span></span><br><span class="line"><span class="code">        console.log(&quot;Query:&quot;, query);</span></span><br><span class="line"><span class="code">        console.log(&quot;Filename:&quot;, filename, &quot;Ext:&quot;, ext, &quot;Format:&quot;, format);</span></span><br><span class="line"><span class="code">        console.log(&quot;Resized S3 Key:&quot;, resizedKey);</span></span><br><span class="line"><span class="code">    </span></span><br><span class="line"><span class="code">        // 1. 원본 이미지 가져오기</span></span><br><span class="line"><span class="code">        const sourceImage = await s3.getObject(&#123;</span></span><br><span class="line"><span class="code">          Bucket: SOURCE_BUCKET,</span></span><br><span class="line"><span class="code">          Key: sourceKey</span></span><br><span class="line"><span class="code">        &#125;).promise();</span></span><br><span class="line"><span class="code">    </span></span><br><span class="line"><span class="code">        // 2. 리사이징</span></span><br><span class="line"><span class="code">        const resizedImage = await sharp(sourceImage.Body)</span></span><br><span class="line"><span class="code">          .resize(width || null, height || null)</span></span><br><span class="line"><span class="code">          .toFormat(format)</span></span><br><span class="line"><span class="code">          .toBuffer();</span></span><br><span class="line"><span class="code">    </span></span><br><span class="line"><span class="code">        // 3. 캐시 저장</span></span><br><span class="line"><span class="code">        await s3.putObject(&#123;</span></span><br><span class="line"><span class="code">          Bucket: CACHE_BUCKET,</span></span><br><span class="line"><span class="code">          Key: resizedKey,</span></span><br><span class="line"><span class="code">          Body: resizedImage,</span></span><br><span class="line"><span class="code">          ContentType: `image/$&#123;format&#125;`,</span></span><br><span class="line"><span class="code">          CacheControl: &#x27;max-age=31536000&#x27;</span></span><br><span class="line"><span class="code">        &#125;).promise();</span></span><br><span class="line"><span class="code">    </span></span><br><span class="line"><span class="code">        return &#123;</span></span><br><span class="line"><span class="code">          statusCode: 200,</span></span><br><span class="line"><span class="code">          headers: &#123;</span></span><br><span class="line"><span class="code">            &#x27;Content-Type&#x27;: `image/$&#123;format&#125;`,</span></span><br><span class="line"><span class="code">            &#x27;Cache-Control&#x27;: &#x27;max-age=31536000&#x27;</span></span><br><span class="line"><span class="code">          &#125;,</span></span><br><span class="line"><span class="code">          isBase64Encoded: true,</span></span><br><span class="line"><span class="code">          body: resizedImage.toString(&#x27;base64&#x27;)</span></span><br><span class="line"><span class="code">        &#125;;</span></span><br><span class="line"><span class="code">    </span></span><br><span class="line"><span class="code">    &#125; catch (err) &#123;</span></span><br><span class="line"><span class="code">        console.error(&#x27;Resize Error:&#x27;, err);</span></span><br><span class="line"><span class="code">        return &#123;</span></span><br><span class="line"><span class="code">            statusCode: 500,</span></span><br><span class="line"><span class="code">            body: `Image processing failed: $&#123;err.message&#125;`</span></span><br><span class="line"><span class="code">        &#125;;</span></span><br><span class="line"><span class="code">    &#125;</span></span><br><span class="line"><span class="code">&#125;;</span></span><br></pre></td></tr></table></figure>
+<p><code>index.js</code> 파일에 해당 로직을 추가 하도록 합니다. 간단하게 말하자면 <code>sharp</code> 라이브러리를 이용해서 S3 에 저장 된 원본 이미지를 가져와서 <code>Resizing</code> 처리 하고 이후 S3 에 <code>Resizing</code> 된 이미지 저장과 동시에 응답 하는 로직 입니다.</p>
+<h3 id="Lambda-생성"><a href="#Lambda-생성" class="headerlink" title="Lambda 생성"></a>Lambda 생성</h3><p><img src="/../../../img/AWS/ImageResizing/rambdaCreate.png" alt="LambdaCreate.png"></p>
+<p>Lambda 콘솔에 접속 해서 함수 생성 버튼을 클릭 합니다.</p>
+<p><img src="/../../../img/AWS/ImageResizing/rambdaZipUpload.png" alt="LambdaZipUpload.png"></p>
+<p>코드 소스를 업로드를 해야 합니다. 이미지 resizing 을 하기 위해서는 Node.js에서 제공하는 <code>Sharp</code> 라이브러리를 사용 할 예정입니다. 고성능 이미지 처리를 위해 널리 사용되는 라이브러리 이고 이미지 크기 조정, 자르기, 회전, 형식 변환 등 여러가지 기능을 제공 합니다.</p>
+<p>우선 <code>Amazon Linux</code> OS 환경에서 <code>Node</code> 를 설치를 하고 <code>npm install sharp aws-sdk</code>  명령어로 라이브러리를 설치 하도록 합니다. 그럼</p>
+<ol>
+<li>node_modules</li>
+<li>package.json</li>
+<li>package-lock.json</li>
+</ol>
+<p>파일이 생성 되는데 모두 zip 파일로 압축 해서 업로드를 하도록 합니다.</p>
+<p><img src="/../../../img/AWS/ImageResizing/rambdaSetting1.png" alt="LambdaSetting1.png"></p>
+<p>아래 메뉴 탭에서 <code>구성</code> 버튼 클릭 후 왼쪽 메뉴 <code>일반 구성</code> 버튼을 클릭 합니다. 여기서 우측에 <code>편집</code> 버튼을 클릭 합니다.</p>
+<p><img src="/../../../img/AWS/ImageResizing/rambdaSetting2.png" alt="LambdaSetting2.png"></p>
+<p>원활한 이미지 resizing 하기 위해서는 적어도 메모리 512 MB 필요 합니다. 그리고 제한 시간을 15초로 설정 합니다.  이전에  <code>역할</code> 에서 생성한 IAM 역할을 선택 후 <code>저장</code> 버튼을 클릭 합니다.</p>
+<h3 id="API-Gateway-생성"><a href="#API-Gateway-생성" class="headerlink" title="API Gateway 생성"></a>API Gateway 생성</h3><p><img src="/../../../img/AWS/ImageResizing/GateWayCreate.png" alt="GateWayCreate.png"></p>
+<p>AWS API gatway 콘솔에 이동해서 <strong><code>API 생성</code></strong> 하도록 합니다. 여기서 <code>HTTP API</code>  를 선택 및 구축 하도록 합니다.</p>
+<p><img src="/../../../img/AWS/ImageResizing/GateWayAPICreate.png" alt="GateWayAPICreate.png"></p>
+<p><code>API 이름</code>을 지정하고 모두 default 로 최종 생성 합니다.</p>
+<p><img src="/../../../img/AWS/ImageResizing/rambdaZipUpload.png" alt="APIGateway-RoutesCreate.png"></p>
+<p>생성한 API 접근 후 <code>Routers</code> 버튼 클릭 경로 <code>생성</code> 버튼을 클릭 합니다.</p>
+<p><img src="/../../../img/AWS/ImageResizing/APIGateway-RootCreate.png" alt="APIGateway-RootCreate.png"></p>
+<p>모든 경로에 대해 이미지 요청을 받을 수 있도록 설정 할 수 있도록 <code>/&#123;proxy+&#125;</code> 입력 후 생성 버튼을 클릭 하도록 합니다.</p>
+<p><img src="/../../../img/AWS/ImageResizing/rambdaZipUpload.png" alt="APIGateway-IntegrationsCreate3.png"></p>
+<p>그 다음은 왼쪽 메뉴에서 <code>Integrations</code> 클릭 후 상단 탭 <code>통합을 경로에 연결</code>→ <code>통합을 경로 및 관리</code> 버튼을 클릭 합니다.</p>
+<p><img src="/../../../img/AWS/ImageResizing/rambdaZipUpload.png" alt="APIGateway-IntegrationsCreate4.png"></p>
+<p><code>통합 유형</code> 을 Lambda 함수로 선택 후 <code>통합 대상</code> 을 선택 해야 하는데 이미 생성한 Lambda 로 지정 후 <code>생성</code> 버튼을 클릭 하도록 합니다.</p>
+<p><img src="/../../../img/AWS/ImageResizing/APIGateway-Integrations.png" alt="APIGateway-Integrations.png"></p>
+<p>정상적으로 <code>Lambda</code> 로 통합 설정 완료 되었습니다.</p>
+<p><img src="/../../../img/AWS/ImageResizing/rambdaZipUpload.png" alt="APIGateway-StagesCreate.png"></p>
+<p>그 다음은 왼쪽 메뉴에서 <code>Stages</code> 클릭 후 상단 탭 <code>생성</code>버튼을 클릭 합니다.</p>
+<p><img src="/../../../img/AWS/ImageResizing/APIGateway-CreateStage.png" alt="APIGateway-CreateStage.png"></p>
+<p>이름을 <code>prod</code> 지정 후 <code>생성</code> 버튼을 클릭 합니다.</p>
+<p><img src="/../../../img/AWS/ImageResizing/rambdaZipUpload.png" alt="APIGateway-StagesCreate2.png"></p>
+<p>스테이지를 생성한 <code>prod</code> 로 선택 후 <code>배포</code> 버튼을 클릭 합니다.</p>
+<p><img src="/../../../img/AWS/ImageResizing/rambdaZipUpload.png" alt="APIGateway-StagesCreate3.png"></p>
+<p><code>배포</code> 버튼을 클릭 합니다.</p>
+<h3 id="Cloud-Front-생성"><a href="#Cloud-Front-생성" class="headerlink" title="Cloud Front 생성"></a>Cloud Front 생성</h3><p><img src="/../../../img/AWS/ImageResizing/CloudFront-Create1.png" alt="CloudFront-Create1.png"></p>
+<p>AWS Cloud Front 콘솔에 이동해서 <code>배포 생성</code> <strong>버튼을 클릭</strong> 하도록 합니다.</p>
+<p><img src="/../../../img/AWS/ImageResizing/CloudFront-Create2.png" alt="CloudFront-Create2.png"></p>
+<p><strong><code>Distribution name</code> 지정 하고 <code>Next</code> 버튼을 클릭 합니다.</strong></p>
+<p><img src="/../../../img/AWS/ImageResizing/CloudFront-Origin-Create1.png" alt="CloudFront-Origin-Create1.png"></p>
+<p><code>Origin</code> 설정 해야 합니다. <code>API Gateway</code> 를 선택 하도록 합니다. 그런 다음 <strong><code>Browse APIs</code> 버튼을 클릭 합니다.</strong></p>
+<p><img src="/../../../img/AWS/ImageResizing/CloudFront-Origin-Create2.png" alt="CloudFront-Origin-Create2.png"></p>
+<p>적절한 <code>Region</code> 을 선택 하고 <code>APIGATEWAY Version</code> 을 <code>HTTP API</code> 로 선택 후 이전에 생성 했던 API Gateway 를 선택 하도록 합니다.</p>
+<p><img src="/../../../img/AWS/ImageResizing/CloudFront-Origin-Create3.png" alt="CloudFront-Origin-Create3.png"></p>
+<p><code>Origin path - optional</code> 입력 박스에서 <code>/prod</code> 로 입력 후 <code>Next</code> 버튼을 클립 합니다.</p>
+<p><img src="/../../../img/AWS/ImageResizing/CloudFront-behavior-Create1.png" alt="CloudFront-behavior-Create1.png"></p>
+<p>생성한 <code>Cloud Front</code> 선택 후 상단 탭에 <code>동작</code> 버튼을 클릭 후 <code>동작 생성</code> 버튼을 클릭 하도록 합니다.</p>
+<p><img src="/../../../img/AWS/ImageResizing/CloudFront-behavior-Create2.png" alt="CloudFront-behavior-Create2.png"></p>
+<p><code>경로 패턴</code> 을 * 로 입력하고 <code>원본 및 원본 그룹</code> 을 이전에 생성한 API Gateway 로 선택 합니다.</p>
+<p><img src="/../../../img/AWS/ImageResizing/CloudFront-behavior-Create3.png" alt="CloudFront-behavior-Create3.png"></p>
+<p>캐시 정책에서 <code>Create cache policy</code> 클릭 하도록 합니다.</p>
+<p><img src="/../../../img/AWS/ImageResizing/rambdaCloudFront-behavior-Create4.png" alt="CloudFront-behavior-Create4.png"></p>
+<p>적절한 cache policy의 이름 지정하고 Cache TTL 을 1년 으로 지정 합시다.  그리고 <code>쿼리 문자열</code> 을 <code>모두</code> 로 선택 후 저장 합니다.</p>
+<p><img src="/../../../img/AWS/ImageResizing/CloudFront-behavior-Create5.png" alt="CloudFront-behavior-Create5.png"></p>
+<p><code>캐시 정책</code> 을 방금 생성 한 캐시 정책으로 선택 하고  <code>원본 요청 정책</code> 을 <code>Create origin request policy</code> 버튼을 클릭 합시다.</p>
+<p><img src="/../../../img/AWS/ImageResizing/CloudFront-behavior-Create6.png" alt="CloudFront-behavior-Create6.png"></p>
+<p>적절한 <code>origin request policy</code> 이름을 지정하고 <code>쿼리 문자열</code> 을 <code>모두</code> 로 선택 후 <code>생성</code> 버튼을 클릭 하도록 합니다.</p>
+<p><img src="/../../../img/AWS/ImageResizing/CloudFront-behavior-Create7.png" alt="CloudFront-behavior-Create7.png"></p>
+<p>생선한 <code>원본 요청 정책</code> 을 선택 하고 마지막으로 <code>Create behavior</code> 버튼을 클릭 합니다.</p>
+<h3 id="실험-해보기"><a href="#실험-해보기" class="headerlink" title="실험 해보기"></a>실험 해보기</h3><p><img src="/../../../img/AWS/ImageResizing/Result1.png" alt="사용자 1 가정 이미지 파일 조회"><br><img src="/../../../img/AWS/ImageResizing/Result2.png" alt="사용자 1 가정 이미지 파일 조회"><br>우선 크롬 브라우저 통해 <code>https://$&#123;아이디값&#125;.cloudfront.net/test9.jpg?w=200&amp;h=200</code> 접근 하면  <code>CloudFront</code> -&gt; <code>API Gateway (HTTP API)</code> -&gt; <code>Lambda (리사이징 처리)</code> 이렇게 처리가 됩니다.</p>
+<p><code>x-cache</code> 값이 <code>Miss from cloudfront</code> 라고 나오는데 <code>CloudFront</code> 에서 캐시 없다는 의미 입니다. 속도는 <code>1.09s</code> 발생 하였습니다.</p>
+<p><img src="/../../../img/AWS/ImageResizing/Result3.png" alt="사용자 2 가정 이미지 파일 조회"><br><img src="/../../../img/AWS/ImageResizing/Result4.png" alt="사용자 2 가정 이미지 파일 조회"></p>
+<p>다른 브라우저 통해 <code>https://$&#123;아이디값&#125;.cloudfront.net/test9.jpg?w=200&amp;h=200</code> 접근 하면 <code>CloudFront(캐싱됨)</code> 캐싱된 이미지가 있어서 빠르게 응답 할 수 있었습니다.</p>
+<p><code>x-cache</code> 값이 <code>Hit from cloudfront</code> 라고 나오는데 <code>CloudFront</code> 에서 캐시 있다는 의미 입니다. 속도는 <code>70ms</code> 로 이전 보다 빠르게 이미지 데이터를 가져 올 수 있었습니다.</p>
+
+      
+       <hr><span style="font-style: italic;color: gray;"> Copyright 201- syh8088. 무단 전재 및 재배포 금지. 출처 표기 시 인용 가능. </span>
+    </div>
+</article>
+
+
+<p>
+    <a  class="dashang" onclick="dashangToggle()">💰</a>
+</p>
+
+
+
+
+
+
+    
+
+
+
+
+    </div>
+    <div class="copyright">
+        <p class="footer-entry">
+    ©2017 Seo Yang Hun
+</p>
+<p class="footer-entry">Built with <a href="https://hexo.io/" target="_blank">Hexo</a> and <a href="https://github.com/yelog/hexo-theme-3-hexo" target="_blank">3-hexo</a> theme</p>
+
+    </div>
+    <div class="full-toc">
+        <button class="full" data-title="Toggle full screen shortcut key s"><span class="min "></span></button>
+<a class="" id="rocket" ></a>
+
+    </div>
+</div>
+
+<div class="hide_box" onclick="dashangToggle()"></div>
+<div class="shang_box">
+    <a class="shang_close"  onclick="dashangToggle()">×</a>
+    <div class="shang_tit">
+        <p>Help us with donation</p>
+    </div>
+    <div class="shang_payimg">
+        <div class="pay_img">
+            <img src="/img/alipay.jpg" class="alipay" title="扫码支持">
+            <img src="/img/weixin.jpg" class="weixin" title="扫码支持">
+        </div>
+    </div>
+    <div class="shang_payselect">
+        <span><label><input type="radio" name="pay" checked value="alipay">alipay</label></span><span><label><input type="radio" name="pay" value="weixin">weixin</label></span>
+    </div>
+</div>
+
+
+</body>
+<script src="/js/jquery.pjax.js?v=1.1.0" ></script>
+
+<script src="/js/script.js?v=1.1.0" ></script>
+<script>
+    var img_resize = 'default';
+    function initArticle() {
+        /*渲染对应的表格样式*/
+        
+            $("#post .pjax table").addClass("green_title");
+        
+
+        /*渲染打赏样式*/
+        
+        $("input[name=pay]").on("click", function () {
+            if($("input[name=pay]:checked").val()=="weixin"){
+                $(".shang_box .shang_payimg .pay_img").addClass("weixin_img");
+            } else {
+                $(".shang_box .shang_payimg .pay_img").removeClass("weixin_img");
+            }
+        })
+        
+
+        /*高亮代码块行号*/
+        
+
+        /*访问数量*/
+        
+        $.getScript("//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js");
+        
+
+        /*代码高亮，行号对齐*/
+        $('.pre-numbering').css('line-height',$('.has-numbering').css('line-height'));
+
+        
+        
+    }
+
+    /*打赏页面隐藏与展示*/
+    
+    function dashangToggle() {
+        $(".shang_box").fadeToggle();
+        $(".hide_box").fadeToggle();
+    }
+    
+
+</script>
+
+<!--加入行号的高亮代码块样式-->
+
+<!--自定义样式设置-->
+<style>
+    
+    
+    .nav {
+        width: 542px;
+    }
+    .nav.fullscreen {
+        margin-left: -542px;
+    }
+    .nav-left {
+        width: 120px;
+    }
+    
+    
+    @media screen and (max-width: 1468px) {
+        .nav {
+            width: 492px;
+        }
+        .nav.fullscreen {
+            margin-left: -492px;
+        }
+        .nav-left {
+            width: 100px;
+        }
+    }
+    
+    
+    @media screen and (max-width: 1024px) {
+        .nav {
+            width: 492px;
+            margin-left: -492px
+        }
+        .nav.fullscreen {
+            margin-left: 0;
+        }
+    }
+    
+    @media screen and (max-width: 426px) {
+        .nav {
+            width: 100%;
+        }
+        .nav-left {
+            width: 100%;
+        }
+    }
+    
+    
+    .nav-right .title-list nav a .post-title, .nav-right .title-list #local-search-result a .post-title {
+        color: #383636;
+    }
+    
+    
+    .nav-right .title-list nav a .post-date, .nav-right .title-list #local-search-result a .post-date {
+        color: #5e5e5f;
+    }
+    
+    
+    .nav-right nav a.hover, #local-search-result a.hover{
+        background-color: #e2e0e0;
+    }
+    
+    
+
+    /*列表样式*/
+    
+
+    /* 背景图样式 */
+    
+    
+
+
+    /*引用块样式*/
+    
+
+    /*文章列表背景图*/
+    
+
+    
+</style>
+
+
+
+
+
+
+
+</html>
