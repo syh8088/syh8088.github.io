@@ -1,0 +1,2250 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>카프카 개념 및 실전 | Seo Yang Hun Blog</title>
+  <meta name="keywords" content="">
+  <meta name="description" content="카프카 개념 및 실전 | Seo Yang Hun Blog">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="description" content="예제 소스 코드이번 블로그에 사용되는 코드는 아래 링크 통해 확인 할 수 있습니다. https:&#x2F;&#x2F;github.com&#x2F;syh8088&#x2F;kafka_study&#x2F;tree&#x2F;main&#x2F;kafka_study Kafka 알아보기Kafka 주요 구성 요소  Topic: Kafka 안에서 메시지가 저장되는 장소 (논리적인 표현) Producer : 메시지를 생산(Produce">
+<meta property="og:type" content="article">
+<meta property="og:title" content="카프카 개념 및 실전">
+<meta property="og:url" content="https://syh8088.github.io/2025/07/06/KAFKA/introduction/kafka_introduction/index.html">
+<meta property="og:site_name" content="Seo Yang Hun Blog">
+<meta property="og:description" content="예제 소스 코드이번 블로그에 사용되는 코드는 아래 링크 통해 확인 할 수 있습니다. https:&#x2F;&#x2F;github.com&#x2F;syh8088&#x2F;kafka_study&#x2F;tree&#x2F;main&#x2F;kafka_study Kafka 알아보기Kafka 주요 구성 요소  Topic: Kafka 안에서 메시지가 저장되는 장소 (논리적인 표현) Producer : 메시지를 생산(Produce">
+<meta property="og:locale">
+<meta property="og:image" content="https://syh8088.github.io/img/KAFKA/introduction/Kafka_mainComponent.png">
+<meta property="og:image" content="https://syh8088.github.io/img/KAFKA/introduction/ProducerConsumerDecoupling.png">
+<meta property="og:image" content="https://syh8088.github.io/img/KAFKA/introduction/KafkaCommitLog.png">
+<meta property="og:image" content="https://syh8088.github.io/img/KAFKA/introduction/KafkaLogicalRepresentation.png">
+<meta property="og:image" content="https://syh8088.github.io/img/KAFKA/introduction/KafkaPhysicalRepresentation.png">
+<meta property="og:image" content="https://syh8088.github.io/img/KAFKA/introduction/KafkaSerializer&Deserializer.png">
+<meta property="og:image" content="https://syh8088.github.io/img/KAFKA/introduction/InternalWorkingsOfAKafkaProducerApplication.png">
+<meta property="og:image" content="https://syh8088.github.io/img/KAFKA/introduction/PartitionRole.png">
+<meta property="og:image" content="https://syh8088.github.io/img/KAFKA/introduction/Multi-PartitionAndConsumerRelationship.png">
+<meta property="og:image" content="https://syh8088.github.io/img/KAFKA/introduction/Multi-PartitionAndMulti-ConsumerRelationship.png">
+<meta property="og:image" content="https://syh8088.github.io/img/KAFKA/introduction/Multi-PartitionAndMulti-ConsumerRelationship2.png">
+<meta property="og:image" content="https://syh8088.github.io/img/KAFKA/introduction/KafkaMessageOrdering.png">
+<meta property="og:image" content="https://syh8088.github.io/img/KAFKA/introduction/ConsumerFailure.png">
+<meta property="og:image" content="https://syh8088.github.io/img/KAFKA/introduction/BrokerReplication1.png">
+<meta property="og:image" content="https://syh8088.github.io/img/KAFKA/introduction/BrokerReplication2.png">
+<meta property="og:image" content="https://syh8088.github.io/img/KAFKA/introduction/In-SyncReplicas.png">
+<meta property="og:image" content="https://syh8088.github.io/img/KAFKA/introduction/ProducerAcks=0.png">
+<meta property="og:image" content="https://syh8088.github.io/img/KAFKA/introduction/ProducerAcks=1.png">
+<meta property="og:image" content="https://syh8088.github.io/img/KAFKA/introduction/ProducerAcks=-1ORall.png">
+<meta property="og:image" content="https://syh8088.github.io/img/KAFKA/introduction/Produser_Duplication.png">
+<meta property="og:image" content="https://syh8088.github.io/img/KAFKA/introduction/Produser_EOS.png">
+<meta property="og:image" content="https://syh8088.github.io/img/KAFKA/introduction/TransactionOutBoxPattern1.png">
+<meta property="og:image" content="https://syh8088.github.io/img/KAFKA/introduction/TransactionOutBoxPattern2.png">
+<meta property="og:image" content="https://syh8088.github.io/img/KAFKA/introduction/RetryQueue&DLQ(DeadLetterQueue).png">
+<meta property="og:image" content="https://syh8088.github.io/img/KAFKA/introduction/Real-lifeScenario.png">
+<meta property="article:published_time" content="2025-07-05T22:47:42.000Z">
+<meta property="article:modified_time" content="2025-07-06T10:28:46.347Z">
+<meta property="article:author" content="Seo Yang Hun">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://syh8088.github.io/img/KAFKA/introduction/Kafka_mainComponent.png">
+
+
+<link rel="icon" href="/img/avatar.jpg">
+
+<link href="/css/style.css?v=1.1.0" rel="stylesheet">
+
+<link href="/css/hl_theme/atom-light.css?v=1.1.0" rel="stylesheet">
+
+<link href="//cdn.jsdelivr.net/npm/animate.css@4.1.0/animate.min.css" rel="stylesheet">
+
+<script src="//cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"></script>
+<script src="/js/titleTip.js?v=1.1.0" ></script>
+
+<script src="//cdn.jsdelivr.net/npm/highlightjs@9.16.2/highlight.pack.min.js"></script>
+<script>
+    hljs.initHighlightingOnLoad();
+</script>
+
+<script src="//cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.js"></script>
+
+
+
+<script src="//cdn.jsdelivr.net/npm/jquery.cookie@1.4.1/jquery.cookie.min.js" ></script>
+
+<script src="/js/iconfont.js?v=1.1.0" ></script>
+
+<meta name="generator" content="Hexo 7.2.0"></head>
+<div style="display: none">
+  <input class="theme_disqus_on" value="false">
+  <input class="theme_preload_comment" value="">
+  <input class="theme_blog_path" value="">
+  <input id="theme_shortcut" value="true" />
+  <input id="theme_highlight_on" value="true" />
+  <input id="theme_code_copy" value="true" />
+</div>
+
+
+
+<body>
+<aside class="nav">
+    <div class="nav-left">
+        <a href="/"
+   class="avatar_target">
+    <img class="avatar"
+         src="/img/avatar.jpg"/>
+</a>
+<div class="author">
+    <span>Seo Yang Hun</span>
+</div>
+
+<div class="icon">
+    
+        
+            <a title="rss"
+               href="/atom.xml"
+               target="_blank">
+                
+                    <svg class="iconfont-svg" aria-hidden="true">
+                        <use xlink:href="#icon-rss"></use>
+                    </svg>
+                
+            </a>
+        
+    
+        
+            <a title="github"
+               href="https://github.com/syh8088"
+               target="_blank">
+                
+                    <svg class="iconfont-svg" aria-hidden="true">
+                        <use xlink:href="#icon-github"></use>
+                    </svg>
+                
+            </a>
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+            <a title="email"
+               href="mailto:syh8088@gmail.com"
+               target="_blank">
+                
+                    <svg class="iconfont-svg" aria-hidden="true">
+                        <use xlink:href="#icon-email"></use>
+                    </svg>
+                
+            </a>
+        
+    
+        
+            <a title="qq"
+               href="http://wpa.qq.com/msgrd?v=3&uin=872336115&site=qq&menu=yes"
+               target="_blank">
+                
+                    <svg class="iconfont-svg" aria-hidden="true">
+                        <use xlink:href="#icon-qq"></use>
+                    </svg>
+                
+            </a>
+        
+    
+        
+    
+        
+    
+</div>
+
+
+
+
+
+<ul>
+    <li>
+        <div class="all active" data-rel="모든 글">모든 글
+            
+                <small>(65)</small>
+            
+        </div>
+    </li>
+    
+        
+            
+                
+    <li>
+        <div data-rel="Authentication">
+            <i class="fold iconfont icon-right"></i>
+            Authentication
+            <small>(2)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="Authentication&lt;---&gt;JWT">
+            
+            JWT
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="Authentication&lt;---&gt;Oauth">
+            
+            Oauth
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="AWS">
+            <i class="fold iconfont icon-right"></i>
+            AWS
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="AWS&lt;---&gt;Image Resizing">
+            
+            Image Resizing
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="CI-CD">
+            <i class="fold iconfont icon-right"></i>
+            CI-CD
+            <small>(9)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="CI-CD&lt;---&gt;GitHubActions">
+            
+            GitHubActions
+            <small>(6)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="CI-CD&lt;---&gt;Jenkins">
+            
+            Jenkins
+            <small>(3)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="DB">
+            <i class="fold iconfont icon-right"></i>
+            DB
+            <small>(4)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="DB&lt;---&gt;Mysql">
+            <i class="fold iconfont icon-right"></i>
+            Mysql
+            <small>(4)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="DB&lt;---&gt;Mysql&lt;---&gt;DBCP">
+            
+            DBCP
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="DB&lt;---&gt;Mysql&lt;---&gt;optimizing">
+            
+            optimizing
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="DB&lt;---&gt;Mysql&lt;---&gt;Paging">
+            
+            Paging
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="Elastic Search">
+            
+            Elastic Search
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="Flink">
+            <i class="fold iconfont icon-right"></i>
+            Flink
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="Flink&lt;---&gt;Real Time">
+            <i class="fold iconfont icon-right"></i>
+            Real Time
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="Flink&lt;---&gt;Real Time&lt;---&gt;Kafka">
+            
+            Kafka
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="J">
+            <i class="fold iconfont icon-right"></i>
+            J
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="J&lt;---&gt;Jenkins">
+            
+            Jenkins
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="JAVA">
+            <i class="fold iconfont icon-right"></i>
+            JAVA
+            <small>(29)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;HTTP">
+            <i class="fold iconfont icon-right"></i>
+            HTTP
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;HTTP&lt;---&gt;FeignClient">
+            
+            FeignClient
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;JPA">
+            
+            JPA
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;Object">
+            
+            Object
+            <small>(2)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;Payment">
+            
+            Payment
+            <small>(5)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;Security">
+            
+            Security
+            <small>(4)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;Spring">
+            <i class="fold iconfont icon-right"></i>
+            Spring
+            <small>(2)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;Spring&lt;---&gt;Payment">
+            <i class="fold iconfont icon-right"></i>
+            Payment
+            <small>(2)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;Spring&lt;---&gt;Payment&lt;---&gt;junit5">
+            <i class="fold iconfont icon-right"></i>
+            junit5
+            <small>(2)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;Spring&lt;---&gt;Payment&lt;---&gt;junit5&lt;---&gt;Mockito">
+            
+            Mockito
+            <small>(2)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;SpringBatch">
+            
+            SpringBatch
+            <small>(5)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;SpringBootAndSecurityAndJWT">
+            
+            SpringBootAndSecurityAndJWT
+            <small>(3)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;SpringCloudConfig">
+            
+            SpringCloudConfig
+            <small>(4)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;Transaction">
+            
+            Transaction
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;Validator">
+            
+            Validator
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="JavaScript">
+            <i class="fold iconfont icon-right"></i>
+            JavaScript
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="JavaScript&lt;---&gt;Webpack">
+            
+            Webpack
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="Kafka">
+            <i class="fold iconfont icon-right"></i>
+            Kafka
+            <small>(2)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="Kafka&lt;---&gt;idempotent">
+            
+            idempotent
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="KUBERNETES">
+            
+            KUBERNETES
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="MSA">
+            <i class="fold iconfont icon-right"></i>
+            MSA
+            <small>(3)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="MSA&lt;---&gt;Payment">
+            <i class="fold iconfont icon-right"></i>
+            Payment
+            <small>(3)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="MSA&lt;---&gt;Payment&lt;---&gt;Kafka">
+            <i class="fold iconfont icon-right"></i>
+            Kafka
+            <small>(3)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="MSA&lt;---&gt;Payment&lt;---&gt;Kafka&lt;---&gt;EDA">
+            <i class="fold iconfont icon-right"></i>
+            EDA
+            <small>(3)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="MSA&lt;---&gt;Payment&lt;---&gt;Kafka&lt;---&gt;EDA&lt;---&gt;CQRS">
+            
+            CQRS
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="MSA&lt;---&gt;Payment&lt;---&gt;Kafka&lt;---&gt;EDA&lt;---&gt;Saga">
+            <i class="fold iconfont icon-right"></i>
+            Saga
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="MSA&lt;---&gt;Payment&lt;---&gt;Kafka&lt;---&gt;EDA&lt;---&gt;Saga&lt;---&gt;Axon">
+            
+            Axon
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="NoSQL">
+            <i class="fold iconfont icon-right"></i>
+            NoSQL
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="NoSQL&lt;---&gt;Redis">
+            <i class="fold iconfont icon-right"></i>
+            Redis
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="NoSQL&lt;---&gt;Redis&lt;---&gt;RateLimiter">
+            
+            RateLimiter
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="R">
+            
+            R
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="대용량 트래픽">
+            <i class="fold iconfont icon-right"></i>
+            대용량 트래픽
+            <small>(3)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="대용량 트래픽&lt;---&gt;EDA">
+            <i class="fold iconfont icon-right"></i>
+            EDA
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="대용량 트래픽&lt;---&gt;EDA&lt;---&gt;Payment">
+            <i class="fold iconfont icon-right"></i>
+            Payment
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="대용량 트래픽&lt;---&gt;EDA&lt;---&gt;Payment&lt;---&gt;Redis">
+            <i class="fold iconfont icon-right"></i>
+            Redis
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="대용량 트래픽&lt;---&gt;EDA&lt;---&gt;Payment&lt;---&gt;Redis&lt;---&gt;Kafka">
+            
+            Kafka
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="대용량 트래픽&lt;---&gt;Redis">
+            <i class="fold iconfont icon-right"></i>
+            Redis
+            <small>(2)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="대용량 트래픽&lt;---&gt;Redis&lt;---&gt;Kafka">
+            
+            Kafka
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="대용량 트래픽&lt;---&gt;Redis&lt;---&gt;WebFlux">
+            <i class="fold iconfont icon-right"></i>
+            WebFlux
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="대용량 트래픽&lt;---&gt;Redis&lt;---&gt;WebFlux&lt;---&gt;접근자 대기열">
+            
+            접근자 대기열
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+</ul>
+<div class="left-bottom">
+    <div class="menus">
+        
+            
+            
+            
+    </div>
+    <div>
+        
+            <a class="about  hasFriend  site_url"
+               
+               href="/about">about</a>
+        
+        <a style="width: 50%"
+                
+                                           class="friends">friends</a>
+        
+    </div>
+</div>
+<input type="hidden" id="yelog_site_posts_number" value="65">
+
+<div style="display: none">
+    <span id="busuanzi_value_site_uv"></span>
+    <span id="busuanzi_value_site_pv"></span>
+</div>
+
+    </div>
+    <div class="nav-right">
+        <div class="friends-area">
+    <div class="friends-title">
+        友情链接
+        <i class="iconfont icon-left"></i>
+    </div>
+    <div class="friends-content">
+        <ul>
+            
+            <li><a target="_blank" href="http://yelog.org/">叶落阁</a></li>
+            
+        </ul>
+    </div>
+</div>
+        <div class="title-list">
+    <div class="right-top">
+        <div id="default-panel">
+            <i class="iconfont icon-search" data-title="搜索 快捷键 i"></i>
+            <div class="right-title">모든 글</div>
+            <i class="iconfont icon-file-tree" data-title="切换到大纲视图 快捷键 w"></i>
+        </div>
+        <div id="search-panel">
+            <i class="iconfont icon-left" data-title="返回"></i>
+            <input id="local-search-input" autocomplete="off"/>
+            <label class="border-line" for="input"></label>
+            <i class="iconfont icon-case-sensitive" data-title="大小写敏感"></i>
+            <i class="iconfont icon-tag" data-title="标签"></i>
+        </div>
+        <div id="outline-panel" style="display: none">
+            <div class="right-title">大纲</div>
+            <i class="iconfont icon-list" data-title="切换到文章列表"></i>
+        </div>
+    </div>
+
+    <div class="tags-list">
+    <input id="tag-search" />
+    <div class="tag-wrapper">
+        
+    </div>
+
+</div>
+
+    
+    <nav id="title-list-nav">
+        
+        
+        <a  class="모든 글 Kafka "
+           href="/2025/07/06/KAFKA/introduction/kafka_introduction/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="카프카 개념 및 실전">카프카 개념 및 실전</span>
+            <span class="post-date" title="2025-07-06 07:47:42">2025/07/06</span>
+        </a>
+        
+        
+        <a  class="모든 글 "
+           href="/2025/06/27/AWS/ImageResizing/imageTest/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title=""></span>
+            <span class="post-date" title="2025-06-27 20:10:06">2025/06/27</span>
+        </a>
+        
+        
+        <a  class="모든 글 AWS Image Resizing "
+           href="/2025/06/26/AWS/ImageResizing/aws-image-resizing/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="AWS Image Resizing 구현하기">AWS Image Resizing 구현하기</span>
+            <span class="post-date" title="2025-06-26 07:47:42">2025/06/26</span>
+        </a>
+        
+        
+        <a  class="모든 글 Elastic Search "
+           href="/2025/06/16/ELASTIC_SEARCH/introduction/elasticsearch-introduction/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Elastic Search 검색 활용기">Elastic Search 검색 활용기</span>
+            <span class="post-date" title="2025-06-16 07:47:42">2025/06/16</span>
+        </a>
+        
+        
+        <a  class="모든 글 Flink Real Time Kafka "
+           href="/2025/04/05/FLINK/introduction/Flink-Introduction/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Flink 이용해서 실시간 데이터 스트림 처리 해보기">Flink 이용해서 실시간 데이터 스트림 처리 해보기</span>
+            <span class="post-date" title="2025-04-05 07:47:42">2025/04/05</span>
+        </a>
+        
+        
+        <a  class="모든 글 Kafka idempotent "
+           href="/2024/12/23/KAFKA/idempotent/Kafka_idempotent/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="카프카 멱등성 및 이벤트 일관성 보장하기">카프카 멱등성 및 이벤트 일관성 보장하기</span>
+            <span class="post-date" title="2024-12-23 07:47:42">2024/12/23</span>
+        </a>
+        
+        
+        <a  class="모든 글 MSA Payment Kafka EDA CQRS "
+           href="/2024/12/16/MSA/paymentMsa/MSA_Payment_Project_3/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="결제 시스템으로 알아보는 MSA 3 - 쿼리 문제">결제 시스템으로 알아보는 MSA 3 - 쿼리 문제</span>
+            <span class="post-date" title="2024-12-16 07:47:42">2024/12/16</span>
+        </a>
+        
+        
+        <a  class="모든 글 MSA Payment Kafka EDA Saga Axon "
+           href="/2024/12/15/MSA/paymentMsa/MSA_Payment_Project_2/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="결제 시스템으로 알아보는 MSA 2 - 분산 트랜잭션 구현">결제 시스템으로 알아보는 MSA 2 - 분산 트랜잭션 구현</span>
+            <span class="post-date" title="2024-12-15 07:47:42">2024/12/15</span>
+        </a>
+        
+        
+        <a  class="모든 글 MSA Payment Kafka EDA "
+           href="/2024/12/14/MSA/paymentMsa/MSA_Payment_Project_1/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="결제 시스템으로 알아보는 MSA 1 - 기본 설명">결제 시스템으로 알아보는 MSA 1 - 기본 설명</span>
+            <span class="post-date" title="2024-12-14 07:47:42">2024/12/14</span>
+        </a>
+        
+        
+        <a  class="모든 글 대용량 트래픽 EDA Payment Redis Kafka "
+           href="/2024/12/13/HIGH_VOLUME_TRAFFIC/PaymentEDA/PaymentEDA/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="결제 시스템으로 알아보는 EDA 시스템">결제 시스템으로 알아보는 EDA 시스템</span>
+            <span class="post-date" title="2024-12-13 07:47:42">2024/12/13</span>
+        </a>
+        
+        
+        <a  class="모든 글 DB Mysql optimizing "
+           href="/2024/12/06/DB/Mysql/optimizing/IndexDiveOptimizaiton/IndexDiveOptimizaiton/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Index Dive 최적화">Index Dive 최적화</span>
+            <span class="post-date" title="2024-12-06 07:47:42">2024/12/06</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA Spring Payment junit5 Mockito "
+           href="/2024/12/03/JAVA/TEST/PaymentTesting/PaymentTesting2/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="결제 Testing - 2">결제 Testing - 2</span>
+            <span class="post-date" title="2024-12-03 15:50:00">2024/12/03</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA Spring Payment junit5 Mockito "
+           href="/2024/12/02/JAVA/TEST/PaymentTesting/PaymentTesting1/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="결제 Testing - 1">결제 Testing - 1</span>
+            <span class="post-date" title="2024-12-02 15:50:00">2024/12/02</span>
+        </a>
+        
+        
+        <a  class="모든 글 대용량 트래픽 Redis WebFlux 접근자 대기열 "
+           href="/2024/11/28/HIGH_VOLUME_TRAFFIC/AccessorQueuingSystem/AccessorQueuingSystem/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="대용량 트래픽 - 접근자 대기열 시스템 만들기">대용량 트래픽 - 접근자 대기열 시스템 만들기</span>
+            <span class="post-date" title="2024-11-28 07:47:42">2024/11/28</span>
+        </a>
+        
+        
+        <a  class="모든 글 대용량 트래픽 Redis Kafka "
+           href="/2024/11/22/HIGH_VOLUME_TRAFFIC/CreateCoupon/CreateCoupon/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="대용량 트래픽 - 선착순 쿠폰 등록 With Kafka, Redis">대용량 트래픽 - 선착순 쿠폰 등록 With Kafka, Redis</span>
+            <span class="post-date" title="2024-11-22 07:47:42">2024/11/22</span>
+        </a>
+        
+        
+        <a  class="모든 글 NoSQL Redis RateLimiter "
+           href="/2024/11/19/NoSQL/Redis/RateLimiter/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Request Rate Limiter 구현하기">Request Rate Limiter 구현하기</span>
+            <span class="post-date" title="2024-11-19 07:47:42">2024/11/19</span>
+        </a>
+        
+        
+        <a  class="모든 글 CI-CD GitHubActions "
+           href="/2024/10/20/CI-CD/GitHunActions/GitHubActionsCICDWithSpringBoot6/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="GitHubActions CICD With SpringBoot - 6">GitHubActions CICD With SpringBoot - 6</span>
+            <span class="post-date" title="2024-10-20 07:47:42">2024/10/20</span>
+        </a>
+        
+        
+        <a  class="모든 글 CI-CD GitHubActions "
+           href="/2024/10/19/CI-CD/GitHunActions/GitHubActionsCICDWithSpringBoot5/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="GitHubActions CICD With SpringBoot - 5">GitHubActions CICD With SpringBoot - 5</span>
+            <span class="post-date" title="2024-10-19 07:47:42">2024/10/19</span>
+        </a>
+        
+        
+        <a  class="모든 글 CI-CD GitHubActions "
+           href="/2024/10/18/CI-CD/GitHunActions/GitHubActionsCICDWithSpringBoot4/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="GitHubActions CICD With SpringBoot - 4">GitHubActions CICD With SpringBoot - 4</span>
+            <span class="post-date" title="2024-10-18 07:47:42">2024/10/18</span>
+        </a>
+        
+        
+        <a  class="모든 글 CI-CD GitHubActions "
+           href="/2024/10/17/CI-CD/GitHunActions/GitHubActionsCICDWithSpringBoot3/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="GitHubActions CICD With SpringBoot - 3">GitHubActions CICD With SpringBoot - 3</span>
+            <span class="post-date" title="2024-10-17 07:47:42">2024/10/17</span>
+        </a>
+        
+        
+        <a  class="모든 글 CI-CD GitHubActions "
+           href="/2024/10/14/CI-CD/GitHunActions/GitHubActionsCICDWithSpringBoot2/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="GitHubActions CICD With SpringBoot - 2">GitHubActions CICD With SpringBoot - 2</span>
+            <span class="post-date" title="2024-10-14 07:47:42">2024/10/14</span>
+        </a>
+        
+        
+        <a  class="모든 글 CI-CD GitHubActions "
+           href="/2024/10/14/CI-CD/GitHunActions/GitHubActionsCICDWithSpringBoot1/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="GitHubActions CICD With SpringBoot - 1">GitHubActions CICD With SpringBoot - 1</span>
+            <span class="post-date" title="2024-10-14 07:47:42">2024/10/14</span>
+        </a>
+        
+        
+        <a  class="모든 글 DB Mysql Paging "
+           href="/2024/10/06/DB/Mysql/PagingQuery/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Paging Query 성능 개선 및 처리 방법 - 튜닝편">Paging Query 성능 개선 및 처리 방법 - 튜닝편</span>
+            <span class="post-date" title="2024-10-06 07:47:42">2024/10/06</span>
+        </a>
+        
+        
+        <a  class="모든 글 DB Mysql DBCP "
+           href="/2024/10/02/DB/Mysql/mysqlDBCP/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="DBCP 설정 방법">DBCP 설정 방법</span>
+            <span class="post-date" title="2024-10-02 07:47:42">2024/10/02</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA Object "
+           href="/2024/08/24/JAVA/Object/InheritanceComposition2/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="상속과 합성 이야기-2">상속과 합성 이야기-2</span>
+            <span class="post-date" title="2024-08-24 15:50:00">2024/08/24</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA Object "
+           href="/2024/08/23/JAVA/Object/InheritanceComposition1/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="상속과 합성 이야기-1">상속과 합성 이야기-1</span>
+            <span class="post-date" title="2024-08-23 15:50:00">2024/08/23</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA Payment "
+           href="/2024/08/06/JAVA/Payment/PaymentTransactionalOutboxpattern/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="결제 시스템 구축 - 5">결제 시스템 구축 - 5</span>
+            <span class="post-date" title="2024-08-06 15:50:00">2024/08/06</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA Payment "
+           href="/2024/08/05/JAVA/Payment/PaymentRetry/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="결제 시스템 구축 - 4">결제 시스템 구축 - 4</span>
+            <span class="post-date" title="2024-08-05 15:50:00">2024/08/05</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA Payment "
+           href="/2024/07/28/JAVA/Payment/BuildingPaymentSystem/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="결제 시스템 구축 - 1">결제 시스템 구축 - 1</span>
+            <span class="post-date" title="2024-07-28 15:50:00">2024/07/28</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA Payment "
+           href="/2024/07/28/JAVA/Payment/PaymentCheckOut/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="결제 시스템 구축 - 2">결제 시스템 구축 - 2</span>
+            <span class="post-date" title="2024-07-28 15:50:00">2024/07/28</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA Payment "
+           href="/2024/07/28/JAVA/Payment/PaymentConfirm/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="결제 시스템 구축 - 3">결제 시스템 구축 - 3</span>
+            <span class="post-date" title="2024-07-28 15:50:00">2024/07/28</span>
+        </a>
+        
+        
+        <a  class="모든 글 "
+           href="/2024/05/31/hello-world/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Hello World">Hello World</span>
+            <span class="post-date" title="2024-05-31 22:32:19">2024/05/31</span>
+        </a>
+        
+        
+        <a  class="모든 글 "
+           href="/2024/05/31/README/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title=""></span>
+            <span class="post-date" title="2024-05-31 22:32:19">2024/05/31</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA Security "
+           href="/2024/05/30/JAVA/Security/AnonymousAuthenticationFilter/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="AnonymousAuthenticationFilter">AnonymousAuthenticationFilter</span>
+            <span class="post-date" title="2024-05-30 10:04:43">2024/05/30</span>
+        </a>
+        
+        
+        <a  class="모든 글 "
+           href="/2024/02/01/HIGH_VOLUME_TRAFFIC/AccessorQueuingSystem2/AccessorQueuingSystem/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="패스트캠퍼스 9개 프로젝트로 경험하는 대용량 트래픽 &amp; 데이터 처리 초격차 패키지 Online. 수강">패스트캠퍼스 9개 프로젝트로 경험하는 대용량 트래픽 &amp; 데이터 처리 초격차 패키지 Online. 수강</span>
+            <span class="post-date" title="2024-02-01 00:00:00">2024/02/01</span>
+        </a>
+        
+        
+        <a  class="모든 글 Authentication JWT "
+           href="/2021/11/27/AUTHTICATION/JWT/jwt/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="JWT (JSON Web Token) 이해하기">JWT (JSON Web Token) 이해하기</span>
+            <span class="post-date" title="2021-11-27 07:47:42">2021/11/27</span>
+        </a>
+        
+        
+        <a  class="모든 글 Authentication Oauth "
+           href="/2021/11/27/AUTHTICATION/OAUTH/oauth/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="OAUTH 2.0 이해하기">OAUTH 2.0 이해하기</span>
+            <span class="post-date" title="2021-11-27 07:47:42">2021/11/27</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA HTTP FeignClient "
+           href="/2021/11/08/JAVA/HTTP/FeignClient/FeignClient/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="FeignClient 활용도">FeignClient 활용도</span>
+            <span class="post-date" title="2021-11-08 10:04:43">2021/11/08</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA SpringBatch "
+           href="/2021/11/04/JAVA/Batch/SpringBatch5/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Batch - Chunk 5">Spring Batch - Chunk 5</span>
+            <span class="post-date" title="2021-11-04 07:47:42">2021/11/04</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA SpringBatch "
+           href="/2021/10/30/JAVA/Batch/SpringBatch4/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Batch - Flow 4">Spring Batch - Flow 4</span>
+            <span class="post-date" title="2021-10-30 07:47:42">2021/10/30</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA SpringBatch "
+           href="/2021/10/24/JAVA/Batch/SpringBatch3/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Batch - 메타데이터 스키마 3">Spring Batch - 메타데이터 스키마 3</span>
+            <span class="post-date" title="2021-10-24 07:47:42">2021/10/24</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA SpringBatch "
+           href="/2021/10/19/JAVA/Batch/SpringBatch2/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Batch - Job, Step 2">Spring Batch - Job, Step 2</span>
+            <span class="post-date" title="2021-10-19 07:47:42">2021/10/19</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA SpringBatch "
+           href="/2021/10/17/JAVA/Batch/SpringBatch1/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Batch 1">Spring Batch 1</span>
+            <span class="post-date" title="2021-10-17 07:47:42">2021/10/17</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA SpringCloudConfig "
+           href="/2021/09/13/JAVA/SpringCloudConfig/spring-cloud-config4/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="비대칭키를 이용한 application.yml 설정값 암호화">비대칭키를 이용한 application.yml 설정값 암호화</span>
+            <span class="post-date" title="2021-09-13 07:47:45">2021/09/13</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA SpringCloudConfig "
+           href="/2021/09/13/JAVA/SpringCloudConfig/spring-cloud-config3/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Cloud Bus">Spring Cloud Bus</span>
+            <span class="post-date" title="2021-09-13 07:47:44">2021/09/13</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA SpringCloudConfig "
+           href="/2021/09/13/JAVA/SpringCloudConfig/spring-cloud-config2/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Boot Actuator">Spring Boot Actuator</span>
+            <span class="post-date" title="2021-09-13 07:47:43">2021/09/13</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA SpringCloudConfig "
+           href="/2021/09/13/JAVA/SpringCloudConfig/spring-cloud-config/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Cloud Config">Spring Cloud Config</span>
+            <span class="post-date" title="2021-09-13 07:47:42">2021/09/13</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA Transaction "
+           href="/2021/03/14/JAVA/Transaction/multi-transaction/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Java Multi-Transaction 관리">Java Multi-Transaction 관리</span>
+            <span class="post-date" title="2021-03-14 07:47:42">2021/03/14</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA Validator "
+           href="/2020/12/18/JAVA/VALIDATOR/validator/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Java Validator 관리">Java Validator 관리</span>
+            <span class="post-date" title="2020-12-18 07:47:42">2020/12/18</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA Security "
+           href="/2020/11/19/JAVA/Security/SessionManagementFilterAndConcurrentSessionFilter/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="SessionManagementFilterAndConcurrentSessionFilter">SessionManagementFilterAndConcurrentSessionFilter</span>
+            <span class="post-date" title="2020-11-19 18:02:23">2020/11/19</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA Security "
+           href="/2020/11/14/JAVA/Security/RememberMeAuthenticationFilter/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="RememberMeAuthenticationFilter">RememberMeAuthenticationFilter</span>
+            <span class="post-date" title="2020-11-14 07:40:06">2020/11/14</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA Security "
+           href="/2020/11/13/JAVA/Security/UsernamePasswordAuthenticationFilter/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="UsernamePasswordAuthenticationFilter">UsernamePasswordAuthenticationFilter</span>
+            <span class="post-date" title="2020-11-13 08:51:13">2020/11/13</span>
+        </a>
+        
+        
+        <a  class="모든 글 CI-CD Jenkins "
+           href="/2020/11/09/CI-CD/Jenkins/JenkinsGitLabConnect/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Jenkins_GitLab_연동">Jenkins_GitLab_연동</span>
+            <span class="post-date" title="2020-11-09 07:47:42">2020/11/09</span>
+        </a>
+        
+        
+        <a  class="모든 글 CI-CD Jenkins "
+           href="/2020/11/08/CI-CD/Jenkins/JenkinsGitLabSshConnect/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="젠킨스와 GitLab ssh 연동하기">젠킨스와 GitLab ssh 연동하기</span>
+            <span class="post-date" title="2020-11-08 07:47:42">2020/11/08</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA JPA "
+           href="/2020/11/08/JAVA/JPA/eagerJpqlNplus1/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="eagerJpqlNplus1">eagerJpqlNplus1</span>
+            <span class="post-date" title="2020-11-08 07:47:42">2020/11/08</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA SpringBootAndSecurityAndJWT "
+           href="/2020/11/08/JAVA/SpringBootAndSecurityAndJWT/spring-boot-security-jwt-social/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Boot 를 이용해 JWT + Social 로그인 처리 - Authorization Server (일반 로그인)">Spring Boot 를 이용해 JWT + Social 로그인 처리 - Authorization Server (일반 로그인)</span>
+            <span class="post-date" title="2020-11-08 07:47:42">2020/11/08</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA SpringBootAndSecurityAndJWT "
+           href="/2020/11/08/JAVA/SpringBootAndSecurityAndJWT/spring-boot-security-jwt-social2/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Boot 를 이용해 JWT + Social 로그인 처리 - Authorization Server (Social 로그인)">Spring Boot 를 이용해 JWT + Social 로그인 처리 - Authorization Server (Social 로그인)</span>
+            <span class="post-date" title="2020-11-08 07:47:42">2020/11/08</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA SpringBootAndSecurityAndJWT "
+           href="/2020/11/08/JAVA/SpringBootAndSecurityAndJWT/spring-boot-security-jwt-social3/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Boot 를 이용해 JWT + Social 로그인 처리 - Resource Server">Spring Boot 를 이용해 JWT + Social 로그인 처리 - Resource Server</span>
+            <span class="post-date" title="2020-11-08 07:47:42">2020/11/08</span>
+        </a>
+        
+        
+        <a  class="모든 글 J Jenkins "
+           href="/2020/11/07/JAVA/Security/JKSGenerate/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="JKSGenerate">JKSGenerate</span>
+            <span class="post-date" title="2020-11-07 13:46:21">2020/11/07</span>
+        </a>
+        
+        
+        <a  class="모든 글 CI-CD Jenkins "
+           href="/2020/11/07/CI-CD/Jenkins/JenkinsInstall/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="쿠버네티스 환경 구성">쿠버네티스 환경 구성</span>
+            <span class="post-date" title="2020-11-07 07:47:42">2020/11/07</span>
+        </a>
+        
+        
+        <a  class="모든 글 DB Mysql "
+           href="/2020/11/07/DB/Mysql/mysqlReplicationSetting/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Mysql_Replication_설정">Mysql_Replication_설정</span>
+            <span class="post-date" title="2020-11-07 07:47:42">2020/11/07</span>
+        </a>
+        
+        
+        <a  class="모든 글 KUBERNETES "
+           href="/2020/11/07/KUBERNETES/%EC%89%BD%EA%B2%8C_%EC%8B%9C%EC%9E%91%ED%95%98%EB%8A%94_%EC%BF%A0%EB%B2%84%EB%84%A4%ED%8B%B0%EC%8A%A4/%EC%BF%A0%EB%B2%84%EB%84%A4%ED%8B%B0%EC%8A%A4_%ED%99%98%EA%B2%BD_%EA%B5%AC%EC%84%B1/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Jenkins_설치">Jenkins_설치</span>
+            <span class="post-date" title="2020-11-07 07:47:42">2020/11/07</span>
+        </a>
+        
+        
+        <a  class="모든 글 R "
+           href="/2020/10/17/R/RServerInstall/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="RServer 설치">RServer 설치</span>
+            <span class="post-date" title="2020-10-17 07:47:42">2020/10/17</span>
+        </a>
+        
+        
+        <a  class="모든 글 JavaScript Webpack "
+           href="/2020/10/17/JAVASCRIPT/Webpack/devtool/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="WebPack - DevTool">WebPack - DevTool</span>
+            <span class="post-date" title="2020-10-17 07:47:42">2020/10/17</span>
+        </a>
+        
+        
+        <a  class="모든 글 "
+           href="/2018/12/02/%EB%A9%B4%EC%A0%91%EC%A4%80%EB%B9%84/test/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="그냥... 잡다한 지식 모음집">그냥... 잡다한 지식 모음집</span>
+            <span class="post-date" title="2018-12-02 15:50:00">2018/12/02</span>
+        </a>
+        
+        <div id="no-item-tips">
+
+        </div>
+    </nav>
+    <div id="outline-list">
+    </div>
+</div>
+
+    </div>
+    <div class="hide-list">
+        <div class="semicircle" data-title="切换全屏 快捷键 s">
+            <div class="brackets first"><</div>
+            <div class="brackets">&gt;</div>
+        </div>
+    </div>
+</aside>
+<div id="post">
+    <div class="pjax">
+        <article id="post-KAFKA/introduction/kafka_introduction" class="article article-type-post" itemscope itemprop="blogPost">
+    
+        <h1 class="article-title">카프카 개념 및 실전</h1>
+    
+    <div class="article-meta">
+        
+        
+        
+        <span class="book">
+            <i class="iconfont icon-category"></i>
+            
+            
+            <a  data-rel="Kafka">Kafka</a>
+            
+        </span>
+        
+        
+    </div>
+    <div class="article-meta">
+        
+            작성일 : <time class="date" title='수정일: 2025-07-06 19:28:46'>2025-07-06 07:47</time>
+        
+    </div>
+    <div class="article-meta">
+        
+        
+        <span id="busuanzi_container_page_pv">
+            조회수 :<span id="busuanzi_value_page_pv">
+                <span class="count-comment">
+                    <span class="spinner">
+                      <div class="cube1"></div>
+                      <div class="cube2"></div>
+                    </span>
+                </span>
+            </span>
+        </span>
+        
+        
+    </div>
+    
+    <div class="toc-ref">
+    
+        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%EC%98%88%EC%A0%9C-%EC%86%8C%EC%8A%A4-%EC%BD%94%EB%93%9C"><span class="toc-text">예제 소스 코드</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Kafka-%EC%95%8C%EC%95%84%EB%B3%B4%EA%B8%B0"><span class="toc-text">Kafka 알아보기</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Kafka-%EC%A3%BC%EC%9A%94-%EA%B5%AC%EC%84%B1-%EC%9A%94%EC%86%8C"><span class="toc-text">Kafka 주요 구성 요소</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Kafka-%EA%B8%B0%EB%B3%B8-%EB%8F%99%EC%9E%91-%EB%B0%A9%EC%8B%9D-Producer-%EC%99%80-Consumer-%EB%8A%94-Decoupling-%EB%90%98%EC%96%B4-%EC%9E%88%EB%8B%A4"><span class="toc-text">Kafka 기본 동작 방식 - Producer 와 Consumer 는 Decoupling 되어 있다.</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Kafka-%EA%B8%B0%EB%B3%B8-%EB%8F%99%EC%9E%91-%EB%B0%A9%EC%8B%9D-Kafka-Commit-Log-%EB%8A%94-%EC%B6%94%EA%B0%80%EB%A7%8C-%EA%B0%80%EB%8A%A5%ED%95%98%EA%B3%A0-%EB%B3%80%EA%B2%BD-%EB%B6%88%EA%B0%80%EB%8A%A5%ED%95%9C-%EB%8D%B0%EC%9D%B4%ED%84%B0-%EC%8A%A4%ED%8A%B8%EB%9F%AD%EC%B2%98"><span class="toc-text">Kafka 기본 동작 방식 - Kafka Commit Log 는 추가만 가능하고 변경 불가능한 데이터 스트럭처</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Kafka-%EB%85%BC%EB%A6%AC%EC%A0%81-%ED%91%9C%ED%98%84-Topic-Partition-Segment"><span class="toc-text">Kafka 논리적 표현 - Topic, Partition, Segment</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Kafka-%EB%AC%BC%EB%A6%AC%EC%A0%81-%ED%91%9C%ED%98%84-Topic-Partition-Segment"><span class="toc-text">Kafka 물리적 표현 - Topic, Partition, Segment</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Kafka-Serializer-Deserializer"><span class="toc-text">Kafka Serializer &amp; Deserializer</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Kafka-Producer-Application-%EB%82%B4%EB%B6%80-%EB%8F%99%EC%9E%91"><span class="toc-text">Kafka Producer Application 내부 동작</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Kafka-Consumer-Offset-%EC%95%8C%EC%95%84%EB%B3%B4%EA%B8%B0"><span class="toc-text">Kafka Consumer Offset 알아보기</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%EB%A9%80%ED%8B%B0-Partition-%EA%B3%BC-Consumer-%EA%B4%80%EA%B3%84"><span class="toc-text">멀티 Partition 과 Consumer 관계</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Kafka-Message-Ordering-%EC%88%9C%EC%84%9C"><span class="toc-text">Kafka Message Ordering (순서)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Consumer-Failure"><span class="toc-text">Consumer Failure</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Broker-Replication-%EA%B8%B0%EB%8A%A5"><span class="toc-text">Broker Replication 기능</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#In-Sync-Replicas-ISR"><span class="toc-text">In-Sync Replicas (ISR)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Producer-Acks-%EC%A0%84%EB%9E%B5"><span class="toc-text">Producer Acks 전략</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Acks-0"><span class="toc-text">Acks&#x3D;0</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Acks-1"><span class="toc-text">Acks&#x3D;1</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Acks-1-or-all"><span class="toc-text">Acks&#x3D;-1 or all</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%EB%A9%94%EC%8B%9C%EC%A7%80-%EC%A0%84%EB%8B%AC-%EB%B3%B4%EC%9E%A5-Message-Delivery-Guarantees-%EC%88%98%EC%A4%80%EC%97%90-%EB%8C%80%ED%95%B4-%EA%B3%A0%EB%A0%A4"><span class="toc-text">메시지 전달 보장 (Message Delivery Guarantees) 수준에 대해 고려</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#At-most-once-%EC%B5%9C%EB%8C%80-%ED%95%9C-%EB%B2%88"><span class="toc-text">At most once (최대 한 번)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#At-least-once-%EC%B5%9C%EC%86%8C-%ED%95%9C-%EB%B2%88"><span class="toc-text">At least once (최소 한 번)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Exactly-once-%EC%A0%95%ED%99%95%ED%9E%88-%ED%95%9C-%EB%B2%88"><span class="toc-text">Exactly once (정확히 한 번)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Exactly-Once-Semantics-EOS-%EC%9D%B4%EC%9A%A9-%ED%95%B4%EC%84%9C-%EB%A9%B1%EB%93%B1%EC%84%B1-%EB%B3%B4%EC%9E%A5-%ED%95%98%EA%B8%B0"><span class="toc-text">Exactly Once Semantics (EOS) 이용 해서 멱등성 보장 하기</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%EB%A9%94%EC%8B%9C%EC%A7%80-%EC%9D%B4%EB%B2%A4%ED%8A%B8-%EC%9D%B4%EC%9A%A9%EC%8B%9C-Transaction-OutBox-Pattern-%ED%95%A8%EA%BB%98-%EC%95%8C%EC%95%84%EB%B3%B4%EA%B8%B0"><span class="toc-text">메시지 이벤트 이용시 Transaction OutBox Pattern 함께 알아보기</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Consumer-Service-%EC%97%90%EC%84%9C-Retry-Queue-%EC%99%80-DLQ-Dead-Letter-Queue-%EC%95%8C%EC%95%84%EB%B3%B4%EA%B8%B0"><span class="toc-text">Consumer Service 에서 Retry Queue 와 DLQ (Dead Letter Queue) 알아보기</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%EC%9E%AC%EC%8B%9C%EB%8F%84-%ED%95%A0%EB%95%8C-%EA%B3%A0%EB%A0%A4-%ED%95%B4%EC%95%BC-%ED%95%A0-%EC%83%81%ED%99%A9%EB%93%A4"><span class="toc-text">재시도 할때 고려 해야 할 상황들</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%EC%9E%AC%EC%8B%9C%EB%8F%84-%EC%A0%9C%ED%95%9C-%ED%9A%9F%EC%88%98"><span class="toc-text">재시도 제한 횟수</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%EC%A7%80%EC%88%98-%EB%B0%B1%EC%98%A4%ED%94%84"><span class="toc-text">지수 백오프</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#jitter"><span class="toc-text">jitter</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#DLQ-Dead-Letter-Queue"><span class="toc-text">DLQ (Dead Letter Queue)</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%EC%8B%A4%EC%A0%84-Kafka-%EC%82%AC%EC%9A%A9%ED%95%B4%EB%B3%B4%EA%B8%B0"><span class="toc-text">실전 Kafka 사용해보기</span></a></li></ol></li></ol></li></ol>
+    
+<style>
+    .left-col .switch-btn,
+    .left-col .switch-area {
+        display: none;
+    }
+    .toc-level-3 i,
+    .toc-level-3 ol {
+        display: none !important;
+    }
+</style>
+</div>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="예제-소스-코드"><a href="#예제-소스-코드" class="headerlink" title="예제 소스 코드"></a>예제 소스 코드</h1><p>이번 블로그에 사용되는 코드는 아래 링크 통해 확인 할 수 있습니다.</p>
+<p><a target="_blank" rel="noopener" href="https://github.com/syh8088/kafka_study/tree/main/kafka_study">https://github.com/syh8088/kafka_study/tree/main/kafka_study</a></p>
+<h1 id="Kafka-알아보기"><a href="#Kafka-알아보기" class="headerlink" title="Kafka 알아보기"></a>Kafka 알아보기</h1><h2 id="Kafka-주요-구성-요소"><a href="#Kafka-주요-구성-요소" class="headerlink" title="Kafka 주요 구성 요소"></a>Kafka 주요 구성 요소</h2><p><img src="/../../../img/KAFKA/introduction/Kafka_mainComponent.png" alt="Kafka 주요 구성 요소"></p>
+<ul>
+<li>Topic: Kafka 안에서 메시지가 저장되는 장소 (논리적인 표현)</li>
+<li>Producer : 메시지를 생산(Produce) 해서 Kafka 의 <code>Topic</code> 으로 메시지를 보내는 애플리케이션</li>
+<li>Consumer : <code>Topic</code> 의 메시지를 가저와서 소비(Consume) 하는 애플리케이션</li>
+<li>Consumer Group : <code>Topic</code> 의 메시지를 사용하기 위해 협력하는 <code>Consumer</code> 들의 집합</li>
+</ul>
+<p>하나의 <code>Consumer</code> 는 하나의 <code>Consumer Group</code> 에 포함되며, <code>Consumer Group</code> 내의 <code>Consumer</code> 들은 협력하여 <code>Topic</code> 의 메시지를 분산 병렬 처리함</p>
+<h3 id="Kafka-기본-동작-방식-Producer-와-Consumer-는-Decoupling-되어-있다"><a href="#Kafka-기본-동작-방식-Producer-와-Consumer-는-Decoupling-되어-있다" class="headerlink" title="Kafka 기본 동작 방식 - Producer 와 Consumer 는 Decoupling 되어 있다."></a>Kafka 기본 동작 방식 - <code>Producer</code> 와 <code>Consumer</code> 는 <code>Decoupling</code> 되어 있다.</h3><p><img src="/../../../img/KAFKA/introduction/ProducerConsumerDecoupling.png" alt="`Producer` 와 `Consumer` 는 `Decoupling`"></p>
+<ul>
+<li>각각 <code>Producer</code> 와 <code>Consumer</code> 는 서로 알지 못하며 (알 필요도 없음), <code>Producer</code> 와 <code>Consumer</code> 는 각자 고유의 속도로 <code>Commit Log</code> 에 <code>Write</code> 및 <code>Read</code> 를 수행 합니다.</li>
+<li>다른 <code>Consumer Group</code> 에 속한 <code>Consumer</code> 들은 서로 관련이 없으며, <code>Commit Log</code> 에 있는 <code>Event(Message)</code> 를 동시에 다른 위치에서 <code>Read</code> 할 수 있습니다.</li>
+</ul>
+<h3 id="Kafka-기본-동작-방식-Kafka-Commit-Log-는-추가만-가능하고-변경-불가능한-데이터-스트럭처"><a href="#Kafka-기본-동작-방식-Kafka-Commit-Log-는-추가만-가능하고-변경-불가능한-데이터-스트럭처" class="headerlink" title="Kafka 기본 동작 방식 - Kafka Commit Log 는 추가만 가능하고 변경 불가능한 데이터 스트럭처"></a>Kafka 기본 동작 방식 - <code>Kafka Commit Log</code> 는 추가만 가능하고 변경 불가능한 데이터 스트럭처</h3><p><img src="/../../../img/KAFKA/introduction/KafkaCommitLog.png" alt="Kafka Commit Log"></p>
+<ul>
+<li>Commit Log : 추가만 가능하고 변경 불가능한 데이터 스트럭처 데이터(Event)는 항상 로그 끝에 추가되고 변경되지 않습니다.</li>
+<li>Offset : <code>Commit Log</code> 의 <code>Event</code> 위치</li>
+<li>CUREENT-OFFSET: <code>Consumer</code> 가 지금 현재 내가 어디까지 읽었는지 나타내는 용어</li>
+<li>LOG-END-OFFSET: <code>Producer</code> 가 지금 현재 어디까지 쓰기 를 했는지 나타내는 용어</li>
+<li>Consumer Lag: <code>CUREENT-OFFSET</code> 하고 <code>LOG-END-OFFSET</code> 차이</li>
+</ul>
+<h3 id="Kafka-논리적-표현-Topic-Partition-Segment"><a href="#Kafka-논리적-표현-Topic-Partition-Segment" class="headerlink" title="Kafka 논리적 표현 - Topic, Partition, Segment"></a>Kafka 논리적 표현 - <code>Topic</code>, <code>Partition</code>, <code>Segment</code></h3><p><img src="/../../../img/KAFKA/introduction/KafkaLogicalRepresentation.png" alt="Kafka 논리적 표현"></p>
+<ul>
+<li>Topic : Kafka 안에서 메시지가 저장되는 장소, 논리적인 표현</li>
+<li>Partition : <code>Commit Log</code>, 하나의 <code>Topic</code>은 하나 이상의 <code>Partition</code>으로 구성</li>
+<li>병렬처리(Throughput 향상)를 위해서 Multi Partition 사용 권장</li>
+<li>Segment : 메시지(데이터)가 저장되는 실제 물리 File <code>Segment File</code>이 지정된 크기보다 크거나 지정된 기간보다 오래되면 새 파일이 열리고 메시지는 새 파일에 추가됨</li>
+</ul>
+<h3 id="Kafka-물리적-표현-Topic-Partition-Segment"><a href="#Kafka-물리적-표현-Topic-Partition-Segment" class="headerlink" title="Kafka 물리적 표현 - Topic, Partition, Segment"></a>Kafka 물리적 표현 - <code>Topic</code>, <code>Partition</code>, <code>Segment</code></h3><p><img src="/../../../img/KAFKA/introduction/KafkaPhysicalRepresentation.png" alt="Kafka 물리적 표현"></p>
+<ul>
+<li><code>Topic</code> 생성시 <code>Partition</code> 수를 Custom 해서 설정 할 수 있습니다.</li>
+<li><code>Topic</code> 으로 구성 된 각각의 <code>Partition</code> 은 <code>Broker</code> 들에 분산되며 <code>Segment File</code> 들로 저장 및 구성 하게 됩니다.</li>
+<li><code>Topic</code> 생성시 <code>Kafka</code> 가 자동으로 <code>Topic</code>을 구성하는 전체 <code>Partition</code>들을 모든 <code>Broker</code>에게 할당해주고 분배 해줍니다.</li>
+<li>각각의 <code>Topic</code> 은 <code>Partition</code> 들을 서로 독립적 입니다.</li>
+<li><code>Partition</code> 내에 저장된 <code>Message (데이터)</code> 는 수정이 불가능 합니다.</li>
+<li><code>Offset</code> 값은 처음에 0 부터 시작 되며 다시 0 으로 돌아가지 않습니다.</li>
+</ul>
+<h3 id="Kafka-Serializer-Deserializer"><a href="#Kafka-Serializer-Deserializer" class="headerlink" title="Kafka Serializer &amp; Deserializer"></a>Kafka Serializer &amp; Deserializer</h3><p><img src="/../../../img/KAFKA/introduction/KafkaSerializer&Deserializer.png" alt="Serializer&amp;Deserializer"></p>
+<ul>
+<li><code>Kafka</code> 는 Record(데이터) 를 <code>Byte Array</code> 형식으로 저장 됩니다.</li>
+<li><code>Producer</code> 는 <code>Serializer</code> 사용하고 반대로 <code>Consumer</code> 는 <code>Deserializer</code> 를 사용하게 됩니다.</li>
+</ul>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">@Bean</span><br><span class="line">@Primary</span><br><span class="line">public ProducerFactory<span class="language-xml">&lt;String, Object&gt;</span> producerFactory(KafkaProperties kafkaProperties) &#123;</span><br><span class="line"><span class="code">    Map&lt;String, Object&gt; props = new HashMap&lt;&gt;();</span></span><br><span class="line"><span class="code">    props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaProperties.getBootstrapServers());</span></span><br><span class="line"><span class="code">    props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);</span></span><br><span class="line"><span class="code">    props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);</span></span><br><span class="line"><span class="code">    props.put(ProducerConfig.ACKS_CONFIG, &quot;-1&quot;);</span></span><br><span class="line"><span class="code">    props.put(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, &quot;true&quot;);</span></span><br><span class="line"><span class="code">    return new DefaultKafkaProducerFactory&lt;&gt;(props);</span></span><br><span class="line"><span class="code">&#125;</span></span><br><span class="line"><span class="code"></span></span><br><span class="line">@Bean</span><br><span class="line">@Primary</span><br><span class="line">public ConsumerFactory<span class="language-xml">&lt;String, Object&gt;</span> consumerFactory(KafkaProperties kafkaProperties) &#123;</span><br><span class="line"><span class="code">    Map&lt;String, Object&gt; props = new HashMap&lt;&gt;();</span></span><br><span class="line"><span class="code">    props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaProperties.getBootstrapServers());</span></span><br><span class="line"><span class="code">    props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);</span></span><br><span class="line"><span class="code">    props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);</span></span><br><span class="line"><span class="code">    props.put(ConsumerConfig.ALLOW_AUTO_CREATE_TOPICS_CONFIG, &quot;true&quot;);</span></span><br><span class="line"><span class="code">    props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, &quot;false&quot;);</span></span><br><span class="line"><span class="code">    return new DefaultKafkaConsumerFactory&lt;&gt;(props);</span></span><br><span class="line"><span class="code">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="Kafka-Producer-Application-내부-동작"><a href="#Kafka-Producer-Application-내부-동작" class="headerlink" title="Kafka Producer Application 내부 동작"></a>Kafka Producer Application 내부 동작</h3><p><img src="/../../../img/KAFKA/introduction/InternalWorkingsOfAKafkaProducerApplication.png" alt="Kafka Producer Application 내부 동작"></p>
+<p>우선 <code>Producer Application</code> 내에 전송 하고자 하는 <code>Producer Record</code> 데이터를 만듭니다. <code>Send()</code> 를 하게 된다면 <code>Serializer</code> 에서 미리 지정한 어떤 데이터 형식으로 Serializer 할 것인지 변환 되고 이전에 <code>Send()</code> 할때 <code>Partition</code> 을 지정을 했다면 어떤 파티션에 저장 할 것인지 지정을 하게 됩니다.</p>
+<p>그리고 <code>Compress</code> 압축을 할 것인지 선택하게 되고 <code>RecordAccumulator</code> 이라는 곳 에서 미리 지정했던 <code>Partition</code> 0 번으로 보낼 것인지 1 번으로 보낼 것 인지 에 따라 해당 되는 <code>Partition</code> 에 가서 데이터을 모아서 실질적으로 카프카 서버에 전송 하게 됩니다.</p>
+<p>카프카로 부터 응답이 오는데 성공적으로 저장 되었는지 아니면 실패 했는지에 따라 실패를 했다고 <code>재시도</code> 설정에 따라 다시 시도 하게 되고 성공이면 성공에 대한 응답을 하게 됩니다.</p>
+<p><img src="/../../../img/KAFKA/introduction/PartitionRole.png" alt="Partition 역활"><br><code>Producer Application</code> 내에 <code>Producer Record</code> 데이터를 만들고 카프카 서버로 전송시 <code>Partition Key</code> 값을 지정 하고 전송시 <code>Partitioner</code> 에서는 Hash 알고리즘으로 어떤 <code>Partition</code> 으로 보낼지 값을 계산해서 카프카에 전송 하게 됩니다.</p>
+<h3 id="Kafka-Consumer-Offset-알아보기"><a href="#Kafka-Consumer-Offset-알아보기" class="headerlink" title="Kafka Consumer Offset 알아보기"></a>Kafka Consumer Offset 알아보기</h3><p><code>Consumer Offset</code> 이란 지금까지 <code>Consumer Group</code> 에서 읽은 위치를 마크 한 Offset 을 말합니다. 즉 특정 <code>Consumer</code> 에서 해당 <code>Offset</code> 을 읽었다고 하면 수동이나 자동으로 데이터를 읽은 위치를 <code>commit</code> 해서 다시 읽음을 방지 하게 됩니다.</p>
+<p><code>__ consumer_offsets</code> 라는 <code>Internal Topic</code>에서 <code>Consumer Offset</code>을 저장하여 관리 합니다.</p>
+<h3 id="멀티-Partition-과-Consumer-관계"><a href="#멀티-Partition-과-Consumer-관계" class="headerlink" title="멀티 Partition 과 Consumer 관계"></a>멀티 Partition 과 Consumer 관계</h3><p><img src="/../../../img/KAFKA/introduction/Multi-PartitionAndConsumerRelationship.png" alt="멀티 Partition 과 싱글 Consumer 관계"></p>
+<p>3개의 <code>Partition</code> 으로 구성된 <code>Topic A</code>를 데이터를 사용하는 단 1개의 <code>Consumer</code>가 있는 경우 해당 <code>Consumer</code> 는 Topic 의 모든 <code>Partition</code> 에서 모든 <code>Record</code> 를 <code>Consume</code> 하게 됩니다.</p>
+<p><img src="/../../../img/KAFKA/introduction/Multi-PartitionAndMulti-ConsumerRelationship.png" alt="멀티 Partition 과 멀티 Consumer 관계"><br><img src="/../../../img/KAFKA/introduction/Multi-PartitionAndMulti-ConsumerRelationship2.png" alt="멀티 Partition 과 멀티 Consumer 관계2"></p>
+<ul>
+<li>동일한 <code>group 아이디</code> 로 구성된 각각의 <code>Consumer</code> 들은 하나의 <code>Consumer Group</code> 을 형성 하게 됩니다.</li>
+<li>만약 3개의 파티션이 존재하고 있는 <code>Topic A</code> 있다고 하면 <code>consume</code> 하는 <code>3개의 Consumer</code> 가 하나의 <code>Consumer Group (Group B)</code>에 있다면, 각 <code>Consumer</code> 는 정확히 하나의 <code>Partition</code>에서 <code>Record</code>를 <code>onsume</code> 하게 됩니다.</li>
+<li>(중요!!) <code>Partition</code>은 항상 <code>Consumer Group</code> 내의 하나의 <code>Consumer</code> 에 의해서만 사용 됩니다.</li>
+<li><code>Consumer</code> 는 주어진 <code>Topic</code> 에서 0개 이상의 많은 <code>Partition</code> 을 사용할 수 있습니다.</li>
+</ul>
+<h3 id="Kafka-Message-Ordering-순서"><a href="#Kafka-Message-Ordering-순서" class="headerlink" title="Kafka Message Ordering (순서)"></a>Kafka Message Ordering (순서)</h3><p><img src="/../../../img/KAFKA/introduction/KafkaMessageOrdering.png" alt="Kafka Message Ordering"></p>
+<ul>
+<li><code>Partition</code> 이 2개 이상일 경우 메시지 순서는 보장은 못 합니다. 만약 <code>Partition</code> 이 1개 일 경우는 순서는 보장 받을 수 있겠지만 처리량이 저하 될 수 있습니다.</li>
+<li><code>Partition</code> 2개 이상으로 순서 보장을 받고 싶으면 (유저 별로) 유저 식별자키 값을 이용해서 <code>Partition Key</code> 값을 만든 다음에 순서 보장 받아야 합니다.</li>
+</ul>
+<h3 id="Consumer-Failure"><a href="#Consumer-Failure" class="headerlink" title="Consumer Failure"></a>Consumer Failure</h3><p><img src="/../../../img/KAFKA/introduction/ConsumerFailure.png" alt="ConsumerFailure"></p>
+<p>3개의 <code>Partition</code>이 있는 <code>Topic</code> 을 하나의 <code>Consumer Group</code> 내에 <code>consume</code> 하는 3 개의 <code>Consumer</code>가 존재 한다고 가정 하겠습니다. 각 <code>Consumer</code> 는 정확히 하나의 <code>Partition</code> 에서 <code>Record</code> 를 <code>consume</code> 하고 있습니다.</p>
+<p>참고로 <code>Partition</code>은 항상 <code>Consumer Group</code> 내의 하나의 <code>Consumer</code> 에 의해서만 사용됩니다. 여기서 <code>Consumer 3</code> 번이 서버가 불능 상태가 빠지게 된다면 Kafka 내에서 <code>Rebalancing(리밸런시)</code> 한 다음에 <code>Consumer 2</code> 번이 대신 처리 하게 됩니다.</p>
+<h3 id="Broker-Replication-기능"><a href="#Broker-Replication-기능" class="headerlink" title="Broker Replication 기능"></a>Broker Replication 기능</h3><p><img src="/../../../img/KAFKA/introduction/BrokerReplication1.png" alt="BrokerReplication1"></p>
+<p><code>Producer</code> 와 <code>Consumer</code> 는 <code>Leader Partition</code> 만 통신 하게 됩니다. <code>Follower Partition</code> 는 복제만 역활 하게 됩니다.  즉 <code>Follower Partition</code> 는 <code>Broker</code> 장애시 안정성을 제공하기 위해서만 존재 합니다.</p>
+<p>그리고 <code>Follower Partition</code> 는 <code>Leader Partition</code> 의 <code>Commit Log</code> 에서 데이터를 가져 오기 <code>요청(Fetch Request)</code> 으로 복제 통해 동기화 하게 됩니다.</p>
+<p><img src="/../../../img/KAFKA/introduction/BrokerReplication2.png" alt="BrokerReplication2"></p>
+<p>만약 기존 <code>Leader Partition</code> 장애 발생시 <code>Kafka Controller</code> 인해서 <code>Follower Partition</code> 이 <code>Leader Partition</code> 으로 승격 처리 됩니다. 이후 <code>Producer</code> 는 새로 선출 된 <code>Leader</code> 에게만 <code>Write</code> 하고 <code>Consumer</code> 또한 <code>Leader</code> 로부터만 <code>Read</code> 하게 됩니다.</p>
+<h3 id="In-Sync-Replicas-ISR"><a href="#In-Sync-Replicas-ISR" class="headerlink" title="In-Sync Replicas (ISR)"></a>In-Sync Replicas (ISR)</h3><p><img src="/../../../img/KAFKA/introduction/In-SyncReplicas.png" alt="In-Sync Replicas (ISR)"></p>
+<p><code>In-Sync Replicas (ISR)</code>는 High <code>Water Mark</code> 지점까지 동일한 Replicas (Leader와 Follower 모두)의 목록을 지칭 합니다. 즉 <code>Leader</code> 장애 발생시 새로운 <code>Leader</code> 선출 하는데 사용 됩니다.</p>
+<p>만약 <code>Leader</code> 쪽에 장애가 발생 된다고 하면 ISR 중 하나가 <code>Leader</code> 로 선출 한다.</p>
+<h3 id="Producer-Acks-전략"><a href="#Producer-Acks-전략" class="headerlink" title="Producer Acks 전략"></a>Producer Acks 전략</h3><p>Kafka Producer 의 <code>acks</code> 설정은 <code>message</code> 가 <code>Brober</code> 에 잘 전송 되었는지 확인 하는 방식 으로 데이터의 안전성과 성능을 조절 하는 데 사용 됩니다.</p>
+<h4 id="Acks-0"><a href="#Acks-0" class="headerlink" title="Acks&#x3D;0"></a>Acks&#x3D;0</h4><p><img src="/../../../img/KAFKA/introduction/ProducerAcks=0.png" alt="Producer Acks=0"></p>
+<p><code>Producer</code> 는 <code>Broker</code>의 응답을 기다리지 않으며 메시지 전송이 즉시 완료된 것으로 간주 합니다. 데이터 손실 가능성이 가장 높지만 가장 높은 전송 속도를 제공 합니다. (보통 이 방식은 사용 되지 않음)</p>
+<h4 id="Acks-1"><a href="#Acks-1" class="headerlink" title="Acks&#x3D;1"></a>Acks&#x3D;1</h4><p><img src="/../../../img/KAFKA/introduction/ProducerAcks=1.png" alt="Producer Acks=1"></p>
+<p><code>Producer</code> 는 <code>Broker Leader Partition</code> 에게 메시지가 저장 되었 다는 응답을 기다리게 됩니다. <code>Broker Leader Partition</code>에 메시지가 저장 되었으므로 데이터 손실 가능성이 낮지만, <code>Leader Partition</code>이 실패하면 데이터가 유실될 가능성이 있습니다.</p>
+<h4 id="Acks-1-or-all"><a href="#Acks-1-or-all" class="headerlink" title="Acks&#x3D;-1 or all"></a>Acks&#x3D;-1 or all</h4><p><img src="/../../../img/KAFKA/introduction/ProducerAcks=-1ORall.png" alt="Producer Acks=-1 or all"></p>
+<p><code>Producer</code>는 <code>Broker Leader Partition</code> 과 모든 <code>Broker Follower Partition</code>가 저장 되었다는 응답을 기다립니다. (모두 <code>Commit</code> 이 완료 되면) 데이터 손실 가능성이 가장 낮지만 가장 낮은 전송 속도를 제공합니다.</p>
+<h2 id="메시지-전달-보장-Message-Delivery-Guarantees-수준에-대해-고려"><a href="#메시지-전달-보장-Message-Delivery-Guarantees-수준에-대해-고려" class="headerlink" title="메시지 전달 보장 (Message Delivery Guarantees) 수준에 대해 고려"></a>메시지 전달 보장 (Message Delivery Guarantees) 수준에 대해 고려</h2><h3 id="At-most-once-최대-한-번"><a href="#At-most-once-최대-한-번" class="headerlink" title="At most once (최대 한 번)"></a>At most once (최대 한 번)</h3><p>메세지가 딱 한번만 전송 됩니다. <code>Producer</code> 에서 <code>Kafka broker</code> 에게 메시지 전송 후 만약 <code>broker</code> 으로부터 <code>응답 확인 (Ack)</code>을 받지 못 하더라도 다시 재전송을 하지 않습니다.<br>중복 방지를 할 수 있겠지만 만약 네트워크 문제로 메시지를 정상적으로 <code>broker</code> 로 전송 하지 못 할 경우 데이터 유실이 발생 할 수 있습니다.</p>
+<h3 id="At-least-once-최소-한-번"><a href="#At-least-once-최소-한-번" class="headerlink" title="At least once (최소 한 번)"></a>At least once (최소 한 번)</h3><p>메시지 유실을 허용 하지 않는 전략 으로써 만약 <code>Producer</code> 에서 <code>Kafka broker</code> 에게 메시지 전송 후 <code>broker</code> 으로 부터 <code>응답 확인 (Ack)</code> 데이터를 받지 못하면 다시 재 전송을 하게 됩니다.</p>
+<p>이때 <code>broker</code> 가 정상적으로 메시지를 받았지만 저장을 못해서 발생된 문제인지 아니면 메시지 조차 못 받았는지 <code>Producer</code> 입장 으로 확인 할 수 없어 다시 메시지를 전송 하게 됩니다.</p>
+<p>이런 점을 보았을때 <code>At least once (최소 한 번)</code> 는 메시지 유실에 대한 방지에 목적을 두었지만 상황에 따라 메시지 중복은 발생 할 수 있습니다.</p>
+<h3 id="Exactly-once-정확히-한-번"><a href="#Exactly-once-정확히-한-번" class="headerlink" title="Exactly once (정확히 한 번)"></a>Exactly once (정확히 한 번)</h3><p>정확히 한번에 처리 하는 방식 이라고 생각 하면 됩니다. 즉 단 한번 으로 메시지 유실도 없고, 중복 메시지도 발생 하지 않으면서 처리 하는 방식 인데요.<br>이러한 두가지 조건을 만족 하기 위해서는 <code>ECO 시스템</code>이 필요 합니다. <code>Producer</code> 가 <code>Kafka broker</code> 에게 메시지 발생시 <code>Producer ID + 시퀀스 넘버 (유니크 키)</code> 값 함께 전송 하게 됩니다.<br>만약 중복 메시지가 전송 된다면 동일한 <code>Producer ID + 시퀀스 넘버</code> 값이 전송 하게 될테고 중복 으로 확인 된다면 처리 하지 않도록 합니다.</p>
+<p>반대로 메시지 발행 후 <code>Producer</code> 으로 응답 확인 <code>Ack</code> 값이 전송 하지 않으시 (처음 broker 로 메시지 도착 조차 안했을 경우) 다시 재전송 해서 처리 하게 됩니다.</p>
+<h3 id="Exactly-Once-Semantics-EOS-이용-해서-멱등성-보장-하기"><a href="#Exactly-Once-Semantics-EOS-이용-해서-멱등성-보장-하기" class="headerlink" title="Exactly Once Semantics (EOS) 이용 해서 멱등성 보장 하기"></a>Exactly Once Semantics (EOS) 이용 해서 멱등성 보장 하기</h3><p><img src="/../../../img/KAFKA/introduction/Produser_Duplication.png" alt="Producer 중복 발생 케이스"><br>ack 옵션 중 <code>ack = 1</code>, <code>ack -1 (all)</code> 으로 설정 후 <code>producer</code> 가 <code>broker</code> 에게 메시지를 발행 후 <code>ack</code> 응답을 보내지 않았는데 마침 성공적으로 <code>broker</code> 에 메시지를 저장 하게 된다면<br><code>producer</code> 는 이를 알지 못하니 다시 재전송을 하게 되어서 중복 처리 하게 됩니다.</p>
+<p><img src="/../../../img/KAFKA/introduction/Produser_EOS.png" alt="Produser EOS"></p>
+<p>이러한 문제를 해결하기 위해 애초에 <code>producer</code> 가 메시지 발행시 <code>Producer ID + 시퀀스 넘버</code> (유니크 키) 값 함께 전송 하게 됩니다.</p>
+<p>만약 해당 유니크 값을 이용해서 중복 메시지 발행 하더라도 broker 에서는 유니크 값을 인지해 중복 처리 방지 해서 멱등성을 유지 하도록 합니다.</p>
+<p>해당 옵션값은 <code>enable.idempotence</code> 에서 true 로 설정 하면 됩니다.</p>
+<h3 id="메시지-이벤트-이용시-Transaction-OutBox-Pattern-함께-알아보기"><a href="#메시지-이벤트-이용시-Transaction-OutBox-Pattern-함께-알아보기" class="headerlink" title="메시지 이벤트 이용시 Transaction OutBox Pattern 함께 알아보기"></a>메시지 이벤트 이용시 <code>Transaction OutBox Pattern</code> 함께 알아보기</h3><p><img src="/../../../img/KAFKA/introduction/TransactionOutBoxPattern1.png" alt="Transaction OutBox Pattern 도입 전"></p>
+<p><code>Producer</code> 에서 <code>Kafka</code> 로 메시지 발생시 동시에 <code>database</code> 에 있는 특정 데이터를 <code>Insert</code> 및 <code>Update</code> 처리 하고 메시지 발행 해야 하는 경우가 많이 발생 됩니다.</p>
+<p>만약 DB 에 있는 데이터를 <code>Insert</code> 및 <code>Update</code> 처리 완료 하고 메시지 발행시 실패 한다면 어떻게 될까요?</p>
+<p>반대로 DB 에 있는 데이터를 <code>Insert</code> 및 <code>Update</code> 처리는 실패 했지만 메시지 발행이 성공 되었다면 데이터 <code>일관성</code> 문제가 발생 됩니다. (메시지 발행은 <code>Rollback</code> 이 불가능 하다.)</p>
+<p>이때 해결하고자 <code>Transaction OutBox Pattern</code> 도입 하게 됩니다.</p>
+<p><img src="/../../../img/KAFKA/introduction/TransactionOutBoxPattern2.png" alt="Transaction OutBox Pattern 도입 후"></p>
+<p><code>Transactional Outbox Pattern</code> 경우 메시지 큐에 발행할 이벤트 메시지 내용을 <code>outbox 테이블</code>에 저장 하고 <code>Transaction 영역</code>에 포함 하도록 합니다.</p>
+<p>만약 이후 <code>DB Insert/Update</code> 처리 및 <code>메시지 발행에 필요한 outbox 테이블 Insert</code> 처리가 하나 라도 실패할 경우</p>
+<ol>
+<li><code>DB Insert/Update</code> 처리</li>
+<li><code>메시지 발행에 필요한 outbox 테이블 Insert</code> 처리</li>
+</ol>
+<p><code>Rollback</code> 이 되고 결국 메시지 발행은 하지 않도록 합니다.</p>
+<p>만약 성공 할때는 안전 하게 <code>메시지 발행에 필요한 outbox 테이블 Insert</code> 처리가 되면 주기적으로 DB 의 <code>outbox</code> 테이블에서 전송되지 않은 이벤트 메시지들을 조회해서 메시지 큐에 전송 하게 됩니다.</p>
+<h3 id="Consumer-Service-에서-Retry-Queue-와-DLQ-Dead-Letter-Queue-알아보기"><a href="#Consumer-Service-에서-Retry-Queue-와-DLQ-Dead-Letter-Queue-알아보기" class="headerlink" title="Consumer Service 에서 Retry Queue 와 DLQ (Dead Letter Queue) 알아보기"></a>Consumer Service 에서 <code>Retry Queue</code> 와 <code>DLQ (Dead Letter Queue)</code> 알아보기</h3><p><img src="/../../../img/KAFKA/introduction/RetryQueue&DLQ(DeadLetterQueue).png" alt="Consumer Service 에서 `Retry Queue` 와 `DLQ (Dead Letter Queue)`"></p>
+<h4 id="재시도-할때-고려-해야-할-상황들"><a href="#재시도-할때-고려-해야-할-상황들" class="headerlink" title="재시도 할때 고려 해야 할 상황들"></a>재시도 할때 고려 해야 할 상황들</h4><ul>
+<li>재시도 제한 횟수 (Retry Limited Count)</li>
+<li>지수 백오프 (Exponential Backoff)</li>
+<li>지터 (Jitter)</li>
+</ul>
+<h5 id="재시도-제한-횟수"><a href="#재시도-제한-횟수" class="headerlink" title="재시도 제한 횟수"></a>재시도 제한 횟수</h5><p>재시도 제한 횟수는 말그대로 에러 발생시 <code>재시도</code>를 몇 회 다시 시도 할 것 인가 입니다.</p>
+<h5 id="지수-백오프"><a href="#지수-백오프" class="headerlink" title="지수 백오프"></a>지수 백오프</h5><p><code>지수 백오프</code>는 <code>재시도</code>와 <code>재시도 간격</code>은 얼마나 해야 할까 입니다. 지수 백오프 사이에 시간 간격이 너무 짧으면 서버 과 부하로 이어 집니다.<br>그래서 예시로 1회 재시도 시 간격을 1초로 했다면 2회 재시도 시 에는 간격을 2초로 이렇게 설정 하도록 합니다.</p>
+<h5 id="jitter"><a href="#jitter" class="headerlink" title="jitter"></a>jitter</h5><p>요청이 동시에 재시도 되지 않도록 <code>지수 백오프 (Exponential Backoff)</code> 외에 무작위 지연을 추가적 으로 부여 하는 것 입니다.</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">private BackOff generateBackOff() &#123;</span><br><span class="line"></span><br><span class="line"><span class="code">    long backOffInitialInterval = 1000; # 재시도 사이의 초기 대기 시간(밀리초 단위)을 지정</span></span><br><span class="line"><span class="code">    double backOffMultipler =  2; # 재시도 사이의 대기시간 배수를 지정</span></span><br><span class="line"><span class="code">    int maxAtttempts = 3; # 재시도 하는 횟수</span></span><br><span class="line"><span class="code"></span></span><br><span class="line"><span class="code">    ExponentialBackOff backOff = new ExponentialBackOff(backOffInitialInterval, backOffMultipler);</span></span><br><span class="line"><span class="code">    backOff.setMaxAttempts(maxAtttempts);</span></span><br><span class="line"><span class="code">    return backOff;</span></span><br><span class="line"><span class="code">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="DLQ-Dead-Letter-Queue"><a href="#DLQ-Dead-Letter-Queue" class="headerlink" title="DLQ (Dead Letter Queue)"></a>DLQ (Dead Letter Queue)</h4><p>메시지 처리 작업 에서 중요 한 것은 실패는 허용될 수 있지만 누락은 결코 발생 해서는 안됩니다.</p>
+<p>만약 재시도 횟수 초과로 인해 더 이상 <code>Consumer</code> 에서 처리 할 수 없는 상황이 발생 되면 <code>DLQ (Dead Letter Queue)</code> 에 보관 하도록 하고 나중에 개발자가 후속 처리를 할 수 있도록 해야 합니다.</p>
+<h3 id="실전-Kafka-사용해보기"><a href="#실전-Kafka-사용해보기" class="headerlink" title="실전 Kafka 사용해보기"></a>실전 Kafka 사용해보기</h3><p><img src="/../../../img/KAFKA/introduction/Real-lifeScenario.png" alt="실전 Kafka 사용해보기"></p>
+<p><code>zookeeper</code> 1대, <code>kafka broker</code> 3대를 이용 해서 <code>Kafka Cluster</code> 를 구성 하고 <code>Producer</code> 1대 서버 및 <code>Consumer</code> 서버 2대를 이용 해서 <code>Kafka</code> 와 통신 하도록 합니다.</p>
+<p><code>Topic</code> 은 <code>board</code> 로 만들고 <code>partition</code> 은 3개 그리고 <code>Replication Factor</code> 를 3개로 합니다.</p>
+
+      
+       <hr><span style="font-style: italic;color: gray;"> Copyright 201- syh8088. 무단 전재 및 재배포 금지. 출처 표기 시 인용 가능. </span>
+    </div>
+</article>
+
+
+<p>
+    <a  class="dashang" onclick="dashangToggle()">버튼</a>
+</p>
+
+
+
+
+
+
+    
+
+
+
+
+    </div>
+    <div class="copyright">
+        <p class="footer-entry">
+    ©2017 Seo Yang Hun
+</p>
+<p class="footer-entry">Built with <a href="https://hexo.io/" target="_blank">Hexo</a> and <a href="https://github.com/yelog/hexo-theme-3-hexo" target="_blank">3-hexo</a> theme</p>
+
+    </div>
+    <div class="full-toc">
+        <button class="full" data-title="切换全屏 快捷键 s"><span class="min "></span></button>
+<a class="" id="rocket" ></a>
+
+    </div>
+</div>
+
+<div class="hide_box" onclick="dashangToggle()"></div>
+<div class="shang_box">
+    <a class="shang_close"  onclick="dashangToggle()">×</a>
+    <div class="shang_tit">
+        <p>喜欢就点赞,疼爱就打赏</p>
+    </div>
+    <div class="shang_payimg">
+        <div class="pay_img">
+            <img src="/img/alipay.jpg" class="alipay" title="扫码支持">
+            <img src="/img/weixin.jpg" class="weixin" title="扫码支持">
+        </div>
+    </div>
+    <div class="shang_payselect">
+        <span><label><input type="radio" name="pay" checked value="alipay">支付宝</label></span><span><label><input type="radio" name="pay" value="weixin">微信</label></span>
+    </div>
+</div>
+
+
+</body>
+<script src="/js/jquery.pjax.js?v=1.1.0" ></script>
+
+<script src="/js/script.js?v=1.1.0" ></script>
+<script>
+    var img_resize = 'default';
+    function initArticle() {
+        /*渲染对应的表格样式*/
+        
+            $("#post .pjax table").addClass("green_title");
+        
+
+        /*渲染打赏样式*/
+        
+        $("input[name=pay]").on("click", function () {
+            if($("input[name=pay]:checked").val()=="weixin"){
+                $(".shang_box .shang_payimg .pay_img").addClass("weixin_img");
+            } else {
+                $(".shang_box .shang_payimg .pay_img").removeClass("weixin_img");
+            }
+        })
+        
+
+        /*高亮代码块行号*/
+        
+
+        /*访问数量*/
+        
+        $.getScript("//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js");
+        
+
+        /*代码高亮，行号对齐*/
+        $('.pre-numbering').css('line-height',$('.has-numbering').css('line-height'));
+
+        
+        
+    }
+
+    /*打赏页面隐藏与展示*/
+    
+    function dashangToggle() {
+        $(".shang_box").fadeToggle();
+        $(".hide_box").fadeToggle();
+    }
+    
+
+</script>
+
+<!--加入行号的高亮代码块样式-->
+
+<!--自定义样式设置-->
+<style>
+    
+    
+    .nav {
+        width: 542px;
+    }
+    .nav.fullscreen {
+        margin-left: -542px;
+    }
+    .nav-left {
+        width: 120px;
+    }
+    
+    
+    @media screen and (max-width: 1468px) {
+        .nav {
+            width: 492px;
+        }
+        .nav.fullscreen {
+            margin-left: -492px;
+        }
+        .nav-left {
+            width: 100px;
+        }
+    }
+    
+    
+    @media screen and (max-width: 1024px) {
+        .nav {
+            width: 492px;
+            margin-left: -492px
+        }
+        .nav.fullscreen {
+            margin-left: 0;
+        }
+    }
+    
+    @media screen and (max-width: 426px) {
+        .nav {
+            width: 100%;
+        }
+        .nav-left {
+            width: 100%;
+        }
+    }
+    
+    
+    .nav-right .title-list nav a .post-title, .nav-right .title-list #local-search-result a .post-title {
+        color: #383636;
+    }
+    
+    
+    .nav-right .title-list nav a .post-date, .nav-right .title-list #local-search-result a .post-date {
+        color: #5e5e5f;
+    }
+    
+    
+    .nav-right nav a.hover, #local-search-result a.hover{
+        background-color: #e2e0e0;
+    }
+    
+    
+
+    /*列表样式*/
+    
+
+    /* 背景图样式 */
+    
+    
+
+
+    /*引用块样式*/
+    
+
+    /*文章列表背景图*/
+    
+
+    
+</style>
+
+
+
+
+
+
+
+</html>
