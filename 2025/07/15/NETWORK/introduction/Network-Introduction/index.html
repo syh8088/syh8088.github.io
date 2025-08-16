@@ -1,0 +1,2452 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>네트워크 - 구조 및 공유기 원리 | Seo Yang Hun Blog</title>
+  <meta name="keywords" content="">
+  <meta name="description" content="네트워크 - 구조 및 공유기 원리 | Seo Yang Hun Blog">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="description" content="{&quot;apiVersion&quot;:&quot;v1&quot;,&quot;kind&quot;:&quot;Service&quot;,&quot;metadata&quot;:{&quot;name&quot;:&quot;my-service&quot;,&quot;namespace&quot;:&quot;my-namespace&quot;},&quot;spec&quot;:{&quot;type&quot;:&quot;ClusterIP&quot;,&quot;ports&quot;:[{&quot;port&quot;:80,&quot;targetPort&quot;:80}],&quot;selector&quot;:{&quot;app&quot;:&quot;nginx&quot;}}}">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Seo Yang Hun Blog">
+<meta property="og:url" content="https://syh8088.github.io/2025/07/29/CI-CD/AWS_EKS_CICD/test/index.html">
+<meta property="og:site_name" content="Seo Yang Hun Blog">
+<meta property="og:description" content="{&quot;apiVersion&quot;:&quot;v1&quot;,&quot;kind&quot;:&quot;Service&quot;,&quot;metadata&quot;:{&quot;name&quot;:&quot;my-service&quot;,&quot;namespace&quot;:&quot;my-namespace&quot;},&quot;spec&quot;:{&quot;type&quot;:&quot;ClusterIP&quot;,&quot;ports&quot;:[{&quot;port&quot;:80,&quot;targetPort&quot;:80}],&quot;selector&quot;:{&quot;app&quot;:&quot;nginx&quot;}}}">
+<meta property="og:locale">
+<meta property="article:published_time" content="2025-07-29T13:13:07.566Z">
+<meta property="article:modified_time" content="2025-07-29T13:28:06.976Z">
+<meta property="article:author" content="Seo Yang Hun">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="icon" href="/img/avatar.jpg">
+
+<link href="/css/style.css?v=1.1.0" rel="stylesheet">
+
+<link href="/css/hl_theme/atom-light.css?v=1.1.0" rel="stylesheet">
+
+<link href="//cdn.jsdelivr.net/npm/animate.css@4.1.0/animate.min.css" rel="stylesheet">
+
+<script src="//cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"></script>
+<script src="/js/titleTip.js?v=1.1.0" ></script>
+
+<script src="//cdn.jsdelivr.net/npm/highlightjs@9.16.2/highlight.pack.min.js"></script>
+<script>
+    hljs.initHighlightingOnLoad();
+</script>
+
+<script src="//cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.js"></script>
+
+
+
+<script src="//cdn.jsdelivr.net/npm/jquery.cookie@1.4.1/jquery.cookie.min.js" ></script>
+
+<script src="/js/iconfont.js?v=1.1.0" ></script>
+
+<meta name="generator" content="Hexo 7.2.0"></head>
+<div style="display: none">
+  <input class="theme_disqus_on" value="false">
+  <input class="theme_preload_comment" value="">
+  <input class="theme_blog_path" value="">
+  <input id="theme_shortcut" value="true" />
+  <input id="theme_highlight_on" value="true" />
+  <input id="theme_code_copy" value="true" />
+</div>
+
+
+
+<body>
+<aside class="nav">
+    <div class="nav-left">
+        <a href="/"
+   class="avatar_target">
+    <img class="avatar"
+         src="/img/avatar.jpg"/>
+</a>
+<div class="author">
+    <span>Seo Yang Hun</span>
+</div>
+
+<div class="icon">
+    
+        
+            <a title="rss"
+               href="/atom.xml"
+               target="_blank">
+                
+                    <svg class="iconfont-svg" aria-hidden="true">
+                        <use xlink:href="#icon-rss"></use>
+                    </svg>
+                
+            </a>
+        
+    
+        
+            <a title="github"
+               href="https://github.com/syh8088"
+               target="_blank">
+                
+                    <svg class="iconfont-svg" aria-hidden="true">
+                        <use xlink:href="#icon-github"></use>
+                    </svg>
+                
+            </a>
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+            <a title="email"
+               href="mailto:syh8088@gmail.com"
+               target="_blank">
+                
+                    <svg class="iconfont-svg" aria-hidden="true">
+                        <use xlink:href="#icon-email"></use>
+                    </svg>
+                
+            </a>
+        
+    
+        
+            <a title="qq"
+               href="http://wpa.qq.com/msgrd?v=3&uin=872336115&site=qq&menu=yes"
+               target="_blank">
+                
+                    <svg class="iconfont-svg" aria-hidden="true">
+                        <use xlink:href="#icon-qq"></use>
+                    </svg>
+                
+            </a>
+        
+    
+        
+    
+        
+    
+</div>
+
+
+
+
+
+<ul>
+    <li>
+        <div class="all active" data-rel="All">All
+            
+                <small>(69)</small>
+            
+        </div>
+    </li>
+    
+        
+            
+                
+    <li>
+        <div data-rel="Authentication">
+            <i class="fold iconfont icon-right"></i>
+            Authentication
+            <small>(2)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="Authentication&lt;---&gt;JWT">
+            
+            JWT
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="Authentication&lt;---&gt;Oauth">
+            
+            Oauth
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="AWS">
+            <i class="fold iconfont icon-right"></i>
+            AWS
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="AWS&lt;---&gt;Image Resizing">
+            
+            Image Resizing
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="CI-CD">
+            <i class="fold iconfont icon-right"></i>
+            CI-CD
+            <small>(10)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="CI-CD&lt;---&gt;AWS">
+            <i class="fold iconfont icon-right"></i>
+            AWS
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="CI-CD&lt;---&gt;AWS&lt;---&gt;EKS">
+            <i class="fold iconfont icon-right"></i>
+            EKS
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="CI-CD&lt;---&gt;AWS&lt;---&gt;EKS&lt;---&gt;Kubernetes">
+            <i class="fold iconfont icon-right"></i>
+            Kubernetes
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="CI-CD&lt;---&gt;AWS&lt;---&gt;EKS&lt;---&gt;Kubernetes&lt;---&gt;Docker">
+            
+            Docker
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="CI-CD&lt;---&gt;GitHubActions">
+            
+            GitHubActions
+            <small>(6)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="CI-CD&lt;---&gt;Jenkins">
+            
+            Jenkins
+            <small>(3)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="DB">
+            <i class="fold iconfont icon-right"></i>
+            DB
+            <small>(5)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="DB&lt;---&gt;Mysql">
+            <i class="fold iconfont icon-right"></i>
+            Mysql
+            <small>(4)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="DB&lt;---&gt;Mysql&lt;---&gt;DBCP">
+            
+            DBCP
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="DB&lt;---&gt;Mysql&lt;---&gt;optimizing">
+            
+            optimizing
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="DB&lt;---&gt;Mysql&lt;---&gt;Paging">
+            
+            Paging
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="DB&lt;---&gt;MySql">
+            <i class="fold iconfont icon-right"></i>
+            MySql
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="DB&lt;---&gt;MySql&lt;---&gt;Collation">
+            
+            Collation
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="Elastic Search">
+            
+            Elastic Search
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="Flink">
+            <i class="fold iconfont icon-right"></i>
+            Flink
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="Flink&lt;---&gt;Real Time">
+            <i class="fold iconfont icon-right"></i>
+            Real Time
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="Flink&lt;---&gt;Real Time&lt;---&gt;Kafka">
+            
+            Kafka
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="J">
+            <i class="fold iconfont icon-right"></i>
+            J
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="J&lt;---&gt;Jenkins">
+            
+            Jenkins
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="JAVA">
+            <i class="fold iconfont icon-right"></i>
+            JAVA
+            <small>(29)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;HTTP">
+            <i class="fold iconfont icon-right"></i>
+            HTTP
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;HTTP&lt;---&gt;FeignClient">
+            
+            FeignClient
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;JPA">
+            
+            JPA
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;Object">
+            
+            Object
+            <small>(2)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;Payment">
+            
+            Payment
+            <small>(5)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;Security">
+            
+            Security
+            <small>(4)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;Spring">
+            <i class="fold iconfont icon-right"></i>
+            Spring
+            <small>(2)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;Spring&lt;---&gt;Payment">
+            <i class="fold iconfont icon-right"></i>
+            Payment
+            <small>(2)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;Spring&lt;---&gt;Payment&lt;---&gt;junit5">
+            <i class="fold iconfont icon-right"></i>
+            junit5
+            <small>(2)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;Spring&lt;---&gt;Payment&lt;---&gt;junit5&lt;---&gt;Mockito">
+            
+            Mockito
+            <small>(2)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;SpringBatch">
+            
+            SpringBatch
+            <small>(5)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;SpringBootAndSecurityAndJWT">
+            
+            SpringBootAndSecurityAndJWT
+            <small>(3)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;SpringCloudConfig">
+            
+            SpringCloudConfig
+            <small>(4)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;Transaction">
+            
+            Transaction
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;Validator">
+            
+            Validator
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="JavaScript">
+            <i class="fold iconfont icon-right"></i>
+            JavaScript
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="JavaScript&lt;---&gt;Webpack">
+            
+            Webpack
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="Kafka">
+            <i class="fold iconfont icon-right"></i>
+            Kafka
+            <small>(2)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="Kafka&lt;---&gt;idempotent">
+            
+            idempotent
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="KUBERNETES">
+            
+            KUBERNETES
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="MSA">
+            <i class="fold iconfont icon-right"></i>
+            MSA
+            <small>(3)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="MSA&lt;---&gt;Payment">
+            <i class="fold iconfont icon-right"></i>
+            Payment
+            <small>(3)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="MSA&lt;---&gt;Payment&lt;---&gt;Kafka">
+            <i class="fold iconfont icon-right"></i>
+            Kafka
+            <small>(3)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="MSA&lt;---&gt;Payment&lt;---&gt;Kafka&lt;---&gt;EDA">
+            <i class="fold iconfont icon-right"></i>
+            EDA
+            <small>(3)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="MSA&lt;---&gt;Payment&lt;---&gt;Kafka&lt;---&gt;EDA&lt;---&gt;CQRS">
+            
+            CQRS
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="MSA&lt;---&gt;Payment&lt;---&gt;Kafka&lt;---&gt;EDA&lt;---&gt;Saga">
+            <i class="fold iconfont icon-right"></i>
+            Saga
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="MSA&lt;---&gt;Payment&lt;---&gt;Kafka&lt;---&gt;EDA&lt;---&gt;Saga&lt;---&gt;Axon">
+            
+            Axon
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="Network">
+            
+            Network
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="NoSQL">
+            <i class="fold iconfont icon-right"></i>
+            NoSQL
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="NoSQL&lt;---&gt;Redis">
+            <i class="fold iconfont icon-right"></i>
+            Redis
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="NoSQL&lt;---&gt;Redis&lt;---&gt;RateLimiter">
+            
+            RateLimiter
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="R">
+            
+            R
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="대용량 트래픽">
+            <i class="fold iconfont icon-right"></i>
+            대용량 트래픽
+            <small>(3)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="대용량 트래픽&lt;---&gt;EDA">
+            <i class="fold iconfont icon-right"></i>
+            EDA
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="대용량 트래픽&lt;---&gt;EDA&lt;---&gt;Payment">
+            <i class="fold iconfont icon-right"></i>
+            Payment
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="대용량 트래픽&lt;---&gt;EDA&lt;---&gt;Payment&lt;---&gt;Redis">
+            <i class="fold iconfont icon-right"></i>
+            Redis
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="대용량 트래픽&lt;---&gt;EDA&lt;---&gt;Payment&lt;---&gt;Redis&lt;---&gt;Kafka">
+            
+            Kafka
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="대용량 트래픽&lt;---&gt;Redis">
+            <i class="fold iconfont icon-right"></i>
+            Redis
+            <small>(2)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="대용량 트래픽&lt;---&gt;Redis&lt;---&gt;Kafka">
+            
+            Kafka
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="대용량 트래픽&lt;---&gt;Redis&lt;---&gt;WebFlux">
+            <i class="fold iconfont icon-right"></i>
+            WebFlux
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="대용량 트래픽&lt;---&gt;Redis&lt;---&gt;WebFlux&lt;---&gt;접근자 대기열">
+            
+            접근자 대기열
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+</ul>
+<div class="left-bottom">
+    <div class="menus">
+        
+            
+            
+            
+    </div>
+    <div>
+        
+            <a class="about  hasFriend  site_url"
+               
+               href="/about">About</a>
+        
+        <a style="width: 50%"
+                
+                                           class="friends">Friends</a>
+        
+    </div>
+</div>
+<input type="hidden" id="yelog_site_posts_number" value="69">
+
+<div style="display: none">
+    <span id="busuanzi_value_site_uv"></span>
+    <span id="busuanzi_value_site_pv"></span>
+</div>
+
+    </div>
+    <div class="nav-right">
+        <div class="friends-area">
+    <div class="friends-title">
+        Links
+        <i class="iconfont icon-left"></i>
+    </div>
+    <div class="friends-content">
+        <ul>
+            
+            <li><a target="_blank" href="http://yelog.org/">叶落阁</a></li>
+            
+        </ul>
+    </div>
+</div>
+        <div class="title-list">
+    <div class="right-top">
+        <div id="default-panel">
+            <i class="iconfont icon-search" data-title="search shortcut key i"></i>
+            <div class="right-title">All</div>
+            <i class="iconfont icon-file-tree" data-title="switch to outline view shortcut key w"></i>
+        </div>
+        <div id="search-panel">
+            <i class="iconfont icon-left" data-title="return"></i>
+            <input id="local-search-input" autocomplete="off"/>
+            <label class="border-line" for="input"></label>
+            <i class="iconfont icon-case-sensitive" data-title="case sensitive"></i>
+            <i class="iconfont icon-tag" data-title="label"></i>
+        </div>
+        <div id="outline-panel" style="display: none">
+            <div class="right-title">outline</div>
+            <i class="iconfont icon-list" data-title="switch to article list"></i>
+        </div>
+    </div>
+
+    <div class="tags-list">
+    <input id="tag-search" />
+    <div class="tag-wrapper">
+        
+    </div>
+
+</div>
+
+    
+    <nav id="title-list-nav">
+        
+        
+        <a  class="All "
+           href="/2025/07/29/CI-CD/AWS_EKS_CICD/test/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title=""></span>
+            <span class="post-date" title="2025-07-29 22:13:07">2025/07/29</span>
+        </a>
+        
+        
+        <a  class="All DB MySql Collation "
+           href="/2025/07/23/DB/Mysql/Collation/Collation/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Mysql - Collation">Mysql - Collation</span>
+            <span class="post-date" title="2025-07-23 07:47:42">2025/07/23</span>
+        </a>
+        
+        
+        <a  class="All Network "
+           href="/2025/07/15/NETWORK/introduction/Network-Introduction/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="네트워크 - 구조 및 공유기 원리">네트워크 - 구조 및 공유기 원리</span>
+            <span class="post-date" title="2025-07-15 07:47:42">2025/07/15</span>
+        </a>
+        
+        
+        <a  class="All Kafka "
+           href="/2025/07/06/KAFKA/introduction/kafka_introduction/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="카프카 개념 및 실전">카프카 개념 및 실전</span>
+            <span class="post-date" title="2025-07-06 07:47:42">2025/07/06</span>
+        </a>
+        
+        
+        <a  class="All "
+           href="/2025/06/27/AWS/ImageResizing/imageTest/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title=""></span>
+            <span class="post-date" title="2025-06-27 20:10:06">2025/06/27</span>
+        </a>
+        
+        
+        <a  class="All AWS Image Resizing "
+           href="/2025/06/26/AWS/ImageResizing/aws-image-resizing/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="AWS Image Resizing 구현하기">AWS Image Resizing 구현하기</span>
+            <span class="post-date" title="2025-06-26 07:47:42">2025/06/26</span>
+        </a>
+        
+        
+        <a  class="All Elastic Search "
+           href="/2025/06/16/ELASTIC_SEARCH/introduction/elasticsearch-introduction/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Elastic Search 검색 활용기">Elastic Search 검색 활용기</span>
+            <span class="post-date" title="2025-06-16 07:47:42">2025/06/16</span>
+        </a>
+        
+        
+        <a  class="All Flink Real Time Kafka "
+           href="/2025/04/05/FLINK/introduction/Flink-Introduction/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Flink 이용해서 실시간 데이터 스트림 처리 해보기">Flink 이용해서 실시간 데이터 스트림 처리 해보기</span>
+            <span class="post-date" title="2025-04-05 07:47:42">2025/04/05</span>
+        </a>
+        
+        
+        <a  class="All Kafka idempotent "
+           href="/2024/12/23/KAFKA/idempotent/Kafka_idempotent/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="카프카 멱등성 및 이벤트 일관성 보장하기">카프카 멱등성 및 이벤트 일관성 보장하기</span>
+            <span class="post-date" title="2024-12-23 07:47:42">2024/12/23</span>
+        </a>
+        
+        
+        <a  class="All MSA Payment Kafka EDA CQRS "
+           href="/2024/12/16/MSA/paymentMsa/MSA_Payment_Project_3/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="결제 시스템으로 알아보는 MSA 3 - 쿼리 문제">결제 시스템으로 알아보는 MSA 3 - 쿼리 문제</span>
+            <span class="post-date" title="2024-12-16 07:47:42">2024/12/16</span>
+        </a>
+        
+        
+        <a  class="All MSA Payment Kafka EDA Saga Axon "
+           href="/2024/12/15/MSA/paymentMsa/MSA_Payment_Project_2/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="결제 시스템으로 알아보는 MSA 2 - 분산 트랜잭션 구현">결제 시스템으로 알아보는 MSA 2 - 분산 트랜잭션 구현</span>
+            <span class="post-date" title="2024-12-15 07:47:42">2024/12/15</span>
+        </a>
+        
+        
+        <a  class="All MSA Payment Kafka EDA "
+           href="/2024/12/14/MSA/paymentMsa/MSA_Payment_Project_1/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="결제 시스템으로 알아보는 MSA 1 - 기본 설명">결제 시스템으로 알아보는 MSA 1 - 기본 설명</span>
+            <span class="post-date" title="2024-12-14 07:47:42">2024/12/14</span>
+        </a>
+        
+        
+        <a  class="All 대용량 트래픽 EDA Payment Redis Kafka "
+           href="/2024/12/13/HIGH_VOLUME_TRAFFIC/PaymentEDA/PaymentEDA/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="결제 시스템으로 알아보는 EDA 시스템">결제 시스템으로 알아보는 EDA 시스템</span>
+            <span class="post-date" title="2024-12-13 07:47:42">2024/12/13</span>
+        </a>
+        
+        
+        <a  class="All DB Mysql optimizing "
+           href="/2024/12/06/DB/Mysql/optimizing/IndexDiveOptimizaiton/IndexDiveOptimizaiton/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Index Dive 최적화">Index Dive 최적화</span>
+            <span class="post-date" title="2024-12-06 07:47:42">2024/12/06</span>
+        </a>
+        
+        
+        <a  class="All JAVA Spring Payment junit5 Mockito "
+           href="/2024/12/03/JAVA/TEST/PaymentTesting/PaymentTesting2/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="결제 Testing - 2">결제 Testing - 2</span>
+            <span class="post-date" title="2024-12-03 15:50:00">2024/12/03</span>
+        </a>
+        
+        
+        <a  class="All JAVA Spring Payment junit5 Mockito "
+           href="/2024/12/02/JAVA/TEST/PaymentTesting/PaymentTesting1/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="결제 Testing - 1">결제 Testing - 1</span>
+            <span class="post-date" title="2024-12-02 15:50:00">2024/12/02</span>
+        </a>
+        
+        
+        <a  class="All 대용량 트래픽 Redis WebFlux 접근자 대기열 "
+           href="/2024/11/28/HIGH_VOLUME_TRAFFIC/AccessorQueuingSystem/AccessorQueuingSystem/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="대용량 트래픽 - 접근자 대기열 시스템 만들기">대용량 트래픽 - 접근자 대기열 시스템 만들기</span>
+            <span class="post-date" title="2024-11-28 07:47:42">2024/11/28</span>
+        </a>
+        
+        
+        <a  class="All 대용량 트래픽 Redis Kafka "
+           href="/2024/11/22/HIGH_VOLUME_TRAFFIC/CreateCoupon/CreateCoupon/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="대용량 트래픽 - 선착순 쿠폰 등록 With Kafka, Redis">대용량 트래픽 - 선착순 쿠폰 등록 With Kafka, Redis</span>
+            <span class="post-date" title="2024-11-22 07:47:42">2024/11/22</span>
+        </a>
+        
+        
+        <a  class="All NoSQL Redis RateLimiter "
+           href="/2024/11/19/NoSQL/Redis/RateLimiter/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Request Rate Limiter 구현하기">Request Rate Limiter 구현하기</span>
+            <span class="post-date" title="2024-11-19 07:47:42">2024/11/19</span>
+        </a>
+        
+        
+        <a  class="All CI-CD GitHubActions "
+           href="/2024/10/20/CI-CD/GitHunActions/GitHubActionsCICDWithSpringBoot6/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="GitHubActions CICD With SpringBoot - 6">GitHubActions CICD With SpringBoot - 6</span>
+            <span class="post-date" title="2024-10-20 07:47:42">2024/10/20</span>
+        </a>
+        
+        
+        <a  class="All CI-CD GitHubActions "
+           href="/2024/10/19/CI-CD/GitHunActions/GitHubActionsCICDWithSpringBoot5/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="GitHubActions CICD With SpringBoot - 5">GitHubActions CICD With SpringBoot - 5</span>
+            <span class="post-date" title="2024-10-19 07:47:42">2024/10/19</span>
+        </a>
+        
+        
+        <a  class="All CI-CD GitHubActions "
+           href="/2024/10/18/CI-CD/GitHunActions/GitHubActionsCICDWithSpringBoot4/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="GitHubActions CICD With SpringBoot - 4">GitHubActions CICD With SpringBoot - 4</span>
+            <span class="post-date" title="2024-10-18 07:47:42">2024/10/18</span>
+        </a>
+        
+        
+        <a  class="All CI-CD GitHubActions "
+           href="/2024/10/17/CI-CD/GitHunActions/GitHubActionsCICDWithSpringBoot3/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="GitHubActions CICD With SpringBoot - 3">GitHubActions CICD With SpringBoot - 3</span>
+            <span class="post-date" title="2024-10-17 07:47:42">2024/10/17</span>
+        </a>
+        
+        
+        <a  class="All CI-CD GitHubActions "
+           href="/2024/10/14/CI-CD/GitHunActions/GitHubActionsCICDWithSpringBoot2/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="GitHubActions CICD With SpringBoot - 2">GitHubActions CICD With SpringBoot - 2</span>
+            <span class="post-date" title="2024-10-14 07:47:42">2024/10/14</span>
+        </a>
+        
+        
+        <a  class="All CI-CD GitHubActions "
+           href="/2024/10/14/CI-CD/GitHunActions/GitHubActionsCICDWithSpringBoot1/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="GitHubActions CICD With SpringBoot - 1">GitHubActions CICD With SpringBoot - 1</span>
+            <span class="post-date" title="2024-10-14 07:47:42">2024/10/14</span>
+        </a>
+        
+        
+        <a  class="All CI-CD AWS EKS Kubernetes Docker "
+           href="/2024/10/14/CI-CD/AWS_EKS_CICD/aws_eks_cicd/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="AWS EKS 서버 배포 - CI/CD">AWS EKS 서버 배포 - CI/CD</span>
+            <span class="post-date" title="2024-10-14 07:47:42">2024/10/14</span>
+        </a>
+        
+        
+        <a  class="All DB Mysql Paging "
+           href="/2024/10/06/DB/Mysql/PagingQuery/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Paging Query 성능 개선 및 처리 방법 - 튜닝편">Paging Query 성능 개선 및 처리 방법 - 튜닝편</span>
+            <span class="post-date" title="2024-10-06 07:47:42">2024/10/06</span>
+        </a>
+        
+        
+        <a  class="All DB Mysql DBCP "
+           href="/2024/10/02/DB/Mysql/mysqlDBCP/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="DBCP 설정 방법">DBCP 설정 방법</span>
+            <span class="post-date" title="2024-10-02 07:47:42">2024/10/02</span>
+        </a>
+        
+        
+        <a  class="All JAVA Object "
+           href="/2024/08/24/JAVA/Object/InheritanceComposition2/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="상속과 합성 이야기-2">상속과 합성 이야기-2</span>
+            <span class="post-date" title="2024-08-24 15:50:00">2024/08/24</span>
+        </a>
+        
+        
+        <a  class="All JAVA Object "
+           href="/2024/08/23/JAVA/Object/InheritanceComposition1/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="상속과 합성 이야기-1">상속과 합성 이야기-1</span>
+            <span class="post-date" title="2024-08-23 15:50:00">2024/08/23</span>
+        </a>
+        
+        
+        <a  class="All JAVA Payment "
+           href="/2024/08/06/JAVA/Payment/PaymentTransactionalOutboxpattern/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="결제 시스템 구축 - 5">결제 시스템 구축 - 5</span>
+            <span class="post-date" title="2024-08-06 15:50:00">2024/08/06</span>
+        </a>
+        
+        
+        <a  class="All JAVA Payment "
+           href="/2024/08/05/JAVA/Payment/PaymentRetry/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="결제 시스템 구축 - 4">결제 시스템 구축 - 4</span>
+            <span class="post-date" title="2024-08-05 15:50:00">2024/08/05</span>
+        </a>
+        
+        
+        <a  class="All JAVA Payment "
+           href="/2024/07/28/JAVA/Payment/BuildingPaymentSystem/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="결제 시스템 구축 - 1">결제 시스템 구축 - 1</span>
+            <span class="post-date" title="2024-07-28 15:50:00">2024/07/28</span>
+        </a>
+        
+        
+        <a  class="All JAVA Payment "
+           href="/2024/07/28/JAVA/Payment/PaymentCheckOut/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="결제 시스템 구축 - 2">결제 시스템 구축 - 2</span>
+            <span class="post-date" title="2024-07-28 15:50:00">2024/07/28</span>
+        </a>
+        
+        
+        <a  class="All JAVA Payment "
+           href="/2024/07/28/JAVA/Payment/PaymentConfirm/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="결제 시스템 구축 - 3">결제 시스템 구축 - 3</span>
+            <span class="post-date" title="2024-07-28 15:50:00">2024/07/28</span>
+        </a>
+        
+        
+        <a  class="All "
+           href="/2024/05/31/hello-world/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Hello World">Hello World</span>
+            <span class="post-date" title="2024-05-31 22:32:19">2024/05/31</span>
+        </a>
+        
+        
+        <a  class="All "
+           href="/2024/05/31/README/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title=""></span>
+            <span class="post-date" title="2024-05-31 22:32:19">2024/05/31</span>
+        </a>
+        
+        
+        <a  class="All JAVA Security "
+           href="/2024/05/30/JAVA/Security/AnonymousAuthenticationFilter/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="AnonymousAuthenticationFilter">AnonymousAuthenticationFilter</span>
+            <span class="post-date" title="2024-05-30 10:04:43">2024/05/30</span>
+        </a>
+        
+        
+        <a  class="All "
+           href="/2024/02/01/HIGH_VOLUME_TRAFFIC/AccessorQueuingSystem2/AccessorQueuingSystem/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="패스트캠퍼스 9개 프로젝트로 경험하는 대용량 트래픽 &amp; 데이터 처리 초격차 패키지 Online. 수강">패스트캠퍼스 9개 프로젝트로 경험하는 대용량 트래픽 &amp; 데이터 처리 초격차 패키지 Online. 수강</span>
+            <span class="post-date" title="2024-02-01 00:00:00">2024/02/01</span>
+        </a>
+        
+        
+        <a  class="All Authentication JWT "
+           href="/2021/11/27/AUTHTICATION/JWT/jwt/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="JWT (JSON Web Token) 이해하기">JWT (JSON Web Token) 이해하기</span>
+            <span class="post-date" title="2021-11-27 07:47:42">2021/11/27</span>
+        </a>
+        
+        
+        <a  class="All Authentication Oauth "
+           href="/2021/11/27/AUTHTICATION/OAUTH/oauth/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="OAUTH 2.0 이해하기">OAUTH 2.0 이해하기</span>
+            <span class="post-date" title="2021-11-27 07:47:42">2021/11/27</span>
+        </a>
+        
+        
+        <a  class="All JAVA HTTP FeignClient "
+           href="/2021/11/08/JAVA/HTTP/FeignClient/FeignClient/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="FeignClient 활용도">FeignClient 활용도</span>
+            <span class="post-date" title="2021-11-08 10:04:43">2021/11/08</span>
+        </a>
+        
+        
+        <a  class="All JAVA SpringBatch "
+           href="/2021/11/04/JAVA/Batch/SpringBatch5/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Batch - Chunk 5">Spring Batch - Chunk 5</span>
+            <span class="post-date" title="2021-11-04 07:47:42">2021/11/04</span>
+        </a>
+        
+        
+        <a  class="All JAVA SpringBatch "
+           href="/2021/10/30/JAVA/Batch/SpringBatch4/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Batch - Flow 4">Spring Batch - Flow 4</span>
+            <span class="post-date" title="2021-10-30 07:47:42">2021/10/30</span>
+        </a>
+        
+        
+        <a  class="All JAVA SpringBatch "
+           href="/2021/10/24/JAVA/Batch/SpringBatch3/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Batch - 메타데이터 스키마 3">Spring Batch - 메타데이터 스키마 3</span>
+            <span class="post-date" title="2021-10-24 07:47:42">2021/10/24</span>
+        </a>
+        
+        
+        <a  class="All JAVA SpringBatch "
+           href="/2021/10/19/JAVA/Batch/SpringBatch2/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Batch - Job, Step 2">Spring Batch - Job, Step 2</span>
+            <span class="post-date" title="2021-10-19 07:47:42">2021/10/19</span>
+        </a>
+        
+        
+        <a  class="All JAVA SpringBatch "
+           href="/2021/10/17/JAVA/Batch/SpringBatch1/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Batch 1">Spring Batch 1</span>
+            <span class="post-date" title="2021-10-17 07:47:42">2021/10/17</span>
+        </a>
+        
+        
+        <a  class="All JAVA SpringCloudConfig "
+           href="/2021/09/13/JAVA/SpringCloudConfig/spring-cloud-config4/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="비대칭키를 이용한 application.yml 설정값 암호화">비대칭키를 이용한 application.yml 설정값 암호화</span>
+            <span class="post-date" title="2021-09-13 07:47:45">2021/09/13</span>
+        </a>
+        
+        
+        <a  class="All JAVA SpringCloudConfig "
+           href="/2021/09/13/JAVA/SpringCloudConfig/spring-cloud-config3/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Cloud Bus">Spring Cloud Bus</span>
+            <span class="post-date" title="2021-09-13 07:47:44">2021/09/13</span>
+        </a>
+        
+        
+        <a  class="All JAVA SpringCloudConfig "
+           href="/2021/09/13/JAVA/SpringCloudConfig/spring-cloud-config2/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Boot Actuator">Spring Boot Actuator</span>
+            <span class="post-date" title="2021-09-13 07:47:43">2021/09/13</span>
+        </a>
+        
+        
+        <a  class="All JAVA SpringCloudConfig "
+           href="/2021/09/13/JAVA/SpringCloudConfig/spring-cloud-config/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Cloud Config">Spring Cloud Config</span>
+            <span class="post-date" title="2021-09-13 07:47:42">2021/09/13</span>
+        </a>
+        
+        
+        <a  class="All JAVA Transaction "
+           href="/2021/03/14/JAVA/Transaction/multi-transaction/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Java Multi-Transaction 관리">Java Multi-Transaction 관리</span>
+            <span class="post-date" title="2021-03-14 07:47:42">2021/03/14</span>
+        </a>
+        
+        
+        <a  class="All JAVA Validator "
+           href="/2020/12/18/JAVA/VALIDATOR/validator/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Java Validator 관리">Java Validator 관리</span>
+            <span class="post-date" title="2020-12-18 07:47:42">2020/12/18</span>
+        </a>
+        
+        
+        <a  class="All JAVA Security "
+           href="/2020/11/19/JAVA/Security/SessionManagementFilterAndConcurrentSessionFilter/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="SessionManagementFilterAndConcurrentSessionFilter">SessionManagementFilterAndConcurrentSessionFilter</span>
+            <span class="post-date" title="2020-11-19 18:02:23">2020/11/19</span>
+        </a>
+        
+        
+        <a  class="All JAVA Security "
+           href="/2020/11/14/JAVA/Security/RememberMeAuthenticationFilter/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="RememberMeAuthenticationFilter">RememberMeAuthenticationFilter</span>
+            <span class="post-date" title="2020-11-14 07:40:06">2020/11/14</span>
+        </a>
+        
+        
+        <a  class="All JAVA Security "
+           href="/2020/11/13/JAVA/Security/UsernamePasswordAuthenticationFilter/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="UsernamePasswordAuthenticationFilter">UsernamePasswordAuthenticationFilter</span>
+            <span class="post-date" title="2020-11-13 08:51:13">2020/11/13</span>
+        </a>
+        
+        
+        <a  class="All CI-CD Jenkins "
+           href="/2020/11/09/CI-CD/Jenkins/JenkinsGitLabConnect/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Jenkins_GitLab_연동">Jenkins_GitLab_연동</span>
+            <span class="post-date" title="2020-11-09 07:47:42">2020/11/09</span>
+        </a>
+        
+        
+        <a  class="All CI-CD Jenkins "
+           href="/2020/11/08/CI-CD/Jenkins/JenkinsGitLabSshConnect/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="젠킨스와 GitLab ssh 연동하기">젠킨스와 GitLab ssh 연동하기</span>
+            <span class="post-date" title="2020-11-08 07:47:42">2020/11/08</span>
+        </a>
+        
+        
+        <a  class="All JAVA JPA "
+           href="/2020/11/08/JAVA/JPA/eagerJpqlNplus1/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="eagerJpqlNplus1">eagerJpqlNplus1</span>
+            <span class="post-date" title="2020-11-08 07:47:42">2020/11/08</span>
+        </a>
+        
+        
+        <a  class="All JAVA SpringBootAndSecurityAndJWT "
+           href="/2020/11/08/JAVA/SpringBootAndSecurityAndJWT/spring-boot-security-jwt-social/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Boot 를 이용해 JWT + Social 로그인 처리 - Authorization Server (일반 로그인)">Spring Boot 를 이용해 JWT + Social 로그인 처리 - Authorization Server (일반 로그인)</span>
+            <span class="post-date" title="2020-11-08 07:47:42">2020/11/08</span>
+        </a>
+        
+        
+        <a  class="All JAVA SpringBootAndSecurityAndJWT "
+           href="/2020/11/08/JAVA/SpringBootAndSecurityAndJWT/spring-boot-security-jwt-social2/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Boot 를 이용해 JWT + Social 로그인 처리 - Authorization Server (Social 로그인)">Spring Boot 를 이용해 JWT + Social 로그인 처리 - Authorization Server (Social 로그인)</span>
+            <span class="post-date" title="2020-11-08 07:47:42">2020/11/08</span>
+        </a>
+        
+        
+        <a  class="All JAVA SpringBootAndSecurityAndJWT "
+           href="/2020/11/08/JAVA/SpringBootAndSecurityAndJWT/spring-boot-security-jwt-social3/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Boot 를 이용해 JWT + Social 로그인 처리 - Resource Server">Spring Boot 를 이용해 JWT + Social 로그인 처리 - Resource Server</span>
+            <span class="post-date" title="2020-11-08 07:47:42">2020/11/08</span>
+        </a>
+        
+        
+        <a  class="All J Jenkins "
+           href="/2020/11/07/JAVA/Security/JKSGenerate/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="JKSGenerate">JKSGenerate</span>
+            <span class="post-date" title="2020-11-07 13:46:21">2020/11/07</span>
+        </a>
+        
+        
+        <a  class="All CI-CD Jenkins "
+           href="/2020/11/07/CI-CD/Jenkins/JenkinsInstall/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="쿠버네티스 환경 구성">쿠버네티스 환경 구성</span>
+            <span class="post-date" title="2020-11-07 07:47:42">2020/11/07</span>
+        </a>
+        
+        
+        <a  class="All DB Mysql "
+           href="/2020/11/07/DB/Mysql/mysqlReplicationSetting/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Mysql_Replication_설정">Mysql_Replication_설정</span>
+            <span class="post-date" title="2020-11-07 07:47:42">2020/11/07</span>
+        </a>
+        
+        
+        <a  class="All KUBERNETES "
+           href="/2020/11/07/KUBERNETES/%EC%89%BD%EA%B2%8C_%EC%8B%9C%EC%9E%91%ED%95%98%EB%8A%94_%EC%BF%A0%EB%B2%84%EB%84%A4%ED%8B%B0%EC%8A%A4/%EC%BF%A0%EB%B2%84%EB%84%A4%ED%8B%B0%EC%8A%A4_%ED%99%98%EA%B2%BD_%EA%B5%AC%EC%84%B1/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Jenkins_설치">Jenkins_설치</span>
+            <span class="post-date" title="2020-11-07 07:47:42">2020/11/07</span>
+        </a>
+        
+        
+        <a  class="All R "
+           href="/2020/10/17/R/RServerInstall/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="RServer 설치">RServer 설치</span>
+            <span class="post-date" title="2020-10-17 07:47:42">2020/10/17</span>
+        </a>
+        
+        
+        <a  class="All JavaScript Webpack "
+           href="/2020/10/17/JAVASCRIPT/Webpack/devtool/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="WebPack - DevTool">WebPack - DevTool</span>
+            <span class="post-date" title="2020-10-17 07:47:42">2020/10/17</span>
+        </a>
+        
+        
+        <a  class="All "
+           href="/2018/12/02/%EB%A9%B4%EC%A0%91%EC%A4%80%EB%B9%84/test/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="그냥... 잡다한 지식 모음집">그냥... 잡다한 지식 모음집</span>
+            <span class="post-date" title="2018-12-02 15:50:00">2018/12/02</span>
+        </a>
+        
+        <div id="no-item-tips">
+
+        </div>
+    </nav>
+    <div id="outline-list">
+    </div>
+</div>
+
+    </div>
+    <div class="hide-list">
+        <div class="semicircle" data-title="Toggle full screen shortcut key s">
+            <div class="brackets first"><</div>
+            <div class="brackets">&gt;</div>
+        </div>
+    </div>
+</aside>
+<div id="post">
+    <div class="pjax">
+        <article id="post-NETWORK/introduction/Network-Introduction" class="article article-type-post" itemscope itemprop="blogPost">
+    
+        <h1 class="article-title">네트워크 - 구조 및 공유기 원리</h1>
+    
+    <div class="article-meta">
+        
+        
+        
+        <span class="book">
+            <i class="iconfont icon-category"></i>
+            
+            
+            <a  data-rel="Network">Network</a>
+            
+        </span>
+        
+        
+    </div>
+    <div class="article-meta">
+        
+            Created At : <time class="date" title='Updated At: 2025-08-16 21:05:12'>2025-07-15 07:47</time>
+        
+    </div>
+    <div class="article-meta">
+        
+        
+        <span id="busuanzi_container_page_pv">
+            Views 👀 :<span id="busuanzi_value_page_pv">
+                <span class="count-comment">
+                    <span class="spinner">
+                      <div class="cube1"></div>
+                      <div class="cube2"></div>
+                    </span>
+                </span>
+            </span>
+        </span>
+        
+        
+    </div>
+    
+    <div class="toc-ref">
+    
+        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%EB%84%A4%ED%8A%B8%EC%9B%8C%ED%81%AC-%EA%B5%AC%EC%A1%B0-%EB%B0%8F-%EA%B3%B5%EC%9C%A0%EA%B8%B0-%EC%9B%90%EB%A6%AC"><span class="toc-text">네트워크 - 구조 및 공유기 원리</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Inline-%EA%B5%AC%EC%A1%B0"><span class="toc-text">Inline 구조</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Out-of-path-%EA%B5%AC%EC%A1%B0-%EC%99%80-DPI-%EA%B7%B8%EB%A6%AC%EA%B3%A0-%EB%A7%9D%EC%A4%91%EB%A6%BD"><span class="toc-text">Out of path 구조   와 DPI 그리고 망중립</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Proxy-%EA%B5%AC%EC%A1%B0"><span class="toc-text">Proxy 구조</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%EA%B3%B5%EC%9C%A0%EA%B8%B0"><span class="toc-text">공유기</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Symmetric-NAT-%EB%B0%A9%EC%8B%9D"><span class="toc-text">Symmetric NAT 방식</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Full-Cone-%EB%B0%A9%EC%8B%9D"><span class="toc-text">Full Cone 방식</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Restricted-Cone-%EB%B0%A9%EC%8B%9D"><span class="toc-text">Restricted Cone 방식</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Port-Restricted-Cone-%EB%B0%A9%EC%8B%9D"><span class="toc-text">Port Restricted Cone 방식</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%ED%8F%AC%ED%8A%B8-%ED%8F%AC%EC%9B%8C%EB%94%A9"><span class="toc-text">포트 포워딩</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#UPnP"><span class="toc-text">UPnP</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#VPC"><span class="toc-text">VPC</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#VPN-GtoG"><span class="toc-text">VPN GtoG</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#VPN-GtoE"><span class="toc-text">VPN GtoE</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#IPSec"><span class="toc-text">IPSec</span></a></li></ol></li></ol></li></ol>
+    
+<style>
+    .left-col .switch-btn,
+    .left-col .switch-area {
+        display: none;
+    }
+    .toc-level-3 i,
+    .toc-level-3 ol {
+        display: none !important;
+    }
+</style>
+</div>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="네트워크-구조-및-공유기-원리"><a href="#네트워크-구조-및-공유기-원리" class="headerlink" title="네트워크 - 구조 및 공유기 원리"></a>네트워크 - 구조 및 공유기 원리</h1><h2 id="Inline-구조"><a href="#Inline-구조" class="headerlink" title="Inline 구조"></a>Inline 구조</h2><p><img src="/../../../img/NETWORK/introduction/Inline.png" alt="Inline"></p>
+<p>먼저 <code>인라인(Inline)</code> 구조를 갖는 네트워크 장치를 설명하자면 <code>라우터</code>, <code>공유기</code>, <code>방화벽</code> 등이 있습니다. <code>인라인(Inline)</code> 구조에서 다루는 데이터 단위는 <code>OSI</code> <code>Layer L3</code> 계층인 <code>IP 계층</code>에서 <code>패킷(Packet)</code> 단위로 다루고 있습니다.</p>
+<p>가장 특징적인 부분은 <code>패킷(Packet)</code> 을 필터링 하는 기능을 수행 합니다. 자세하게 말하자면 패킷을 <code>차단(drop)</code> 하거나 차단하지 않고 <code>전송(bypass)</code> 중 선택을 할 수 있습니다.</p>
+<p>어떤 이유로 인해 Inline Device 가 <code>차단(drop)</code> 혹은 <code>전송(bypass)</code> 결정 하느냐에 따라 이 장치의 성격이 각각 다릅니다.</p>
+<h2 id="Out-of-path-구조-와-DPI-그리고-망중립"><a href="#Out-of-path-구조-와-DPI-그리고-망중립" class="headerlink" title="Out of path 구조   와 DPI 그리고 망중립"></a>Out of path 구조   와 DPI 그리고 망중립</h2><p><code>Out of path</code> 구조도 <code>인라인(Inline)</code> 구조와 동일하게 데이터 단위가 <code>패킷(Packet)</code> 입니다. 하지만 <code>인라인(Inline)</code> 구조와 다르게 필터링 기능은 없고 <code>패킷(Packet)</code> 을 읽기만 가능 합니다. 이러한 기능 때문에 <code>Out of path</code> 구조는 주로 네트워크 보안을 감지 및 네트워크 장애를 감지하는 센서 기능을 주로 업무를 맡고 있습니다.</p>
+<p>즉 네트워크 패킷 데이터를 따로 어딘가에 Copy 를 하고 이러한 행위를 <code>L2 Port Mirroring</code> 이라고 지칭 합니다.</p>
+<h2 id="Proxy-구조"><a href="#Proxy-구조" class="headerlink" title="Proxy 구조"></a>Proxy 구조</h2><p><code>Proxy</code> 구조는 특정 목적지를 우회해서 통신한다는 의미 입니다. 예를들어 <code>Server 1</code> 서버가 <code>Server 2</code> 서버로 통신하고자 할때 <code>Server 2</code> 서버 입장에서는 <code>Server 1</code> 서버에 대한 정보를 알 수 있습니다. IP 주소 등 출발지에 대한 정보를 알 수 있는데,</p>
+<p><code>Server 1</code> 입장에서는 자신의 서버 정보를 노출 하고 싶지 않을때 <code>Proxy</code> 정보를 사용하게 됩니다. 이렇게 자신의 정보를 노출하고 싶지 않을때 <code>Proxy</code> 서버가 대신해서 우회해 <code>Server 2</code> 서버 입장에서는 출발지 IP 주소를 <code>Proxy</code> 서버가 되어 줍니다.</p>
+<p><img src="/../../../img/NETWORK/introduction/Proxy1.png" alt="Proxy 1"><br><img src="/../../../img/NETWORK/introduction/Proxy2.png" alt="Proxy 2"></p>
+<p><code>프록시</code> 서버는 <code>대기(Listen)</code> 전용 소켓을 하나 생성해서 <code>Server 1</code> 로 부터 요청 받고  프록시 서버는 도착지인 <code>Server 2</code> 서버로 요청 하기 위한 소켓을 또 하나 생성하게 됩니다.</p>
+<p>예를 들어서 PC1은 한국에 있는 컴퓨터라고 가정해보자. 그리고 통신하려는 목적지인 구글 웹서버는 미국에 있다고 해보자. 이 때, 프<br>록시를 사용하지 않고 일반적으로 네트워크 통신하는 과정은 위 그림의 회색 실선과 같다. 그런데 이러한 구조에서는 특징이 하나 있<br>다. 구글 웹서버의 관점에서, 자기 자신에게 통신 요청을 보낸 서버 즉, PC1에 대한 정보를 구글 웹서버는 다 볼 수 있다. 위 그림에서<br>는 구글 웹서버는 네트워크에 있는 데이터를 보고 이 요청을 보낸 서버의 이름이 PC1 이고 IP 주소가 무엇이고 등 여러가지 정보를<br>알 수 있다. 다시 말해 출발지 서버에 대한 정보를 모두 알 수 있다.</p>
+<p>그런데 PC1이 구글 웹서버에 자신의 정보를 노출하고 싶지 않을 수 있다. 이렇게 클라이언트 자신의 IP 주소와 같은 정보를 숨기기<br>위해서도 프록시를 사용하기도 한다. 이런 경우에 프록시 서버 덕분에 구글 웹서버에서 볼 수 있는 출발지 IP 주소는 PC1의 주소가<br>아닌 프록시 서버의 IP 주소가 된다.</p>
+<p>물론 또 다른 경우에, 아래 그림처럼 인터넷 즉, 정확히 말하면 인터넷을 제공하는 업체인 ISP(Internet Service Provider)가 PC1이<br>접속하려는 구글 웹서버를 (그럴리야 없겠지만 .. ) 차단했을 수도 있다.</p>
+<p>PC1은 어떻게 해서든 구글 웹서버에 접속하고 싶다. 이럴 때 PC1은 프록시 서버를 통해서 구글 웹서버에 우회하여 접속할 수 있게 된<br>다. 물론 이렇게 프록시 서버를 통해 통신하는 방법은 직접 통신할 때보다 당연히 속도가 느려질 수 밖에 없다.</p>
+<p>이번엔 프록시 서버 구조를 컴퓨터의 3계층 그림으로 이해해보도록 하자.</p>
+<p>가장 먼저 프록시 서버는 소켓을 하나 생성해서 PC1에서 보낼 요청에 대한 대기(Listen) 상태에 있기 시작한다. 그리고 PC1은 프록<br>시 서버로 요청을 보내고, 이 순간 프록시 서버는 프록시 서버 자신이 도착지인 구글 웹서버로 요청을 보내기 위한 소켓을 또 하나 생<br>성한다. 그리고 이를 통해 구글 웹서버로 PC1의 요청을 그대로 보내준다. 위 그림에서 1번~4번 순서를 잘 따라가며 읽어보도록 하자.</p>
+<h2 id="공유기"><a href="#공유기" class="headerlink" title="공유기"></a>공유기</h2><h3 id="Symmetric-NAT-방식"><a href="#Symmetric-NAT-방식" class="headerlink" title="Symmetric NAT 방식"></a>Symmetric NAT 방식</h3><p><img src="/../../../img/NETWORK/introduction/Symmetric1.png" alt="Symmetric NAT 방식 1"></p>
+<p><code>Private IP</code> 192.168.0.10 소유하고 있는 PC가 <code>300.300.300.300</code> 공인 IP 를 소유하고 있는 서버에게 인터넷 통신을 하게 된다면 우선 <code>Packet</code> 데이터 형식으로 만들어서 인터넷 통신을 하게 됩니다. </p>
+<p>출발지는 <code>192.168.0.10</code> 이라는 출발지 정보와 도착지 정보 IP <code>300.300.300.300</code> 이라는 정보를 <code>Packet</code>에 담아서 전송하게 됩니다. </p>
+<p><img src="/../../../img/NETWORK/introduction/Symmetric2.png" alt="Symmetric NAT 방식 2"></p>
+<p>하지만 <code>NAT Gateway</code> 에서 <code>192.168.0.10</code> IP 경우는 외부 인터넷 세계에 사용할 수 없는 IP 이기 때문에 공인 IP 인 <code>100.100.100.100</code> 으로 변경하고 포트도 <code>23000</code> 으로 변경 후 <code>Outbound</code> 로 인해 전송 하게 됩니다. </p>
+<p><img src="/../../../img/NETWORK/introduction/Symmetric3.png" alt="Symmetric NAT 방식 3"></p>
+<p>이와 동시에 공유기 <code>NAT Table</code> 에서는 </p>
+<ul>
+<li>Local IP: <code>192.168.0.10</code></li>
+<li>Local Port: <code>8080</code></li>
+<li>External Port: <code>23000</code></li>
+<li>Remote IP: <code>300.300.300.300</code></li>
+<li>Remote Port: <code>80</code></li>
+<li>Protocol: <code>TCP</code></li>
+</ul>
+<p>이와 같은 정보를 저장 하고 전송 하게 됩니다.</p>
+<p><img src="/../../../img/NETWORK/introduction/Symmetric4.png" alt="Symmetric NAT 방식 4"></p>
+<p>이후 <code>300.300.300.300</code> 소유 하고 있는 서버로 부터 응답을 받게 된다면</p>
+<ul>
+<li>출발지 정보 IP: <code>300.300.300.300</code></li>
+<li>도착지 정보 IP: <code>100.100.100.100</code></li>
+<li>출발지 정보 Port: <code>80</code></li>
+<li>도착지 정보 Port: <code>23000</code></li>
+</ul>
+<p>이라는 <code>Packet</code> 담아서 응답 하게 됩니다.</p>
+<p>정상적으로 <code>NAT Gateway</code> 까지 도착 하면 <code>Inbound</code> 로 인해 이전에 <code>NAT Table</code> 에서 저장 했던 정보 <code>External Port</code>, <code>Remote IP</code>, <code>Remote Port</code> 정보를 찾아서 <code>Local IP</code>, <code>Local Port</code> 정보 값을 추출 하게 됩니다. 이 정보를 바탕으로 공유기는 내부망에 있는 초기 호출 했던 PC에 안전하게 전달 하게 됩니다.</p>
+<p>그런데 만약 <code>NAT Table</code> 에 검색된 레코드 값이 존재 하지 않으면 자체적으로 한번도 통신한 적이 없는 호스트로 판단해서 내부 진입을 할 수 없게 합니다.</p>
+<h3 id="Full-Cone-방식"><a href="#Full-Cone-방식" class="headerlink" title="Full Cone 방식"></a>Full Cone 방식</h3><p><img src="/../../../img/NETWORK/introduction/FullCone1.png" alt="Full Cone 방식 1"></p>
+<p><code>192.168.0.10:8080</code> 호스트가 <code>Server A</code> 까지 접속 하고자 합니다. <code>Outbound</code> 방식으로 통신과 동시에 해당 정보를 <code>NAT Table</code> 에 레코드를 추가 하는데 <code>Full Cone</code> 방식 경우는 <code>Local IP</code>, <code>Local Port</code> 를 자신의 소유하고 있는 PC 정보를 그리고 <code>External Port</code> 는 <code>23000</code> 으로 저장 하게 됩니다. 그리고 여기서 가장 중요한 것은 <code>Remote</code> 부분은 모두 <code>Any</code> 로 처리 한다는 점 입니다.</p>
+<p><img src="/../../../img/NETWORK/introduction/FullCone2.png" alt="Full Cone 방식 2"></p>
+<p>이후 한번도 통신 한적이 없었던 <code>Server B</code> 와도  내부 호스트와 P2P 통신이 가능 합니다. 왜냐하면 <code>Server A</code> 가 <code>Server B</code> 서버 한테 내부 호스트 (<code>192.168.0.10:8080</code>) 통신 해도 된다고 해당 Client IP, Port 를 알리고 <code>Server B</code> 서버는 </p>
+<ul>
+<li>출발지 정보 IP: <code>200.200.200.200</code></li>
+<li>도착지 정보 IP: <code>100.100.100.100</code></li>
+<li>출발지 정보 Port: <code>80</code></li>
+<li>도착지 정보 Port: <code>23000</code></li>
+</ul>
+<p>이라는 <code>Packet</code> 담아서 응답 하게 됩니다.</p>
+<p><img src="/../../../img/NETWORK/introduction/FullCone3.png" alt="Full Cone 방식 3"></p>
+<p>정상적으로 <code>NAT Gateway</code> 까지 도착 하면 <code>Inbound</code> 로 인해 이전에 <code>NAT Table</code> 에서 저장 했던 정보 <code>External Port</code> 23000 번 포트를 찾아서 패킷 정보를 </p>
+<ul>
+<li>출발지 정보 IP: <code>200.200.200.200</code></li>
+<li>도착지 정보 IP: <code>192.168.0.10</code></li>
+<li>출발지 정보 Port: <code>80</code></li>
+<li>도착지 정보 Port: <code>8080</code></li>
+</ul>
+<p>변경하고 최초 호출한 호스트 정보까지 응답 하게 됩니다.</p>
+<h3 id="Restricted-Cone-방식"><a href="#Restricted-Cone-방식" class="headerlink" title="Restricted Cone 방식"></a>Restricted Cone 방식</h3><p><code>Full Cone</code> 방식 경우는 단점 경우 보안성이 떨어지기 때문에 (<code>Local IP</code>, <code>Local Port</code> 정보만 알면 된다.) 이것을 보완한 방식이 <code>Restricted Cone</code> 방식 입니다. </p>
+<p>예를들어 <code>192.168.0.10</code> 이라는 IP 하고 <code>8080</code> Port 통해 <code>300.300.300.300</code> IP 그리고 <code>80</code> Port 로 통신 한다고 가정 하겠습니다. <code>NAT Gateway</code> 통해서 패킷이 <code>Outbound</code> 할때</p>
+<ul>
+<li>출발지 정보 IP: <code>100.100.100.100</code></li>
+<li>도착지 정보 IP: <code>300.300.300.300</code></li>
+<li>출발지 정보 Port: <code>23000</code></li>
+<li>도착지 정보 Port: <code>80</code></li>
+</ul>
+<p>패킷으로 변조되어 통신 할테고 <code>NAT Table</code> 에 레코드를 추가 하는데 </p>
+<table>
+<thead>
+<tr>
+<th>Local IP</th>
+<th>Local Port</th>
+<th>External Prot</th>
+<th>Remote IP</th>
+<th>Remote Port</th>
+<th>Protocol</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>192.168.0.10</td>
+<td>8080</td>
+<td>23000</td>
+<td>300.300.300.300</td>
+<td>Any</td>
+<td>TCP</td>
+</tr>
+</tbody></table>
+<p>이렇게 추가가 됩니다. <code>Remote Port</code> 값만 Any 로 처리 되는 것이 특징 입니다. </p>
+<p>Inbund 할때 다른 IP가 (<code>300.300.300.300</code> 이외) 들어오면 Drop 하게 되고 <code>300.300.300.300</code>  다른 포트여도 remote IP가 같으니 접속이 가능하게 만든 방식이다.</p>
+<h3 id="Port-Restricted-Cone-방식"><a href="#Port-Restricted-Cone-방식" class="headerlink" title="Port Restricted Cone 방식"></a>Port Restricted Cone 방식</h3><p><img src="/../../../img/NETWORK/introduction/PortRestrictedCone1.png" alt="Port Restricted Cone 방식 1"></p>
+<p><code>Port Restricted Cone</code> 방식은 External Port + Remote IP + Remote Port 까지 제한을 하는 방식 입니다.</p>
+<p>예를들어  <code>192.168.0.10</code> 이라는 IP 하고 <code>8080</code> Port 통해 <code>300.300.300.300</code> IP 그리고 <code>80</code> Port 로 통신 한다고 가정 하겠습니다. <code>NAT Gateway</code> 통해서 패킷이 <code>Outbound</code> 할때</p>
+<ul>
+<li>출발지 정보 IP: <code>100.100.100.100</code></li>
+<li>도착지 정보 IP: <code>300.300.300.300</code></li>
+<li>출발지 정보 Port: <code>23000</code></li>
+<li>도착지 정보 Port: <code>80</code></li>
+</ul>
+<p>패킷으로 변조되어 통신 할테고 <code>NAT Table</code> 에 레코드를 추가 하는데</p>
+<table>
+<thead>
+<tr>
+<th>Local IP</th>
+<th>Local Port</th>
+<th>External Prot</th>
+<th>Remote IP</th>
+<th>Remote Port</th>
+<th>Protocol</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>192.168.0.10</td>
+<td>8080</td>
+<td>23000</td>
+<td>300.300.300.300</td>
+<td>80</td>
+<td>TCP</td>
+</tr>
+</tbody></table>
+<p><img src="/../../../img/NETWORK/introduction/PortRestrictedCone2.png" alt="Port Restricted Cone 방식 2"></p>
+<p>이렇게 추가 된 상태에서 다시 <code>192.168.0.10</code> 이라는 IP 하고 이번엔 <code>8081</code> Port 통해 <code>300.300.300.300</code> IP 그리고 <code>81</code> Port 로 통신 한다고 가정 하겠습니다.</p>
+<ul>
+<li>출발지 정보 IP: <code>100.100.100.100</code></li>
+<li>도착지 정보 IP: <code>300.300.300.300</code></li>
+<li>출발지 정보 Port: <code>23000</code></li>
+<li>도착지 정보 Port: <code>81</code></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Local IP</th>
+<th>Local Port</th>
+<th>External Prot</th>
+<th>Remote IP</th>
+<th>Remote Port</th>
+<th>Protocol</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>192.168.0.10</td>
+<td>8081</td>
+<td>23000</td>
+<td>300.300.300.300</td>
+<td>81</td>
+<td>TCP</td>
+</tr>
+</tbody></table>
+<p>기존 <code>Restricted Cone</code> 경우와 차이점은 <code>External Prot</code> 값을 다른 값으로 저장하게 되는데 <code>Port Restricted Cone</code> 방식은 가능하다면 최대한 같은 포트번호를 유지합니다. 이렇게 함으로써 포트번호 예측이 가능 해서 보안성이 떨어지는 점이 있습니다.</p>
+<h3 id="포트-포워딩"><a href="#포트-포워딩" class="headerlink" title="포트 포워딩"></a>포트 포워딩</h3><p><img src="/../../../img/NETWORK/introduction/portforwarding1.png" alt="포트 포워딩 1"></p>
+<p><code>NAT Table</code> 직접 조작해서 관리 하고 싶을때가 있습니다. 예를들어 Private IP 192.168.0.10 호스트를 가지고 있는 PC에 직접 <code>Nginx</code> 설치하고 (Port 80) 설치한 웹서버로 어떤 외부 서버가 통신을 하더라도 설치한 PC로 통신이 가능하도록 할려면 <code>NAT Table</code> 를 조작 해야 하는데 이것을 포트 포워딩 작업이라고 합니다.</p>
+<p><img src="/../../../img/NETWORK/introduction/portforwarding2.png" alt="포트 포워딩 2"><br>보통 공유기 설정 페이지에 추가가 가능 합니다.</p>
+<h3 id="UPnP"><a href="#UPnP" class="headerlink" title="UPnP"></a>UPnP</h3><p><img src="/../../../img/NETWORK/introduction/UPnP1.png" alt="UPnP1"><br><img src="/../../../img/NETWORK/introduction/UPnP_portforwarding.jpg" alt="UPnP Port Forwarding"><br><code>UPnP</code> 는  P2P 통신에 필요한 포트번호, IP 등을 공유기 설정 자동화 해주는 기술 입니다. 예를들어 <code>P2P</code> 통신을 하는 <code>토렌트</code> 를 생각해보자 <code>A PC 호스트</code> 가 외부 인터넷 통신을 통해 <code>B PC 호스트</code> 까지 통신을 가능하게 할려면 앞써 설명한 공유기에 <code>포트포워딩</code> 설정을 해야 합니다. 이것을  별도의 설정 없이 서로 자동으로 연결되고 기능을 사용할 수 있도록 하는 기술 <code>UPnP</code> 라고 합니다.</p>
+<h2 id="VPC"><a href="#VPC" class="headerlink" title="VPC"></a>VPC</h2><p>Private Network 사설망을 확장해서 운영을 하고 싶을때 즉 물리적인 네트워크 망을 늘리고 싶지만 운영상 해결 할 수 없을때(비용 이슈) 공유 네트워크 망을 통해 네트워크 통신을 하되 보안성 이슈를 확보 하고 네트워크 망을 확장 하는 것이 <code>VPC</code> 입니다.</p>
+<p><code>VPC</code> 구현하기 위해서는 중요한 것은 보안 이슈 입니다. 물리적으로 사설망 확장은 어렵지만 논리적으로 확장 해서 보안 이슈를 해결하기 위해서는 데이터 인증 및 암호화 기술이 필요 합니다. 즉 사설망 간의 네트워크 트래픽을 <code>무결성</code>과 <code>기밀성</code>을 유지 하고 모든 네트워크 트래픽에 대한 인증 메커니즘 적용 하고 정보 유출의 방지를 위해서 암호화 할 수 있어야 합니다.</p>
+<p>그럼 여기서 <code>터널링 기술</code> 용어가 나타나는데 어려운 부분은 아니고 지금까지 설명했던 Private Network 사설망을 확장 하기 위해서 데이터 인증 및 암호화 기술이 추가 된 것을 전문 용어로 <code>터널링 기술</code> 이라고 합니다. 즉 기존 네트워크 에서 정보 이동이 가능하도록 정보를 캡슐화 하고, 다시 풀어 내어 논리적으로 두 네트워크를 연결하는 기술(망연계)이다. </p>
+<h3 id="VPN-GtoG"><a href="#VPN-GtoG" class="headerlink" title="VPN GtoG"></a>VPN GtoG</h3><p><img src="/../../../img/NETWORK/introduction/VPN_GtoG1.png" alt="VPN_GtoG 1"><br><code>1.1.1.10</code> 호스트를 가지고 있는 PC 에서 <code>2.2.2.10</code> 호스트를 가지고 있는 <code>Server B</code> 로 접근 하고자 합시다. 기본 조건은 일반적으로 공인 IP <code>200.200.200.200</code> 로 접근 하는 모든 트래픽을 차단 했다고 가정 하겠습니다.</p>
+<ul>
+<li>출발지 정보 IP: <code>1.1.1.10</code></li>
+<li>도착지 정보 IP: <code>2.2.2.10</code></li>
+</ul>
+<p>이렇게 <code>Packet</code> 에 담아서 통신 할때 <code>1.1.1.1</code> 에서 해당 <code>Packet</code> 을 모두 암호를 한 다음에 새로운 해더를 추가해서 전송 하게 됩니다.</p>
+<ul>
+<li>출발지 정보 IP: <code>1.1.1.1</code></li>
+<li>도착지 정보 IP: <code>2.2.2.1</code></li>
+</ul>
+<p>이렇게 수신 받고자 하는 공유 <code>2.2.2.1</code> 로 전송 하게 됩니다. 만약 해당 <code>Packet</code> 을 노출 된다고 해도 암호화 되었기 때문에 내용을 알 수가 없습니다.</p>
+<p><img src="/../../../img/NETWORK/introduction/VPN_GtoG2.png" alt="VPN_GtoG 2"></p>
+<p><code>2.2.2.1</code> 공유기에 <code>Packet</code> 을 전송 받으면 공유기 <code>1.1.1.1</code> 에서 생성된 해더를 삭제하고 암호화 된 데이터를 복호화 한 다음에 접속 하고자 하는 <code>2.2.2.10</code> 서버로 통신하게 됩니다. 이러한 전반적인 L3 수준에서 데이터를 암호화 하고 L3 헤더를 추가해서 전송하는 기술 이러한 것을 <code>L3 터너링 기술</code> 이라고 합니다.</p>
+<h3 id="VPN-GtoE"><a href="#VPN-GtoE" class="headerlink" title="VPN GtoE"></a>VPN GtoE</h3><p><img src="/../../../img/NETWORK/introduction/VPN_GtoE1.png" alt="VPN_GtoE 1"></p>
+<p><code>3.3.3.10</code> 호스트를 가지고 있는 재택 개인용 PC 에서 <code>2.2.2.10</code> 호스트를 가지고 있는 <code>Server B</code> 로 접근 하고자 합시다. 다시 말하지만 기본적으로 공인 IP <code>200.200.200.200</code> 로 접근 하는 모든 트래픽을 차단 했다고 가정 하겠습니다.</p>
+<p><code>3.3.3.10</code> 호스트를 가지고 있는 개인용 PC에서 VPN 관련 프로그램을 설치 하고 <code>IP : 2.2.2.1</code> 인 시큐어 게이트웨이가 <code>3.3.3.10</code> 호스트를 가지고 있는 개인용 PC에게 <code>새로운 IP 주소</code>인 <code>1.1.1.100</code> 할당 받게 됩니다.</p>
+<ul>
+<li>출발지 정보 IP: <code>1.1.1.100</code></li>
+<li>도착지 정보 IP: <code>2.2.2.10</code></li>
+</ul>
+<p>새로 받은 IP <code>1.1.1.100</code> 으로 출발지로 지정하고 전체 패킷을 암호화 처리를 거쳐 전송 하게 됩니다. 암호화 처리를 하고 새로운 IP 해더를 추가 하게 되는데</p>
+<ul>
+<li>출발지 정보 IP: <code>999.999.999.999</code></li>
+<li>도착지 정보 IP: <code>1.1.1.1</code></li>
+</ul>
+<p><img src="/../../../img/NETWORK/introduction/VPN_GtoE2.png" alt="VPN_GtoE 2"></p>
+<p><code>1.1.1.1</code> 인 게이트웨이 까지 전송하게 된다면 추가된 헤더를 삭제를 하고 다시 IP 헤더를 추가 하게 됩니다.</p>
+<ul>
+<li>출발지 정보 IP: <code>1.1.1.1</code></li>
+<li>도착지 정보 IP: <code>2.2.2.1</code></li>
+</ul>
+<p><img src="/../../../img/NETWORK/introduction/VPN_GtoE3.png" alt="VPN_GtoE 3"></p>
+<p><code>Packet 패킷</code> 정보로 <code>2.2.2.1</code> 게이트웨이 까지 전송 하고 <code>2.2.2.1</code> 게이트웨이는 패킷 데이터를 복호화를 한 다음에 최종 목적지인 <code>2.2.2.10</code> 서버까지 전송하게 됩니다.</p>
+<h3 id="IPSec"><a href="#IPSec" class="headerlink" title="IPSec"></a>IPSec</h3><p>IPSec Protocol</p>
+<p>· ISAKMP<br>. Internet Security Association Key Management Protocol2 &#x3D;<br>안 협상 및 암호화 키들을 관리하는 메커니즘을 제공한다.</p>
+<p>. IP AH (Authentication Header)<br>• AH는 데이터의 원본 인증 및 무결성 재연공격 방지 기능을 제공한다.</p>
+<p>. IP ESP (Encapsulation Security Payload)<br>• ESP는 데이터의 기밀성, 원본 인증 및 기밀성 및 재연공격 방지 기능<br>을 제공한다.</p>
+
+      
+       <hr><span style="font-style: italic;color: gray;"> Copyright 201- syh8088. 무단 전재 및 재배포 금지. 출처 표기 시 인용 가능. </span>
+    </div>
+</article>
+
+
+<p>
+    <a  class="dashang" onclick="dashangToggle()">💰</a>
+</p>
+
+
+
+
+
+
+    
+
+
+
+
+    </div>
+    <div class="copyright">
+        <p class="footer-entry">
+    ©2017 Seo Yang Hun
+</p>
+<p class="footer-entry">Built with <a href="https://hexo.io/" target="_blank">Hexo</a> and <a href="https://github.com/yelog/hexo-theme-3-hexo" target="_blank">3-hexo</a> theme</p>
+
+    </div>
+    <div class="full-toc">
+        <button class="full" data-title="Toggle full screen shortcut key s"><span class="min "></span></button>
+<a class="" id="rocket" ></a>
+
+    </div>
+</div>
+
+<div class="hide_box" onclick="dashangToggle()"></div>
+<div class="shang_box">
+    <a class="shang_close"  onclick="dashangToggle()">×</a>
+    <div class="shang_tit">
+        <p>Help us with donation</p>
+    </div>
+    <div class="shang_payimg">
+        <div class="pay_img">
+            <img src="/img/alipay.jpg" class="alipay" title="扫码支持">
+            <img src="/img/weixin.jpg" class="weixin" title="扫码支持">
+        </div>
+    </div>
+    <div class="shang_payselect">
+        <span><label><input type="radio" name="pay" checked value="alipay">alipay</label></span><span><label><input type="radio" name="pay" value="weixin">weixin</label></span>
+    </div>
+</div>
+
+
+</body>
+<script src="/js/jquery.pjax.js?v=1.1.0" ></script>
+
+<script src="/js/script.js?v=1.1.0" ></script>
+<script>
+    var img_resize = 'default';
+    function initArticle() {
+        /*渲染对应的表格样式*/
+        
+            $("#post .pjax table").addClass("green_title");
+        
+
+        /*渲染打赏样式*/
+        
+        $("input[name=pay]").on("click", function () {
+            if($("input[name=pay]:checked").val()=="weixin"){
+                $(".shang_box .shang_payimg .pay_img").addClass("weixin_img");
+            } else {
+                $(".shang_box .shang_payimg .pay_img").removeClass("weixin_img");
+            }
+        })
+        
+
+        /*高亮代码块行号*/
+        
+
+        /*访问数量*/
+        
+        $.getScript("//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js");
+        
+
+        /*代码高亮，行号对齐*/
+        $('.pre-numbering').css('line-height',$('.has-numbering').css('line-height'));
+
+        
+        
+    }
+
+    /*打赏页面隐藏与展示*/
+    
+    function dashangToggle() {
+        $(".shang_box").fadeToggle();
+        $(".hide_box").fadeToggle();
+    }
+    
+
+</script>
+
+<!--加入行号的高亮代码块样式-->
+
+<!--自定义样式设置-->
+<style>
+    
+    
+    .nav {
+        width: 542px;
+    }
+    .nav.fullscreen {
+        margin-left: -542px;
+    }
+    .nav-left {
+        width: 120px;
+    }
+    
+    
+    @media screen and (max-width: 1468px) {
+        .nav {
+            width: 492px;
+        }
+        .nav.fullscreen {
+            margin-left: -492px;
+        }
+        .nav-left {
+            width: 100px;
+        }
+    }
+    
+    
+    @media screen and (max-width: 1024px) {
+        .nav {
+            width: 492px;
+            margin-left: -492px
+        }
+        .nav.fullscreen {
+            margin-left: 0;
+        }
+    }
+    
+    @media screen and (max-width: 426px) {
+        .nav {
+            width: 100%;
+        }
+        .nav-left {
+            width: 100%;
+        }
+    }
+    
+    
+    .nav-right .title-list nav a .post-title, .nav-right .title-list #local-search-result a .post-title {
+        color: #383636;
+    }
+    
+    
+    .nav-right .title-list nav a .post-date, .nav-right .title-list #local-search-result a .post-date {
+        color: #5e5e5f;
+    }
+    
+    
+    .nav-right nav a.hover, #local-search-result a.hover{
+        background-color: #e2e0e0;
+    }
+    
+    
+
+    /*列表样式*/
+    
+
+    /* 背景图样式 */
+    
+    
+
+
+    /*引用块样式*/
+    
+
+    /*文章列表背景图*/
+    
+
+    
+</style>
+
+
+
+
+
+
+
+</html>

@@ -6,43 +6,17 @@
   <meta name="keywords" content="">
   <meta name="description" content="대용량 트래픽 - 접근자 대기열 시스템 만들기 | Seo Yang Hun Blog">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-<meta name="description" content="예제 소스 코드이번 블로그에 사용되는 코드는 아래 링크 통해 확인 할 수 있습니다. https:&#x2F;&#x2F;github.com&#x2F;syh8088&#x2F;kafka_study&#x2F;tree&#x2F;main&#x2F;kafka_study Kafka 알아보기Kafka 주요 구성 요소  Topic: Kafka 안에서 메시지가 저장되는 장소 (논리적인 표현) Producer : 메시지를 생산(Produce">
+<meta name="description" content="{&quot;apiVersion&quot;:&quot;v1&quot;,&quot;kind&quot;:&quot;Service&quot;,&quot;metadata&quot;:{&quot;name&quot;:&quot;my-service&quot;,&quot;namespace&quot;:&quot;my-namespace&quot;},&quot;spec&quot;:{&quot;type&quot;:&quot;ClusterIP&quot;,&quot;ports&quot;:[{&quot;port&quot;:80,&quot;targetPort&quot;:80}],&quot;selector&quot;:{&quot;app&quot;:&quot;nginx&quot;}}}">
 <meta property="og:type" content="article">
-<meta property="og:title" content="카프카 개념 및 실전">
-<meta property="og:url" content="https://syh8088.github.io/2025/07/06/KAFKA/introduction/kafka_introduction/index.html">
+<meta property="og:title" content="Seo Yang Hun Blog">
+<meta property="og:url" content="https://syh8088.github.io/2025/07/29/CI-CD/AWS_EKS_CICD/test/index.html">
 <meta property="og:site_name" content="Seo Yang Hun Blog">
-<meta property="og:description" content="예제 소스 코드이번 블로그에 사용되는 코드는 아래 링크 통해 확인 할 수 있습니다. https:&#x2F;&#x2F;github.com&#x2F;syh8088&#x2F;kafka_study&#x2F;tree&#x2F;main&#x2F;kafka_study Kafka 알아보기Kafka 주요 구성 요소  Topic: Kafka 안에서 메시지가 저장되는 장소 (논리적인 표현) Producer : 메시지를 생산(Produce">
+<meta property="og:description" content="{&quot;apiVersion&quot;:&quot;v1&quot;,&quot;kind&quot;:&quot;Service&quot;,&quot;metadata&quot;:{&quot;name&quot;:&quot;my-service&quot;,&quot;namespace&quot;:&quot;my-namespace&quot;},&quot;spec&quot;:{&quot;type&quot;:&quot;ClusterIP&quot;,&quot;ports&quot;:[{&quot;port&quot;:80,&quot;targetPort&quot;:80}],&quot;selector&quot;:{&quot;app&quot;:&quot;nginx&quot;}}}">
 <meta property="og:locale">
-<meta property="og:image" content="https://syh8088.github.io/img/KAFKA/introduction/Kafka_mainComponent.png">
-<meta property="og:image" content="https://syh8088.github.io/img/KAFKA/introduction/ProducerConsumerDecoupling.png">
-<meta property="og:image" content="https://syh8088.github.io/img/KAFKA/introduction/KafkaCommitLog.png">
-<meta property="og:image" content="https://syh8088.github.io/img/KAFKA/introduction/KafkaLogicalRepresentation.png">
-<meta property="og:image" content="https://syh8088.github.io/img/KAFKA/introduction/KafkaPhysicalRepresentation.png">
-<meta property="og:image" content="https://syh8088.github.io/img/KAFKA/introduction/KafkaSerializer&Deserializer.png">
-<meta property="og:image" content="https://syh8088.github.io/img/KAFKA/introduction/InternalWorkingsOfAKafkaProducerApplication.png">
-<meta property="og:image" content="https://syh8088.github.io/img/KAFKA/introduction/PartitionRole.png">
-<meta property="og:image" content="https://syh8088.github.io/img/KAFKA/introduction/Multi-PartitionAndConsumerRelationship.png">
-<meta property="og:image" content="https://syh8088.github.io/img/KAFKA/introduction/Multi-PartitionAndMulti-ConsumerRelationship.png">
-<meta property="og:image" content="https://syh8088.github.io/img/KAFKA/introduction/Multi-PartitionAndMulti-ConsumerRelationship2.png">
-<meta property="og:image" content="https://syh8088.github.io/img/KAFKA/introduction/KafkaMessageOrdering.png">
-<meta property="og:image" content="https://syh8088.github.io/img/KAFKA/introduction/ConsumerFailure.png">
-<meta property="og:image" content="https://syh8088.github.io/img/KAFKA/introduction/BrokerReplication1.png">
-<meta property="og:image" content="https://syh8088.github.io/img/KAFKA/introduction/BrokerReplication2.png">
-<meta property="og:image" content="https://syh8088.github.io/img/KAFKA/introduction/In-SyncReplicas.png">
-<meta property="og:image" content="https://syh8088.github.io/img/KAFKA/introduction/ProducerAcks=0.png">
-<meta property="og:image" content="https://syh8088.github.io/img/KAFKA/introduction/ProducerAcks=1.png">
-<meta property="og:image" content="https://syh8088.github.io/img/KAFKA/introduction/ProducerAcks=-1ORall.png">
-<meta property="og:image" content="https://syh8088.github.io/img/KAFKA/introduction/Produser_Duplication.png">
-<meta property="og:image" content="https://syh8088.github.io/img/KAFKA/introduction/Produser_EOS.png">
-<meta property="og:image" content="https://syh8088.github.io/img/KAFKA/introduction/TransactionOutBoxPattern1.png">
-<meta property="og:image" content="https://syh8088.github.io/img/KAFKA/introduction/TransactionOutBoxPattern2.png">
-<meta property="og:image" content="https://syh8088.github.io/img/KAFKA/introduction/RetryQueue&DLQ(DeadLetterQueue).png">
-<meta property="og:image" content="https://syh8088.github.io/img/KAFKA/introduction/Real-lifeScenario.png">
-<meta property="article:published_time" content="2025-07-05T22:47:42.000Z">
-<meta property="article:modified_time" content="2025-07-06T10:28:46.347Z">
+<meta property="article:published_time" content="2025-07-29T13:13:07.566Z">
+<meta property="article:modified_time" content="2025-07-29T13:28:06.976Z">
 <meta property="article:author" content="Seo Yang Hun">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://syh8088.github.io/img/KAFKA/introduction/Kafka_mainComponent.png">
 
 
 <link rel="icon" href="/img/avatar.jpg">
@@ -177,9 +151,9 @@
 
 <ul>
     <li>
-        <div class="all active" data-rel="모든 글">모든 글
+        <div class="all active" data-rel="All">All
             
-                <small>(65)</small>
+                <small>(69)</small>
             
         </div>
     </li>
@@ -261,15 +235,75 @@
     
         
             
+        
+    
+        
+            
                 
     <li>
         <div data-rel="CI-CD">
             <i class="fold iconfont icon-right"></i>
             CI-CD
-            <small>(9)</small>
+            <small>(10)</small>
         </div>
         
             <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="CI-CD&lt;---&gt;AWS">
+            <i class="fold iconfont icon-right"></i>
+            AWS
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="CI-CD&lt;---&gt;AWS&lt;---&gt;EKS">
+            <i class="fold iconfont icon-right"></i>
+            EKS
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="CI-CD&lt;---&gt;AWS&lt;---&gt;EKS&lt;---&gt;Kubernetes">
+            <i class="fold iconfont icon-right"></i>
+            Kubernetes
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="CI-CD&lt;---&gt;AWS&lt;---&gt;EKS&lt;---&gt;Kubernetes&lt;---&gt;Docker">
+            
+            Docker
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
                 
                     
     <li>
@@ -306,12 +340,16 @@
     
         
             
+        
+    
+        
+            
                 
     <li>
         <div data-rel="DB">
             <i class="fold iconfont icon-right"></i>
             DB
-            <small>(4)</small>
+            <small>(5)</small>
         </div>
         
             <ul class="sub hide">
@@ -364,10 +402,44 @@
     </li>
 
                 
+                    
+    <li>
+        <div data-rel="DB&lt;---&gt;MySql">
+            <i class="fold iconfont icon-right"></i>
+            MySql
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="DB&lt;---&gt;MySql&lt;---&gt;Collation">
+            
+            Collation
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
             </ul>
         
     </li>
 
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
             
         
     
@@ -791,6 +863,10 @@
     
         
             
+        
+    
+        
+            
                 
     <li>
         <div data-rel="KUBERNETES">
@@ -910,6 +986,25 @@
         
     
         
+            
+        
+    
+        
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="Network">
+            
+            Network
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
             
         
     
@@ -1208,15 +1303,15 @@
         
             <a class="about  hasFriend  site_url"
                
-               href="/about">about</a>
+               href="/about">About</a>
         
         <a style="width: 50%"
                 
-                                           class="friends">friends</a>
+                                           class="friends">Friends</a>
         
     </div>
 </div>
-<input type="hidden" id="yelog_site_posts_number" value="65">
+<input type="hidden" id="yelog_site_posts_number" value="69">
 
 <div style="display: none">
     <span id="busuanzi_value_site_uv"></span>
@@ -1227,7 +1322,7 @@
     <div class="nav-right">
         <div class="friends-area">
     <div class="friends-title">
-        友情链接
+        Links
         <i class="iconfont icon-left"></i>
     </div>
     <div class="friends-content">
@@ -1241,20 +1336,20 @@
         <div class="title-list">
     <div class="right-top">
         <div id="default-panel">
-            <i class="iconfont icon-search" data-title="搜索 快捷键 i"></i>
-            <div class="right-title">모든 글</div>
-            <i class="iconfont icon-file-tree" data-title="切换到大纲视图 快捷键 w"></i>
+            <i class="iconfont icon-search" data-title="search shortcut key i"></i>
+            <div class="right-title">All</div>
+            <i class="iconfont icon-file-tree" data-title="switch to outline view shortcut key w"></i>
         </div>
         <div id="search-panel">
-            <i class="iconfont icon-left" data-title="返回"></i>
+            <i class="iconfont icon-left" data-title="return"></i>
             <input id="local-search-input" autocomplete="off"/>
             <label class="border-line" for="input"></label>
-            <i class="iconfont icon-case-sensitive" data-title="大小写敏感"></i>
-            <i class="iconfont icon-tag" data-title="标签"></i>
+            <i class="iconfont icon-case-sensitive" data-title="case sensitive"></i>
+            <i class="iconfont icon-tag" data-title="label"></i>
         </div>
         <div id="outline-panel" style="display: none">
-            <div class="right-title">大纲</div>
-            <i class="iconfont icon-list" data-title="切换到文章列表"></i>
+            <div class="right-title">outline</div>
+            <i class="iconfont icon-list" data-title="switch to article list"></i>
         </div>
     </div>
 
@@ -1270,7 +1365,34 @@
     <nav id="title-list-nav">
         
         
-        <a  class="모든 글 Kafka "
+        <a  class="All "
+           href="/2025/07/29/CI-CD/AWS_EKS_CICD/test/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title=""></span>
+            <span class="post-date" title="2025-07-29 22:13:07">2025/07/29</span>
+        </a>
+        
+        
+        <a  class="All DB MySql Collation "
+           href="/2025/07/23/DB/Mysql/Collation/Collation/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Mysql - Collation">Mysql - Collation</span>
+            <span class="post-date" title="2025-07-23 07:47:42">2025/07/23</span>
+        </a>
+        
+        
+        <a  class="All Network "
+           href="/2025/07/15/NETWORK/introduction/Network-Introduction/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="네트워크 - 구조 및 공유기 원리">네트워크 - 구조 및 공유기 원리</span>
+            <span class="post-date" title="2025-07-15 07:47:42">2025/07/15</span>
+        </a>
+        
+        
+        <a  class="All Kafka "
            href="/2025/07/06/KAFKA/introduction/kafka_introduction/"
            data-tag=""
            data-author="" >
@@ -1279,7 +1401,7 @@
         </a>
         
         
-        <a  class="모든 글 "
+        <a  class="All "
            href="/2025/06/27/AWS/ImageResizing/imageTest/"
            data-tag=""
            data-author="" >
@@ -1288,7 +1410,7 @@
         </a>
         
         
-        <a  class="모든 글 AWS Image Resizing "
+        <a  class="All AWS Image Resizing "
            href="/2025/06/26/AWS/ImageResizing/aws-image-resizing/"
            data-tag=""
            data-author="" >
@@ -1297,7 +1419,7 @@
         </a>
         
         
-        <a  class="모든 글 Elastic Search "
+        <a  class="All Elastic Search "
            href="/2025/06/16/ELASTIC_SEARCH/introduction/elasticsearch-introduction/"
            data-tag=""
            data-author="" >
@@ -1306,7 +1428,7 @@
         </a>
         
         
-        <a  class="모든 글 Flink Real Time Kafka "
+        <a  class="All Flink Real Time Kafka "
            href="/2025/04/05/FLINK/introduction/Flink-Introduction/"
            data-tag=""
            data-author="" >
@@ -1315,7 +1437,7 @@
         </a>
         
         
-        <a  class="모든 글 Kafka idempotent "
+        <a  class="All Kafka idempotent "
            href="/2024/12/23/KAFKA/idempotent/Kafka_idempotent/"
            data-tag=""
            data-author="" >
@@ -1324,7 +1446,7 @@
         </a>
         
         
-        <a  class="모든 글 MSA Payment Kafka EDA CQRS "
+        <a  class="All MSA Payment Kafka EDA CQRS "
            href="/2024/12/16/MSA/paymentMsa/MSA_Payment_Project_3/"
            data-tag=""
            data-author="" >
@@ -1333,7 +1455,7 @@
         </a>
         
         
-        <a  class="모든 글 MSA Payment Kafka EDA Saga Axon "
+        <a  class="All MSA Payment Kafka EDA Saga Axon "
            href="/2024/12/15/MSA/paymentMsa/MSA_Payment_Project_2/"
            data-tag=""
            data-author="" >
@@ -1342,7 +1464,7 @@
         </a>
         
         
-        <a  class="모든 글 MSA Payment Kafka EDA "
+        <a  class="All MSA Payment Kafka EDA "
            href="/2024/12/14/MSA/paymentMsa/MSA_Payment_Project_1/"
            data-tag=""
            data-author="" >
@@ -1351,7 +1473,7 @@
         </a>
         
         
-        <a  class="모든 글 대용량 트래픽 EDA Payment Redis Kafka "
+        <a  class="All 대용량 트래픽 EDA Payment Redis Kafka "
            href="/2024/12/13/HIGH_VOLUME_TRAFFIC/PaymentEDA/PaymentEDA/"
            data-tag=""
            data-author="" >
@@ -1360,7 +1482,7 @@
         </a>
         
         
-        <a  class="모든 글 DB Mysql optimizing "
+        <a  class="All DB Mysql optimizing "
            href="/2024/12/06/DB/Mysql/optimizing/IndexDiveOptimizaiton/IndexDiveOptimizaiton/"
            data-tag=""
            data-author="" >
@@ -1369,7 +1491,7 @@
         </a>
         
         
-        <a  class="모든 글 JAVA Spring Payment junit5 Mockito "
+        <a  class="All JAVA Spring Payment junit5 Mockito "
            href="/2024/12/03/JAVA/TEST/PaymentTesting/PaymentTesting2/"
            data-tag=""
            data-author="" >
@@ -1378,7 +1500,7 @@
         </a>
         
         
-        <a  class="모든 글 JAVA Spring Payment junit5 Mockito "
+        <a  class="All JAVA Spring Payment junit5 Mockito "
            href="/2024/12/02/JAVA/TEST/PaymentTesting/PaymentTesting1/"
            data-tag=""
            data-author="" >
@@ -1387,7 +1509,7 @@
         </a>
         
         
-        <a  class="모든 글 대용량 트래픽 Redis WebFlux 접근자 대기열 "
+        <a  class="All 대용량 트래픽 Redis WebFlux 접근자 대기열 "
            href="/2024/11/28/HIGH_VOLUME_TRAFFIC/AccessorQueuingSystem/AccessorQueuingSystem/"
            data-tag=""
            data-author="" >
@@ -1396,7 +1518,7 @@
         </a>
         
         
-        <a  class="모든 글 대용량 트래픽 Redis Kafka "
+        <a  class="All 대용량 트래픽 Redis Kafka "
            href="/2024/11/22/HIGH_VOLUME_TRAFFIC/CreateCoupon/CreateCoupon/"
            data-tag=""
            data-author="" >
@@ -1405,7 +1527,7 @@
         </a>
         
         
-        <a  class="모든 글 NoSQL Redis RateLimiter "
+        <a  class="All NoSQL Redis RateLimiter "
            href="/2024/11/19/NoSQL/Redis/RateLimiter/"
            data-tag=""
            data-author="" >
@@ -1414,7 +1536,7 @@
         </a>
         
         
-        <a  class="모든 글 CI-CD GitHubActions "
+        <a  class="All CI-CD GitHubActions "
            href="/2024/10/20/CI-CD/GitHunActions/GitHubActionsCICDWithSpringBoot6/"
            data-tag=""
            data-author="" >
@@ -1423,7 +1545,7 @@
         </a>
         
         
-        <a  class="모든 글 CI-CD GitHubActions "
+        <a  class="All CI-CD GitHubActions "
            href="/2024/10/19/CI-CD/GitHunActions/GitHubActionsCICDWithSpringBoot5/"
            data-tag=""
            data-author="" >
@@ -1432,7 +1554,7 @@
         </a>
         
         
-        <a  class="모든 글 CI-CD GitHubActions "
+        <a  class="All CI-CD GitHubActions "
            href="/2024/10/18/CI-CD/GitHunActions/GitHubActionsCICDWithSpringBoot4/"
            data-tag=""
            data-author="" >
@@ -1441,7 +1563,7 @@
         </a>
         
         
-        <a  class="모든 글 CI-CD GitHubActions "
+        <a  class="All CI-CD GitHubActions "
            href="/2024/10/17/CI-CD/GitHunActions/GitHubActionsCICDWithSpringBoot3/"
            data-tag=""
            data-author="" >
@@ -1450,7 +1572,7 @@
         </a>
         
         
-        <a  class="모든 글 CI-CD GitHubActions "
+        <a  class="All CI-CD GitHubActions "
            href="/2024/10/14/CI-CD/GitHunActions/GitHubActionsCICDWithSpringBoot2/"
            data-tag=""
            data-author="" >
@@ -1459,7 +1581,7 @@
         </a>
         
         
-        <a  class="모든 글 CI-CD GitHubActions "
+        <a  class="All CI-CD GitHubActions "
            href="/2024/10/14/CI-CD/GitHunActions/GitHubActionsCICDWithSpringBoot1/"
            data-tag=""
            data-author="" >
@@ -1468,7 +1590,16 @@
         </a>
         
         
-        <a  class="모든 글 DB Mysql Paging "
+        <a  class="All CI-CD AWS EKS Kubernetes Docker "
+           href="/2024/10/14/CI-CD/AWS_EKS_CICD/aws_eks_cicd/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="AWS EKS 서버 배포 - CI/CD">AWS EKS 서버 배포 - CI/CD</span>
+            <span class="post-date" title="2024-10-14 07:47:42">2024/10/14</span>
+        </a>
+        
+        
+        <a  class="All DB Mysql Paging "
            href="/2024/10/06/DB/Mysql/PagingQuery/"
            data-tag=""
            data-author="" >
@@ -1477,7 +1608,7 @@
         </a>
         
         
-        <a  class="모든 글 DB Mysql DBCP "
+        <a  class="All DB Mysql DBCP "
            href="/2024/10/02/DB/Mysql/mysqlDBCP/"
            data-tag=""
            data-author="" >
@@ -1486,7 +1617,7 @@
         </a>
         
         
-        <a  class="모든 글 JAVA Object "
+        <a  class="All JAVA Object "
            href="/2024/08/24/JAVA/Object/InheritanceComposition2/"
            data-tag=""
            data-author="" >
@@ -1495,7 +1626,7 @@
         </a>
         
         
-        <a  class="모든 글 JAVA Object "
+        <a  class="All JAVA Object "
            href="/2024/08/23/JAVA/Object/InheritanceComposition1/"
            data-tag=""
            data-author="" >
@@ -1504,7 +1635,7 @@
         </a>
         
         
-        <a  class="모든 글 JAVA Payment "
+        <a  class="All JAVA Payment "
            href="/2024/08/06/JAVA/Payment/PaymentTransactionalOutboxpattern/"
            data-tag=""
            data-author="" >
@@ -1513,7 +1644,7 @@
         </a>
         
         
-        <a  class="모든 글 JAVA Payment "
+        <a  class="All JAVA Payment "
            href="/2024/08/05/JAVA/Payment/PaymentRetry/"
            data-tag=""
            data-author="" >
@@ -1522,7 +1653,7 @@
         </a>
         
         
-        <a  class="모든 글 JAVA Payment "
+        <a  class="All JAVA Payment "
            href="/2024/07/28/JAVA/Payment/BuildingPaymentSystem/"
            data-tag=""
            data-author="" >
@@ -1531,7 +1662,7 @@
         </a>
         
         
-        <a  class="모든 글 JAVA Payment "
+        <a  class="All JAVA Payment "
            href="/2024/07/28/JAVA/Payment/PaymentCheckOut/"
            data-tag=""
            data-author="" >
@@ -1540,7 +1671,7 @@
         </a>
         
         
-        <a  class="모든 글 JAVA Payment "
+        <a  class="All JAVA Payment "
            href="/2024/07/28/JAVA/Payment/PaymentConfirm/"
            data-tag=""
            data-author="" >
@@ -1549,7 +1680,7 @@
         </a>
         
         
-        <a  class="모든 글 "
+        <a  class="All "
            href="/2024/05/31/hello-world/"
            data-tag=""
            data-author="" >
@@ -1558,7 +1689,7 @@
         </a>
         
         
-        <a  class="모든 글 "
+        <a  class="All "
            href="/2024/05/31/README/"
            data-tag=""
            data-author="" >
@@ -1567,7 +1698,7 @@
         </a>
         
         
-        <a  class="모든 글 JAVA Security "
+        <a  class="All JAVA Security "
            href="/2024/05/30/JAVA/Security/AnonymousAuthenticationFilter/"
            data-tag=""
            data-author="" >
@@ -1576,7 +1707,7 @@
         </a>
         
         
-        <a  class="모든 글 "
+        <a  class="All "
            href="/2024/02/01/HIGH_VOLUME_TRAFFIC/AccessorQueuingSystem2/AccessorQueuingSystem/"
            data-tag=""
            data-author="" >
@@ -1585,7 +1716,7 @@
         </a>
         
         
-        <a  class="모든 글 Authentication JWT "
+        <a  class="All Authentication JWT "
            href="/2021/11/27/AUTHTICATION/JWT/jwt/"
            data-tag=""
            data-author="" >
@@ -1594,7 +1725,7 @@
         </a>
         
         
-        <a  class="모든 글 Authentication Oauth "
+        <a  class="All Authentication Oauth "
            href="/2021/11/27/AUTHTICATION/OAUTH/oauth/"
            data-tag=""
            data-author="" >
@@ -1603,7 +1734,7 @@
         </a>
         
         
-        <a  class="모든 글 JAVA HTTP FeignClient "
+        <a  class="All JAVA HTTP FeignClient "
            href="/2021/11/08/JAVA/HTTP/FeignClient/FeignClient/"
            data-tag=""
            data-author="" >
@@ -1612,7 +1743,7 @@
         </a>
         
         
-        <a  class="모든 글 JAVA SpringBatch "
+        <a  class="All JAVA SpringBatch "
            href="/2021/11/04/JAVA/Batch/SpringBatch5/"
            data-tag=""
            data-author="" >
@@ -1621,7 +1752,7 @@
         </a>
         
         
-        <a  class="모든 글 JAVA SpringBatch "
+        <a  class="All JAVA SpringBatch "
            href="/2021/10/30/JAVA/Batch/SpringBatch4/"
            data-tag=""
            data-author="" >
@@ -1630,7 +1761,7 @@
         </a>
         
         
-        <a  class="모든 글 JAVA SpringBatch "
+        <a  class="All JAVA SpringBatch "
            href="/2021/10/24/JAVA/Batch/SpringBatch3/"
            data-tag=""
            data-author="" >
@@ -1639,7 +1770,7 @@
         </a>
         
         
-        <a  class="모든 글 JAVA SpringBatch "
+        <a  class="All JAVA SpringBatch "
            href="/2021/10/19/JAVA/Batch/SpringBatch2/"
            data-tag=""
            data-author="" >
@@ -1648,7 +1779,7 @@
         </a>
         
         
-        <a  class="모든 글 JAVA SpringBatch "
+        <a  class="All JAVA SpringBatch "
            href="/2021/10/17/JAVA/Batch/SpringBatch1/"
            data-tag=""
            data-author="" >
@@ -1657,7 +1788,7 @@
         </a>
         
         
-        <a  class="모든 글 JAVA SpringCloudConfig "
+        <a  class="All JAVA SpringCloudConfig "
            href="/2021/09/13/JAVA/SpringCloudConfig/spring-cloud-config4/"
            data-tag=""
            data-author="" >
@@ -1666,7 +1797,7 @@
         </a>
         
         
-        <a  class="모든 글 JAVA SpringCloudConfig "
+        <a  class="All JAVA SpringCloudConfig "
            href="/2021/09/13/JAVA/SpringCloudConfig/spring-cloud-config3/"
            data-tag=""
            data-author="" >
@@ -1675,7 +1806,7 @@
         </a>
         
         
-        <a  class="모든 글 JAVA SpringCloudConfig "
+        <a  class="All JAVA SpringCloudConfig "
            href="/2021/09/13/JAVA/SpringCloudConfig/spring-cloud-config2/"
            data-tag=""
            data-author="" >
@@ -1684,7 +1815,7 @@
         </a>
         
         
-        <a  class="모든 글 JAVA SpringCloudConfig "
+        <a  class="All JAVA SpringCloudConfig "
            href="/2021/09/13/JAVA/SpringCloudConfig/spring-cloud-config/"
            data-tag=""
            data-author="" >
@@ -1693,7 +1824,7 @@
         </a>
         
         
-        <a  class="모든 글 JAVA Transaction "
+        <a  class="All JAVA Transaction "
            href="/2021/03/14/JAVA/Transaction/multi-transaction/"
            data-tag=""
            data-author="" >
@@ -1702,7 +1833,7 @@
         </a>
         
         
-        <a  class="모든 글 JAVA Validator "
+        <a  class="All JAVA Validator "
            href="/2020/12/18/JAVA/VALIDATOR/validator/"
            data-tag=""
            data-author="" >
@@ -1711,7 +1842,7 @@
         </a>
         
         
-        <a  class="모든 글 JAVA Security "
+        <a  class="All JAVA Security "
            href="/2020/11/19/JAVA/Security/SessionManagementFilterAndConcurrentSessionFilter/"
            data-tag=""
            data-author="" >
@@ -1720,7 +1851,7 @@
         </a>
         
         
-        <a  class="모든 글 JAVA Security "
+        <a  class="All JAVA Security "
            href="/2020/11/14/JAVA/Security/RememberMeAuthenticationFilter/"
            data-tag=""
            data-author="" >
@@ -1729,7 +1860,7 @@
         </a>
         
         
-        <a  class="모든 글 JAVA Security "
+        <a  class="All JAVA Security "
            href="/2020/11/13/JAVA/Security/UsernamePasswordAuthenticationFilter/"
            data-tag=""
            data-author="" >
@@ -1738,7 +1869,7 @@
         </a>
         
         
-        <a  class="모든 글 CI-CD Jenkins "
+        <a  class="All CI-CD Jenkins "
            href="/2020/11/09/CI-CD/Jenkins/JenkinsGitLabConnect/"
            data-tag=""
            data-author="" >
@@ -1747,7 +1878,7 @@
         </a>
         
         
-        <a  class="모든 글 CI-CD Jenkins "
+        <a  class="All CI-CD Jenkins "
            href="/2020/11/08/CI-CD/Jenkins/JenkinsGitLabSshConnect/"
            data-tag=""
            data-author="" >
@@ -1756,7 +1887,7 @@
         </a>
         
         
-        <a  class="모든 글 JAVA JPA "
+        <a  class="All JAVA JPA "
            href="/2020/11/08/JAVA/JPA/eagerJpqlNplus1/"
            data-tag=""
            data-author="" >
@@ -1765,7 +1896,7 @@
         </a>
         
         
-        <a  class="모든 글 JAVA SpringBootAndSecurityAndJWT "
+        <a  class="All JAVA SpringBootAndSecurityAndJWT "
            href="/2020/11/08/JAVA/SpringBootAndSecurityAndJWT/spring-boot-security-jwt-social/"
            data-tag=""
            data-author="" >
@@ -1774,7 +1905,7 @@
         </a>
         
         
-        <a  class="모든 글 JAVA SpringBootAndSecurityAndJWT "
+        <a  class="All JAVA SpringBootAndSecurityAndJWT "
            href="/2020/11/08/JAVA/SpringBootAndSecurityAndJWT/spring-boot-security-jwt-social2/"
            data-tag=""
            data-author="" >
@@ -1783,7 +1914,7 @@
         </a>
         
         
-        <a  class="모든 글 JAVA SpringBootAndSecurityAndJWT "
+        <a  class="All JAVA SpringBootAndSecurityAndJWT "
            href="/2020/11/08/JAVA/SpringBootAndSecurityAndJWT/spring-boot-security-jwt-social3/"
            data-tag=""
            data-author="" >
@@ -1792,7 +1923,7 @@
         </a>
         
         
-        <a  class="모든 글 J Jenkins "
+        <a  class="All J Jenkins "
            href="/2020/11/07/JAVA/Security/JKSGenerate/"
            data-tag=""
            data-author="" >
@@ -1801,7 +1932,7 @@
         </a>
         
         
-        <a  class="모든 글 CI-CD Jenkins "
+        <a  class="All CI-CD Jenkins "
            href="/2020/11/07/CI-CD/Jenkins/JenkinsInstall/"
            data-tag=""
            data-author="" >
@@ -1810,7 +1941,7 @@
         </a>
         
         
-        <a  class="모든 글 DB Mysql "
+        <a  class="All DB Mysql "
            href="/2020/11/07/DB/Mysql/mysqlReplicationSetting/"
            data-tag=""
            data-author="" >
@@ -1819,7 +1950,7 @@
         </a>
         
         
-        <a  class="모든 글 KUBERNETES "
+        <a  class="All KUBERNETES "
            href="/2020/11/07/KUBERNETES/%EC%89%BD%EA%B2%8C_%EC%8B%9C%EC%9E%91%ED%95%98%EB%8A%94_%EC%BF%A0%EB%B2%84%EB%84%A4%ED%8B%B0%EC%8A%A4/%EC%BF%A0%EB%B2%84%EB%84%A4%ED%8B%B0%EC%8A%A4_%ED%99%98%EA%B2%BD_%EA%B5%AC%EC%84%B1/"
            data-tag=""
            data-author="" >
@@ -1828,7 +1959,7 @@
         </a>
         
         
-        <a  class="모든 글 R "
+        <a  class="All R "
            href="/2020/10/17/R/RServerInstall/"
            data-tag=""
            data-author="" >
@@ -1837,7 +1968,7 @@
         </a>
         
         
-        <a  class="모든 글 JavaScript Webpack "
+        <a  class="All JavaScript Webpack "
            href="/2020/10/17/JAVASCRIPT/Webpack/devtool/"
            data-tag=""
            data-author="" >
@@ -1846,7 +1977,7 @@
         </a>
         
         
-        <a  class="모든 글 "
+        <a  class="All "
            href="/2018/12/02/%EB%A9%B4%EC%A0%91%EC%A4%80%EB%B9%84/test/"
            data-tag=""
            data-author="" >
@@ -1864,7 +1995,7 @@
 
     </div>
     <div class="hide-list">
-        <div class="semicircle" data-title="切换全屏 快捷键 s">
+        <div class="semicircle" data-title="Toggle full screen shortcut key s">
             <div class="brackets first"><</div>
             <div class="brackets">&gt;</div>
         </div>
@@ -1898,14 +2029,14 @@
     </div>
     <div class="article-meta">
         
-            작성일 : <time class="date" title='수정일: 2024-12-20 07:40:16'>2024-11-28 07:47</time>
+            Created At : <time class="date" title='Updated At: 2024-12-20 07:40:16'>2024-11-28 07:47</time>
         
     </div>
     <div class="article-meta">
         
         
         <span id="busuanzi_container_page_pv">
-            조회수 :<span id="busuanzi_value_page_pv">
+            Views 👀 :<span id="busuanzi_value_page_pv">
                 <span class="count-comment">
                     <span class="spinner">
                       <div class="cube1"></div>
@@ -2030,7 +2161,7 @@
 
 
 <p>
-    <a  class="dashang" onclick="dashangToggle()">버튼</a>
+    <a  class="dashang" onclick="dashangToggle()">💰</a>
 </p>
 
 
@@ -2052,7 +2183,7 @@
 
     </div>
     <div class="full-toc">
-        <button class="full" data-title="切换全屏 快捷键 s"><span class="min "></span></button>
+        <button class="full" data-title="Toggle full screen shortcut key s"><span class="min "></span></button>
 <a class="" id="rocket" ></a>
 
     </div>
@@ -2062,7 +2193,7 @@
 <div class="shang_box">
     <a class="shang_close"  onclick="dashangToggle()">×</a>
     <div class="shang_tit">
-        <p>喜欢就点赞,疼爱就打赏</p>
+        <p>Help us with donation</p>
     </div>
     <div class="shang_payimg">
         <div class="pay_img">
@@ -2071,7 +2202,7 @@
         </div>
     </div>
     <div class="shang_payselect">
-        <span><label><input type="radio" name="pay" checked value="alipay">支付宝</label></span><span><label><input type="radio" name="pay" value="weixin">微信</label></span>
+        <span><label><input type="radio" name="pay" checked value="alipay">alipay</label></span><span><label><input type="radio" name="pay" value="weixin">weixin</label></span>
     </div>
 </div>
 

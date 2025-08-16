@@ -1,0 +1,2559 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Mysql - Collation | Seo Yang Hun Blog</title>
+  <meta name="keywords" content="">
+  <meta name="description" content="Mysql - Collation | Seo Yang Hun Blog">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="description" content="{&quot;apiVersion&quot;:&quot;v1&quot;,&quot;kind&quot;:&quot;Service&quot;,&quot;metadata&quot;:{&quot;name&quot;:&quot;my-service&quot;,&quot;namespace&quot;:&quot;my-namespace&quot;},&quot;spec&quot;:{&quot;type&quot;:&quot;ClusterIP&quot;,&quot;ports&quot;:[{&quot;port&quot;:80,&quot;targetPort&quot;:80}],&quot;selector&quot;:{&quot;app&quot;:&quot;nginx&quot;}}}">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Seo Yang Hun Blog">
+<meta property="og:url" content="https://syh8088.github.io/2025/07/29/CI-CD/AWS_EKS_CICD/test/index.html">
+<meta property="og:site_name" content="Seo Yang Hun Blog">
+<meta property="og:description" content="{&quot;apiVersion&quot;:&quot;v1&quot;,&quot;kind&quot;:&quot;Service&quot;,&quot;metadata&quot;:{&quot;name&quot;:&quot;my-service&quot;,&quot;namespace&quot;:&quot;my-namespace&quot;},&quot;spec&quot;:{&quot;type&quot;:&quot;ClusterIP&quot;,&quot;ports&quot;:[{&quot;port&quot;:80,&quot;targetPort&quot;:80}],&quot;selector&quot;:{&quot;app&quot;:&quot;nginx&quot;}}}">
+<meta property="og:locale">
+<meta property="article:published_time" content="2025-07-29T13:13:07.566Z">
+<meta property="article:modified_time" content="2025-07-29T13:28:06.976Z">
+<meta property="article:author" content="Seo Yang Hun">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="icon" href="/img/avatar.jpg">
+
+<link href="/css/style.css?v=1.1.0" rel="stylesheet">
+
+<link href="/css/hl_theme/atom-light.css?v=1.1.0" rel="stylesheet">
+
+<link href="//cdn.jsdelivr.net/npm/animate.css@4.1.0/animate.min.css" rel="stylesheet">
+
+<script src="//cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"></script>
+<script src="/js/titleTip.js?v=1.1.0" ></script>
+
+<script src="//cdn.jsdelivr.net/npm/highlightjs@9.16.2/highlight.pack.min.js"></script>
+<script>
+    hljs.initHighlightingOnLoad();
+</script>
+
+<script src="//cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.js"></script>
+
+
+
+<script src="//cdn.jsdelivr.net/npm/jquery.cookie@1.4.1/jquery.cookie.min.js" ></script>
+
+<script src="/js/iconfont.js?v=1.1.0" ></script>
+
+<meta name="generator" content="Hexo 7.2.0"></head>
+<div style="display: none">
+  <input class="theme_disqus_on" value="false">
+  <input class="theme_preload_comment" value="">
+  <input class="theme_blog_path" value="">
+  <input id="theme_shortcut" value="true" />
+  <input id="theme_highlight_on" value="true" />
+  <input id="theme_code_copy" value="true" />
+</div>
+
+
+
+<body>
+<aside class="nav">
+    <div class="nav-left">
+        <a href="/"
+   class="avatar_target">
+    <img class="avatar"
+         src="/img/avatar.jpg"/>
+</a>
+<div class="author">
+    <span>Seo Yang Hun</span>
+</div>
+
+<div class="icon">
+    
+        
+            <a title="rss"
+               href="/atom.xml"
+               target="_blank">
+                
+                    <svg class="iconfont-svg" aria-hidden="true">
+                        <use xlink:href="#icon-rss"></use>
+                    </svg>
+                
+            </a>
+        
+    
+        
+            <a title="github"
+               href="https://github.com/syh8088"
+               target="_blank">
+                
+                    <svg class="iconfont-svg" aria-hidden="true">
+                        <use xlink:href="#icon-github"></use>
+                    </svg>
+                
+            </a>
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+            <a title="email"
+               href="mailto:syh8088@gmail.com"
+               target="_blank">
+                
+                    <svg class="iconfont-svg" aria-hidden="true">
+                        <use xlink:href="#icon-email"></use>
+                    </svg>
+                
+            </a>
+        
+    
+        
+            <a title="qq"
+               href="http://wpa.qq.com/msgrd?v=3&uin=872336115&site=qq&menu=yes"
+               target="_blank">
+                
+                    <svg class="iconfont-svg" aria-hidden="true">
+                        <use xlink:href="#icon-qq"></use>
+                    </svg>
+                
+            </a>
+        
+    
+        
+    
+        
+    
+</div>
+
+
+
+
+
+<ul>
+    <li>
+        <div class="all active" data-rel="All">All
+            
+                <small>(69)</small>
+            
+        </div>
+    </li>
+    
+        
+            
+                
+    <li>
+        <div data-rel="Authentication">
+            <i class="fold iconfont icon-right"></i>
+            Authentication
+            <small>(2)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="Authentication&lt;---&gt;JWT">
+            
+            JWT
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="Authentication&lt;---&gt;Oauth">
+            
+            Oauth
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="AWS">
+            <i class="fold iconfont icon-right"></i>
+            AWS
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="AWS&lt;---&gt;Image Resizing">
+            
+            Image Resizing
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="CI-CD">
+            <i class="fold iconfont icon-right"></i>
+            CI-CD
+            <small>(10)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="CI-CD&lt;---&gt;AWS">
+            <i class="fold iconfont icon-right"></i>
+            AWS
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="CI-CD&lt;---&gt;AWS&lt;---&gt;EKS">
+            <i class="fold iconfont icon-right"></i>
+            EKS
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="CI-CD&lt;---&gt;AWS&lt;---&gt;EKS&lt;---&gt;Kubernetes">
+            <i class="fold iconfont icon-right"></i>
+            Kubernetes
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="CI-CD&lt;---&gt;AWS&lt;---&gt;EKS&lt;---&gt;Kubernetes&lt;---&gt;Docker">
+            
+            Docker
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="CI-CD&lt;---&gt;GitHubActions">
+            
+            GitHubActions
+            <small>(6)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="CI-CD&lt;---&gt;Jenkins">
+            
+            Jenkins
+            <small>(3)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="DB">
+            <i class="fold iconfont icon-right"></i>
+            DB
+            <small>(5)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="DB&lt;---&gt;Mysql">
+            <i class="fold iconfont icon-right"></i>
+            Mysql
+            <small>(4)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="DB&lt;---&gt;Mysql&lt;---&gt;DBCP">
+            
+            DBCP
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="DB&lt;---&gt;Mysql&lt;---&gt;optimizing">
+            
+            optimizing
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="DB&lt;---&gt;Mysql&lt;---&gt;Paging">
+            
+            Paging
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="DB&lt;---&gt;MySql">
+            <i class="fold iconfont icon-right"></i>
+            MySql
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="DB&lt;---&gt;MySql&lt;---&gt;Collation">
+            
+            Collation
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="Elastic Search">
+            
+            Elastic Search
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="Flink">
+            <i class="fold iconfont icon-right"></i>
+            Flink
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="Flink&lt;---&gt;Real Time">
+            <i class="fold iconfont icon-right"></i>
+            Real Time
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="Flink&lt;---&gt;Real Time&lt;---&gt;Kafka">
+            
+            Kafka
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="J">
+            <i class="fold iconfont icon-right"></i>
+            J
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="J&lt;---&gt;Jenkins">
+            
+            Jenkins
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="JAVA">
+            <i class="fold iconfont icon-right"></i>
+            JAVA
+            <small>(29)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;HTTP">
+            <i class="fold iconfont icon-right"></i>
+            HTTP
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;HTTP&lt;---&gt;FeignClient">
+            
+            FeignClient
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;JPA">
+            
+            JPA
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;Object">
+            
+            Object
+            <small>(2)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;Payment">
+            
+            Payment
+            <small>(5)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;Security">
+            
+            Security
+            <small>(4)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;Spring">
+            <i class="fold iconfont icon-right"></i>
+            Spring
+            <small>(2)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;Spring&lt;---&gt;Payment">
+            <i class="fold iconfont icon-right"></i>
+            Payment
+            <small>(2)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;Spring&lt;---&gt;Payment&lt;---&gt;junit5">
+            <i class="fold iconfont icon-right"></i>
+            junit5
+            <small>(2)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;Spring&lt;---&gt;Payment&lt;---&gt;junit5&lt;---&gt;Mockito">
+            
+            Mockito
+            <small>(2)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;SpringBatch">
+            
+            SpringBatch
+            <small>(5)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;SpringBootAndSecurityAndJWT">
+            
+            SpringBootAndSecurityAndJWT
+            <small>(3)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;SpringCloudConfig">
+            
+            SpringCloudConfig
+            <small>(4)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;Transaction">
+            
+            Transaction
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;Validator">
+            
+            Validator
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="JavaScript">
+            <i class="fold iconfont icon-right"></i>
+            JavaScript
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="JavaScript&lt;---&gt;Webpack">
+            
+            Webpack
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="Kafka">
+            <i class="fold iconfont icon-right"></i>
+            Kafka
+            <small>(2)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="Kafka&lt;---&gt;idempotent">
+            
+            idempotent
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="KUBERNETES">
+            
+            KUBERNETES
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="MSA">
+            <i class="fold iconfont icon-right"></i>
+            MSA
+            <small>(3)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="MSA&lt;---&gt;Payment">
+            <i class="fold iconfont icon-right"></i>
+            Payment
+            <small>(3)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="MSA&lt;---&gt;Payment&lt;---&gt;Kafka">
+            <i class="fold iconfont icon-right"></i>
+            Kafka
+            <small>(3)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="MSA&lt;---&gt;Payment&lt;---&gt;Kafka&lt;---&gt;EDA">
+            <i class="fold iconfont icon-right"></i>
+            EDA
+            <small>(3)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="MSA&lt;---&gt;Payment&lt;---&gt;Kafka&lt;---&gt;EDA&lt;---&gt;CQRS">
+            
+            CQRS
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="MSA&lt;---&gt;Payment&lt;---&gt;Kafka&lt;---&gt;EDA&lt;---&gt;Saga">
+            <i class="fold iconfont icon-right"></i>
+            Saga
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="MSA&lt;---&gt;Payment&lt;---&gt;Kafka&lt;---&gt;EDA&lt;---&gt;Saga&lt;---&gt;Axon">
+            
+            Axon
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="Network">
+            
+            Network
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="NoSQL">
+            <i class="fold iconfont icon-right"></i>
+            NoSQL
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="NoSQL&lt;---&gt;Redis">
+            <i class="fold iconfont icon-right"></i>
+            Redis
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="NoSQL&lt;---&gt;Redis&lt;---&gt;RateLimiter">
+            
+            RateLimiter
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="R">
+            
+            R
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="대용량 트래픽">
+            <i class="fold iconfont icon-right"></i>
+            대용량 트래픽
+            <small>(3)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="대용량 트래픽&lt;---&gt;EDA">
+            <i class="fold iconfont icon-right"></i>
+            EDA
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="대용량 트래픽&lt;---&gt;EDA&lt;---&gt;Payment">
+            <i class="fold iconfont icon-right"></i>
+            Payment
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="대용량 트래픽&lt;---&gt;EDA&lt;---&gt;Payment&lt;---&gt;Redis">
+            <i class="fold iconfont icon-right"></i>
+            Redis
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="대용량 트래픽&lt;---&gt;EDA&lt;---&gt;Payment&lt;---&gt;Redis&lt;---&gt;Kafka">
+            
+            Kafka
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="대용량 트래픽&lt;---&gt;Redis">
+            <i class="fold iconfont icon-right"></i>
+            Redis
+            <small>(2)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="대용량 트래픽&lt;---&gt;Redis&lt;---&gt;Kafka">
+            
+            Kafka
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="대용량 트래픽&lt;---&gt;Redis&lt;---&gt;WebFlux">
+            <i class="fold iconfont icon-right"></i>
+            WebFlux
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="대용량 트래픽&lt;---&gt;Redis&lt;---&gt;WebFlux&lt;---&gt;접근자 대기열">
+            
+            접근자 대기열
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+</ul>
+<div class="left-bottom">
+    <div class="menus">
+        
+            
+            
+            
+    </div>
+    <div>
+        
+            <a class="about  hasFriend  site_url"
+               
+               href="/about">About</a>
+        
+        <a style="width: 50%"
+                
+                                           class="friends">Friends</a>
+        
+    </div>
+</div>
+<input type="hidden" id="yelog_site_posts_number" value="69">
+
+<div style="display: none">
+    <span id="busuanzi_value_site_uv"></span>
+    <span id="busuanzi_value_site_pv"></span>
+</div>
+
+    </div>
+    <div class="nav-right">
+        <div class="friends-area">
+    <div class="friends-title">
+        Links
+        <i class="iconfont icon-left"></i>
+    </div>
+    <div class="friends-content">
+        <ul>
+            
+            <li><a target="_blank" href="http://yelog.org/">叶落阁</a></li>
+            
+        </ul>
+    </div>
+</div>
+        <div class="title-list">
+    <div class="right-top">
+        <div id="default-panel">
+            <i class="iconfont icon-search" data-title="search shortcut key i"></i>
+            <div class="right-title">All</div>
+            <i class="iconfont icon-file-tree" data-title="switch to outline view shortcut key w"></i>
+        </div>
+        <div id="search-panel">
+            <i class="iconfont icon-left" data-title="return"></i>
+            <input id="local-search-input" autocomplete="off"/>
+            <label class="border-line" for="input"></label>
+            <i class="iconfont icon-case-sensitive" data-title="case sensitive"></i>
+            <i class="iconfont icon-tag" data-title="label"></i>
+        </div>
+        <div id="outline-panel" style="display: none">
+            <div class="right-title">outline</div>
+            <i class="iconfont icon-list" data-title="switch to article list"></i>
+        </div>
+    </div>
+
+    <div class="tags-list">
+    <input id="tag-search" />
+    <div class="tag-wrapper">
+        
+    </div>
+
+</div>
+
+    
+    <nav id="title-list-nav">
+        
+        
+        <a  class="All "
+           href="/2025/07/29/CI-CD/AWS_EKS_CICD/test/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title=""></span>
+            <span class="post-date" title="2025-07-29 22:13:07">2025/07/29</span>
+        </a>
+        
+        
+        <a  class="All DB MySql Collation "
+           href="/2025/07/23/DB/Mysql/Collation/Collation/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Mysql - Collation">Mysql - Collation</span>
+            <span class="post-date" title="2025-07-23 07:47:42">2025/07/23</span>
+        </a>
+        
+        
+        <a  class="All Network "
+           href="/2025/07/15/NETWORK/introduction/Network-Introduction/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="네트워크 - 구조 및 공유기 원리">네트워크 - 구조 및 공유기 원리</span>
+            <span class="post-date" title="2025-07-15 07:47:42">2025/07/15</span>
+        </a>
+        
+        
+        <a  class="All Kafka "
+           href="/2025/07/06/KAFKA/introduction/kafka_introduction/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="카프카 개념 및 실전">카프카 개념 및 실전</span>
+            <span class="post-date" title="2025-07-06 07:47:42">2025/07/06</span>
+        </a>
+        
+        
+        <a  class="All "
+           href="/2025/06/27/AWS/ImageResizing/imageTest/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title=""></span>
+            <span class="post-date" title="2025-06-27 20:10:06">2025/06/27</span>
+        </a>
+        
+        
+        <a  class="All AWS Image Resizing "
+           href="/2025/06/26/AWS/ImageResizing/aws-image-resizing/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="AWS Image Resizing 구현하기">AWS Image Resizing 구현하기</span>
+            <span class="post-date" title="2025-06-26 07:47:42">2025/06/26</span>
+        </a>
+        
+        
+        <a  class="All Elastic Search "
+           href="/2025/06/16/ELASTIC_SEARCH/introduction/elasticsearch-introduction/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Elastic Search 검색 활용기">Elastic Search 검색 활용기</span>
+            <span class="post-date" title="2025-06-16 07:47:42">2025/06/16</span>
+        </a>
+        
+        
+        <a  class="All Flink Real Time Kafka "
+           href="/2025/04/05/FLINK/introduction/Flink-Introduction/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Flink 이용해서 실시간 데이터 스트림 처리 해보기">Flink 이용해서 실시간 데이터 스트림 처리 해보기</span>
+            <span class="post-date" title="2025-04-05 07:47:42">2025/04/05</span>
+        </a>
+        
+        
+        <a  class="All Kafka idempotent "
+           href="/2024/12/23/KAFKA/idempotent/Kafka_idempotent/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="카프카 멱등성 및 이벤트 일관성 보장하기">카프카 멱등성 및 이벤트 일관성 보장하기</span>
+            <span class="post-date" title="2024-12-23 07:47:42">2024/12/23</span>
+        </a>
+        
+        
+        <a  class="All MSA Payment Kafka EDA CQRS "
+           href="/2024/12/16/MSA/paymentMsa/MSA_Payment_Project_3/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="결제 시스템으로 알아보는 MSA 3 - 쿼리 문제">결제 시스템으로 알아보는 MSA 3 - 쿼리 문제</span>
+            <span class="post-date" title="2024-12-16 07:47:42">2024/12/16</span>
+        </a>
+        
+        
+        <a  class="All MSA Payment Kafka EDA Saga Axon "
+           href="/2024/12/15/MSA/paymentMsa/MSA_Payment_Project_2/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="결제 시스템으로 알아보는 MSA 2 - 분산 트랜잭션 구현">결제 시스템으로 알아보는 MSA 2 - 분산 트랜잭션 구현</span>
+            <span class="post-date" title="2024-12-15 07:47:42">2024/12/15</span>
+        </a>
+        
+        
+        <a  class="All MSA Payment Kafka EDA "
+           href="/2024/12/14/MSA/paymentMsa/MSA_Payment_Project_1/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="결제 시스템으로 알아보는 MSA 1 - 기본 설명">결제 시스템으로 알아보는 MSA 1 - 기본 설명</span>
+            <span class="post-date" title="2024-12-14 07:47:42">2024/12/14</span>
+        </a>
+        
+        
+        <a  class="All 대용량 트래픽 EDA Payment Redis Kafka "
+           href="/2024/12/13/HIGH_VOLUME_TRAFFIC/PaymentEDA/PaymentEDA/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="결제 시스템으로 알아보는 EDA 시스템">결제 시스템으로 알아보는 EDA 시스템</span>
+            <span class="post-date" title="2024-12-13 07:47:42">2024/12/13</span>
+        </a>
+        
+        
+        <a  class="All DB Mysql optimizing "
+           href="/2024/12/06/DB/Mysql/optimizing/IndexDiveOptimizaiton/IndexDiveOptimizaiton/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Index Dive 최적화">Index Dive 최적화</span>
+            <span class="post-date" title="2024-12-06 07:47:42">2024/12/06</span>
+        </a>
+        
+        
+        <a  class="All JAVA Spring Payment junit5 Mockito "
+           href="/2024/12/03/JAVA/TEST/PaymentTesting/PaymentTesting2/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="결제 Testing - 2">결제 Testing - 2</span>
+            <span class="post-date" title="2024-12-03 15:50:00">2024/12/03</span>
+        </a>
+        
+        
+        <a  class="All JAVA Spring Payment junit5 Mockito "
+           href="/2024/12/02/JAVA/TEST/PaymentTesting/PaymentTesting1/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="결제 Testing - 1">결제 Testing - 1</span>
+            <span class="post-date" title="2024-12-02 15:50:00">2024/12/02</span>
+        </a>
+        
+        
+        <a  class="All 대용량 트래픽 Redis WebFlux 접근자 대기열 "
+           href="/2024/11/28/HIGH_VOLUME_TRAFFIC/AccessorQueuingSystem/AccessorQueuingSystem/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="대용량 트래픽 - 접근자 대기열 시스템 만들기">대용량 트래픽 - 접근자 대기열 시스템 만들기</span>
+            <span class="post-date" title="2024-11-28 07:47:42">2024/11/28</span>
+        </a>
+        
+        
+        <a  class="All 대용량 트래픽 Redis Kafka "
+           href="/2024/11/22/HIGH_VOLUME_TRAFFIC/CreateCoupon/CreateCoupon/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="대용량 트래픽 - 선착순 쿠폰 등록 With Kafka, Redis">대용량 트래픽 - 선착순 쿠폰 등록 With Kafka, Redis</span>
+            <span class="post-date" title="2024-11-22 07:47:42">2024/11/22</span>
+        </a>
+        
+        
+        <a  class="All NoSQL Redis RateLimiter "
+           href="/2024/11/19/NoSQL/Redis/RateLimiter/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Request Rate Limiter 구현하기">Request Rate Limiter 구현하기</span>
+            <span class="post-date" title="2024-11-19 07:47:42">2024/11/19</span>
+        </a>
+        
+        
+        <a  class="All CI-CD GitHubActions "
+           href="/2024/10/20/CI-CD/GitHunActions/GitHubActionsCICDWithSpringBoot6/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="GitHubActions CICD With SpringBoot - 6">GitHubActions CICD With SpringBoot - 6</span>
+            <span class="post-date" title="2024-10-20 07:47:42">2024/10/20</span>
+        </a>
+        
+        
+        <a  class="All CI-CD GitHubActions "
+           href="/2024/10/19/CI-CD/GitHunActions/GitHubActionsCICDWithSpringBoot5/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="GitHubActions CICD With SpringBoot - 5">GitHubActions CICD With SpringBoot - 5</span>
+            <span class="post-date" title="2024-10-19 07:47:42">2024/10/19</span>
+        </a>
+        
+        
+        <a  class="All CI-CD GitHubActions "
+           href="/2024/10/18/CI-CD/GitHunActions/GitHubActionsCICDWithSpringBoot4/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="GitHubActions CICD With SpringBoot - 4">GitHubActions CICD With SpringBoot - 4</span>
+            <span class="post-date" title="2024-10-18 07:47:42">2024/10/18</span>
+        </a>
+        
+        
+        <a  class="All CI-CD GitHubActions "
+           href="/2024/10/17/CI-CD/GitHunActions/GitHubActionsCICDWithSpringBoot3/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="GitHubActions CICD With SpringBoot - 3">GitHubActions CICD With SpringBoot - 3</span>
+            <span class="post-date" title="2024-10-17 07:47:42">2024/10/17</span>
+        </a>
+        
+        
+        <a  class="All CI-CD GitHubActions "
+           href="/2024/10/14/CI-CD/GitHunActions/GitHubActionsCICDWithSpringBoot2/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="GitHubActions CICD With SpringBoot - 2">GitHubActions CICD With SpringBoot - 2</span>
+            <span class="post-date" title="2024-10-14 07:47:42">2024/10/14</span>
+        </a>
+        
+        
+        <a  class="All CI-CD GitHubActions "
+           href="/2024/10/14/CI-CD/GitHunActions/GitHubActionsCICDWithSpringBoot1/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="GitHubActions CICD With SpringBoot - 1">GitHubActions CICD With SpringBoot - 1</span>
+            <span class="post-date" title="2024-10-14 07:47:42">2024/10/14</span>
+        </a>
+        
+        
+        <a  class="All CI-CD AWS EKS Kubernetes Docker "
+           href="/2024/10/14/CI-CD/AWS_EKS_CICD/aws_eks_cicd/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="AWS EKS 서버 배포 - CI/CD">AWS EKS 서버 배포 - CI/CD</span>
+            <span class="post-date" title="2024-10-14 07:47:42">2024/10/14</span>
+        </a>
+        
+        
+        <a  class="All DB Mysql Paging "
+           href="/2024/10/06/DB/Mysql/PagingQuery/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Paging Query 성능 개선 및 처리 방법 - 튜닝편">Paging Query 성능 개선 및 처리 방법 - 튜닝편</span>
+            <span class="post-date" title="2024-10-06 07:47:42">2024/10/06</span>
+        </a>
+        
+        
+        <a  class="All DB Mysql DBCP "
+           href="/2024/10/02/DB/Mysql/mysqlDBCP/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="DBCP 설정 방법">DBCP 설정 방법</span>
+            <span class="post-date" title="2024-10-02 07:47:42">2024/10/02</span>
+        </a>
+        
+        
+        <a  class="All JAVA Object "
+           href="/2024/08/24/JAVA/Object/InheritanceComposition2/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="상속과 합성 이야기-2">상속과 합성 이야기-2</span>
+            <span class="post-date" title="2024-08-24 15:50:00">2024/08/24</span>
+        </a>
+        
+        
+        <a  class="All JAVA Object "
+           href="/2024/08/23/JAVA/Object/InheritanceComposition1/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="상속과 합성 이야기-1">상속과 합성 이야기-1</span>
+            <span class="post-date" title="2024-08-23 15:50:00">2024/08/23</span>
+        </a>
+        
+        
+        <a  class="All JAVA Payment "
+           href="/2024/08/06/JAVA/Payment/PaymentTransactionalOutboxpattern/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="결제 시스템 구축 - 5">결제 시스템 구축 - 5</span>
+            <span class="post-date" title="2024-08-06 15:50:00">2024/08/06</span>
+        </a>
+        
+        
+        <a  class="All JAVA Payment "
+           href="/2024/08/05/JAVA/Payment/PaymentRetry/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="결제 시스템 구축 - 4">결제 시스템 구축 - 4</span>
+            <span class="post-date" title="2024-08-05 15:50:00">2024/08/05</span>
+        </a>
+        
+        
+        <a  class="All JAVA Payment "
+           href="/2024/07/28/JAVA/Payment/BuildingPaymentSystem/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="결제 시스템 구축 - 1">결제 시스템 구축 - 1</span>
+            <span class="post-date" title="2024-07-28 15:50:00">2024/07/28</span>
+        </a>
+        
+        
+        <a  class="All JAVA Payment "
+           href="/2024/07/28/JAVA/Payment/PaymentCheckOut/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="결제 시스템 구축 - 2">결제 시스템 구축 - 2</span>
+            <span class="post-date" title="2024-07-28 15:50:00">2024/07/28</span>
+        </a>
+        
+        
+        <a  class="All JAVA Payment "
+           href="/2024/07/28/JAVA/Payment/PaymentConfirm/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="결제 시스템 구축 - 3">결제 시스템 구축 - 3</span>
+            <span class="post-date" title="2024-07-28 15:50:00">2024/07/28</span>
+        </a>
+        
+        
+        <a  class="All "
+           href="/2024/05/31/hello-world/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Hello World">Hello World</span>
+            <span class="post-date" title="2024-05-31 22:32:19">2024/05/31</span>
+        </a>
+        
+        
+        <a  class="All "
+           href="/2024/05/31/README/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title=""></span>
+            <span class="post-date" title="2024-05-31 22:32:19">2024/05/31</span>
+        </a>
+        
+        
+        <a  class="All JAVA Security "
+           href="/2024/05/30/JAVA/Security/AnonymousAuthenticationFilter/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="AnonymousAuthenticationFilter">AnonymousAuthenticationFilter</span>
+            <span class="post-date" title="2024-05-30 10:04:43">2024/05/30</span>
+        </a>
+        
+        
+        <a  class="All "
+           href="/2024/02/01/HIGH_VOLUME_TRAFFIC/AccessorQueuingSystem2/AccessorQueuingSystem/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="패스트캠퍼스 9개 프로젝트로 경험하는 대용량 트래픽 &amp; 데이터 처리 초격차 패키지 Online. 수강">패스트캠퍼스 9개 프로젝트로 경험하는 대용량 트래픽 &amp; 데이터 처리 초격차 패키지 Online. 수강</span>
+            <span class="post-date" title="2024-02-01 00:00:00">2024/02/01</span>
+        </a>
+        
+        
+        <a  class="All Authentication JWT "
+           href="/2021/11/27/AUTHTICATION/JWT/jwt/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="JWT (JSON Web Token) 이해하기">JWT (JSON Web Token) 이해하기</span>
+            <span class="post-date" title="2021-11-27 07:47:42">2021/11/27</span>
+        </a>
+        
+        
+        <a  class="All Authentication Oauth "
+           href="/2021/11/27/AUTHTICATION/OAUTH/oauth/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="OAUTH 2.0 이해하기">OAUTH 2.0 이해하기</span>
+            <span class="post-date" title="2021-11-27 07:47:42">2021/11/27</span>
+        </a>
+        
+        
+        <a  class="All JAVA HTTP FeignClient "
+           href="/2021/11/08/JAVA/HTTP/FeignClient/FeignClient/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="FeignClient 활용도">FeignClient 활용도</span>
+            <span class="post-date" title="2021-11-08 10:04:43">2021/11/08</span>
+        </a>
+        
+        
+        <a  class="All JAVA SpringBatch "
+           href="/2021/11/04/JAVA/Batch/SpringBatch5/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Batch - Chunk 5">Spring Batch - Chunk 5</span>
+            <span class="post-date" title="2021-11-04 07:47:42">2021/11/04</span>
+        </a>
+        
+        
+        <a  class="All JAVA SpringBatch "
+           href="/2021/10/30/JAVA/Batch/SpringBatch4/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Batch - Flow 4">Spring Batch - Flow 4</span>
+            <span class="post-date" title="2021-10-30 07:47:42">2021/10/30</span>
+        </a>
+        
+        
+        <a  class="All JAVA SpringBatch "
+           href="/2021/10/24/JAVA/Batch/SpringBatch3/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Batch - 메타데이터 스키마 3">Spring Batch - 메타데이터 스키마 3</span>
+            <span class="post-date" title="2021-10-24 07:47:42">2021/10/24</span>
+        </a>
+        
+        
+        <a  class="All JAVA SpringBatch "
+           href="/2021/10/19/JAVA/Batch/SpringBatch2/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Batch - Job, Step 2">Spring Batch - Job, Step 2</span>
+            <span class="post-date" title="2021-10-19 07:47:42">2021/10/19</span>
+        </a>
+        
+        
+        <a  class="All JAVA SpringBatch "
+           href="/2021/10/17/JAVA/Batch/SpringBatch1/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Batch 1">Spring Batch 1</span>
+            <span class="post-date" title="2021-10-17 07:47:42">2021/10/17</span>
+        </a>
+        
+        
+        <a  class="All JAVA SpringCloudConfig "
+           href="/2021/09/13/JAVA/SpringCloudConfig/spring-cloud-config4/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="비대칭키를 이용한 application.yml 설정값 암호화">비대칭키를 이용한 application.yml 설정값 암호화</span>
+            <span class="post-date" title="2021-09-13 07:47:45">2021/09/13</span>
+        </a>
+        
+        
+        <a  class="All JAVA SpringCloudConfig "
+           href="/2021/09/13/JAVA/SpringCloudConfig/spring-cloud-config3/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Cloud Bus">Spring Cloud Bus</span>
+            <span class="post-date" title="2021-09-13 07:47:44">2021/09/13</span>
+        </a>
+        
+        
+        <a  class="All JAVA SpringCloudConfig "
+           href="/2021/09/13/JAVA/SpringCloudConfig/spring-cloud-config2/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Boot Actuator">Spring Boot Actuator</span>
+            <span class="post-date" title="2021-09-13 07:47:43">2021/09/13</span>
+        </a>
+        
+        
+        <a  class="All JAVA SpringCloudConfig "
+           href="/2021/09/13/JAVA/SpringCloudConfig/spring-cloud-config/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Cloud Config">Spring Cloud Config</span>
+            <span class="post-date" title="2021-09-13 07:47:42">2021/09/13</span>
+        </a>
+        
+        
+        <a  class="All JAVA Transaction "
+           href="/2021/03/14/JAVA/Transaction/multi-transaction/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Java Multi-Transaction 관리">Java Multi-Transaction 관리</span>
+            <span class="post-date" title="2021-03-14 07:47:42">2021/03/14</span>
+        </a>
+        
+        
+        <a  class="All JAVA Validator "
+           href="/2020/12/18/JAVA/VALIDATOR/validator/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Java Validator 관리">Java Validator 관리</span>
+            <span class="post-date" title="2020-12-18 07:47:42">2020/12/18</span>
+        </a>
+        
+        
+        <a  class="All JAVA Security "
+           href="/2020/11/19/JAVA/Security/SessionManagementFilterAndConcurrentSessionFilter/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="SessionManagementFilterAndConcurrentSessionFilter">SessionManagementFilterAndConcurrentSessionFilter</span>
+            <span class="post-date" title="2020-11-19 18:02:23">2020/11/19</span>
+        </a>
+        
+        
+        <a  class="All JAVA Security "
+           href="/2020/11/14/JAVA/Security/RememberMeAuthenticationFilter/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="RememberMeAuthenticationFilter">RememberMeAuthenticationFilter</span>
+            <span class="post-date" title="2020-11-14 07:40:06">2020/11/14</span>
+        </a>
+        
+        
+        <a  class="All JAVA Security "
+           href="/2020/11/13/JAVA/Security/UsernamePasswordAuthenticationFilter/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="UsernamePasswordAuthenticationFilter">UsernamePasswordAuthenticationFilter</span>
+            <span class="post-date" title="2020-11-13 08:51:13">2020/11/13</span>
+        </a>
+        
+        
+        <a  class="All CI-CD Jenkins "
+           href="/2020/11/09/CI-CD/Jenkins/JenkinsGitLabConnect/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Jenkins_GitLab_연동">Jenkins_GitLab_연동</span>
+            <span class="post-date" title="2020-11-09 07:47:42">2020/11/09</span>
+        </a>
+        
+        
+        <a  class="All CI-CD Jenkins "
+           href="/2020/11/08/CI-CD/Jenkins/JenkinsGitLabSshConnect/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="젠킨스와 GitLab ssh 연동하기">젠킨스와 GitLab ssh 연동하기</span>
+            <span class="post-date" title="2020-11-08 07:47:42">2020/11/08</span>
+        </a>
+        
+        
+        <a  class="All JAVA JPA "
+           href="/2020/11/08/JAVA/JPA/eagerJpqlNplus1/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="eagerJpqlNplus1">eagerJpqlNplus1</span>
+            <span class="post-date" title="2020-11-08 07:47:42">2020/11/08</span>
+        </a>
+        
+        
+        <a  class="All JAVA SpringBootAndSecurityAndJWT "
+           href="/2020/11/08/JAVA/SpringBootAndSecurityAndJWT/spring-boot-security-jwt-social/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Boot 를 이용해 JWT + Social 로그인 처리 - Authorization Server (일반 로그인)">Spring Boot 를 이용해 JWT + Social 로그인 처리 - Authorization Server (일반 로그인)</span>
+            <span class="post-date" title="2020-11-08 07:47:42">2020/11/08</span>
+        </a>
+        
+        
+        <a  class="All JAVA SpringBootAndSecurityAndJWT "
+           href="/2020/11/08/JAVA/SpringBootAndSecurityAndJWT/spring-boot-security-jwt-social2/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Boot 를 이용해 JWT + Social 로그인 처리 - Authorization Server (Social 로그인)">Spring Boot 를 이용해 JWT + Social 로그인 처리 - Authorization Server (Social 로그인)</span>
+            <span class="post-date" title="2020-11-08 07:47:42">2020/11/08</span>
+        </a>
+        
+        
+        <a  class="All JAVA SpringBootAndSecurityAndJWT "
+           href="/2020/11/08/JAVA/SpringBootAndSecurityAndJWT/spring-boot-security-jwt-social3/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Boot 를 이용해 JWT + Social 로그인 처리 - Resource Server">Spring Boot 를 이용해 JWT + Social 로그인 처리 - Resource Server</span>
+            <span class="post-date" title="2020-11-08 07:47:42">2020/11/08</span>
+        </a>
+        
+        
+        <a  class="All J Jenkins "
+           href="/2020/11/07/JAVA/Security/JKSGenerate/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="JKSGenerate">JKSGenerate</span>
+            <span class="post-date" title="2020-11-07 13:46:21">2020/11/07</span>
+        </a>
+        
+        
+        <a  class="All CI-CD Jenkins "
+           href="/2020/11/07/CI-CD/Jenkins/JenkinsInstall/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="쿠버네티스 환경 구성">쿠버네티스 환경 구성</span>
+            <span class="post-date" title="2020-11-07 07:47:42">2020/11/07</span>
+        </a>
+        
+        
+        <a  class="All DB Mysql "
+           href="/2020/11/07/DB/Mysql/mysqlReplicationSetting/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Mysql_Replication_설정">Mysql_Replication_설정</span>
+            <span class="post-date" title="2020-11-07 07:47:42">2020/11/07</span>
+        </a>
+        
+        
+        <a  class="All KUBERNETES "
+           href="/2020/11/07/KUBERNETES/%EC%89%BD%EA%B2%8C_%EC%8B%9C%EC%9E%91%ED%95%98%EB%8A%94_%EC%BF%A0%EB%B2%84%EB%84%A4%ED%8B%B0%EC%8A%A4/%EC%BF%A0%EB%B2%84%EB%84%A4%ED%8B%B0%EC%8A%A4_%ED%99%98%EA%B2%BD_%EA%B5%AC%EC%84%B1/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Jenkins_설치">Jenkins_설치</span>
+            <span class="post-date" title="2020-11-07 07:47:42">2020/11/07</span>
+        </a>
+        
+        
+        <a  class="All R "
+           href="/2020/10/17/R/RServerInstall/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="RServer 설치">RServer 설치</span>
+            <span class="post-date" title="2020-10-17 07:47:42">2020/10/17</span>
+        </a>
+        
+        
+        <a  class="All JavaScript Webpack "
+           href="/2020/10/17/JAVASCRIPT/Webpack/devtool/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="WebPack - DevTool">WebPack - DevTool</span>
+            <span class="post-date" title="2020-10-17 07:47:42">2020/10/17</span>
+        </a>
+        
+        
+        <a  class="All "
+           href="/2018/12/02/%EB%A9%B4%EC%A0%91%EC%A4%80%EB%B9%84/test/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="그냥... 잡다한 지식 모음집">그냥... 잡다한 지식 모음집</span>
+            <span class="post-date" title="2018-12-02 15:50:00">2018/12/02</span>
+        </a>
+        
+        <div id="no-item-tips">
+
+        </div>
+    </nav>
+    <div id="outline-list">
+    </div>
+</div>
+
+    </div>
+    <div class="hide-list">
+        <div class="semicircle" data-title="Toggle full screen shortcut key s">
+            <div class="brackets first"><</div>
+            <div class="brackets">&gt;</div>
+        </div>
+    </div>
+</aside>
+<div id="post">
+    <div class="pjax">
+        <article id="post-DB/Mysql/Collation/Collation" class="article article-type-post" itemscope itemprop="blogPost">
+    
+        <h1 class="article-title">Mysql - Collation</h1>
+    
+    <div class="article-meta">
+        
+        
+        
+        <span class="book">
+            <i class="iconfont icon-category"></i>
+            
+            
+            <a  data-rel="DB">DB</a> > 
+            
+            <a  data-rel="DB&lt;---&gt;MySql">MySql</a> > 
+            
+            <a  data-rel="DB&lt;---&gt;MySql&lt;---&gt;Collation">Collation</a>
+            
+        </span>
+        
+        
+    </div>
+    <div class="article-meta">
+        
+            Created At : <time class="date" title='Updated At: 2025-07-25 20:46:48'>2025-07-23 07:47</time>
+        
+    </div>
+    <div class="article-meta">
+        
+        
+        <span id="busuanzi_container_page_pv">
+            Views 👀 :<span id="busuanzi_value_page_pv">
+                <span class="count-comment">
+                    <span class="spinner">
+                      <div class="cube1"></div>
+                      <div class="cube2"></div>
+                    </span>
+                </span>
+            </span>
+        </span>
+        
+        
+    </div>
+    
+    <div class="toc-ref">
+    
+        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Collation"><span class="toc-text">Collation</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#MySQL-%EC%97%90%EC%84%9C-Collation-%EB%84%A4%EC%9D%B4%EB%B0%8D-%EC%BB%A8%EB%B2%A4%EC%85%98"><span class="toc-text">MySQL 에서 Collation 네이밍 컨벤션</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%EB%AC%B8%EC%9E%90-%EC%A7%91%ED%95%A9-Character-Set"><span class="toc-text">문자 집합 (Character Set)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%EC%96%B8%EC%96%B4-%EC%A2%85%EC%86%8D-Language-specific"><span class="toc-text">언어 종속 (Language-specific)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#UCA-%EB%B2%84%EC%A0%84"><span class="toc-text">UCA 버전</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#MySQL-%EC%97%90%EC%84%9C-UCA-%EB%B2%84%EC%A0%84-%EC%A4%91-0900-%ED%95%98%EA%B3%A0-general-%EC%B0%A8%EC%9D%B4"><span class="toc-text">MySQL 에서 UCA 버전 중 0900 하고 general 차이</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%EB%AF%BC%EA%B0%90%EB%8F%84"><span class="toc-text">민감도</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%EB%AF%BC%EA%B0%90%EB%8F%84%EC%9D%98-%EC%A2%85%EB%A5%98"><span class="toc-text">민감도의 종류</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%EB%AF%BC%EA%B0%90%EB%8F%84%EC%9D%98-%EC%84%A0%ED%83%9D-%EA%B8%B0%EC%A4%80"><span class="toc-text">민감도의 선택 기준</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Collation-%EB%8F%99%EC%9E%91-%EB%B0%A9%EC%8B%9D"><span class="toc-text">Collation 동작 방식</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#DUCET-Default-Unicode-Collation-Element-Table"><span class="toc-text">DUCET (Default Unicode Collation Element Table)</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#DUCET-Default-Unicode-Collation-Element-Table-%EC%99%80-UCA-Unicode-Collation-Algorithm-%EC%B0%A8%EC%9D%B4%EC%A0%90%EC%9D%80"><span class="toc-text">DUCET (Default Unicode Collation Element Table) 와 UCA (Unicode Collation Algorithm) 차이점은?</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Collation-%EC%84%A4%EC%A0%95-%EB%B0%A9%EB%B2%95"><span class="toc-text">Collation 설정 방법</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Collation-%EC%82%AC%EC%9A%A9-%EC%A3%BC%EC%9D%98"><span class="toc-text">Collation 사용 주의</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%EC%9D%B8%EB%8D%B1%EC%8A%A4%EB%A5%BC-%EC%82%AC%EC%9A%A9-%ED%95%A0-%EC%88%98-%EC%97%86%EB%8A%94-%EA%B2%BD%EC%9A%B0"><span class="toc-text">인덱스를 사용 할 수 없는 경우</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#utf8mb4-0900-ai-ci-Collation-%EC%97%90%EC%84%9C-%ED%95%9C%EA%B8%80-%EB%B9%84%EA%B5%90-%EC%9D%B4%EC%8A%88"><span class="toc-text">utf8mb4_0900_ai_ci Collation 에서 한글 비교 이슈</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#utf8mb4-0900-as-cs-Collation-%EC%97%90%EC%84%9C-%ED%95%9C%EA%B8%80-%EB%B9%84%EA%B5%90-%EC%9D%B4%EC%8A%88"><span class="toc-text">utf8mb4_0900_as_cs Collation 에서 한글 비교 이슈</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#utf8mb4-0900-ai-ci-Collation-%EC%97%90%EC%84%9C-%ED%95%9C%EA%B8%80-%EB%B9%84%EA%B5%90-%EC%9D%B4%EC%8A%88-%ED%95%B4%EA%B2%B0%EB%B2%95%EC%9D%80"><span class="toc-text">utf8mb4_0900_ai_ci Collation 에서 한글 비교 이슈 해결법은?</span></a></li></ol></li></ol></li></ol>
+    
+<style>
+    .left-col .switch-btn,
+    .left-col .switch-area {
+        display: none;
+    }
+    .toc-level-3 i,
+    .toc-level-3 ol {
+        display: none !important;
+    }
+</style>
+</div>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="Collation"><a href="#Collation" class="headerlink" title="Collation"></a>Collation</h1><p><code>Collation</code> 는 문자열을 비교하고 정렬할 때 적용되는 규칙 (정렬 기준) 입니다. 즉 “문자 집합(Character Set)”을 사용하는 문자열이라도, 어떤 <code>Collation</code> 을 적용하느냐에 따라 </p>
+<ul>
+<li>정렬 순서 (ORDER BY)</li>
+<li>비교 (&#x3D;, LIKE, &gt; 등)</li>
+<li>대소문자 구분 여부 </li>
+<li>악센트 구분 여부</li>
+</ul>
+<p>에 따라 모두가 달라질 수 있습니다.</p>
+<h2 id="MySQL-에서-Collation-네이밍-컨벤션"><a href="#MySQL-에서-Collation-네이밍-컨벤션" class="headerlink" title="MySQL 에서 Collation 네이밍 컨벤션"></a>MySQL 에서 Collation 네이밍 컨벤션</h2><p>&#x2F;&#x2F; 이미지</p>
+<p>Mysql 에서 <code>Collation</code> 이름은 크게 네 부분으로 구성 되어 있습니다. 각각 <code>Collation</code> 중요한 특징이 있으며 하나하나씩 알아보도록 하겠습니다.</p>
+<h3 id="문자-집합-Character-Set"><a href="#문자-집합-Character-Set" class="headerlink" title="문자 집합 (Character Set)"></a>문자 집합 (Character Set)</h3><p>MySQL 에서 <code>Collation (정렬 규칙)</code> 은 <code>문자 집합 (Character Set)</code> 에 종속 되어 있습니다. 즉 <code>Collation</code> 은 어떤 <code>문자 집합(Character Set)</code>에 대해 적용되는 문자 정렬 및 비교 규칙입니다.</p>
+<p>예시로 가장 많이 사용되어 있는 문자 집합 <code>utf8mb4</code> 로 설명 하도록 하겠습니다.</p>
+<table>
+<thead>
+<tr>
+<th>문자 집합 (utf8mb4)</th>
+<th>Collation 종류</th>
+<th>설명</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>utf8mb4</td>
+<td>utf8mb4_general_ci</td>
+<td>빠르지만 비교 정확도 낮음</td>
+</tr>
+<tr>
+<td>utf8mb4</td>
+<td>utf8mb4_unicode_ci</td>
+<td>유니코드 표준에 따른 정렬</td>
+</tr>
+<tr>
+<td>utf8mb4</td>
+<td>utf8mb4_bin</td>
+<td>바이트 값 기준 정렬 (대소문자&#x2F;악센트 구분 O)</td>
+</tr>
+</tbody></table>
+<p><code>Collation</code> <code>utf8mb4_general_ci</code>, <code>utf8mb4_unicode_ci</code>, <code>utf8mb4_bin</code> 는 모두 문자 집합 <code>utf8mb4</code> 에 종속 되어 있습니다. 모두 같은 문자 집합 (<code>utf8mb4</code>) 이지만 <code>Collation</code> 만 다르면 정렬과 비교 결과가 달라집니다.</p>
+<p><code>문자 집합 (Character Set)</code> 경우는 데이터를 어떻게 등재 할 것인가 예를들어 <code>유니코드 기반 저장소</code> 로 저장 할 것인가 결정 되는 부분이고 <code>Collation</code> 는 등재 된 데이터를 어떻게 정렬 할 것이고 비교 할 것인가 방법을 나타내는 것 입니다. (예: 가나다순? ABC순? 악센트 구분할까?)</p>
+<h3 id="언어-종속-Language-specific"><a href="#언어-종속-Language-specific" class="headerlink" title="언어 종속 (Language-specific)"></a>언어 종속 (Language-specific)</h3><p>문자열을 비교하거나 정렬할 때 그 언어의 규칙(철자 순서, 대소문자 구분, 악센트 처리 등)을 따르는 <code>Collation</code> 이 있다는 것 입니다. 예를들어 </p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">CREATE TABLE korea<span class="emphasis">_user (</span></span><br><span class="line"><span class="emphasis">  name VARCHAR(50)</span></span><br><span class="line"><span class="emphasis">) CHARACTER SET utf8mb4 COLLATE utf8mb4_</span>korean<span class="emphasis">_ci;</span></span><br><span class="line"><span class="emphasis"></span></span><br><span class="line"><span class="emphasis">INSERT INTO korea_</span>user (name)</span><br><span class="line">VALUES (&#x27;김철수&#x27;, &#x27;남궁&#x27;, &#x27;도경완&#x27;, &#x27;라서준&#x27;);</span><br><span class="line"></span><br><span class="line">SELECT * FROM korea<span class="emphasis">_user ORDER BY name;</span></span><br><span class="line"><span class="emphasis"></span></span><br><span class="line"><span class="emphasis">## 결과</span></span><br><span class="line"><span class="emphasis">김철수</span></span><br><span class="line"><span class="emphasis">남궁</span></span><br><span class="line"><span class="emphasis">도경완</span></span><br><span class="line"><span class="emphasis">라서준</span></span><br></pre></td></tr></table></figure>
+
+<p>이렇게 ㄱ-&gt;ㄴ-&gt;ㄷ-&gt;ㄹ 한글 사전 순 정렬 순으로 따르게 됩니다.</p>
+<h3 id="UCA-버전"><a href="#UCA-버전" class="headerlink" title="UCA 버전"></a>UCA 버전</h3><p><code>UCA (Unicode Collation Algorithm)</code> 는 유니코드에서 정의한 국제 표준 정렬 알고리즘 입니다. 즉 전 세계 모든 언어의 문자들을 “사전순으로 어떻게 정렬할 것인가” 를 유니코드에서 통일된 방식으로 정의한 규칙 입니다.</p>
+<p><code>UCA 버전</code> 이란 특정 <code>Collation</code>이 어느 버전의 <code>UCA(Unicode Collation Algorithm)</code>를 기준으로 만들어 졌는지를 나타내는 것입니다. <code>유니코드(Unicode)</code>는 버전이 올라 가면 올라 갈수록 더 많은 문자와 정렬 규칙이 추가 되는데 이것에 대응 해서 <code>UCA 버전</code> 도 올라가면서 훨씬 정확하고 최신 유니코드 정렬 할 수 있도록 해줍니다.</p>
+<table>
+<thead>
+<tr>
+<th>UCA 버전</th>
+<th>대응 유니코드 버전</th>
+<th>특징</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>UCA 4.0</td>
+<td>Unicode 4.0</td>
+<td>MySQL 5.x 기본</td>
+</tr>
+<tr>
+<td>UCA 5.2</td>
+<td>Unicode 5.2</td>
+<td>일부 Collation 향상</td>
+</tr>
+<tr>
+<td>UCA 9.0</td>
+<td>Unicode 9.0</td>
+<td>MySQL 8.0에서 새롭게 도입됨</td>
+</tr>
+<tr>
+<td>UCA 14.0+</td>
+<td>UCA 14.0+</td>
+<td>최신 정렬 및 문자 반영 (예: 새로운 이모지)</td>
+</tr>
+</tbody></table>
+<h3 id="MySQL-에서-UCA-버전-중-0900-하고-general-차이"><a href="#MySQL-에서-UCA-버전-중-0900-하고-general-차이" class="headerlink" title="MySQL 에서 UCA 버전 중 0900 하고 general 차이"></a>MySQL 에서 UCA 버전 중 <code>0900</code> 하고 <code>general</code> 차이</h3><figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">// 정렬 대상 데이터 </span><br><span class="line">&#x27;가&#x27;, &#x27;각&#x27;, &#x27;간&#x27;, &#x27;a&#x27;, &#x27;A&#x27;, &#x27;á&#x27;, &#x27;Ä&#x27;, &#x27;æ&#x27;, &#x27;Z&#x27;, &#x27;😀&#x27;, &#x27;😃&#x27;, &#x27;😂&#x27;</span><br></pre></td></tr></table></figure>
+
+<table>
+<thead>
+<tr>
+<th>Collation</th>
+<th>정렬 결과</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>utf8mb4_general_ci</td>
+<td>A, Z, a, á, Ä, æ, 가, 각, 간, 😀, 😃, 😂 (이모지 무시 및 뒤로 밀림)</td>
+</tr>
+<tr>
+<td>utf8mb4_0900_ai_ci</td>
+<td>A, a, á, Ä, æ, Z, 가, 각, 간, 😂, 😃, 😀</td>
+</tr>
+<tr>
+<td>utf8mb4_0900_as_cs</td>
+<td>A, Z, a, á, Ä, æ, 가, 각, 간, 😂, 😃, 😀</td>
+</tr>
+<tr>
+<td>utf8mb4_general_as_cs</td>
+<td>A, Z, a, á, Ä, æ, 가, 각, 간, 😀, 😃, 😂 (이모지 무시 및 뒤로 밀림)</td>
+</tr>
+</tbody></table>
+<p><code>0900</code> 하고 <code>general</code> 가장 큰 차이는 정확한 유니코드 사전 순 정렬 입니다. 단순한 알파벳 및 악센트 문자으로만 보면 정렬 순서는 거의 차이가 없다고 볼 수 있겠지만 더 넓은 문자 범위 (이모지, 다국어, 악센트 민감도, case 구분 등) 로 가면 UCA 9.0 기반인 <code>0900</code> 이 더 정확한 유니코드 정렬 기준을 보장 합니다.</p>
+<h3 id="민감도"><a href="#민감도" class="headerlink" title="민감도"></a>민감도</h3><p><code>민감도</code>는 문자열을 비교할 때 특정 요소(대소문자, 악센트 등)를 구분할지 무시할지를 결정하는 특성 입니다. </p>
+<h4 id="민감도의-종류"><a href="#민감도의-종류" class="headerlink" title="민감도의 종류"></a>민감도의 종류</h4><table>
+<thead>
+<tr>
+<th>민감도 이름</th>
+<th>접미어</th>
+<th>의미</th>
+<th>예시 (&#x3D;, ORDER BY)</th>
+<th>설명</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Case Sensitivity (CS)</td>
+<td>_cs</td>
+<td>대소문자 구분함</td>
+<td>‘A’ !&#x3D; ‘a’</td>
+<td>A와 a는 다름</td>
+</tr>
+<tr>
+<td>Case Insensitivity (CI)</td>
+<td>_ci</td>
+<td>대소문자 무시함</td>
+<td>‘A’ &#x3D; ‘a’</td>
+<td>A와 a는 같음</td>
+</tr>
+<tr>
+<td>Accent Sensitivity (AS)</td>
+<td>_as</td>
+<td>악센트 구분함</td>
+<td>‘a’ !&#x3D; ‘á’</td>
+<td>a와 á는 다름</td>
+</tr>
+<tr>
+<td>Accent Insensitivity (AI)</td>
+<td>_ai</td>
+<td>악센트 무시함</td>
+<td>‘a’ &#x3D; ‘á’</td>
+<td>a와 á는 같음</td>
+</tr>
+<tr>
+<td>Kana Sensitivity (일본어)</td>
+<td>_ks</td>
+<td>히라가나&#x2F;가타카나 구분</td>
+<td>‘あ’ !&#x3D; ‘ア’</td>
+<td>일본어 전용</td>
+</tr>
+<tr>
+<td>Width Sensitivity</td>
+<td>_ws</td>
+<td>전각&#x2F;반각 구분</td>
+<td>‘A’ !&#x3D; ‘Ａ’</td>
+<td>일본어, 중국어 등에서</td>
+</tr>
+</tbody></table>
+<h4 id="민감도의-선택-기준"><a href="#민감도의-선택-기준" class="headerlink" title="민감도의 선택 기준"></a>민감도의 선택 기준</h4><table>
+<thead>
+<tr>
+<th>상황</th>
+<th>추천 민감도</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>사용자 이름 및 일반 검색</td>
+<td><code>ai_ci</code> (악센트&#x2F;대소문자 무시)</td>
+</tr>
+<tr>
+<td>비밀번호 및 코드 비교</td>
+<td><code>as_cs</code> (정확한 비교 필요)</td>
+</tr>
+<tr>
+<td>국제화 및 다국어 정렬</td>
+<td><code>as_cs</code> 또는 unicode_ci</td>
+</tr>
+<tr>
+<td>이모지 및 특수 문자 구분</td>
+<td><code>bin</code> (바이트 단위 비교)</td>
+</tr>
+</tbody></table>
+<h2 id="Collation-동작-방식"><a href="#Collation-동작-방식" class="headerlink" title="Collation 동작 방식"></a>Collation 동작 방식</h2><p>우선 문자열 데이터가 어떻게 저장되는지 부터 알아보도록 하겠습니다. 유니코드 기반 문자 집합에서는 문자 데이터를 저장할 때 그 문자에 해당하는 <code>유니코드 코드 포인트</code> 값을 인코딩해서 저장합니다.</p>
+<p>UTF-8 인코딩 방식은 <code>가변 길이 인코딩 방식</code>으로 코드 포인트 범위에 따라 문자가 1 ~ 4바이트로 인코딩 됩니다.</p>
+<p>&#x2F;&#x2F;&#x2F; 실제 UTF-8 인코딩 과정 이미지</p>
+<table>
+<thead>
+<tr>
+<th>코드 포인트 범위</th>
+<th>사용 비트수</th>
+<th>인코딩 구조 (인코딩 포맷)</th>
+<th>인코딩 바이트</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>U+007F</td>
+<td>7</td>
+<td>0xXXXXXX</td>
+<td>1Byte</td>
+</tr>
+<tr>
+<td>U+0080 ~ U+07FF</td>
+<td>11</td>
+<td>110xxxxx 10XXXXXX</td>
+<td>2Byte</td>
+</tr>
+<tr>
+<td>U+0800 ~ U+FFFF</td>
+<td>16</td>
+<td>1110xxxx 10xxxxxx 10XXXXXX</td>
+<td>3Byte</td>
+</tr>
+<tr>
+<td>U+10000 ~ U+1FFFF</td>
+<td>21</td>
+<td>11110xxx 10xxxxxx 10xxxxxX 10XXXXXX</td>
+<td>4Byte</td>
+</tr>
+</tbody></table>
+<p>이 표는 실제 UTF-8 인코딩 과정을 돕기 위한 UTF-8 <code>코드 포인트 범위</code>, <code>사용 비트수</code>, <code>인코딩 구조 (인코딩 포맷)</code>, <code>인코딩 바이트</code> 를 나타낸 것 입니다. 코드 포인트 범위 별로 코드 포인트를 표현하는데 사용되는 비트 수가 다르고 이를 기반으로 <code>UTF-8 인코딩</code>은 지정된 <code>인코딩 구조</code>에 맞추어서 <code>가변 길이의 바이트 시퀀스</code>로 변환하여 저장합니다.</p>
+<p>예를들어 문자 <code>가</code> 의 유니코드 코드 포인트는 <code>AC00</code> 으로 UTF-8 인코딩에서 <code>3Byte</code> 필요한 범위에 속합니다. <code>AC00</code>을 비트로 표현하면  <code>1010(A) 1100(C) 0000(0) 0000(0)</code> 값으로 표현이 됩니다.</p>
+<p>이를 <code>3Byte</code> 인코딩 구조에 맞춰 값을 배치하면 </p>
+<p><span style="color:red">1110</span><U>1010</U><br><span style="color:red">10</span><U>110000</U><br><span style="color:red">10</span><U>000000</U></p>
+<p><code>3Byte</code> 시퀀스 값이 완성됩니다. 이 <code>3Byte</code> 시퀀스는 다시 16진수로 <code>EAB080</code> 으로 표현할 수 있습니다. UTF-8 인코딩으로 최종 <code>EAB080</code>으로 표현되고 저장 하게 됩니다.</p>
+<h2 id="DUCET-Default-Unicode-Collation-Element-Table"><a href="#DUCET-Default-Unicode-Collation-Element-Table" class="headerlink" title="DUCET (Default Unicode Collation Element Table)"></a>DUCET (Default Unicode Collation Element Table)</h2><p><code>DUCET (Default Unicode Collation Element Table)</code> 은 유니코드 컨소시엄에서 정의한 문자 정렬 표준 입니다. 전 세계 문자들에 대해 어떻게 정렬하고 비교 할지에 대한 <code>우선순위(가중치)</code> 를 정리한 테이블 입니다.</p>
+<table>
+<thead>
+<tr>
+<th>가중치</th>
+<th>종류</th>
+<th>예시</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Primary 주 가중치 (1차)</td>
+<td>문자 간 의미상의 차이 (기본적 구분)</td>
+<td>a vs b, 가 vs 나</td>
+</tr>
+<tr>
+<td>Secondary 보조 가중치 (2차)</td>
+<td>악센트나 자모의 차이</td>
+<td>e vs é, 한 vs 한̇</td>
+</tr>
+<tr>
+<td>Tertiary 3차 가중치 (3차)</td>
+<td>대소문자, 글꼴 차이</td>
+<td>a vs A, 한 vs 한 (호환형)</td>
+</tr>
+<tr>
+<td>Quaternary 4차 가중치 (4차)</td>
+<td>구분이 더 필요한 경우 (희귀)</td>
+<td>일부 특수문자나 사용자 지정 구분에 사용됨</td>
+</tr>
+</tbody></table>
+<p><code>DUCET (Default Unicode Collation Element Table)</code> 에서는 문자별 가중치 값을 <code>Primary</code>, <code>Secondary</code>, <code>Tertiary</code>와 같이 단계적으로 구성되어 있습니다.</p>
+<p>1단계에 해당하는 <code>Primary Weight</code>은 기본이 되는 문자를 비교할 때 사용 되고 2단계인 <code>Secondary Weight</code>은 악센트를 구분할 때, 3단계인 <code>Tertiary Weight</code> 는 대소문자 구분 시 주로 사용 됩니다.</p>
+<p>예를들어 <code>민감도</code> 가 <code>ai_ci</code> 경우는 악센트와 대소문자 구분을 하지 않으니 1단계 가중치 값 까지만 사용되고, <code>as_ci</code> 경우는 악센트는 구분하고 대소문자 구분을 하지 않으니 2단계 가중치 값 까지만 사용 됩니다. 마지막으로 <code>as_cs</code> 는 3단계 가중치 값까지 사용 됩니다.</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">0061 ; [.1C47.0020.0002] # LATIN SMALL LETTER A</span><br></pre></td></tr></table></figure>
+<p>예시로 문자 <code>a</code> 경우 유니코드 코드 포인트 값 <code>0061</code> 로 나타나고 그 뒤로 대괄호 안에 들어있는 3개의 16진수 값이 가중집 값에 해당합니다. 즉 <code>Primary 1C47</code>, <code>Secondary 0020</code>, <code>Tertiary 0002</code>로 정렬 하겠다는 의미 입니다. </p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; SELECT HEX(WEIGHT<span class="emphasis">_STRING(_</span>utf8mb4 &#x27;a&#x27; COLLATE utf8mb4<span class="emphasis">_0900_</span>ai<span class="emphasis">_ci));</span></span><br><span class="line"><span class="emphasis">+-------------------------------------------------------------+</span></span><br><span class="line"><span class="emphasis">| HEX(WEIGHT_</span>STRING(<span class="emphasis">_utf8mb4 &#x27;a&#x27; COLLATE utf8mb4_</span>0900<span class="emphasis">_ai_</span>ci)) |</span><br><span class="line">+-------------------------------------------------------------+</span><br><span class="line">| 1C47                                                        |</span><br><span class="line">+-------------------------------------------------------------+</span><br><span class="line"></span><br><span class="line">mysql&gt; SELECT HEX(WEIGHT<span class="emphasis">_STRING(_</span>utf8mb4 &#x27;a&#x27; COLLATE utf8mb4<span class="emphasis">_0900_</span>as<span class="emphasis">_cs));</span></span><br><span class="line"><span class="emphasis">+-------------------------------------------------------------+</span></span><br><span class="line"><span class="emphasis">| HEX(WEIGHT_</span>STRING(<span class="emphasis">_utf8mb4 &#x27;a&#x27; COLLATE utf8mb4_</span>0900<span class="emphasis">_as_</span>cs)) |</span><br><span class="line">+-------------------------------------------------------------+</span><br><span class="line">| 1C470000002000000002                                        |</span><br><span class="line">+-------------------------------------------------------------+</span><br></pre></td></tr></table></figure>
+<p>MySQL 에서 제공하는 <code>내장 함수(built-in)</code> 함수인 <code>WEIGHT_STRING</code> 이라는 함수를 사용하면 문자열의 가중치 값을 바이너리 형태로 확인할 수 있습니다. 예를들어 문자 <code>a</code> 를 통해 DUCET 의 가중치 값을 확인 하기 위해 <code>HEX</code>, <code>WEIGHT_STRING</code> 함수 통해 가중치 값을 16진수 값으로 확인할 수 있습니다.</p>
+<p><code>utf8mb4_0900_ai_ci</code> 으로 설정 한 다음에 확인 해보면 1단계 즉 <code>Primary 단계</code>에 해당하는 값과 동일한 것을 알 수 있습니다. <code>utf8mb4_0900_as_cs</code> 으로 설정 한 다음에 확인 해보면 가중치 데이터의 세 가지 값에 대해 각각의 값들을 제로바이트로 연결해서 조합한 최종적인 값을 확인 할 수 있습니다.</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">CREATE TABLE collation (</span><br><span class="line"><span class="code">    no int NOT NULL AUTO_INCREMENT,</span></span><br><span class="line"><span class="code">    name varchar(10) CHARACTER SET utf8mb4</span></span><br><span class="line"><span class="code">    COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,</span></span><br><span class="line"><span class="code">    PRIMARY KEY (no)</span></span><br><span class="line"><span class="code">);</span></span><br><span class="line"><span class="code"></span></span><br><span class="line">INSERT INTO collation (name)</span><br><span class="line">VALUES (&#x27;a&#x27;), (&#x27;b&#x27;), (&#x27;c&#x27;);</span><br><span class="line"></span><br><span class="line">SELECT</span><br><span class="line"><span class="code">    name,</span></span><br><span class="line"><span class="code">    HEX(WEIGHT_STRING(name))</span></span><br><span class="line"><span class="code">FROM</span></span><br><span class="line"><span class="code">    collation</span></span><br><span class="line"><span class="code">ORDER BY</span></span><br><span class="line"><span class="code">    name;</span></span><br><span class="line"><span class="code">+----------+--------------------------+</span></span><br><span class="line"><span class="code">| name     | HEX(WEIGHT_STRING(name)) |</span></span><br><span class="line"><span class="code">+----------+--------------------------+</span></span><br><span class="line"><span class="code">| a        | 1C47                     |</span></span><br><span class="line"><span class="code">| b        | 1C60                     |</span></span><br><span class="line"><span class="code">| c        | 1C7A                     |</span></span><br><span class="line"><span class="code">+----------+--------------------------+</span></span><br></pre></td></tr></table></figure>
+<p>다음은 <code>collation</code> 테이블을 생성하고 각각 <code>a</code>, <code>b</code>, <code>c</code> 를 INSERT 를 한 다음에 전체 조회를 해서 DUCET 의 가중치 값을 확인 하기 위해 <code>HEX</code>, <code>WEIGHT_STRING</code> 함수 통해 SELECT 해봅니다. 결과 값을 보면 가중치 값 순서대로 데이터가 정렬돼서 반환된 것을 알 수 있습니다.</p>
+<h3 id="DUCET-Default-Unicode-Collation-Element-Table-와-UCA-Unicode-Collation-Algorithm-차이점은"><a href="#DUCET-Default-Unicode-Collation-Element-Table-와-UCA-Unicode-Collation-Algorithm-차이점은" class="headerlink" title="DUCET (Default Unicode Collation Element Table) 와 UCA (Unicode Collation Algorithm) 차이점은?"></a>DUCET (Default Unicode Collation Element Table) 와 UCA (Unicode Collation Algorithm) 차이점은?</h3><p><code>DUCET (Default Unicode Collation Element Table)</code> 은 사전으로 생각하면 쉽습니다. 예를들어 <code>a</code> 와 <code>A</code> 는 정렬 대상에서 1순위 즉 더 높은 <code>tertiary</code> 각각의 문자에 어떤 <code>정렬 기준(가중치)</code> 을 줄지 미리 정의된 표 입니다.</p>
+<p>반면 <code>UCA (Unicode Collation Algorithm)</code> 는 이 사전을 이용해서 정렬하는 방법 입니다. 즉 문자열을 가지고 어떻게 순서대로 비교 및 정렬 할지 정하는 알고리즘 입니다.</p>
+<h2 id="Collation-설정-방법"><a href="#Collation-설정-방법" class="headerlink" title="Collation 설정 방법"></a>Collation 설정 방법</h2><h2 id="Collation-사용-주의"><a href="#Collation-사용-주의" class="headerlink" title="Collation 사용 주의"></a>Collation 사용 주의</h2><h3 id="인덱스를-사용-할-수-없는-경우"><a href="#인덱스를-사용-할-수-없는-경우" class="headerlink" title="인덱스를 사용 할 수 없는 경우"></a>인덱스를 사용 할 수 없는 경우</h3><figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">CREATE TABLE users (</span><br><span class="line"><span class="code">    user_id varchar(10) COLLATE utf8mb3_general_ci NOT NULL,</span></span><br><span class="line"><span class="code">    name varchar(10) NOT NULL,</span></span><br><span class="line"><span class="code">    PRIMARY KEY (user_id)</span></span><br><span class="line"><span class="code">);</span></span><br><span class="line"><span class="code"></span></span><br><span class="line">CREATE TABLE user<span class="emphasis">_access (</span></span><br><span class="line"><span class="emphasis">    no int NOT NULL AUTO_</span>INCREMENT,</span><br><span class="line"><span class="code">    user_id varchar(10) NOT NULL COLLATE utf8mb4_general_ci,</span></span><br><span class="line"><span class="code">    created_at datetime NOT NULL,</span></span><br><span class="line"><span class="code">    PRIMARY KEY (no)</span></span><br><span class="line"><span class="code">);</span></span><br><span class="line"><span class="code"></span></span><br><span class="line">CREATE INDEX user<span class="emphasis">_access_</span>index</span><br><span class="line"><span class="code">    ON user_access (created_at, user_id);</span></span><br><span class="line"><span class="code"></span></span><br><span class="line">SELECT</span><br><span class="line"><span class="code">    ua.*</span></span><br><span class="line"><span class="code">FROM</span></span><br><span class="line"><span class="code">    user_access AS ua</span></span><br><span class="line"><span class="code">INNER JOIN</span></span><br><span class="line"><span class="code">    users AS u</span></span><br><span class="line"><span class="code">ON</span></span><br><span class="line"><span class="code">    ua.user_id = u.user_id</span></span><br><span class="line"><span class="code">WHERE</span></span><br><span class="line"><span class="code">    ua.created_at BETWEEN &#x27;2025-01-01 00:00:00&#x27; AND &#x27;2025-03-31 23:59:59&#x27;;</span></span><br></pre></td></tr></table></figure>
+<p><code>users</code> 테이블 PK <code>user_id</code> 필드 collation 은 <code>utf8mb3_general_ci</code> 로 설정 하였고 <code>user_access</code> 테이블 <code>user_id</code> 필드 collation 은 <code>utf8mb4_general_ci</code> 로 설정 하였습니다. <code>user_access</code> 테이블 <code>user_access_index</code> 이라고 인덱스는 <code>created_at</code>, <code>user_id</code> 순으로 설정 하였습니다.</p>
+<p><code>user_access</code> 테이블 <code>created_at</code> 필드 조건절로 통해 <code>users</code> 테이블 하고 조인 후 SELECT 조회를 하게 된다면 동일한 데이터 타입 <code>varchar</code> 이기 떄문에 cast 는 발동하지 않을 것이고 인덱스도 순조롭게 잘 동작 될 것이라고 생각 할 수 있습니다. 하지만 서로 다른 <code>collation</code> 이 다르기 때문에 </p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">+----------+------------------------------------------------+</span><br><span class="line">| id     | select<span class="emphasis">_type | table |  type  |   possible_</span>keys   |</span><br><span class="line">+----------+------------------------------------------------+</span><br><span class="line">|      1 | SIMPLE      | ua    |  range | <span class="language-xml"><span class="tag">&lt;<span class="name">null</span>&gt;</span></span>            |</span><br><span class="line">|      1 | SIMPLE      | u     |  ALL   | user<span class="emphasis">_access_</span>index |</span><br><span class="line">+----------+------------------------------------------------+</span><br></pre></td></tr></table></figure>
+<p>TABLE <code>u</code> 즉 <code>users</code> 테이블 조회시 <code>user_access</code> 테이블 통해 조회된 데이터 <code>user_id</code> 값을 이용해 <code>users</code> 테이블을 조회 하게 되는데 실행계획을 확인 해보면 <code>type</code> 이 <code>ALL</code> 즉 테이블 풀 스캔이 발생 됩니다. <code>users</code> 테이블 <code>user_id</code> 필드는 PK 이지만 문자열 컬럼의 <code>문자셋/Collation</code> 이 다르면 자동 형변환이 발생하고 그로 인해 인덱스를 무시하고 <code>ALL 스캔</code>을 수행합니다.</p>
+<p>이것을 해결하기 위해서는</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">ALTER TABLE user<span class="emphasis">_access</span></span><br><span class="line"><span class="emphasis">MODIFY user_</span>id VARCHAR(20)</span><br><span class="line">COLLATE utf8mb3<span class="emphasis">_general_</span>ci;</span><br></pre></td></tr></table></figure>
+
+<p>이렇게 <code>user_access</code> 테이블 <code>user_id</code> 필드를 <code>utf8mb3_general_ci</code> Collation 으로 변경 하면 문제를 해결 할 수 있습니다.</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ON ua.user<span class="emphasis">_id = CAST(u.user_</span>id AS CHAR(20) CHARACTER SET utf8mb4 COLLATE utf8mb4<span class="emphasis">_general_</span>ci)</span><br></pre></td></tr></table></figure>
+
+<p>또는 이렇게  <code>Collation</code> 수정이 당장 어렵다면 명시적으로 쿼리 내에서 <code>명시적 캐스팅</code>을 통해 힌트를 줄 수 있습니다.</p>
+<h3 id="utf8mb4-0900-ai-ci-Collation-에서-한글-비교-이슈"><a href="#utf8mb4-0900-ai-ci-Collation-에서-한글-비교-이슈" class="headerlink" title="utf8mb4_0900_ai_ci Collation 에서 한글 비교 이슈"></a>utf8mb4_0900_ai_ci Collation 에서 한글 비교 이슈</h3><figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">CREATE TABLE collation (</span><br><span class="line"><span class="code">    no int NOT NULL AUTO_INCREMENT,</span></span><br><span class="line"><span class="code">    name varchar(10) CHARACTER SET utf8mb4</span></span><br><span class="line"><span class="code">    COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,</span></span><br><span class="line"><span class="code">    PRIMARY KEY (no)</span></span><br><span class="line"><span class="code">);</span></span><br><span class="line"><span class="code"></span></span><br><span class="line">INSERT INTO collation (name)</span><br><span class="line">VALUES (&#x27;가&#x27;) , (&#x27;ㄱㅏ&#x27;);</span><br><span class="line"></span><br><span class="line">SELECT name FROM collation WHERE name = &#x27;가&#x27;;</span><br><span class="line"></span><br><span class="line">+----------+</span><br><span class="line">| name     |</span><br><span class="line">+----------+</span><br><span class="line">| 가       |</span><br><span class="line">| ㄱㅏ     |</span><br><span class="line">+----------+</span><br></pre></td></tr></table></figure>
+
+<p><code>ai_ci</code> 경우 악센트 및 대소문자 무시 한다고 설명 했었습니다. <code>collation</code> 테이블을 생성하고 ‘가’ ‘ㄱㅏ’ 를 INSERT 해서 WHERE 절을 통해 ‘가’ 로 조회를 하면 ‘ㄱㅏ’ 데이터도 포함 해서 조회 되는 것을 확인 할 수 있습니다.</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">INSERT INTO collation (name)</span><br><span class="line">VALUES (&#x27;각&#x27;), (&#x27;ㄱㅏㄱ&#x27;), (&#x27;가ㄱ&#x27;);</span><br><span class="line"></span><br><span class="line">SELECT name FROM collation WHERE name = &#x27;각&#x27;;</span><br><span class="line"></span><br><span class="line">+----------+</span><br><span class="line">| name     |</span><br><span class="line">+----------+</span><br><span class="line">| 각       |</span><br><span class="line">+----------+</span><br></pre></td></tr></table></figure>
+<p>하지만 <code>초성</code>, <code>중성</code>, <code>종성</code> 으로 구성되어 있는 ‘각’, ‘ㄱㅏㄱ’ ‘가ㄱ’ 데이터를 INSERT 하고 ‘각’ 으로 조회 하면 데이터 <code>각</code> 만 조회 되는데 왜 이렇게 조회가 되는지 한번 알아 보도록 하겠습니다.</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">1100 ; [.3BF5.0020.0002] # 한글 초성 &#x27;ㄱ&#x27;</span><br><span class="line">1161 ; [.3C73.0020.0002] # 한글 중성 &#x27;ㅏ&#x27;</span><br><span class="line"></span><br><span class="line">3131 ; [.3BF5.0020.0004] # 한글 문자 &#x27;ㄱ&#x27;</span><br><span class="line">314F ; [.3C73.0020.0004] # 한글 문자 &#x27;ㅏ&#x27;</span><br><span class="line"></span><br><span class="line">mysql&gt; SELECT WEIGHT<span class="emphasis">_STRING(&#x27;가&#x27;);</span></span><br><span class="line"><span class="emphasis">+----------------------------+</span></span><br><span class="line"><span class="emphasis">| SELECT WEIGHT_</span>STRING(&#x27;가&#x27;) |</span><br><span class="line">+----------------------------+</span><br><span class="line">| 0x 3BF5 3C73                 |</span><br><span class="line">+----------------------------+</span><br><span class="line"></span><br><span class="line">mysql&gt; SELECT WEIGHT<span class="emphasis">_STRING(&#x27;ㄱㅏ&#x27;);</span></span><br><span class="line"><span class="emphasis">+-----------------------------+</span></span><br><span class="line"><span class="emphasis">| SELECT WEIGHT_</span>STRING(&#x27;ㄱㅏ&#x27;) |</span><br><span class="line">+-----------------------------+</span><br><span class="line">| 0x 3BF5 3C73                  |</span><br><span class="line">+-----------------------------+</span><br></pre></td></tr></table></figure>
+
+<p>먼저 <code>utf8mb4-0900-aici</code> <code>collation</code> 에서 완성형 문자인 <code>가</code>와 개별 문자인 <code>ㄱ</code> 그리고 <code>ㅏ</code>에 대해서 가중치 값이 어떻게 계산되는지 확인 해보겠습니다. <code>DUCET</code> 데이터로 위의 2개는 한글 초성 <code>ㄱ</code>, 중성 <code>ㅏ</code>에 대한 가중치 데이터 이고 아래 2개는 한글 문자 <code>ㄱ</code>, 한글 문자 <code>ㅏ</code>에 대한 가중치 데이터입니다.</p>
+<p><code>DUCET</code> 에서는 한글에 대해서 초성, 중성, 종성 별로 또 개별 문자 별로 가중치 데이터가 각각 다르게 존재 합니다. 이 데이터와 실제 MySQL 에서 <code>WEIGHT_STRING</code> 함수를 이용해서 계산된 가중치 값을 비교해 보겠습니다.</p>
+<p>SQL 명령어 <code>mysql&gt; SELECT WEIGHT_STRING(&#39;가&#39;);</code> 대한 계산된 가중치 값을 볼 수 있는데 앞써 말했지만 한글의 경우 음절 문자 <code>초성</code>, <code>중성</code>, <code>종성</code>으로 분해 해서 가중치 값을 각각 계산하게 됩니다. 그래서 초성 <code>ㄱ</code>과 중성 <code>ㅏ</code> 데이터 사용 되고 이때 <code>collation 민감도</code>가 <code>aici</code> 이므로 첫번째 가중치 값만 사용 되기 때문에 각각 첫번째 가중치 값을 추출해 합쳐져 응답 (<code>0x3BF53C73</code>) 하는 것을 볼 수 있습니다.</p>
+<p>SQL 명령어 <code>mysql&gt; SELECT WEIGHT_STRING(&#39;ㄱㅏ&#39;);</code> 확인 해보면 <code>0x3BF53C73</code> 으로 응답 하게 되는데요, <code>한글 초성 ㄱ</code>과 <code>한글 문자 ㄱ</code>  <code>한글 중성 ㅏ</code> 하고 <code>한글 문자 ㅏ</code> 첫 번째 가중치 값이 모두 동일 하다 보니 결과적으로 각각 같은 가중치 값으로 응답 하는 것을 볼 수 있습니다.</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">1100 ; [.3BF5.0020.0002] # 한글 초성 &#x27;ㄱ&#x27;</span><br><span class="line">1161 ; [.3C73.0020.0002] # 한글 중성 &#x27;ㅏ&#x27;</span><br><span class="line">11A8 ; [.3CD1.0020.0002] # 한글 종성 &#x27;ㄱ&#x27;</span><br><span class="line"></span><br><span class="line">3131 ; [.3BF5.0020.0004] # 한글 문자 &#x27;ㄱ&#x27;</span><br><span class="line">314F ; [.3C73.0020.0004] # 한글 문자 &#x27;ㅏ&#x27;</span><br><span class="line">3131 ; [.3BF5.0020.0004] # 한글 문자 &#x27;ㄱ&#x27;</span><br><span class="line"></span><br><span class="line">mysql&gt; SELECT WEIGHT<span class="emphasis">_STRING(&#x27;각&#x27;);</span></span><br><span class="line"><span class="emphasis">+----------------------------+</span></span><br><span class="line"><span class="emphasis">| SELECT WEIGHT_</span>STRING(&#x27;각&#x27;) |</span><br><span class="line">+----------------------------+</span><br><span class="line">| 0x 3BF5 3C73 3CD1             |</span><br><span class="line">+----------------------------+</span><br><span class="line"></span><br><span class="line">mysql&gt; SELECT WEIGHT<span class="emphasis">_STRING(&#x27;ㄱㅏㄱ&#x27;);</span></span><br><span class="line"><span class="emphasis">+-------------------------------+</span></span><br><span class="line"><span class="emphasis">| SELECT WEIGHT_</span>STRING(&#x27;ㄱㅏㄱ&#x27;) |</span><br><span class="line">+-------------------------------+</span><br><span class="line">| 0x 3BF5 3C73 3BF5                |</span><br><span class="line">+-------------------------------+</span><br></pre></td></tr></table></figure>
+<p>이번에는 <code>각</code> 과 <code>ㄱ</code>, <code>ㅏ</code>, <code>ㄱ</code>에 대한 가중치 값을 비교 하면서 확인 해보겠습니다. 이 경우는 <code>WEIGHT_STRING</code> 함수를 통해 확인 해보면 최종 가중치 결과 값이 서로 다르게 나타나게 됩니다.</p>
+<p><code>collation 민감도</code>가 <code>aici</code> 이므로 음절 문자인 <code>각</code> 인 경우 <code>초성</code>, <code>중성</code>, <code>종성</code> 각각 가중치 데이터 값 중 첫번째 값만 사용 되어지고 한글 문자인 <code>ㄱ</code>, <code>ㅏ</code>, <code>ㄱ</code> 각각 가중치 값 첫번째로 사용 되어집니다.</p>
+<p>이때 마찬가지로 최종 가중치 값을 확인 해보면 한글 종성 <code>ㄱ</code> 값 첫번째 가중치 값이 <code>3CD1</code> 이고 다른 한글 문자 <code>ㄱ</code> 경우는 첫번째 가중치 값이 <code>3BF5</code> 로 다르기 때문에 결과적으로 다른 가중치 값으로 표현하게 되어서 서로 다른 값으로 인식 하게 됩니다.</p>
+<h3 id="utf8mb4-0900-as-cs-Collation-에서-한글-비교-이슈"><a href="#utf8mb4-0900-as-cs-Collation-에서-한글-비교-이슈" class="headerlink" title="utf8mb4_0900_as_cs Collation 에서 한글 비교 이슈"></a>utf8mb4_0900_as_cs Collation 에서 한글 비교 이슈</h3><figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">1100 ; [.3BF5.0020.0002] # 한글 초성 &#x27;ㄱ&#x27;</span><br><span class="line">1161 ; [.3C73.0020.0002] # 한글 중성 &#x27;ㅏ&#x27;</span><br><span class="line"></span><br><span class="line">3131 ; [.3BF5.0020.0004] # 한글 문자 &#x27;ㄱ&#x27;</span><br><span class="line">314F ; [.3C73.0020.0004] # 한글 문자 &#x27;ㅏ&#x27;</span><br><span class="line"></span><br><span class="line">mysql&gt; SELECT WEIGHT<span class="emphasis">_STRING(&#x27;가&#x27;);</span></span><br><span class="line"><span class="emphasis">+------------------------------------+</span></span><br><span class="line"><span class="emphasis">| SELECT WEIGHT_</span>STRING(&#x27;가&#x27;)         |</span><br><span class="line">+------------------------------------+</span><br><span class="line">| 0x 3BF5 3C73 0000 0020 0020 0000 0002 0002 |</span><br><span class="line">+------------------------------------+</span><br><span class="line"></span><br><span class="line">mysql&gt; SELECT WEIGHT<span class="emphasis">_STRING(&#x27;ㄱㅏ&#x27;);</span></span><br><span class="line"><span class="emphasis">+------------------------------------+</span></span><br><span class="line"><span class="emphasis">| SELECT WEIGHT_</span>STRING(&#x27;ㄱㅏ&#x27;)        |</span><br><span class="line">+------------------------------------+</span><br><span class="line">| 0x3BF53C73000000200020000000040004 |</span><br><span class="line">+------------------------------------+</span><br></pre></td></tr></table></figure>
+
+<p>앞써 케이스 경우는 <code>utf8mb4-0900-ai-ci</code> <code>collation</code> 에서는 첫 번째 가중치 값, 즉 <code>primary</code> 레벨의 값만 사용 되어졌는데 <code>utf8mb4-0900-as-cs</code> <code>collation</code> 경우는 세 번째 가중치 값까지 인 <code>tertiary</code> 까지 사용되어 집니다.</p>
+<p>한글 초성과 한글 중성으로 구성되어 있는 <code>가</code> 경우는 <code>tertiary</code> 까지 사용되어 지기 때문에 각각의 가중치 데이터에서 같은 단계에 속하는 값들을 묶은 후 단계별 데이터들을 최종적으로 <code>제로바이트</code>로 연결한 값이 반환 되어 집니다.</p>
+<p>한글 문자 <code>ㄱ</code>, <code>ㅏ</code> 경우를 보면 이것도 마찬가지로 <code>collation 민감도</code>가 <code>as_cs</code> 이기 때문에 세 번째 가중치 값까지 인 <code>tertiary</code> 까지 사용 되어져 최종 가중치 값이 <code>0x3BF53C73000000200020000000040004</code> 로 응답하게 됩니다.</p>
+<p>서로 비교를 해보면 서로 다른 결과가 나타나게 되는데요, 이는 이전에 첫번째 가중치값만 비교했던 것과 다르게 세 번째 가중치 값까지인 <code>tertiary</code> 까지 비교 했기 때문에 서로 다른 값으로 나타나게 됩니다.</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">1100 ; [.3BF5.0020.0002] # 한글 초성 &#x27;ㄱ&#x27;</span><br><span class="line">1161 ; [.3C73.0020.0002] # 한글 중성 &#x27;ㅏ&#x27;</span><br><span class="line">11A8 ; [.3CD1.0020.0002] # 한글 종성 &#x27;ㄱ&#x27;</span><br><span class="line"></span><br><span class="line">3131 ; [.3BF5.0020.0004] # 한글 문자 &#x27;ㄱ&#x27;</span><br><span class="line">314F ; [.3C73.0020.0004] # 한글 문자 &#x27;ㅏ&#x27;</span><br><span class="line">3131 ; [.3BF5.0020.0004] # 한글 문자 &#x27;ㄱ&#x27;</span><br><span class="line"></span><br><span class="line">mysql&gt; SELECT WEIGHT<span class="emphasis">_STRING(&#x27;각&#x27;);</span></span><br><span class="line"><span class="emphasis">+------------------------------------------------+</span></span><br><span class="line"><span class="emphasis">| SELECT WEIGHT_</span>STRING(&#x27;각&#x27;)                      |</span><br><span class="line">+------------------------------------------------+</span><br><span class="line">| 0x3BF53C733CD100000020002000200000000200020002 |</span><br><span class="line">+------------------------------------------------+</span><br><span class="line"></span><br><span class="line">mysql&gt; SELECT WEIGHT<span class="emphasis">_STRING(&#x27;ㄱㅏㄱ&#x27;);</span></span><br><span class="line"><span class="emphasis">+------------------------------------------------+</span></span><br><span class="line"><span class="emphasis">| SELECT WEIGHT_</span>STRING(&#x27;ㄱㅏㄱ&#x27;)                  |</span><br><span class="line">+------------------------------------------------+</span><br><span class="line">| 0x3BF53C733BF500000020002000200000000400040004 |</span><br><span class="line">+------------------------------------------------+</span><br></pre></td></tr></table></figure>
+
+<p>이번에는 한글 <code>초성</code>과 한글 <code>중성</code> 그리고 한글 <code>종성</code> 으로 구성되어 있는 <code>각</code> 값과 한글 문자 <code>ㄱ</code>, <code>ㅏ</code>, <code>ㄱ</code> 값을 비교 해보도록 하겠습니다. 이 경우도 <code>collation 민감도</code>가 <code>as_cs</code> 이기 때문에 세 번째 가중치 값까지 인 <code>tertiary</code> 까지 사용 되어져 있기 때문에, 가중치 값 데이터를 조합해서 각각 비교를 해보면 서로 다른 값으로 응답하기 때문에 결국은 다른 값으로 인식하게 됩니다.</p>
+<h3 id="utf8mb4-0900-ai-ci-Collation-에서-한글-비교-이슈-해결법은"><a href="#utf8mb4-0900-ai-ci-Collation-에서-한글-비교-이슈-해결법은" class="headerlink" title="utf8mb4_0900_ai_ci Collation 에서 한글 비교 이슈 해결법은?"></a>utf8mb4_0900_ai_ci Collation 에서 한글 비교 이슈 해결법은?</h3><figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SELECT * FROM collation WHERE name = &#x27;가&#x27; COLLATE utf8mb4<span class="emphasis">_unicode_</span>520<span class="emphasis">_ci;</span></span><br></pre></td></tr></table></figure>
+<p>여러가지 방법이 있겠지만 개인적으로 추천 하는 방법은 쿼리문을 보면 <code>WHERE</code>에 비교 조건에 <code>utf8mb4_unicode_520_ci</code> 추가해서 해당 <code>collation</code> 으로 비교 하면 <code>ㄱㅏ</code> 데이터 값은 응답값에 제외 된 것을 확인 할 수 있습니다. 이는 <code>unicode_520_ci</code> 경우는  <code>가</code>와 <code>ㄱㅏ</code> 를 서로 다른 문자로 인식 하기 때문에 쿼리 결과에서는 <code>ㄱㅏ</code> 데이터가 제외 된 것을 확인 할 수 있습니다.</p>
+
+      
+       <hr><span style="font-style: italic;color: gray;"> Copyright 201- syh8088. 무단 전재 및 재배포 금지. 출처 표기 시 인용 가능. </span>
+    </div>
+</article>
+
+
+<p>
+    <a  class="dashang" onclick="dashangToggle()">💰</a>
+</p>
+
+
+
+
+
+
+    
+
+
+
+
+    </div>
+    <div class="copyright">
+        <p class="footer-entry">
+    ©2017 Seo Yang Hun
+</p>
+<p class="footer-entry">Built with <a href="https://hexo.io/" target="_blank">Hexo</a> and <a href="https://github.com/yelog/hexo-theme-3-hexo" target="_blank">3-hexo</a> theme</p>
+
+    </div>
+    <div class="full-toc">
+        <button class="full" data-title="Toggle full screen shortcut key s"><span class="min "></span></button>
+<a class="" id="rocket" ></a>
+
+    </div>
+</div>
+
+<div class="hide_box" onclick="dashangToggle()"></div>
+<div class="shang_box">
+    <a class="shang_close"  onclick="dashangToggle()">×</a>
+    <div class="shang_tit">
+        <p>Help us with donation</p>
+    </div>
+    <div class="shang_payimg">
+        <div class="pay_img">
+            <img src="/img/alipay.jpg" class="alipay" title="扫码支持">
+            <img src="/img/weixin.jpg" class="weixin" title="扫码支持">
+        </div>
+    </div>
+    <div class="shang_payselect">
+        <span><label><input type="radio" name="pay" checked value="alipay">alipay</label></span><span><label><input type="radio" name="pay" value="weixin">weixin</label></span>
+    </div>
+</div>
+
+
+</body>
+<script src="/js/jquery.pjax.js?v=1.1.0" ></script>
+
+<script src="/js/script.js?v=1.1.0" ></script>
+<script>
+    var img_resize = 'default';
+    function initArticle() {
+        /*渲染对应的表格样式*/
+        
+            $("#post .pjax table").addClass("green_title");
+        
+
+        /*渲染打赏样式*/
+        
+        $("input[name=pay]").on("click", function () {
+            if($("input[name=pay]:checked").val()=="weixin"){
+                $(".shang_box .shang_payimg .pay_img").addClass("weixin_img");
+            } else {
+                $(".shang_box .shang_payimg .pay_img").removeClass("weixin_img");
+            }
+        })
+        
+
+        /*高亮代码块行号*/
+        
+
+        /*访问数量*/
+        
+        $.getScript("//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js");
+        
+
+        /*代码高亮，行号对齐*/
+        $('.pre-numbering').css('line-height',$('.has-numbering').css('line-height'));
+
+        
+        
+    }
+
+    /*打赏页面隐藏与展示*/
+    
+    function dashangToggle() {
+        $(".shang_box").fadeToggle();
+        $(".hide_box").fadeToggle();
+    }
+    
+
+</script>
+
+<!--加入行号的高亮代码块样式-->
+
+<!--自定义样式设置-->
+<style>
+    
+    
+    .nav {
+        width: 542px;
+    }
+    .nav.fullscreen {
+        margin-left: -542px;
+    }
+    .nav-left {
+        width: 120px;
+    }
+    
+    
+    @media screen and (max-width: 1468px) {
+        .nav {
+            width: 492px;
+        }
+        .nav.fullscreen {
+            margin-left: -492px;
+        }
+        .nav-left {
+            width: 100px;
+        }
+    }
+    
+    
+    @media screen and (max-width: 1024px) {
+        .nav {
+            width: 492px;
+            margin-left: -492px
+        }
+        .nav.fullscreen {
+            margin-left: 0;
+        }
+    }
+    
+    @media screen and (max-width: 426px) {
+        .nav {
+            width: 100%;
+        }
+        .nav-left {
+            width: 100%;
+        }
+    }
+    
+    
+    .nav-right .title-list nav a .post-title, .nav-right .title-list #local-search-result a .post-title {
+        color: #383636;
+    }
+    
+    
+    .nav-right .title-list nav a .post-date, .nav-right .title-list #local-search-result a .post-date {
+        color: #5e5e5f;
+    }
+    
+    
+    .nav-right nav a.hover, #local-search-result a.hover{
+        background-color: #e2e0e0;
+    }
+    
+    
+
+    /*列表样式*/
+    
+
+    /* 背景图样式 */
+    
+    
+
+
+    /*引用块样式*/
+    
+
+    /*文章列表背景图*/
+    
+
+    
+</style>
+
+
+
+
+
+
+
+</html>
