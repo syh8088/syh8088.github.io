@@ -40,7 +40,7 @@
 <meta property="og:image" content="https://syh8088.github.io/img/NoSQL/CACHE_STRATEGY/3_1.HotKey.png">
 <meta property="og:image" content="https://syh8088.github.io/img/NoSQL/CACHE_STRATEGY/3_2.HotKey.png">
 <meta property="article:published_time" content="2025-12-27T22:47:42.000Z">
-<meta property="article:modified_time" content="2025-12-28T14:00:52.807Z">
+<meta property="article:modified_time" content="2026-01-20T13:04:53.684Z">
 <meta property="article:author" content="Seo Yang Hun">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https://syh8088.github.io/img/NoSQL/CACHE_STRATEGY/1.CachePenetration.png">
@@ -2052,7 +2052,7 @@
     </div>
     <div class="article-meta">
         
-            Created At : <time class="date" title='Updated At: 2025-12-28 23:00:52'>2025-12-28 07:47</time>
+            Created At : <time class="date" title='Updated At: 2026-01-20 22:04:53'>2025-12-28 07:47</time>
         
     </div>
     <div class="article-meta">
@@ -2145,12 +2145,14 @@
 <p>각 해시 함수 통해 반환 된 값 1, 2, 7 모두  Bloom Filter 비트 배열에 이미 저장 되어 있습니다. 분명 데이터 4는 입력 된 적이 없었지만 이미 저장되어 있다고 판단 해버립니다. (<code>해시 충돌</code>)</p>
 <p>이렇게 <code>해시 충돌</code> 로 인해서 실제로는 입력한 데이터가 아니더라도 있다고 판단 해버리는 상황이 발생 하게 됩니다. 즉 <code>False Positive (잘못된 긍정)</code> 이라고 표현 할 수 있습니다. 이러한 원리로 <code>Bloom Filter</code> 는 확률적 자료구조로 말 할 수 있겠습니다.</p>
 <p>이러한 특성 때문에 만약 데이터 4 입력한 Bloom Filter 비트 배열에 저장 된 데이터를 삭제 하고자 할 때 입력한 데이터가 실제로 4 로 인해 저장 된 데이터인지 아니면 다른 값으로 저장 된 데이터 인지 판단 할 수 없어 한번 입력한 데이터는 삭제 할 수 없게 됩니다.</p>
-<h3 id="적절한-비트-배열-크기-m-와-해시-함수-개수-k-공식"><a href="#적절한-비트-배열-크기-m-와-해시-함수-개수-k-공식" class="headerlink" title="적절한 비트 배열 크기(m) 와 해시 함수 개수(k) 공식"></a>적절한 <strong>비트 배열 크기(m)</strong> 와 <strong>해시 함수 개수(k) 공식</strong></h3><p><code>Bloom Filter</code>에서 <code>비트 배열 크기(m)</code> 와 <code>해시 함수 개수(k)</code> 는 보통 <code>내가 얼마나 많은 원소를 넣을 건지(n)</code>와 <code>얼마나 틀려도 되는지(허용 False Positive 확률 p)</code>두 가지를 먼저 정한 뒤 공식으로 계산해서 잡습니다.</p>
+<h3 id="적절한-비트-배열-크기-m-와-해시-함수-개수-k-공식"><a href="#적절한-비트-배열-크기-m-와-해시-함수-개수-k-공식" class="headerlink" title="적절한 비트 배열 크기(m) 와 해시 함수 개수(k) 공식"></a>적절한 비트 배열 크기(m) 와 해시 함수 개수(k) 공식</h3><p><code>Bloom Filter</code>에서 <code>비트 배열 크기(m)</code> 와 <code>해시 함수 개수(k)</code> 는 보통 <code>내가 얼마나 많은 원소를 넣을 건지(n)</code>와 <code>얼마나 틀려도 되는지(허용 False Positive 확률 p)</code>두 가지를 먼저 정한 뒤 공식으로 계산해서 잡습니다.</p>
 <p><code>n</code> &#x3D; 예상 삽입 원소 개수</p>
 <p><code>p</code> &#x3D; 목표 False Positive 확률 (예: 1% &#x3D; 0.01)</p>
 <p><code>m</code> &#x3D; 비트 배열 크기</p>
 <p><code>k</code> &#x3D; 해시 함수 개수</p>
-<h3 id="비트-수-m"><a href="#비트-수-m" class="headerlink" title="비트 수 (m)"></a>비트 수 (m)</h3><p><img src="/../../../img/NoSQL/CACHE_STRATEGY/1-2-6.BloomFilter.png" alt="비트 수 (m)"></p>
+<h3 id="비트-수-m"><a href="#비트-수-m" class="headerlink" title="비트 수 (m)"></a>비트 수 (m)</h3><p>$m \approx -\frac{n \ln p}{(\ln 2)^2}$</p>
+<p>$$<br>f(x)&#x3D;ax^2+bx+c\<br>g(x)&#x3D;Ax^4<br>$$</p>
+<p><img src="/../../../img/NoSQL/CACHE_STRATEGY/1-2-6.BloomFilter.png" alt="비트 수 (m)"></p>
 <h3 id="해시-함수-개수-k"><a href="#해시-함수-개수-k" class="headerlink" title="해시 함수 개수 (k)"></a>해시 함수 개수 (k)</h3><p><img src="/../../../img/NoSQL/CACHE_STRATEGY/1-2-7.BloomFilter.png" alt="해시 함수 개수 (k)"></p>
 <p>예시로 존재 가능한 데이터가 1천만 개 (n: 10,000,000) 이고 오차율을 0.01로 하고 싶을때</p>
 <p>필요한 비트 수 (m):</p>
@@ -2178,7 +2180,7 @@
 <p><img src="/../../../img/NoSQL/CACHE_STRATEGY/2-1.Jitter.png" alt="Jitter"></p>
 <p>처음에 여러 개 요청 (모두 찾고자 하는 데이터가 각각 다를 경우) 으로 캐시 저장소에 질의를 하였지만 존재하는 데이터가 없고 (<code>Cache miss</code>) 원본 데이터에 질의를 한 다음에 캐시에 데이터를 저장 할 때 만료 시간을 랜덤한 Jitter 로 설정해서 저장 합니다.</p>
 <p>이렇게 하면 특정 시점에 캐시가 동시에 비는 현상이 줄고, 원본 저장소로 몰리는 <code>부하 스파이크</code>가 완화됩니다.</p>
-<h2 id="Probabilistic-Early-Recomputation-PER"><a href="#Probabilistic-Early-Recomputation-PER" class="headerlink" title="Probabilistic Early Recomputation (PER)"></a><strong>Probabilistic Early Recomputation (PER)</strong></h2><p><code>PER</code>은 캐시 키가 완전히 만료되기 전에 각 요청이 확률적으로 빠른 시점에 미리 갱신해서 캐시를 조기 재계산(<code>early recompute</code>) 하는 기법입니다.</p>
+<h2 id="Probabilistic-Early-Recomputation-PER"><a href="#Probabilistic-Early-Recomputation-PER" class="headerlink" title="Probabilistic Early Recomputation (PER)"></a>Probabilistic Early Recomputation (PER)</h2><p><code>PER</code>은 캐시 키가 완전히 만료되기 전에 각 요청이 확률적으로 빠른 시점에 미리 갱신해서 캐시를 조기 재계산(<code>early recompute</code>) 하는 기법입니다.</p>
 <p>즉 만료 시간이 다가올 수록 확률이 증가하게 되고, 캐시 갱신이 오래 걸릴 수록 확률이 증가 하게 됩니다.</p>
 <p><img src="/../../../img/NoSQL/CACHE_STRATEGY/2-2-1.ProbabilisticEarlyRecomputation(PER).png" alt="Probabilistic Early Recomputation(PER)"></p>
 <p>1, 2, 3번 요청이 동시에 동일한 키로 캐시 저장소에 요청 한다고 가정 해보겠습니다. 캐시에 요청하고자 하는 데이터가 존재해서 <code>Cache Hit</code> 가 발생 했다고 가정 하고 이때 3개의 요청 중 하나가 확률로 인해서 캐시 갱신에 책임이 생길 수 있습니다.</p>
@@ -2186,7 +2188,7 @@
 <p><img src="/../../../img/NoSQL/CACHE_STRATEGY/2-2-2.ProbabilisticEarlyRecomputation(PER).png" alt="Probabilistic Early Recomputation(PER)"></p>
 <p>여기서 1번 2번 요청은 즉시 응답하지만 3번 요청은 캐시 갱신에 책임을 얻어서 캐시 갱신을 하기 위해 원본 데이터에 질의를 하게 되고 다시 캐시 저장소에 저장 해서 캐시 만료 시간을 초기화 하게 됩니다. 이후에 해당 요청이 들어와도 이미 새롭게 캐시를 갱신 하기 때문에 만료 시간 때문에 여러 개 요청이 원본 저장소에 질의 하는 사태는 없어질 것 입니다.</p>
 <p>즉 캐시가 만료되기 전에 조기에 캐시 만료 시간을 초기화 하므로써 <code>Cache Stampede</code> 현상을 방지 할 수 있습니다.</p>
-<h3 id="PER-알고리즘"><a href="#PER-알고리즘" class="headerlink" title="PER 알고리즘"></a>PER 알고리즘</h3><figure class="highlight smalltalk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">XFetch</span>(key, ttl, β=<span class="number">1</span>)</span><br><span class="line">  value, Δ, expiry &lt;- <span class="type">CacheRead</span>(key)</span><br><span class="line">  if !value <span class="type">OR</span> (now - Δ * β * log(rand())) &gt;= expiry then</span><br><span class="line">      start &lt;- now</span><br><span class="line">      value &lt;- <span class="type">RecomputeValue</span>()</span><br><span class="line">      Δ &lt;- now - start</span><br><span class="line">      <span class="type">CacheWrite</span>(key, (value, Δ), ttl)</span><br><span class="line">  return value</span><br></pre></td></tr></table></figure>
+<h3 id="PER-알고리즘"><a href="#PER-알고리즘" class="headerlink" title="PER 알고리즘"></a>PER 알고리즘</h3><figure class="highlight smalltalk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">XFetch</span>(key, ttl, β=<span class="number">1</span>)</span><br><span class="line">  value, Δ, expiry &lt;- <span class="type">CacheRead</span>(key)</span><br><span class="line">  if !value <span class="type">OR</span> (now - Δ * β * log(rand(<span class="number">0</span>, <span class="number">1</span>))) &gt;= expiry then</span><br><span class="line">      start &lt;- now</span><br><span class="line">      value &lt;- <span class="type">RecomputeValue</span>()</span><br><span class="line">      Δ &lt;- now - start</span><br><span class="line">      <span class="type">CacheWrite</span>(key, (value, Δ), ttl)</span><br><span class="line">  return value</span><br></pre></td></tr></table></figure>
 
 <p><code>PER</code> 알고리즘에 대해서 알아보도록 하겠습니다.</p>
 <p>파라미터 부터 설명하자면</p>
@@ -2218,7 +2220,7 @@
 <p><code>CacheWrite(key, (value, Δ), ttl)</code> : 캐시에 데이터 값 갱신 하게 됩니다. (만료 시간 초기화 및 델타 값 갱신)</p>
 <p><code>Probabilistic Early Recomputation(PER)</code> 는 캐시 만료 직전에 확률적으로 일부 요청을 갱신을 수행하게 만들어서 만료 시점에 발생하는 <code>Cache miss</code> 폭발 (<code>Cache Stampede</code>) 을 완화하는 기법 입니다.</p>
 <p>특히 캐시 값 생성 비용 (<code>Δ 델타</code>) 을 함께 저장하고 만료에 가까워질수록 갱신 확률이 커지도록 설계 하도록 되어 있는데 이는 락 의존도를 낮추면서도 높은 트래픽의 안정적인 효과를 얻을 수 있습니다.</p>
-<h2 id="Request-Collapsing"><a href="#Request-Collapsing" class="headerlink" title="Request Collapsing"></a><strong>Request Collapsing</strong></h2><p>**<code>Request Collapsing</code>**은 같은 시점에 들어온 중복된 요청들을 하나로 합쳐서 호출을 1번(또는 소수) 만 하게 만드는 기법입니다.</p>
+<h2 id="Request-Collapsing"><a href="#Request-Collapsing" class="headerlink" title="Request Collapsing"></a>Request Collapsing</h2><p>**<code>Request Collapsing</code>**은 같은 시점에 들어온 중복된 요청들을 하나로 합쳐서 호출을 1번(또는 소수) 만 하게 만드는 기법입니다.</p>
 <p>만약 같은 키에 100 개 요청이 동시에 조회를 하게 된다면 원본 데이터에 100개 요청을 하지 않고 단 1개의 요청으로 합쳐서 요청하는 기법 입니다.</p>
 <p><img src="/../../../img/NoSQL/CACHE_STRATEGY/2-3-1.RequestCollapsing.png" alt="Request Collapsing"></p>
 <p>만약 동시에 3개의 중복된 요청이 들어 오고 <code>Cache miss</code> 가 발생 한다고 하면 원본 저장소 까지 조회를 하게 됩니다. <strong><code>Request Collapsing</code></strong> 기법은 하나의 요청으로 합쳐서 원본 저장소에 요청 하게 됩니다.</p>
@@ -2249,7 +2251,7 @@
 <p>이 때 조회를 하게 된다면 네번째, 세번째, 두번째에 저장 했던 데이터를 반환 하게 됩니다.</p>
 <p><img src="/../../../img/NoSQL/CACHE_STRATEGY/2-5-6.WriteThrough.png" alt="Write Through"></p>
 <p>만약 사용자가 두번째 페이지를 조회 하게 되면 이때는 <code>Cache Miss</code> 가 발생 되면서 <code>원본 저장소</code> 에 있는 데이터를 조회 하게 됩니다.</p>
-<h1 id="Hot-Key"><a href="#Hot-Key" class="headerlink" title="Hot Key"></a><strong>Hot Key</strong></h1><p><strong><code>Hot Key</code></strong> 는 캐시나 Redis 에서 특정 키에 요청 트래픽이 비정상적으로 집중되는 현상을 말합니다.</p>
+<h1 id="Hot-Key"><a href="#Hot-Key" class="headerlink" title="Hot Key"></a>Hot Key</h1><p><strong><code>Hot Key</code></strong> 는 캐시나 Redis 에서 특정 키에 요청 트래픽이 비정상적으로 집중되는 현상을 말합니다.</p>
 <p><img src="/../../../img/NoSQL/CACHE_STRATEGY/3_1.HotKey.png" alt="Hot Key"></p>
 <p>다음 그림은 Redis Cluster 로 구성되어 있는 이미지 입니다. 이렇게 Cluster 통해 분산 되어 있다 해도 특정 노드에서만 다수의 <code>Hot Key</code> 가 존재 한다면 해당 노드에만 부하가 증가 하게 될 것 입니다.</p>
 <h2 id="Application-Level-Sharding-Replication"><a href="#Application-Level-Sharding-Replication" class="headerlink" title="Application Level Sharding - Replication"></a>Application Level Sharding - Replication</h2><p><img src="/../../../img/NoSQL/CACHE_STRATEGY/3_2.HotKey.png" alt="Hot Key"><br><code>Cache Miss</code> 로 특정 <code>Hot Key</code> 데이터를 캐시 저장소에 저장 시 모든 노드에 캐시 저장소에 저장 한다.그 다음 해당 <code>Hot Key</code> 통해 조회가 발생 하면 3개 Node 중랜덤을 구해서 특정 노드에 <code>Cache Hit</code> 발생 하도록 합니다.</p>
