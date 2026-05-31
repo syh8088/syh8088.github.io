@@ -1,0 +1,3365 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>JAVA GC - G1GC | Seo Yang Hun Blog</title>
+  <meta name="keywords" content="">
+  <meta name="description" content="JAVA GC - G1GC | Seo Yang Hun Blog">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="description" content="JVM 가상 주소 공간(Virtual Address Space) 구조 설명가상 주소 공간은 크게 JVM이 직접 관리하는 영역 과 OS 프로세스 레지스터 수준에서 관리되는 영역 으로 나뉩니다. JVM 런타임 데이터 영역 (JVM Managed)자바 프로그램이 실행되면서 동적으로 사용하는 메모리 공간입니다.  Stack (스택): 각 스레드마다 개별적으로 할당">
+<meta property="og:type" content="article">
+<meta property="og:title" content="JAVA GC - JVM 알아보기">
+<meta property="og:url" content="https://syh8088.github.io/2026/03/30/JAVA/GC/GC0/index.html">
+<meta property="og:site_name" content="Seo Yang Hun Blog">
+<meta property="og:description" content="JVM 가상 주소 공간(Virtual Address Space) 구조 설명가상 주소 공간은 크게 JVM이 직접 관리하는 영역 과 OS 프로세스 레지스터 수준에서 관리되는 영역 으로 나뉩니다. JVM 런타임 데이터 영역 (JVM Managed)자바 프로그램이 실행되면서 동적으로 사용하는 메모리 공간입니다.  Stack (스택): 각 스레드마다 개별적으로 할당">
+<meta property="og:locale">
+<meta property="article:published_time" content="2026-03-29T22:47:42.000Z">
+<meta property="article:modified_time" content="2026-05-31T11:18:53.606Z">
+<meta property="article:author" content="Seo Yang Hun">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="icon" href="/img/avatar.jpg">
+
+<link href="/css/style.css?v=1.1.0" rel="stylesheet">
+
+<link href="/css/hl_theme/atom-light.css?v=1.1.0" rel="stylesheet">
+
+<link href="//cdn.jsdelivr.net/npm/animate.css@4.1.0/animate.min.css" rel="stylesheet">
+
+<script src="//cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"></script>
+<script src="/js/titleTip.js?v=1.1.0" ></script>
+
+<script src="//cdn.jsdelivr.net/npm/highlightjs@9.16.2/highlight.pack.min.js"></script>
+<script>
+    hljs.initHighlightingOnLoad();
+</script>
+
+<script src="//cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.js"></script>
+
+
+
+<script src="//cdn.jsdelivr.net/npm/jquery.cookie@1.4.1/jquery.cookie.min.js" ></script>
+
+<script src="/js/iconfont.js?v=1.1.0" ></script>
+
+<meta name="generator" content="Hexo 7.2.0"></head>
+<div style="display: none">
+  <input class="theme_disqus_on" value="false">
+  <input class="theme_preload_comment" value="">
+  <input class="theme_blog_path" value="">
+  <input id="theme_shortcut" value="true" />
+  <input id="theme_highlight_on" value="true" />
+  <input id="theme_code_copy" value="true" />
+</div>
+
+
+
+<body>
+<aside class="nav">
+    <div class="nav-left">
+        <a href="/"
+   class="avatar_target">
+    <img class="avatar"
+         src="/img/avatar.jpg"/>
+</a>
+<div class="author">
+    <span>Seo Yang Hun</span>
+</div>
+
+<div class="icon">
+    
+        
+            <a title="rss"
+               href="/atom.xml"
+               target="_blank">
+                
+                    <svg class="iconfont-svg" aria-hidden="true">
+                        <use xlink:href="#icon-rss"></use>
+                    </svg>
+                
+            </a>
+        
+    
+        
+            <a title="github"
+               href="https://github.com/syh8088"
+               target="_blank">
+                
+                    <svg class="iconfont-svg" aria-hidden="true">
+                        <use xlink:href="#icon-github"></use>
+                    </svg>
+                
+            </a>
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+            <a title="email"
+               href="mailto:syh8088@gmail.com"
+               target="_blank">
+                
+                    <svg class="iconfont-svg" aria-hidden="true">
+                        <use xlink:href="#icon-email"></use>
+                    </svg>
+                
+            </a>
+        
+    
+        
+            <a title="qq"
+               href="http://wpa.qq.com/msgrd?v=3&uin=872336115&site=qq&menu=yes"
+               target="_blank">
+                
+                    <svg class="iconfont-svg" aria-hidden="true">
+                        <use xlink:href="#icon-qq"></use>
+                    </svg>
+                
+            </a>
+        
+    
+        
+    
+        
+    
+</div>
+
+
+
+
+
+<ul>
+    <li>
+        <div class="all active" data-rel="모든 글">모든 글
+            
+                <small>(73)</small>
+            
+        </div>
+    </li>
+    
+        
+            
+                
+    <li>
+        <div data-rel="Authentication">
+            <i class="fold iconfont icon-right"></i>
+            Authentication
+            <small>(2)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="Authentication&lt;---&gt;JWT">
+            
+            JWT
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="Authentication&lt;---&gt;Oauth">
+            
+            Oauth
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="AWS">
+            <i class="fold iconfont icon-right"></i>
+            AWS
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="AWS&lt;---&gt;Image Resizing">
+            
+            Image Resizing
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="CI-CD">
+            <i class="fold iconfont icon-right"></i>
+            CI-CD
+            <small>(10)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="CI-CD&lt;---&gt;AWS">
+            <i class="fold iconfont icon-right"></i>
+            AWS
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="CI-CD&lt;---&gt;AWS&lt;---&gt;EKS">
+            <i class="fold iconfont icon-right"></i>
+            EKS
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="CI-CD&lt;---&gt;AWS&lt;---&gt;EKS&lt;---&gt;Kubernetes">
+            <i class="fold iconfont icon-right"></i>
+            Kubernetes
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="CI-CD&lt;---&gt;AWS&lt;---&gt;EKS&lt;---&gt;Kubernetes&lt;---&gt;Docker">
+            
+            Docker
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="CI-CD&lt;---&gt;GitHubActions">
+            
+            GitHubActions
+            <small>(6)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="CI-CD&lt;---&gt;Jenkins">
+            
+            Jenkins
+            <small>(3)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="DB">
+            <i class="fold iconfont icon-right"></i>
+            DB
+            <small>(5)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="DB&lt;---&gt;Mysql">
+            <i class="fold iconfont icon-right"></i>
+            Mysql
+            <small>(4)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="DB&lt;---&gt;Mysql&lt;---&gt;DBCP">
+            
+            DBCP
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="DB&lt;---&gt;Mysql&lt;---&gt;optimizing">
+            
+            optimizing
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="DB&lt;---&gt;Mysql&lt;---&gt;Paging">
+            
+            Paging
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="DB&lt;---&gt;MySql">
+            <i class="fold iconfont icon-right"></i>
+            MySql
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="DB&lt;---&gt;MySql&lt;---&gt;Collation">
+            
+            Collation
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="Elastic Search">
+            
+            Elastic Search
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="Flink">
+            <i class="fold iconfont icon-right"></i>
+            Flink
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="Flink&lt;---&gt;Real Time">
+            <i class="fold iconfont icon-right"></i>
+            Real Time
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="Flink&lt;---&gt;Real Time&lt;---&gt;Kafka">
+            
+            Kafka
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="J">
+            <i class="fold iconfont icon-right"></i>
+            J
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="J&lt;---&gt;Jenkins">
+            
+            Jenkins
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="JAVA">
+            <i class="fold iconfont icon-right"></i>
+            JAVA
+            <small>(33)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;GC">
+            
+            GC
+            <small>(4)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;HTTP">
+            <i class="fold iconfont icon-right"></i>
+            HTTP
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;HTTP&lt;---&gt;FeignClient">
+            
+            FeignClient
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;JPA">
+            
+            JPA
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;Object">
+            
+            Object
+            <small>(2)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;Payment">
+            
+            Payment
+            <small>(5)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;Security">
+            
+            Security
+            <small>(4)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;Spring">
+            <i class="fold iconfont icon-right"></i>
+            Spring
+            <small>(2)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;Spring&lt;---&gt;Payment">
+            <i class="fold iconfont icon-right"></i>
+            Payment
+            <small>(2)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;Spring&lt;---&gt;Payment&lt;---&gt;junit5">
+            <i class="fold iconfont icon-right"></i>
+            junit5
+            <small>(2)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;Spring&lt;---&gt;Payment&lt;---&gt;junit5&lt;---&gt;Mockito">
+            
+            Mockito
+            <small>(2)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;SpringBatch">
+            
+            SpringBatch
+            <small>(5)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;SpringBootAndSecurityAndJWT">
+            
+            SpringBootAndSecurityAndJWT
+            <small>(3)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;SpringCloudConfig">
+            
+            SpringCloudConfig
+            <small>(4)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;Transaction">
+            
+            Transaction
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;Validator">
+            
+            Validator
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="JavaScript">
+            <i class="fold iconfont icon-right"></i>
+            JavaScript
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="JavaScript&lt;---&gt;Webpack">
+            
+            Webpack
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="Kafka">
+            <i class="fold iconfont icon-right"></i>
+            Kafka
+            <small>(2)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="Kafka&lt;---&gt;idempotent">
+            
+            idempotent
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="KUBERNETES">
+            
+            KUBERNETES
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="MSA">
+            <i class="fold iconfont icon-right"></i>
+            MSA
+            <small>(3)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="MSA&lt;---&gt;Payment">
+            <i class="fold iconfont icon-right"></i>
+            Payment
+            <small>(3)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="MSA&lt;---&gt;Payment&lt;---&gt;Kafka">
+            <i class="fold iconfont icon-right"></i>
+            Kafka
+            <small>(3)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="MSA&lt;---&gt;Payment&lt;---&gt;Kafka&lt;---&gt;EDA">
+            <i class="fold iconfont icon-right"></i>
+            EDA
+            <small>(3)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="MSA&lt;---&gt;Payment&lt;---&gt;Kafka&lt;---&gt;EDA&lt;---&gt;CQRS">
+            
+            CQRS
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="MSA&lt;---&gt;Payment&lt;---&gt;Kafka&lt;---&gt;EDA&lt;---&gt;Saga">
+            <i class="fold iconfont icon-right"></i>
+            Saga
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="MSA&lt;---&gt;Payment&lt;---&gt;Kafka&lt;---&gt;EDA&lt;---&gt;Saga&lt;---&gt;Axon">
+            
+            Axon
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="Network">
+            
+            Network
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="NoSQL">
+            <i class="fold iconfont icon-right"></i>
+            NoSQL
+            <small>(2)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="NoSQL&lt;---&gt;Redis">
+            <i class="fold iconfont icon-right"></i>
+            Redis
+            <small>(2)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="NoSQL&lt;---&gt;Redis&lt;---&gt;RateLimiter">
+            
+            RateLimiter
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="R">
+            
+            R
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="대용량 트래픽">
+            <i class="fold iconfont icon-right"></i>
+            대용량 트래픽
+            <small>(3)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="대용량 트래픽&lt;---&gt;EDA">
+            <i class="fold iconfont icon-right"></i>
+            EDA
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="대용량 트래픽&lt;---&gt;EDA&lt;---&gt;Payment">
+            <i class="fold iconfont icon-right"></i>
+            Payment
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="대용량 트래픽&lt;---&gt;EDA&lt;---&gt;Payment&lt;---&gt;Redis">
+            <i class="fold iconfont icon-right"></i>
+            Redis
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="대용량 트래픽&lt;---&gt;EDA&lt;---&gt;Payment&lt;---&gt;Redis&lt;---&gt;Kafka">
+            
+            Kafka
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="대용량 트래픽&lt;---&gt;Redis">
+            <i class="fold iconfont icon-right"></i>
+            Redis
+            <small>(2)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="대용량 트래픽&lt;---&gt;Redis&lt;---&gt;Kafka">
+            
+            Kafka
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="대용량 트래픽&lt;---&gt;Redis&lt;---&gt;WebFlux">
+            <i class="fold iconfont icon-right"></i>
+            WebFlux
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="대용량 트래픽&lt;---&gt;Redis&lt;---&gt;WebFlux&lt;---&gt;접근자 대기열">
+            
+            접근자 대기열
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+</ul>
+<div class="left-bottom">
+    <div class="menus">
+        
+            
+            
+            
+    </div>
+    <div>
+        
+            <a class="about  hasFriend  site_url"
+               
+               href="/about">about</a>
+        
+        <a style="width: 50%"
+                
+                                           class="friends">friends</a>
+        
+    </div>
+</div>
+<input type="hidden" id="yelog_site_posts_number" value="73">
+
+<div style="display: none">
+    <span id="busuanzi_value_site_uv"></span>
+    <span id="busuanzi_value_site_pv"></span>
+</div>
+
+    </div>
+    <div class="nav-right">
+        <div class="friends-area">
+    <div class="friends-title">
+        友情链接
+        <i class="iconfont icon-left"></i>
+    </div>
+    <div class="friends-content">
+        <ul>
+            
+            <li><a target="_blank" href="http://yelog.org/">叶落阁</a></li>
+            
+        </ul>
+    </div>
+</div>
+        <div class="title-list">
+    <div class="right-top">
+        <div id="default-panel">
+            <i class="iconfont icon-search" data-title="搜索 快捷键 i"></i>
+            <div class="right-title">모든 글</div>
+            <i class="iconfont icon-file-tree" data-title="切换到大纲视图 快捷键 w"></i>
+        </div>
+        <div id="search-panel">
+            <i class="iconfont icon-left" data-title="返回"></i>
+            <input id="local-search-input" autocomplete="off"/>
+            <label class="border-line" for="input"></label>
+            <i class="iconfont icon-case-sensitive" data-title="大小写敏感"></i>
+            <i class="iconfont icon-tag" data-title="标签"></i>
+        </div>
+        <div id="outline-panel" style="display: none">
+            <div class="right-title">大纲</div>
+            <i class="iconfont icon-list" data-title="切换到文章列表"></i>
+        </div>
+    </div>
+
+    <div class="tags-list">
+    <input id="tag-search" />
+    <div class="tag-wrapper">
+        
+    </div>
+
+</div>
+
+    
+    <nav id="title-list-nav">
+        
+        
+        <a  class="모든 글 JAVA GC "
+           href="/2026/03/30/JAVA/GC/GC0/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="JAVA GC - JVM 알아보기">JAVA GC - JVM 알아보기</span>
+            <span class="post-date" title="2026-03-30 07:47:42">2026/03/30</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA GC "
+           href="/2026/03/30/JAVA/GC/GC3/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="JAVA GC - G1GC">JAVA GC - G1GC</span>
+            <span class="post-date" title="2026-03-30 07:47:42">2026/03/30</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA GC "
+           href="/2026/03/30/JAVA/GC/GC1/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="JAVA GC - Serial GC">JAVA GC - Serial GC</span>
+            <span class="post-date" title="2026-03-30 07:47:42">2026/03/30</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA GC "
+           href="/2026/03/30/JAVA/GC/GC2/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="JAVA GC - Parallel GC">JAVA GC - Parallel GC</span>
+            <span class="post-date" title="2026-03-30 07:47:42">2026/03/30</span>
+        </a>
+        
+        
+        <a  class="모든 글 NoSQL Redis "
+           href="/2025/12/28/NoSQL/CACHE_STRATEGY/CacheStrategy/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="캐시 전략">캐시 전략</span>
+            <span class="post-date" title="2025-12-28 07:47:42">2025/12/28</span>
+        </a>
+        
+        
+        <a  class="모든 글 CI-CD AWS EKS Kubernetes Docker "
+           href="/2025/08/15/CI-CD/AWS_EKS_CICD/aws_eks_cicd/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="AWS EKS 서버 배포 - CI/CD">AWS EKS 서버 배포 - CI/CD</span>
+            <span class="post-date" title="2025-08-15 07:47:42">2025/08/15</span>
+        </a>
+        
+        
+        <a  class="모든 글 DB MySql Collation "
+           href="/2025/07/23/DB/Mysql/Collation/Collation/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Mysql - Collation">Mysql - Collation</span>
+            <span class="post-date" title="2025-07-23 07:47:42">2025/07/23</span>
+        </a>
+        
+        
+        <a  class="모든 글 Network "
+           href="/2025/07/15/NETWORK/introduction/Network-Introduction/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="네트워크 - 구조 및 공유기 원리">네트워크 - 구조 및 공유기 원리</span>
+            <span class="post-date" title="2025-07-15 07:47:42">2025/07/15</span>
+        </a>
+        
+        
+        <a  class="모든 글 Kafka "
+           href="/2025/07/06/KAFKA/introduction/kafka_introduction/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="카프카 개념 및 실전">카프카 개념 및 실전</span>
+            <span class="post-date" title="2025-07-06 07:47:42">2025/07/06</span>
+        </a>
+        
+        
+        <a  class="모든 글 "
+           href="/2025/06/27/AWS/ImageResizing/imageTest/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title=""></span>
+            <span class="post-date" title="2025-06-27 20:10:06">2025/06/27</span>
+        </a>
+        
+        
+        <a  class="모든 글 AWS Image Resizing "
+           href="/2025/06/26/AWS/ImageResizing/aws-image-resizing/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="AWS Image Resizing 구현하기">AWS Image Resizing 구현하기</span>
+            <span class="post-date" title="2025-06-26 07:47:42">2025/06/26</span>
+        </a>
+        
+        
+        <a  class="모든 글 Elastic Search "
+           href="/2025/06/16/ELASTIC_SEARCH/introduction/elasticsearch-introduction/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Elastic Search 검색 활용기">Elastic Search 검색 활용기</span>
+            <span class="post-date" title="2025-06-16 07:47:42">2025/06/16</span>
+        </a>
+        
+        
+        <a  class="모든 글 Flink Real Time Kafka "
+           href="/2025/04/05/FLINK/introduction/Flink-Introduction/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Flink 이용해서 실시간 데이터 스트림 처리 해보기">Flink 이용해서 실시간 데이터 스트림 처리 해보기</span>
+            <span class="post-date" title="2025-04-05 07:47:42">2025/04/05</span>
+        </a>
+        
+        
+        <a  class="모든 글 Kafka idempotent "
+           href="/2024/12/23/KAFKA/idempotent/Kafka_idempotent/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="카프카 멱등성 및 이벤트 일관성 보장하기">카프카 멱등성 및 이벤트 일관성 보장하기</span>
+            <span class="post-date" title="2024-12-23 07:47:42">2024/12/23</span>
+        </a>
+        
+        
+        <a  class="모든 글 MSA Payment Kafka EDA CQRS "
+           href="/2024/12/16/MSA/paymentMsa/MSA_Payment_Project_3/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="결제 시스템으로 알아보는 MSA 3 - 쿼리 문제">결제 시스템으로 알아보는 MSA 3 - 쿼리 문제</span>
+            <span class="post-date" title="2024-12-16 07:47:42">2024/12/16</span>
+        </a>
+        
+        
+        <a  class="모든 글 MSA Payment Kafka EDA Saga Axon "
+           href="/2024/12/15/MSA/paymentMsa/MSA_Payment_Project_2/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="결제 시스템으로 알아보는 MSA 2 - 분산 트랜잭션 구현">결제 시스템으로 알아보는 MSA 2 - 분산 트랜잭션 구현</span>
+            <span class="post-date" title="2024-12-15 07:47:42">2024/12/15</span>
+        </a>
+        
+        
+        <a  class="모든 글 MSA Payment Kafka EDA "
+           href="/2024/12/14/MSA/paymentMsa/MSA_Payment_Project_1/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="결제 시스템으로 알아보는 MSA 1 - 기본 설명">결제 시스템으로 알아보는 MSA 1 - 기본 설명</span>
+            <span class="post-date" title="2024-12-14 07:47:42">2024/12/14</span>
+        </a>
+        
+        
+        <a  class="모든 글 대용량 트래픽 EDA Payment Redis Kafka "
+           href="/2024/12/13/HIGH_VOLUME_TRAFFIC/PaymentEDA/PaymentEDA/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="결제 시스템으로 알아보는 EDA 시스템">결제 시스템으로 알아보는 EDA 시스템</span>
+            <span class="post-date" title="2024-12-13 07:47:42">2024/12/13</span>
+        </a>
+        
+        
+        <a  class="모든 글 DB Mysql optimizing "
+           href="/2024/12/06/DB/Mysql/optimizing/IndexDiveOptimizaiton/IndexDiveOptimizaiton/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Index Dive 최적화">Index Dive 최적화</span>
+            <span class="post-date" title="2024-12-06 07:47:42">2024/12/06</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA Spring Payment junit5 Mockito "
+           href="/2024/12/03/JAVA/TEST/PaymentTesting/PaymentTesting2/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="결제 Testing - 2">결제 Testing - 2</span>
+            <span class="post-date" title="2024-12-03 15:50:00">2024/12/03</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA Spring Payment junit5 Mockito "
+           href="/2024/12/02/JAVA/TEST/PaymentTesting/PaymentTesting1/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="결제 Testing - 1">결제 Testing - 1</span>
+            <span class="post-date" title="2024-12-02 15:50:00">2024/12/02</span>
+        </a>
+        
+        
+        <a  class="모든 글 대용량 트래픽 Redis WebFlux 접근자 대기열 "
+           href="/2024/11/28/HIGH_VOLUME_TRAFFIC/AccessorQueuingSystem/AccessorQueuingSystem/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="대용량 트래픽 - 접근자 대기열 시스템 만들기">대용량 트래픽 - 접근자 대기열 시스템 만들기</span>
+            <span class="post-date" title="2024-11-28 07:47:42">2024/11/28</span>
+        </a>
+        
+        
+        <a  class="모든 글 대용량 트래픽 Redis Kafka "
+           href="/2024/11/22/HIGH_VOLUME_TRAFFIC/CreateCoupon/CreateCoupon/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="대용량 트래픽 - 선착순 쿠폰 등록 With Kafka, Redis">대용량 트래픽 - 선착순 쿠폰 등록 With Kafka, Redis</span>
+            <span class="post-date" title="2024-11-22 07:47:42">2024/11/22</span>
+        </a>
+        
+        
+        <a  class="모든 글 NoSQL Redis RateLimiter "
+           href="/2024/11/19/NoSQL/Redis/RateLimiter/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Request Rate Limiter 구현하기">Request Rate Limiter 구현하기</span>
+            <span class="post-date" title="2024-11-19 07:47:42">2024/11/19</span>
+        </a>
+        
+        
+        <a  class="모든 글 CI-CD GitHubActions "
+           href="/2024/10/20/CI-CD/GitHunActions/GitHubActionsCICDWithSpringBoot6/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="GitHubActions CICD With SpringBoot - 6">GitHubActions CICD With SpringBoot - 6</span>
+            <span class="post-date" title="2024-10-20 07:47:42">2024/10/20</span>
+        </a>
+        
+        
+        <a  class="모든 글 CI-CD GitHubActions "
+           href="/2024/10/19/CI-CD/GitHunActions/GitHubActionsCICDWithSpringBoot5/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="GitHubActions CICD With SpringBoot - 5">GitHubActions CICD With SpringBoot - 5</span>
+            <span class="post-date" title="2024-10-19 07:47:42">2024/10/19</span>
+        </a>
+        
+        
+        <a  class="모든 글 CI-CD GitHubActions "
+           href="/2024/10/18/CI-CD/GitHunActions/GitHubActionsCICDWithSpringBoot4/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="GitHubActions CICD With SpringBoot - 4">GitHubActions CICD With SpringBoot - 4</span>
+            <span class="post-date" title="2024-10-18 07:47:42">2024/10/18</span>
+        </a>
+        
+        
+        <a  class="모든 글 CI-CD GitHubActions "
+           href="/2024/10/17/CI-CD/GitHunActions/GitHubActionsCICDWithSpringBoot3/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="GitHubActions CICD With SpringBoot - 3">GitHubActions CICD With SpringBoot - 3</span>
+            <span class="post-date" title="2024-10-17 07:47:42">2024/10/17</span>
+        </a>
+        
+        
+        <a  class="모든 글 CI-CD GitHubActions "
+           href="/2024/10/14/CI-CD/GitHunActions/GitHubActionsCICDWithSpringBoot2/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="GitHubActions CICD With SpringBoot - 2">GitHubActions CICD With SpringBoot - 2</span>
+            <span class="post-date" title="2024-10-14 07:47:42">2024/10/14</span>
+        </a>
+        
+        
+        <a  class="모든 글 CI-CD GitHubActions "
+           href="/2024/10/14/CI-CD/GitHunActions/GitHubActionsCICDWithSpringBoot1/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="GitHubActions CICD With SpringBoot - 1">GitHubActions CICD With SpringBoot - 1</span>
+            <span class="post-date" title="2024-10-14 07:47:42">2024/10/14</span>
+        </a>
+        
+        
+        <a  class="모든 글 DB Mysql Paging "
+           href="/2024/10/06/DB/Mysql/PagingQuery/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Paging Query 성능 개선 및 처리 방법 - 튜닝편">Paging Query 성능 개선 및 처리 방법 - 튜닝편</span>
+            <span class="post-date" title="2024-10-06 07:47:42">2024/10/06</span>
+        </a>
+        
+        
+        <a  class="모든 글 DB Mysql DBCP "
+           href="/2024/10/02/DB/Mysql/mysqlDBCP/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="DBCP 설정 방법">DBCP 설정 방법</span>
+            <span class="post-date" title="2024-10-02 07:47:42">2024/10/02</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA Object "
+           href="/2024/08/24/JAVA/Object/InheritanceComposition2/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="상속과 합성 이야기-2">상속과 합성 이야기-2</span>
+            <span class="post-date" title="2024-08-24 15:50:00">2024/08/24</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA Object "
+           href="/2024/08/23/JAVA/Object/InheritanceComposition1/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="상속과 합성 이야기-1">상속과 합성 이야기-1</span>
+            <span class="post-date" title="2024-08-23 15:50:00">2024/08/23</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA Payment "
+           href="/2024/08/06/JAVA/Payment/PaymentTransactionalOutboxpattern/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="결제 시스템 구축 - 5">결제 시스템 구축 - 5</span>
+            <span class="post-date" title="2024-08-06 15:50:00">2024/08/06</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA Payment "
+           href="/2024/08/05/JAVA/Payment/PaymentRetry/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="결제 시스템 구축 - 4">결제 시스템 구축 - 4</span>
+            <span class="post-date" title="2024-08-05 15:50:00">2024/08/05</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA Payment "
+           href="/2024/07/28/JAVA/Payment/BuildingPaymentSystem/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="결제 시스템 구축 - 1">결제 시스템 구축 - 1</span>
+            <span class="post-date" title="2024-07-28 15:50:00">2024/07/28</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA Payment "
+           href="/2024/07/28/JAVA/Payment/PaymentCheckOut/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="결제 시스템 구축 - 2">결제 시스템 구축 - 2</span>
+            <span class="post-date" title="2024-07-28 15:50:00">2024/07/28</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA Payment "
+           href="/2024/07/28/JAVA/Payment/PaymentConfirm/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="결제 시스템 구축 - 3">결제 시스템 구축 - 3</span>
+            <span class="post-date" title="2024-07-28 15:50:00">2024/07/28</span>
+        </a>
+        
+        
+        <a  class="모든 글 "
+           href="/2024/05/31/hello-world/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Hello World">Hello World</span>
+            <span class="post-date" title="2024-05-31 22:32:19">2024/05/31</span>
+        </a>
+        
+        
+        <a  class="모든 글 "
+           href="/2024/05/31/README/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title=""></span>
+            <span class="post-date" title="2024-05-31 22:32:19">2024/05/31</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA Security "
+           href="/2024/05/30/JAVA/Security/AnonymousAuthenticationFilter/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="AnonymousAuthenticationFilter">AnonymousAuthenticationFilter</span>
+            <span class="post-date" title="2024-05-30 10:04:43">2024/05/30</span>
+        </a>
+        
+        
+        <a  class="모든 글 "
+           href="/2024/02/01/HIGH_VOLUME_TRAFFIC/AccessorQueuingSystem2/AccessorQueuingSystem/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="패스트캠퍼스 9개 프로젝트로 경험하는 대용량 트래픽 &amp; 데이터 처리 초격차 패키지 Online. 수강">패스트캠퍼스 9개 프로젝트로 경험하는 대용량 트래픽 &amp; 데이터 처리 초격차 패키지 Online. 수강</span>
+            <span class="post-date" title="2024-02-01 00:00:00">2024/02/01</span>
+        </a>
+        
+        
+        <a  class="모든 글 Authentication JWT "
+           href="/2021/11/27/AUTHTICATION/JWT/jwt/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="JWT (JSON Web Token) 이해하기">JWT (JSON Web Token) 이해하기</span>
+            <span class="post-date" title="2021-11-27 07:47:42">2021/11/27</span>
+        </a>
+        
+        
+        <a  class="모든 글 Authentication Oauth "
+           href="/2021/11/27/AUTHTICATION/OAUTH/oauth/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="OAUTH 2.0 이해하기">OAUTH 2.0 이해하기</span>
+            <span class="post-date" title="2021-11-27 07:47:42">2021/11/27</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA HTTP FeignClient "
+           href="/2021/11/08/JAVA/HTTP/FeignClient/FeignClient/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="FeignClient 활용도">FeignClient 활용도</span>
+            <span class="post-date" title="2021-11-08 10:04:43">2021/11/08</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA SpringBatch "
+           href="/2021/11/04/JAVA/Batch/SpringBatch5/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Batch - Chunk 5">Spring Batch - Chunk 5</span>
+            <span class="post-date" title="2021-11-04 07:47:42">2021/11/04</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA SpringBatch "
+           href="/2021/10/30/JAVA/Batch/SpringBatch4/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Batch - Flow 4">Spring Batch - Flow 4</span>
+            <span class="post-date" title="2021-10-30 07:47:42">2021/10/30</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA SpringBatch "
+           href="/2021/10/24/JAVA/Batch/SpringBatch3/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Batch - 메타데이터 스키마 3">Spring Batch - 메타데이터 스키마 3</span>
+            <span class="post-date" title="2021-10-24 07:47:42">2021/10/24</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA SpringBatch "
+           href="/2021/10/19/JAVA/Batch/SpringBatch2/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Batch - Job, Step 2">Spring Batch - Job, Step 2</span>
+            <span class="post-date" title="2021-10-19 07:47:42">2021/10/19</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA SpringBatch "
+           href="/2021/10/17/JAVA/Batch/SpringBatch1/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Batch 1">Spring Batch 1</span>
+            <span class="post-date" title="2021-10-17 07:47:42">2021/10/17</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA SpringCloudConfig "
+           href="/2021/09/13/JAVA/SpringCloudConfig/spring-cloud-config4/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="비대칭키를 이용한 application.yml 설정값 암호화">비대칭키를 이용한 application.yml 설정값 암호화</span>
+            <span class="post-date" title="2021-09-13 07:47:45">2021/09/13</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA SpringCloudConfig "
+           href="/2021/09/13/JAVA/SpringCloudConfig/spring-cloud-config3/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Cloud Bus">Spring Cloud Bus</span>
+            <span class="post-date" title="2021-09-13 07:47:44">2021/09/13</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA SpringCloudConfig "
+           href="/2021/09/13/JAVA/SpringCloudConfig/spring-cloud-config2/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Boot Actuator">Spring Boot Actuator</span>
+            <span class="post-date" title="2021-09-13 07:47:43">2021/09/13</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA SpringCloudConfig "
+           href="/2021/09/13/JAVA/SpringCloudConfig/spring-cloud-config/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Cloud Config">Spring Cloud Config</span>
+            <span class="post-date" title="2021-09-13 07:47:42">2021/09/13</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA Transaction "
+           href="/2021/03/14/JAVA/Transaction/multi-transaction/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Java Multi-Transaction 관리">Java Multi-Transaction 관리</span>
+            <span class="post-date" title="2021-03-14 07:47:42">2021/03/14</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA Validator "
+           href="/2020/12/18/JAVA/VALIDATOR/validator/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Java Validator 관리">Java Validator 관리</span>
+            <span class="post-date" title="2020-12-18 07:47:42">2020/12/18</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA Security "
+           href="/2020/11/19/JAVA/Security/SessionManagementFilterAndConcurrentSessionFilter/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="SessionManagementFilterAndConcurrentSessionFilter">SessionManagementFilterAndConcurrentSessionFilter</span>
+            <span class="post-date" title="2020-11-19 18:02:23">2020/11/19</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA Security "
+           href="/2020/11/14/JAVA/Security/RememberMeAuthenticationFilter/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="RememberMeAuthenticationFilter">RememberMeAuthenticationFilter</span>
+            <span class="post-date" title="2020-11-14 07:40:06">2020/11/14</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA Security "
+           href="/2020/11/13/JAVA/Security/UsernamePasswordAuthenticationFilter/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="UsernamePasswordAuthenticationFilter">UsernamePasswordAuthenticationFilter</span>
+            <span class="post-date" title="2020-11-13 08:51:13">2020/11/13</span>
+        </a>
+        
+        
+        <a  class="모든 글 CI-CD Jenkins "
+           href="/2020/11/09/CI-CD/Jenkins/JenkinsGitLabConnect/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Jenkins_GitLab_연동">Jenkins_GitLab_연동</span>
+            <span class="post-date" title="2020-11-09 07:47:42">2020/11/09</span>
+        </a>
+        
+        
+        <a  class="모든 글 CI-CD Jenkins "
+           href="/2020/11/08/CI-CD/Jenkins/JenkinsGitLabSshConnect/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="젠킨스와 GitLab ssh 연동하기">젠킨스와 GitLab ssh 연동하기</span>
+            <span class="post-date" title="2020-11-08 07:47:42">2020/11/08</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA JPA "
+           href="/2020/11/08/JAVA/JPA/eagerJpqlNplus1/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="eagerJpqlNplus1">eagerJpqlNplus1</span>
+            <span class="post-date" title="2020-11-08 07:47:42">2020/11/08</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA SpringBootAndSecurityAndJWT "
+           href="/2020/11/08/JAVA/SpringBootAndSecurityAndJWT/spring-boot-security-jwt-social/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Boot 를 이용해 JWT + Social 로그인 처리 - Authorization Server (일반 로그인)">Spring Boot 를 이용해 JWT + Social 로그인 처리 - Authorization Server (일반 로그인)</span>
+            <span class="post-date" title="2020-11-08 07:47:42">2020/11/08</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA SpringBootAndSecurityAndJWT "
+           href="/2020/11/08/JAVA/SpringBootAndSecurityAndJWT/spring-boot-security-jwt-social2/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Boot 를 이용해 JWT + Social 로그인 처리 - Authorization Server (Social 로그인)">Spring Boot 를 이용해 JWT + Social 로그인 처리 - Authorization Server (Social 로그인)</span>
+            <span class="post-date" title="2020-11-08 07:47:42">2020/11/08</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA SpringBootAndSecurityAndJWT "
+           href="/2020/11/08/JAVA/SpringBootAndSecurityAndJWT/spring-boot-security-jwt-social3/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Boot 를 이용해 JWT + Social 로그인 처리 - Resource Server">Spring Boot 를 이용해 JWT + Social 로그인 처리 - Resource Server</span>
+            <span class="post-date" title="2020-11-08 07:47:42">2020/11/08</span>
+        </a>
+        
+        
+        <a  class="모든 글 J Jenkins "
+           href="/2020/11/07/JAVA/Security/JKSGenerate/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="JKSGenerate">JKSGenerate</span>
+            <span class="post-date" title="2020-11-07 13:46:21">2020/11/07</span>
+        </a>
+        
+        
+        <a  class="모든 글 CI-CD Jenkins "
+           href="/2020/11/07/CI-CD/Jenkins/JenkinsInstall/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="쿠버네티스 환경 구성">쿠버네티스 환경 구성</span>
+            <span class="post-date" title="2020-11-07 07:47:42">2020/11/07</span>
+        </a>
+        
+        
+        <a  class="모든 글 DB Mysql "
+           href="/2020/11/07/DB/Mysql/mysqlReplicationSetting/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Mysql_Replication_설정">Mysql_Replication_설정</span>
+            <span class="post-date" title="2020-11-07 07:47:42">2020/11/07</span>
+        </a>
+        
+        
+        <a  class="모든 글 KUBERNETES "
+           href="/2020/11/07/KUBERNETES/%EC%89%BD%EA%B2%8C_%EC%8B%9C%EC%9E%91%ED%95%98%EB%8A%94_%EC%BF%A0%EB%B2%84%EB%84%A4%ED%8B%B0%EC%8A%A4/%EC%BF%A0%EB%B2%84%EB%84%A4%ED%8B%B0%EC%8A%A4_%ED%99%98%EA%B2%BD_%EA%B5%AC%EC%84%B1/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Jenkins_설치">Jenkins_설치</span>
+            <span class="post-date" title="2020-11-07 07:47:42">2020/11/07</span>
+        </a>
+        
+        
+        <a  class="모든 글 R "
+           href="/2020/10/17/R/RServerInstall/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="RServer 설치">RServer 설치</span>
+            <span class="post-date" title="2020-10-17 07:47:42">2020/10/17</span>
+        </a>
+        
+        
+        <a  class="모든 글 JavaScript Webpack "
+           href="/2020/10/17/JAVASCRIPT/Webpack/devtool/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="WebPack - DevTool">WebPack - DevTool</span>
+            <span class="post-date" title="2020-10-17 07:47:42">2020/10/17</span>
+        </a>
+        
+        
+        <a  class="모든 글 "
+           href="/2018/12/02/%EB%A9%B4%EC%A0%91%EC%A4%80%EB%B9%84/test/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="그냥... 잡다한 지식 모음집">그냥... 잡다한 지식 모음집</span>
+            <span class="post-date" title="2018-12-02 15:50:00">2018/12/02</span>
+        </a>
+        
+        <div id="no-item-tips">
+
+        </div>
+    </nav>
+    <div id="outline-list">
+    </div>
+</div>
+
+    </div>
+    <div class="hide-list">
+        <div class="semicircle" data-title="切换全屏 快捷键 s">
+            <div class="brackets first"><</div>
+            <div class="brackets">&gt;</div>
+        </div>
+    </div>
+</aside>
+<div id="post">
+    <div class="pjax">
+        <article id="post-JAVA/GC/GC3" class="article article-type-post" itemscope itemprop="blogPost">
+    
+        <h1 class="article-title">JAVA GC - G1GC</h1>
+    
+    <div class="article-meta">
+        
+        
+        
+        <span class="book">
+            <i class="iconfont icon-category"></i>
+            
+            
+            <a  data-rel="JAVA">JAVA</a> > 
+            
+            <a  data-rel="JAVA&lt;---&gt;GC">GC</a>
+            
+        </span>
+        
+        
+    </div>
+    <div class="article-meta">
+        
+            작성일 : <time class="date" title='수정일: 2026-05-31 20:23:03'>2026-03-30 07:47</time>
+        
+    </div>
+    <div class="article-meta">
+        
+        
+        <span id="busuanzi_container_page_pv">
+            조회수 :<span id="busuanzi_value_page_pv">
+                <span class="count-comment">
+                    <span class="spinner">
+                      <div class="cube1"></div>
+                      <div class="cube2"></div>
+                    </span>
+                </span>
+            </span>
+        </span>
+        
+        
+    </div>
+    
+    <div class="toc-ref">
+    
+        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#G1GC"><span class="toc-text">G1GC</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#G1GC%EB%A5%BC-%EC%9D%B4%ED%95%B4%ED%95%98%EA%B8%B0-%EC%A0%84%EC%97%90-Serial-GC-Parallel-GC%EC%9D%98-%ED%95%9C%EA%B3%84%EB%B6%80%ED%84%B0-%EB%B3%B4%EA%B8%B0"><span class="toc-text">G1GC를 이해하기 전에 Serial GC, Parallel GC의 한계부터 보기</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Stop-The-World-STW-%EC%8B%9C%EA%B0%84%EC%9D%B4-%ED%81%AC%EB%8B%A4"><span class="toc-text">Stop-The-World(STW) 시간이 크다</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%EC%99%9C-%EC%9D%B4%EA%B2%83%EC%9D%B4-%EB%AC%B8%EC%A0%9C%EC%9D%BC%EA%B9%8C"><span class="toc-text">왜 이것이 문제일까?</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Serial-GC%EC%9D%98-%EA%B2%BD%EC%9A%B0"><span class="toc-text">Serial GC의 경우</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Parallel-GC%EC%9D%98-%EA%B2%BD%EC%9A%B0"><span class="toc-text">Parallel GC의 경우</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%EA%B7%B8%EB%9E%98%EC%84%9C-G1GC%EB%8A%94-%EB%AC%B4%EC%97%87%EC%9D%B4-%EB%8B%A4%EB%A5%B8%EA%B0%80"><span class="toc-text">그래서 G1GC는 무엇이 다른가?</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Young-Old-%EA%B2%BD%EA%B3%84%EA%B0%80-%EA%B3%A0%EC%A0%95%EC%A0%81%EC%9D%B4%EB%8B%A4"><span class="toc-text">Young &#x2F; Old 경계가 고정적이다</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%EC%99%9C-%EC%9D%B4%EA%B2%83%EC%9D%B4-%EB%AC%B8%EC%A0%9C%EC%9D%BC%EA%B9%8C-1"><span class="toc-text">왜 이것이 문제일까?</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%EC%8B%A4%ED%96%89-%EC%A4%91-%EA%B2%BD%EA%B3%84%EB%A5%BC-%EC%9E%90%EC%9C%A0%EB%A1%AD%EA%B2%8C-%EB%B0%94%EA%BE%B8%EC%A7%80-%EB%AA%BB%ED%95%9C%EB%8B%A4"><span class="toc-text">실행 중 경계를 자유롭게 바꾸지 못한다</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%EA%B7%B8%EB%9E%98%EC%84%9C-G1GC%EB%8A%94-region-%EA%B0%9C%EB%85%90%EC%9D%84-%EB%8F%84%EC%9E%85"><span class="toc-text">그래서 G1GC는 region 개념을 도입</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%EA%B3%A0%EC%A0%95%EB%90%9C-Young-Old-%EA%B2%BD%EA%B3%84-%EB%8C%80%EC%8B%A0-Region%EC%9C%BC%EB%A1%9C-%ED%9E%99%EC%9D%84-%EC%9A%B4%EC%98%81-%ED%95%98%EB%8A%94-%EB%B0%A9%EB%B2%95-%EC%95%8C%EC%95%84%EB%B3%B4%EA%B8%B0"><span class="toc-text">고정된 Young&#x2F;Old 경계 대신 Region으로 힙을 운영 하는 방법 알아보기</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#G1GC%EB%8A%94-%EC%99%9C-%EB%93%B1%EC%9E%A5-%ED%96%88%EA%B3%A0-STW%EA%B0%80-%EC%99%9C-%EB%AC%B8%EC%A0%9C%EC%9D%B4%EA%B3%A0-%ED%8A%B9%ED%9E%88-Old-Generation-%EC%88%98%EC%A7%91%EC%9D%B4-%EC%99%9C-%EB%B6%80%EB%8B%B4%EC%9D%BC%EA%B9%8C"><span class="toc-text">G1GC는 왜 등장 했고, STW가 왜 문제이고, 특히 Old Generation 수집이 왜 부담일까</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#STW%EB%8A%94-%EC%99%9C-Young-GC%EB%B3%B4%EB%8B%A4-Old-GC%EC%97%90%EC%84%9C-%EB%8D%94-%EB%B6%80%EB%8B%B4%EC%9D%BC%EA%B9%8C"><span class="toc-text">STW는 왜 Young GC보다 Old GC에서 더 부담일까?</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Young-GC%EB%8A%94-%EC%99%9C-%EB%B9%84%EA%B5%90%EC%A0%81-%EA%B0%90%EB%8B%B9-%EA%B0%80%EB%8A%A5%ED%95%9C%EA%B0%80"><span class="toc-text">Young GC는 왜 비교적 감당 가능한가?</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Old-Generation-%EC%88%98%EC%A7%91%EC%9D%80-%EC%99%9C-%EB%8D%94-%EC%96%B4%EB%A0%B5%EB%82%98"><span class="toc-text">Old Generation 수집은 왜 더 어렵나?</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#G1GC%EB%8A%94-%EC%9D%B4-%EB%AC%B8%EC%A0%9C%EB%A5%BC-%EC%96%B4%EB%96%BB%EA%B2%8C-%EC%A0%91%EA%B7%BC%ED%96%88%EC%9D%84%EA%B9%8C"><span class="toc-text">G1GC는 이 문제를 어떻게 접근했을까?</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-Old-Generation-%EC%A0%84%EC%B2%B4%EB%A5%BC-%ED%95%9C-%EB%B2%88%EC%97%90-%EB%8B%A4-%EC%88%98%EC%A7%91%ED%95%98%EC%A7%80-%EB%A7%90%EC%9E%90"><span class="toc-text">1. Old Generation 전체를 한 번에 다 수집하지 말자</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-Old-Generation-%EC%88%98%EC%A7%91%EC%97%90%EB%8F%84-evacuation-%EB%B0%A9%EC%8B%9D%EC%9D%84-%ED%99%9C%EC%9A%A9%ED%95%98%EC%9E%90"><span class="toc-text">2. Old Generation 수집에도 evacuation 방식을 활용하자</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-Old-Generation%EC%9D%84-%EC%9C%84%ED%95%9C-marking-%EC%9E%91%EC%97%85%EC%9D%80-%EC%95%A0%ED%94%8C%EB%A6%AC%EC%BC%80%EC%9D%B4%EC%85%98%EA%B3%BC-%EA%B2%B9%EC%B3%90%EC%84%9C-%EC%88%98%ED%96%89%ED%95%98%EC%9E%90"><span class="toc-text">3. Old Generation을 위한 marking 작업은 애플리케이션과 겹쳐서 수행하자</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Young-GC-vs-Old-GC-%EB%B9%84%EA%B5%90"><span class="toc-text">Young GC vs Old GC 비교</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%EC%A0%95%EB%A6%AC%ED%95%98%EC%9E%90%EB%A9%B4%E2%80%A6"><span class="toc-text">정리하자면…</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#G1GC-%ED%95%B5%EC%8B%AC-%EB%8F%99%EC%9E%91-%EC%A0%95%EB%A6%AC-Young-Only-Phase%EC%99%80-Mixed-Collection%EC%9D%80-%EC%96%B4%EB%96%BB%EA%B2%8C-%EC%9D%B4%EC%96%B4%EC%A7%88%EA%B9%8C"><span class="toc-text">G1GC 핵심 동작 정리 - Young-Only Phase와 Mixed Collection은 어떻게 이어질까?</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#G1GC-%EC%A0%84%EC%B2%B4-%ED%9D%90%EB%A6%84-%ED%95%9C%EB%88%88%EC%97%90-%EB%B3%B4%EA%B8%B0"><span class="toc-text">G1GC 전체 흐름 한눈에 보기</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-Young-Only-Phase"><span class="toc-text">1. Young-Only Phase</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-Concurrent-Marking-%EC%8B%9C%EC%9E%91"><span class="toc-text">2. Concurrent Marking 시작</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-Remark-Cleanup"><span class="toc-text">3. Remark &#x2F; Cleanup</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#Remark"><span class="toc-text">Remark</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#Cleanup"><span class="toc-text">Cleanup</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#4-Space-Reclamation-Phase-Mixed-Collection"><span class="toc-text">4. Space-Reclamation Phase &#x3D; Mixed Collection</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%EC%9D%B4%EB%9F%B0-%EB%B0%A9%EC%8B%9D%EC%9C%BC%EB%A1%9C-%ED%95%B4%EC%84%9C-%EC%9D%B4%EC%A0%90%EC%9D%80"><span class="toc-text">이런 방식으로 해서 이점은?</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Mixed-Collection%EC%9D%98-%ED%95%B5%EC%8B%AC"><span class="toc-text">Mixed Collection의 핵심</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-Young-GC-%EB%95%8C-Old-Region-%EC%9D%BC%EB%B6%80%EB%8F%84-%EA%B0%99%EC%9D%B4-%EC%B2%98%EB%A6%AC%ED%95%9C%EB%8B%A4"><span class="toc-text">1. Young GC 때 Old Region 일부도 같이 처리한다</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%EC%A0%90%EC%A7%84%EC%A0%81%EC%9C%BC%EB%A1%9C-evacuation-%ED%95%9C%EB%8B%A4"><span class="toc-text">2. 점진적으로 evacuation 한다</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%EC%9D%98%EB%AF%B8%EA%B0%80-%EC%A4%84%EC%96%B4%EB%93%A4%EB%A9%B4-%EB%8B%A4%EC%8B%9C-Young-Only%EB%A1%9C-%EB%8F%8C%EC%95%84%EA%B0%84%EB%8B%A4"><span class="toc-text">3. 의미가 줄어들면 다시 Young-Only로 돌아간다</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#marking%EC%9D%98-%ED%95%B5%EC%8B%AC%EC%9D%80-%EB%AC%B4%EC%97%87%EC%9D%BC%EA%B9%8C"><span class="toc-text">marking의 핵심은 무엇일까?</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#G1GC-%EC%A0%84%EC%B2%B4-Flow-%ED%95%9C-%EB%B2%88%EC%97%90-%EC%9D%B4%ED%95%B4%ED%95%98%EA%B8%B0-Young-Only-Concurrent-Marking-Mixed-GC%EB%8A%94-%EC%96%B4%EB%96%BB%EA%B2%8C-%EC%9D%B4%EC%96%B4%EC%A7%80%EB%8A%94-%EC%95%8C%EC%95%84%EB%B3%B4%EC%9E%90"><span class="toc-text">G1GC 전체 Flow 한 번에 이해하기 - Young-Only, Concurrent Marking, Mixed GC는 어떻게 이어지는 알아보자</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%EC%A0%84%EC%B2%B4-%ED%9D%90%EB%A6%84-%EB%A8%BC%EC%A0%80-%EB%B3%B4%EA%B8%B0"><span class="toc-text">전체 흐름 먼저 보기</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%EB%B3%B4%ED%86%B5%EC%9D%98-Young-GC-Young-Only-phase"><span class="toc-text">보통의 Young GC - Young-Only phase</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Concurrent-Start"><span class="toc-text">Concurrent Start</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Young-GC-%ED%9B%84-evacuation"><span class="toc-text">Young GC 후 evacuation</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%ED%95%B5%EC%8B%AC"><span class="toc-text">핵심</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Root-Region-Scanning"><span class="toc-text">Root Region Scanning</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Concurrent-Marking"><span class="toc-text">Concurrent Marking</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Remark-Cleanup"><span class="toc-text">Remark &#x2F; Cleanup</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Remark-1"><span class="toc-text">Remark</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Cleanup-1"><span class="toc-text">Cleanup</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%ED%95%B5%EC%8B%AC-1"><span class="toc-text">핵심</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Space-Reclamation-phase-%EC%8B%9C%EC%9E%91"><span class="toc-text">Space-Reclamation phase 시작</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%EC%84%A0%ED%83%9D%EB%90%9C-Old-Region-%ED%9A%8C%EC%88%98"><span class="toc-text">선택된 Old Region 회수</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%EB%AA%A8%EB%93%A0-garbage%EA%B0%80-%ED%95%9C-%EB%B2%88%EC%97%90-%EC%82%AC%EB%9D%BC%EC%A7%80%EB%8A%94-%EA%B2%83%EC%9D%80-%EC%95%84%EB%8B%88%EB%8B%A4"><span class="toc-text">모든 garbage가 한 번에 사라지는 것은 아니다</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%ED%9D%90%EB%A6%84-%ED%95%B5%EC%8B%AC%EC%9D%84-%EC%A0%95%EB%A6%AC"><span class="toc-text">흐름 핵심을 정리</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%ED%8F%89%EC%86%8C%EC%97%90%EB%8A%94-Young-GC-%EC%A4%91%EC%8B%AC%EC%9C%BC%EB%A1%9C-%EA%B0%84%EB%8B%A4"><span class="toc-text">1) 평소에는 Young GC 중심으로 간다</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-Old%EA%B0%80-%EC%8C%93%EC%9D%B4%EB%A9%B4-Concurrent-Marking%EC%9D%84-%EC%8B%9C%EC%9E%91%ED%95%9C%EB%8B%A4"><span class="toc-text">2) Old가 쌓이면 Concurrent Marking을 시작한다</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-marking%EC%9D%80-concurrent-%ED%95%98%EA%B2%8C-%EC%A7%84%ED%96%89%ED%95%9C%EB%8B%A4"><span class="toc-text">3) marking은 concurrent 하게 진행한다</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-Mixed-GC%EC%97%90%EC%84%9C%EB%8A%94-old-%EC%9D%BC%EB%B6%80%EB%A7%8C-%ED%9A%8C%EC%88%98%ED%95%9C%EB%8B%A4"><span class="toc-text">4) Mixed GC에서는 old 일부만 회수한다</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-old-%EC%A0%84%EC%B2%B4%EB%A5%BC-%ED%95%9C-%EB%B2%88%EC%97%90-%EB%8B%A4-%EC%B9%98%EC%9A%B0%EC%A7%80-%EC%95%8A%EB%8A%94%EB%8B%A4"><span class="toc-text">5) old 전체를 한 번에 다 치우지 않는다</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#G1GC-Concurrent-Mark-%EB%AC%B8%EC%A0%9C%EC%A0%90"><span class="toc-text">G1GC Concurrent Mark 문제점</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%EC%9D%B4%EB%AF%B8%EC%A7%80-%EB%B3%B4%EA%B8%B0-%EC%A0%84-marking-%EC%B2%98%EB%A6%AC-%EA%B4%80%EB%A0%A8-%EC%84%A4%EB%AA%85"><span class="toc-text">이미지 보기 전 marking 처리 관련 설명</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%EC%8B%9C%EC%9E%91-%EC%83%81%ED%83%9C"><span class="toc-text">1. 시작 상태</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-GC-Root%EC%97%90%EC%84%9C-1%EB%B2%88-%EA%B0%9D%EC%B2%B4%EB%A5%BC-%EB%A8%BC%EC%A0%80-%EB%B3%B8%EB%8B%A4"><span class="toc-text">2. GC Root에서 1번 객체를 먼저 본다</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1%EB%B2%88-%ED%83%90%EC%83%89-%EC%99%84%EB%A3%8C-3%EB%B2%88%EA%B3%BC-2%EB%B2%88-mark"><span class="toc-text">3. 1번 탐색 완료, 3번과 2번 mark</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-2%EB%B2%88-%EA%B0%9D%EC%B2%B4-%ED%83%90%EC%83%89-%EC%99%84%EB%A3%8C"><span class="toc-text">4. 2번 객체 탐색 완료</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-3%EB%B2%88-%EA%B0%9D%EC%B2%B4-%ED%83%90%EC%83%89-%EC%99%84%EB%A3%8C-%EC%A7%81%EC%A0%84"><span class="toc-text">5. 3번 객체 탐색 완료 직전</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-%EC%95%A0%ED%94%8C%EB%A6%AC%EC%BC%80%EC%9D%B4%EC%85%98%EC%9D%B4-%EC%B0%B8%EC%A1%B0%EB%A5%BC-%EB%B0%94%EA%BE%BC%EB%8B%A4"><span class="toc-text">6. 애플리케이션이 참조를 바꾼다</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-4%EB%B2%88-%ED%83%90%EC%83%89-%EC%99%84%EB%A3%8C"><span class="toc-text">7. 4번 탐색 완료</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8-%EC%B5%9C%EC%A2%85%EC%A0%81%EC%9C%BC%EB%A1%9C-%EB%B0%9C%EC%83%9D%ED%95%A0-%EC%88%98-%EC%9E%88%EB%8A%94-%EC%9E%98%EB%AA%BB%EB%90%9C-%ED%8C%90%EB%8B%A8"><span class="toc-text">8. 최종적으로 발생할 수 있는 잘못된 판단</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%EC%9D%B4-%EB%AC%B8%EC%A0%9C%EA%B0%80-%EB%B0%9C%EC%83%9D%ED%95%98%EA%B8%B0-%EC%9C%84%ED%95%9C-%EB%91%90-%EA%B0%80%EC%A7%80-%EC%A1%B0%EA%B1%B4"><span class="toc-text">이 문제가 발생하기 위한 두 가지 조건</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-Black-%EA%B0%9D%EC%B2%B4%EA%B0%80-White-%EA%B0%9D%EC%B2%B4%EB%A5%BC-%ED%96%A5%ED%95%9C-%EC%83%88%EB%A1%9C%EC%9A%B4-%EC%B0%B8%EC%A1%B0%EB%A5%BC-%EC%B6%94%EA%B0%80%ED%95%9C%EB%8B%A4"><span class="toc-text">1. Black 객체가 White 객체를 향한 새로운 참조를 추가한다</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%EA%B7%B8-White-%EA%B0%9D%EC%B2%B4%EB%A5%BC-%EC%9B%90%EB%9E%98-%EC%B0%B8%EC%A1%B0%ED%95%98%EB%8D%98-Grey-%EA%B0%9D%EC%B2%B4-%EB%98%90%EB%8A%94-%EA%B2%B0%EA%B5%AD-Grey%EA%B0%80-%EB%90%A0-White-%EA%B0%9D%EC%B2%B4%EA%B0%80-%EA%B7%B8-%EC%B0%B8%EC%A1%B0%EB%A5%BC-%EC%82%AD%EC%A0%9C%ED%95%9C%EB%8B%A4"><span class="toc-text">2. 그 White 객체를 원래 참조하던 Grey 객체 또는 결국 Grey가 될 White 객체가 그 참조를 삭제한다</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%EC%99%9C-%EC%9D%B4-%EB%91%90-%EC%A1%B0%EA%B1%B4%EC%9D%B4-%EA%B0%99%EC%9D%B4-%EC%9E%88%EC%96%B4%EC%95%BC-%EB%AC%B8%EC%A0%9C%EC%9D%BC%EA%B9%8C"><span class="toc-text">왜 이 두 조건이 같이 있어야 문제일까?</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#G1GC%EB%8A%94-%EC%9D%B4-%EB%AC%B8%EC%A0%9C%EB%A5%BC-%EC%96%B4%EB%96%BB%EA%B2%8C-%ED%95%B4%EA%B2%B0%ED%95%98%EB%A0%A4%EA%B3%A0-%ED%95%A0%EA%B9%8C"><span class="toc-text">G1GC는 이 문제를 어떻게 해결하려고 할까?</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#SATB-%EA%B4%80%EC%A0%90%EC%97%90%EC%84%9C-%EB%B3%B4%EB%A9%B4"><span class="toc-text">SATB 관점에서 보면</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#G1GC%EC%97%90%EC%84%9C-SATB-Buffer%EC%99%80-Mark-Stack%EC%9D%80-%EC%99%9C-%ED%95%84%EC%9A%94%ED%95%A0%EA%B9%8C-Concurrent-Mark-%EC%A4%91-%EC%B0%B8%EC%A1%B0-%EB%B3%80%EA%B2%BD%EC%9D%B4-%EC%9E%88%EC%96%B4%EB%8F%84-%EA%B0%9D%EC%B2%B4%EB%A5%BC-%EB%86%93%EC%B9%98%EC%A7%80-%EC%95%8A%EB%8A%94-%EB%B0%A9%EB%B2%95"><span class="toc-text">G1GC에서 SATB Buffer와 Mark Stack은 왜 필요할까? - Concurrent Mark 중 참조 변경이 있어도 객체를 놓치지 않는 방법</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%EC%84%A4%EB%AA%85-%EC%A0%84-%EC%9A%A9%EC%96%B4-%EC%A0%95%EB%A6%AC-%ED%95%B4%EB%B3%B4%EC%9E%90"><span class="toc-text">설명 전 용어 정리 해보자</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Mark-Stack"><span class="toc-text">Mark Stack</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Local-SATB-Buffer"><span class="toc-text">Local SATB Buffer</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Global-SATB-Buffer"><span class="toc-text">Global SATB Buffer</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#old-value%EB%A5%BC-%EA%B8%B0%EB%A1%9D%ED%95%A0%EA%B9%8C"><span class="toc-text">old value를 기록할까?</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%EC%A0%84%EC%B2%B4-%ED%9D%90%EB%A6%84-%ED%99%95%EC%9D%B8-%ED%95%B4%EB%B3%B4%EA%B8%B0"><span class="toc-text">전체 흐름 확인 해보기</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-Marking-%EC%8B%9C%EC%9E%91"><span class="toc-text">1. Marking 시작</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-Concurrent-Start"><span class="toc-text">2. Concurrent Start</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-Root-Region-Scan-%EC%9D%B4%ED%9B%84-1%EB%B2%88-pop"><span class="toc-text">3. Root Region Scan 이후 1번 pop</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-2%EB%B2%88-3%EB%B2%88-push"><span class="toc-text">4. 2번, 3번 push</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-2%EB%B2%88-pop"><span class="toc-text">5. 2번 pop</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-3%EB%B2%88-pop-4%EB%B2%88-push"><span class="toc-text">6. 3번 pop, 4번 push</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-%EC%95%A0%ED%94%8C%EB%A6%AC%EC%BC%80%EC%9D%B4%EC%85%98%EC%9D%B4-%EC%B0%B8%EC%A1%B0%EB%A5%BC-%EB%B0%94%EA%BF%88"><span class="toc-text">7. 애플리케이션이 참조를 바꿈</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%ED%95%B5%EC%8B%AC-2"><span class="toc-text">핵심</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8-4%EB%B2%88-pop"><span class="toc-text">8. 4번 pop</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%ED%95%B5%EC%8B%AC-3"><span class="toc-text">핵심</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#9-Remark-%EB%8B%A8%EA%B3%84-%EC%A7%84%EC%9E%85"><span class="toc-text">9. Remark 단계 진입</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%ED%95%B5%EC%8B%AC-4"><span class="toc-text">핵심</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#10-SATB-Buffer-%E2%86%92-Mark-Stack-%EC%9D%B4%EB%8F%99-%EC%8B%9C-%ED%95%84%ED%84%B0%EB%A7%81"><span class="toc-text">10. SATB Buffer → Mark Stack 이동 시 필터링</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#discard-%EC%A1%B0%EA%B1%B4"><span class="toc-text">discard 조건</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%ED%95%B5%EC%8B%AC-5"><span class="toc-text">핵심</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#11-5%EB%B2%88%EB%A7%8C-mark-stack%EC%97%90-%EB%93%A4%EC%96%B4%EA%B0%90"><span class="toc-text">11. 5번만 mark stack에 들어감</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#12-5%EB%B2%88-pop-%ED%9B%84-%EC%B5%9C%EC%A2%85-marking"><span class="toc-text">12. 5번 pop 후 최종 marking</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%ED%95%B5%EC%8B%AC-6"><span class="toc-text">핵심</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%EC%9D%B4-%ED%9D%90%EB%A6%84%EC%9D%98-%ED%95%B5%EC%8B%AC-%EC%9D%98%EB%AF%B8-%EC%84%A4%EB%AA%85"><span class="toc-text">이 흐름의 핵심 의미 설명</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-Mark-Stack%EC%9D%80-%E2%80%9C%ED%83%90%EC%83%89-%EC%9E%91%EC%97%85%EC%9A%A9%E2%80%9D"><span class="toc-text">1. Mark Stack은 “탐색 작업용”</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-SATB-Buffer%EB%8A%94-%E2%80%9C%EC%B0%B8%EC%A1%B0-%EB%B3%80%EA%B2%BD-%EB%B3%B4%EC%99%84%EC%9A%A9%E2%80%9D"><span class="toc-text">2. SATB Buffer는 “참조 변경 보완용”</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-pre-write-barrier%EA%B0%80-old-value%EB%A5%BC-%EA%B8%B0%EB%A1%9D%ED%95%9C%EB%8B%A4"><span class="toc-text">3. pre-write barrier가 old value를 기록한다</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-Remark%EC%97%90%EC%84%9C-SATB-Buffer%EB%A5%BC-%EB%B9%84%EC%9A%B4%EB%8B%A4"><span class="toc-text">4. Remark에서 SATB Buffer를 비운다</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-%EC%B5%9C%EC%A2%85%EC%A0%81%EC%9C%BC%EB%A1%9C-reachable-%EA%B0%9D%EC%B2%B4%EB%A5%BC-%EB%86%93%EC%B9%98%EC%A7%80-%EC%95%8A%EB%8A%94%EB%8B%A4"><span class="toc-text">5. 최종적으로 reachable 객체를 놓치지 않는다</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%EC%A0%95%EB%A6%AC%ED%95%B4%EC%9E%90%EB%A9%B4"><span class="toc-text">정리해자면?</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#G1GC-Mixed-GC%EC%97%90%EC%84%9C-Remembered-Set%EC%9D%B4-%EC%99%9C-%ED%95%84%EC%9A%94%ED%95%A0%EA%B9%8C"><span class="toc-text">G1GC Mixed GC에서 Remembered Set이 왜 필요할까?</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%EC%88%98%EC%A7%91-%EB%8C%80%EC%83%81-Old-Region-%EC%95%88%EC%9D%98-%EC%82%B4%EC%95%84-%EC%9E%88%EB%8A%94-%EA%B0%9D%EC%B2%B4%EB%A5%BC-%EB%86%93%EC%B9%98%EC%A7%80-%EC%95%8A%EB%8A%94-%EB%B0%A9%EB%B2%95"><span class="toc-text">수집 대상 Old Region 안의 살아 있는 객체를 놓치지 않는 방법</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-Mixed-GC%EC%9D%98-%EA%B8%B0%EB%B3%B8-%EB%8C%80%EC%83%81"><span class="toc-text">1. Mixed GC의 기본 대상</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-%EC%9D%B4%EB%B2%88-Mixed-GC%EC%97%90%EC%84%9C-%EC%88%98%EC%A7%91%ED%95%A0-Region-%EC%84%A0%ED%83%9D"><span class="toc-text">2. 이번 Mixed GC에서 수집할 Region 선택</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-1%EB%B2%88-%EA%B0%9D%EC%B2%B4-evacuation"><span class="toc-text">3. 1번 객체 evacuation</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#4-5-6%EB%B2%88-%EA%B0%9D%EC%B2%B4%EB%8F%84-%EC%88%98%EC%A7%91-%EB%8C%80%EC%83%81%EC%9D%B4%EB%AF%80%EB%A1%9C-%EC%9D%B4%EB%8F%99"><span class="toc-text">4. 5, 6번 객체도 수집 대상이므로 이동</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#5-Young-Generation-Remembered-Set%EC%9D%84-%ED%86%B5%ED%95%B4-4%EB%B2%88-%EA%B0%9D%EC%B2%B4-%EC%9D%B4%EB%8F%99"><span class="toc-text">5. Young Generation Remembered Set을 통해 4번 객체 이동</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#6-8%EB%B2%88-Region%EC%9D%B4-%EC%88%98%EC%A7%91-%EB%8C%80%EC%83%81%EC%9D%B4-%EC%95%84%EB%8B%88%EB%A9%B4-%EC%96%B4%EB%96%A4-%EB%AC%B8%EC%A0%9C%EA%B0%80-%EC%83%9D%EA%B8%B8%EA%B9%8C"><span class="toc-text">6. 8번 Region이 수집 대상이 아니면 어떤 문제가 생길까?</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#7-%ED%95%B4%EA%B2%B0%EC%B1%85-Region%EB%A7%88%EB%8B%A4-Remembered-Set"><span class="toc-text">7. 해결책 - Region마다 Remembered Set</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#8-7%EB%B2%88-%EA%B0%9D%EC%B2%B4%EB%A5%BC-%EC%A0%95%EC%83%81%EC%A0%81%EC%9C%BC%EB%A1%9C-evacuation"><span class="toc-text">8. 7번 객체를 정상적으로 evacuation</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#9-%EC%88%98%EC%A7%91-%EB%8C%80%EC%83%81-Region%EC%9D%84-%EC%95%88%EC%A0%84%ED%95%98%EA%B2%8C-%ED%9A%8C%EC%88%98"><span class="toc-text">9. 수집 대상 Region을 안전하게 회수</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%EC%99%9C-Remembered-Set%EC%9D%B4-%EA%BC%AD-%ED%95%84%EC%9A%94%ED%95%A0%EA%B9%8C"><span class="toc-text">왜 Remembered Set이 꼭 필요할까?</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#G1GC%EC%97%90%EC%84%9C-Humongous-Object-%EA%B1%B0%EB%8C%80-%EA%B0%9D%EC%B2%B4-%EB%9E%80"><span class="toc-text">G1GC에서 Humongous Object(거대 객체)란?</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%EC%99%9C-%ED%8A%B9%EB%B3%84-%EC%B7%A8%EA%B8%89%EB%90%98%EA%B3%A0-%EC%99%9C-eager-reclamation%EC%9D%B4-%ED%95%84%EC%9A%94%ED%95%9C%EA%B0%80"><span class="toc-text">왜 특별 취급되고, 왜 eager reclamation이 필요한가</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Humongous-Object%EB%8A%94-%EC%99%9C-%ED%8A%B9%EB%B3%84%ED%95%A0%EA%B9%8C"><span class="toc-text">Humongous Object는 왜 특별할까?</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Humongous-Object%EA%B0%80-%EC%8B%A4%EC%A0%9C%EB%A1%9C-%ED%95%A0%EB%8B%B9%EB%90%98%EB%8A%94-%EB%B0%A9%EC%8B%9D"><span class="toc-text">Humongous Object가 실제로 할당되는 방식</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Humongous-Object%EB%8A%94-GC-%EC%A4%91%EC%97%90-%ED%95%AD%EC%83%81-%EC%9D%B4%EB%8F%99%ED%95%A0%EA%B9%8C"><span class="toc-text">Humongous Object는 GC 중에 항상 이동할까?</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Humongous-Object%EA%B0%80-garbage%EA%B0%80-%EB%90%98%EB%A9%B4-%EC%96%B8%EC%A0%9C-%ED%9A%8C%EC%88%98%EB%90%A0%EA%B9%8C"><span class="toc-text">Humongous Object가 garbage가 되면 언제 회수될까?</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#eager-reclamation-for-humongous-objects"><span class="toc-text">eager reclamation for humongous objects</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Remembered-Set%EC%9D%B4-%EC%99%9C-%EC%97%AC%EA%B8%B0%EC%84%9C-%EB%8B%A4%EC%8B%9C-%EB%82%98%EC%98%A4%EB%82%98"><span class="toc-text">Remembered Set이 왜 여기서 다시 나오나?</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#primitive-%EB%B0%B0%EC%97%B4%EB%A7%8C-%EC%9A%B0%EC%84%A0-%EB%8C%80%EC%83%81%EC%9C%BC%EB%A1%9C-%EB%B3%B8-%EC%9D%B4%EC%9C%A0"><span class="toc-text">primitive 배열만 우선 대상으로 본 이유</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%EC%A0%95%EB%A6%AC-%ED%95%B4%EB%B3%B4%EC%9E%90"><span class="toc-text">정리 해보자</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Humongous-Object-vs-%EC%9D%BC%EB%B0%98-Old-Object-%EB%B9%84%EA%B5%90"><span class="toc-text">Humongous Object vs 일반 Old Object 비교</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%ED%95%B5%EC%8B%AC-%EC%B0%A8%EC%9D%B4-%EC%9A%94%EC%95%BD"><span class="toc-text">핵심 차이 요약</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#G1GC%EC%9D%98-Evacuation-Failure%EB%9E%80"><span class="toc-text">G1GC의 Evacuation Failure란?</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%EC%82%B4%EC%95%84-%EC%9E%88%EB%8A%94-%EA%B0%9D%EC%B2%B4%EB%A5%BC-%EC%98%AE%EA%B8%B0%EC%A7%80-%EB%AA%BB%ED%95%98%EB%A9%B4-%EB%AC%B4%EC%8A%A8-%EC%9D%BC%EC%9D%B4-%EB%B2%8C%EC%96%B4%EC%A7%88%EA%B9%8C"><span class="toc-text">살아 있는 객체를 옮기지 못하면 무슨 일이 벌어질까</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Evacuation-Failure%EA%B0%80-%EB%B0%9C%EC%83%9D%ED%95%98%EB%8A%94-%EB%8C%80%ED%91%9C-%EC%9B%90%EC%9D%B8-2%EA%B0%80%EC%A7%80"><span class="toc-text">Evacuation Failure가 발생하는 대표 원인 2가지</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-Allocation-%EC%8B%A4%ED%8C%A8"><span class="toc-text">1. Allocation 실패</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-Pinned-%EA%B0%9D%EC%B2%B4"><span class="toc-text">2. Pinned 객체</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Evacuation-Failure%EA%B0%80-%EB%82%98%EB%A9%B4-G1%EC%9D%80-%EC%96%B4%EB%96%BB%EA%B2%8C-%EC%B2%98%EB%A6%AC%ED%95%A0%EA%B9%8C"><span class="toc-text">Evacuation Failure가 나면 G1은 어떻게 처리할까?</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%EC%9D%B4%EB%AF%B8%EC%A7%80-%ED%9D%90%EB%A6%84%EC%9C%BC%EB%A1%9C-%EB%B3%B4%EB%8A%94-Evacuation-Failure"><span class="toc-text">이미지 흐름으로 보는 Evacuation Failure</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%EC%9D%B4%EB%AF%B8%EC%A7%80-1"><span class="toc-text">이미지 1</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%EC%9D%B4%EB%AF%B8%EC%A7%80-2"><span class="toc-text">이미지 2</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%EC%9D%B4%EB%AF%B8%EC%A7%80-3"><span class="toc-text">이미지 3</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%EC%9D%B4%EB%AF%B8%EC%A7%80-4"><span class="toc-text">이미지 4</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%EC%9D%B4%EB%AF%B8%EC%A7%80-5"><span class="toc-text">이미지 5</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%EC%9D%B4%EB%AF%B8%EC%A7%80-6"><span class="toc-text">이미지 6</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%EC%9D%B4%EB%AF%B8%EC%A7%80-7"><span class="toc-text">이미지 7</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%EC%9D%B4%EB%AF%B8%EC%A7%80-8"><span class="toc-text">이미지 8</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%EC%9D%B4%EB%AF%B8%EC%A7%80-9"><span class="toc-text">이미지 9</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%EC%8B%A4%ED%8C%A8%ED%95%9C-young-region%EC%9D%80-%EC%99%9C-old%EC%B2%98%EB%9F%BC-%EB%B3%B4%EC%9D%BC%EA%B9%8C"><span class="toc-text">실패한 young region은 왜 old처럼 보일까?</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Free-space%EA%B0%80-%EC%A0%84%ED%98%80-%EC%83%9D%EA%B8%B0%EC%A7%80-%EC%95%8A%EC%9C%BC%EB%A9%B4"><span class="toc-text">Free space가 전혀 생기지 않으면?</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%EC%A0%95%EB%A6%AC"><span class="toc-text">정리</span></a></li></ol></li></ol></li></ol>
+    
+<style>
+    .left-col .switch-btn,
+    .left-col .switch-area {
+        display: none;
+    }
+    .toc-level-3 i,
+    .toc-level-3 ol {
+        display: none !important;
+    }
+</style>
+</div>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="G1GC"><a href="#G1GC" class="headerlink" title="G1GC"></a>G1GC</h1><h2 id="G1GC를-이해하기-전에-Serial-GC-Parallel-GC의-한계부터-보기"><a href="#G1GC를-이해하기-전에-Serial-GC-Parallel-GC의-한계부터-보기" class="headerlink" title="G1GC를 이해하기 전에 Serial GC, Parallel GC의 한계부터 보기"></a>G1GC를 이해하기 전에 Serial GC, Parallel GC의 한계부터 보기</h2><p>JVM GC를 공부하다 보면 보통 Serial GC, Parallel GC부터 먼저 접하게 됩니다. 이 두 GC는 구조가 비교적 직관적이고, <strong>Young &#x2F; Old Generation</strong> 기반 동작을 이해하는 데도 도움이 됩니다. 하지만 실제 서비스 환경, 특히 <strong>응답 시간</strong>과 <strong>유연한 메모리 운영</strong>이 중요한 환경에서는 한계도 분명합니다.</p>
+<p>G1GC가 왜 등장했고, 왜 많은 환경에서 주목받는지 이해하려면 먼저 <strong>Serial GC와 Parallel GC의 문제점</strong>을 짚고 넘어가는 것이 좋습니다.</p>
+<h3 id="Stop-The-World-STW-시간이-크다"><a href="#Stop-The-World-STW-시간이-크다" class="headerlink" title="Stop-The-World(STW) 시간이 크다"></a>Stop-The-World(STW) 시간이 크다</h3><p>Serial GC와 Parallel GC의 가장 큰 특징 중 하나는 GC가 중요한 작업을 수행하는 동안 <strong>애플리케이션 스레드가 멈춘다</strong>는 점입니다. 즉, GC가 동작하는 순간에는 애플리케이션 코드가 함께 실행되지 못합니다. 이것이 바로 <strong>Stop-The-World(STW)</strong> 입니다.</p>
+<h3 id="왜-이것이-문제일까"><a href="#왜-이것이-문제일까" class="headerlink" title="왜 이것이 문제일까?"></a>왜 이것이 문제일까?</h3><p>애플리케이션 입장에서는 GC가 끝날 때까지 요청 처리, 계산, 비즈니스 로직 수행이 멈추게 됩니다. 배치 프로그램처럼 전체 처리량이 더 중요한 경우에는 어느 정도 감수할 수 있지만, 사용자 응답 속도가 중요한 서버 애플리케이션에서는 이 pause가 치명적일 수 있습니다.</p>
+<p>예를 들어</p>
+<ul>
+<li>어떤 API 서버가 1초에 수천 건의 요청을 처리하고 있는데</li>
+<li>Full GC가 발생하면서 수백 ms 또는 수 초 동안 STW가 걸린다면</li>
+</ul>
+<p>그 시간 동안 사용자는 응답 지연을 직접 체감하게 됩니다.</p>
+<hr>
+<h4 id="Serial-GC의-경우"><a href="#Serial-GC의-경우" class="headerlink" title="Serial GC의 경우"></a>Serial GC의 경우</h4><p>Serial GC는 이름 그대로 <strong>단일 GC 스레드</strong>로 동작합니다. GC 중에는 애플리케이션도 멈추고, GC 작업도 하나의 스레드가 처리합니다.</p>
+<p>즉,</p>
+<ul>
+<li>애플리케이션도 멈춤</li>
+<li>GC도 단일 스레드</li>
+<li>큰 힙에서는 pause가 길어질 가능성이 큼</li>
+</ul>
+<p>이라는 특징이 있습니다.</p>
+<hr>
+<h4 id="Parallel-GC의-경우"><a href="#Parallel-GC의-경우" class="headerlink" title="Parallel GC의 경우"></a>Parallel GC의 경우</h4><p>Parallel GC는 Serial GC보다 발전된 형태로, GC 작업 자체는 여러 GC 스레드로 병렬 처리할 수 있습니다.</p>
+<p>그래서 <strong>GC 처리량(throughput)</strong> 은 더 좋아질 수 있습니다. 하지만 중요한 점은, Parallel GC도 여전히 <strong>STW 기반</strong>이라는 것입니다.</p>
+<p>즉,</p>
+<ul>
+<li>GC 중 애플리케이션은 멈추고</li>
+<li>GC 작업만 여러 스레드가 병렬 수행됨</li>
+</ul>
+<p>이라는 구조입니다. 결국 멀티 코어를 활용해 GC는 빨라질 수 있어도, <strong>애플리케이션과 GC가 동시에 의미 있게 함께 일하는 구조는 아니다</strong>는 한계가 남습니다.</p>
+<hr>
+<h3 id="그래서-G1GC는-무엇이-다른가"><a href="#그래서-G1GC는-무엇이-다른가" class="headerlink" title="그래서 G1GC는 무엇이 다른가?"></a>그래서 G1GC는 무엇이 다른가?</h3><p>G1GC는 이 지점에서 차이를 보입니다.</p>
+<p>특히 old generation을 다루는 과정에서 일부 작업을 <strong>concurrent</strong>, 즉 애플리케이션과 겹쳐서 수행하려는 방향으로 설계되었습니다.</p>
+<p>물론 G1GC도 모든 단계가 완전히 pause 없이 돌아가는 것은 아니지만, 적어도 <code>Serial GC</code>나 <code>Parallel GC</code>처럼 <code>“GC가 본격적으로 돌면 애플리케이션이 계속 길게 멈춘다”</code>는 문제를 줄이기 위한 방향으로 발전한 collector라고 볼 수 있습니다.</p>
+<p>즉, 첫 번째 한계는 이렇게 정리할 수 있습니다.</p>
+<blockquote>
+<p>Serial GC와 Parallel GC는 GC 중 애플리케이션이 멈추는 STW 구조를 가지며,<br>특히 응답 시간에 민감한 환경에서는 이것이 큰 부담이 될 수 있다.</p>
+</blockquote>
+<hr>
+<h3 id="Young-Old-경계가-고정적이다"><a href="#Young-Old-경계가-고정적이다" class="headerlink" title="Young &#x2F; Old 경계가 고정적이다"></a>Young &#x2F; Old 경계가 고정적이다</h3><p>한계는 <strong>메모리 영역의 유연성 부족</strong>입니다.</p>
+<p><code>Serial GC</code>와 <code>Parallel GC</code>는 기본적으로 heap 안에서 Young Generation과 Old Generation이 나뉘어 있고, 실행 중에도 이 구조를 크게 벗어나지 않습니다.</p>
+<p>즉, 애플리케이션이 순간적으로 young 영역을 많이 필요로 하거나 반대로 old 영역 압박이 커지는 상황이 생겨도, 이 두 영역을 완전히 유연하게 재구성하는 데는 한계가 있습니다.</p>
+<hr>
+<h3 id="왜-이것이-문제일까-1"><a href="#왜-이것이-문제일까-1" class="headerlink" title="왜 이것이 문제일까?"></a>왜 이것이 문제일까?</h3><p>실제 애플리케이션의 객체 생성 패턴은 항상 일정하지 않습니다.</p>
+<p>예를 들어 어떤 시점에는</p>
+<ul>
+<li>짧게 살 객체가 폭발적으로 많이 생성될 수 있고</li>
+<li>또 다른 시점에는 오래 살아남는 객체가 급격히 늘어날 수 있습니다</li>
+</ul>
+<p>그런데 Young &#x2F; Old의 경계가 비교적 정적인 구조라면 이런 변화에 즉각적으로 유연하게 대응하기 어렵습니다.</p>
+<p>즉,</p>
+<ul>
+<li>young가 부족하면 Minor GC가 너무 자주 일어나고</li>
+<li>old가 압박되면 promotion 부담이 커지고</li>
+<li>전체적으로 메모리를 더 효율적으로 나눠 쓰고 싶어도 구조적 한계가 생길 수 있습니다</li>
+</ul>
+<hr>
+<h3 id="실행-중-경계를-자유롭게-바꾸지-못한다"><a href="#실행-중-경계를-자유롭게-바꾸지-못한다" class="headerlink" title="실행 중 경계를 자유롭게 바꾸지 못한다"></a>실행 중 경계를 자유롭게 바꾸지 못한다</h3><p>Serial GC와 Parallel GC는 Young &#x2F; Old라는 세대 구조를 사용하지만, 실행 중에 이 <strong>boundary 자체를 매우 유연하게 바꾸는 방식</strong>은 아닙니다.</p>
+<p>이 말은 곧</p>
+<blockquote>
+<p>“지금은 young가 더 필요하니 old 일부를 곧바로 young처럼 쓰자”<br>“지금은 old가 더 필요하니 영역을 세밀하게 다시 나누자”</p>
+</blockquote>
+<p>같은 접근이 쉽지 않다는 뜻입니다. 즉 세대 기반 구조가 명확한 대신 <strong>영역 활용의 탄력성</strong>은 떨어질 수 있습니다.</p>
+<hr>
+<h2 id="그래서-G1GC는-region-개념을-도입"><a href="#그래서-G1GC는-region-개념을-도입" class="headerlink" title="그래서 G1GC는 region 개념을 도입"></a>그래서 G1GC는 <code>region</code> 개념을 도입</h2><p>G1GC는 이런 한계를 줄이기 위해 heap 전체를 고정된 큰 Young &#x2F; Old 덩어리로 보는 대신 더 작은 단위인 <strong>region</strong> 으로 나누어 관리합니다.</p>
+<p>이 방식의 핵심은 다음과 같습니다.</p>
+<ul>
+<li>heap을 잘게 나눈다</li>
+<li>각 <code>region</code>이 상황에 따라 Eden, Survivor, Old 역할을 가질 수 있다</li>
+<li>young, old generation 각각 구분 해서 연속된 주소 공간으로 잡히지 않는다</li>
+<li>즉 고정된 경계보다 더 유연하게 메모리를 운영할 수 있다</li>
+</ul>
+<p>이 덕분에 <code>G1GC</code>는 애플리케이션의 객체 생성 패턴 변화에 더 탄력적으로 대응할 수 있는 기반을 갖게 됩니다.</p>
+<hr>
+<h3 id="고정된-Young-Old-경계-대신-Region으로-힙을-운영-하는-방법-알아보기"><a href="#고정된-Young-Old-경계-대신-Region으로-힙을-운영-하는-방법-알아보기" class="headerlink" title="고정된 Young&#x2F;Old 경계 대신 Region으로 힙을 운영 하는 방법 알아보기"></a>고정된 Young&#x2F;Old 경계 대신 <code>Region</code>으로 힙을 운영 하는 방법 알아보기</h3><p>앞서 <code>Serial GC</code>, <code>Parallel GC</code>는 <code>Young Generation</code>과 <code>Old Generation</code>의 경계가 비교적 고정적이라는 점이 한계라고 정리했습니다. G1GC는 이 문제를 완화하기 위해 힙 전체를 하나의 큰 덩어리로 보지 않고, <strong>동일한 크기의 여러 Region</strong> 으로 나누어 관리합니다.</p>
+<p>즉 <code>G1GC</code>에서는</p>
+<ul>
+<li>어떤 Region은 Eden 역할을 할 수도 있고</li>
+<li>어떤 Region은 Survivor 역할을 할 수도 있고</li>
+<li>어떤 Region은 Old 역할을 할 수도 있습니다</li>
+</ul>
+<p>그리고 상황에 따라 이 역할이 계속 바뀔 수 있습니다.</p>
+<p>이번 글에서는 제공해주신 <strong>G1GC Region Flow 이미지</strong>를 기준으로 G1GC가 <code>Region</code>과 <code>Free List</code>를 어떻게 활용하는지 순서대로 정리 해보겠습니다.</p>
+<p><img src="/../../../img/JAVA/GC/G1GC-region/G1GC-region-1.png" alt="G1GC-region-1"></p>
+<p>첫 번째 그림은 <code>G1GC</code>가 시작된 직후의 개념적인 초기 상태를 보여줍니다.</p>
+<ul>
+<li>전체 최대 힙(<code>-Xmx</code>)은 <strong>6G reserved</strong></li>
+<li>시작 시 실제 사용 가능한 힙(<code>-Xms</code>)은 <strong>4G committed</strong></li>
+<li>committed 범위 안에 여러 Region이 존재</li>
+<li>아직 역할이 정해지지 않은 Region들이 <strong>Free List</strong> 에 들어 있음</li>
+</ul>
+<p>그림에서는 Region 1 ~ 7 정도가 <code>Free List</code>에 들어 있는 형태로 표현되어 있습니다. 이 상태에서는 아직 <code>Eden</code>도, <code>Survivor</code>도, <code>Old</code>도 본격적으로 할당되지 않았습니다. 즉 <strong>“사용 가능한 Region들을 준비만 해 둔 상태”</strong> 라고 보면 됩니다.</p>
+<p>G1GC는 힙을 처음부터 Young&#x2F;Old로 딱 잘라 놓고 시작하지 않습니다. 먼저 Region 단위로 사용 가능한 공간을 준비하고 필요할 때 Free List에서 꺼내 역할을 부여합니다</p>
+<p><img src="/../../../img/JAVA/GC/G1GC-region/G1GC-region-2.png" alt="G1GC-region-2"></p>
+<p>두 번째 그림에서는 <code>Free List</code>에서 일부 Region이 빠져나와 <strong>Eden Region</strong> 으로 사용됩니다.</p>
+<ul>
+<li>Region 1, 2, 3 이 Eden Region으로 지정됨</li>
+<li>Free List는 기존 <code>1,2,3,4,5,6,7</code> 에서 <code>4,5,6,7</code> 만 남음</li>
+</ul>
+<p>즉 애플리케이션이 새 객체를 생성하기 시작하면 G1GC는 Free List에서 Region을 꺼내 Eden 역할을 부여합니다. 전통적인 Young Generation GC에서는 Eden이 하나의 연속된 큰 공간처럼 보이지만 G1GC에서는 <strong>Eden 역할을 하는 Region들의 집합</strong>으로 이해하는 것이 더 정확합니다.</p>
+<p>Eden은 고정된 하나의 큰 덩어리가 아니라 <strong>현재 Eden 역할을 맡은 여러 Region의 묶음</strong>입니다</p>
+<p><img src="/../../../img/JAVA/GC/G1GC-region/G1GC-region-3.png" alt="G1GC-region-3"></p>
+<p>세 번째 그림에서는 <code>Minor GC</code> 이후 살아남은 객체를 담기 위해 <strong>Survivor Region</strong> 이 새로 할당됩니다.</p>
+<ul>
+<li>Eden에 있던 객체 중 살아남은 객체들이 Survivor로 이동</li>
+<li>Region 4, 5가 Survivor 역할을 부여받음</li>
+<li>Free List는 <code>6,7</code> 정도만 남음</li>
+</ul>
+<p>즉 Eden의 객체가 모두 죽는 것이 아니라 일부가 살아남으면 G1GC는 Free List에서 새로운 Region을 꺼내 Survivor 역할을 주고 그곳으로 살아남은 객체를 복사합니다.</p>
+<p>이것도 중요한 차이점입니다.</p>
+<p>전통적인 GC에서는 Survivor 영역이 Young 내부에서 고정적으로 존재하는 느낌이 강하지만 G1GC에서는 <strong>필요할 때 Free Region을 Survivor로 바꿔 쓴다</strong>고 이해하는 편이 맞습니다.</p>
+<p><code>Survivor</code>도 고정 공간이 아니라 역할입니다. <code>Free Region</code>이 상황에 따라 <code>Survivor Region</code>이 됩니다.</p>
+<p><img src="/../../../img/JAVA/GC/G1GC-region/G1GC-region-4.png" alt="G1GC-region-4"></p>
+<p>네 번째 그림은 Minor GC 이후 기존 <code>Eden Region</code>이 다시 비워지고 그 Region들이 <code>Free List로 되돌아가는 흐름</code>을 보여줍니다.</p>
+<ul>
+<li>기존 Eden이었던 Region 1, 2, 3은 이제 free 상태가 됨</li>
+<li>Free List에 다시 <code>1,2,3</code> 이 추가됨</li>
+<li>Survivor Region 4, 5는 계속 유지됨</li>
+</ul>
+<p>그림의 <code>Free List</code>가 <code>6,7,1,2,3</code> 형태로 바뀌는 것은 이미 사용이 끝난 <code>Eden Region</code>이 다시 재활용 가능한 상태로 돌아왔다는 의미입니다. 즉 G1GC에서는 Region을 한번 Eden으로 썼다고 해서 영원히 Eden인 것이 아닙니다.</p>
+<ul>
+<li>Eden으로 썼다가</li>
+<li>GC 후 비워지면</li>
+<li>다시 Free List로 돌려놓고</li>
+<li>나중에 또 Eden &#x2F; Survivor &#x2F; Old 등 다른 역할로 재사용할 수 있습니다</li>
+</ul>
+<p>G1GC의 Region은 역할이 고정되지 않습니다. Eden → Free → Survivor 또는 Eden → Free → Old 처럼 역할이 계속 바뀔 수 있습니다.</p>
+<p><img src="/../../../img/JAVA/GC/G1GC-region/G1GC-region-5.png" alt="G1GC-region-5"></p>
+<p>다섯 번째 그림에서는 중요한 변화가 하나 더 생깁니다.</p>
+<ul>
+<li><code>-Xms</code> 기준 <code>committed heap</code>이 <strong>4G → 5G</strong> 로 증가</li>
+<li>Region 6, 7이 Eden Region으로 사용됨</li>
+<li>Free List는 <code>8,9</code> 정도만 남음</li>
+</ul>
+<p>이 장면은 <strong>reserved heap은 이미 6G까지 확보되어 있지만 처음에는 4G만 commit되어 있었고, 이제 필요에 따라 5G까지 commit을 확장한 상황</strong>으로 이해할 수 있습니다.</p>
+<p>즉 G1GC는 Free Region만 재활용하는 것이 아니라 필요하다면 아직 reserved만 되어 있고 commit되지 않았던 영역까지 실제 사용 가능 상태로 늘릴 수 있습니다.</p>
+<p>이 그림은 다음 두 개념을 동시에 잘 보여줍니다.</p>
+<ol>
+<li><strong>Free Region 재사용</strong></li>
+<li><strong>Committed Heap 확장</strong></li>
+</ol>
+<p>G1GC는 단순히 “남은 공간을 쓰는 것”만이 아니라 필요하면 heap commit 자체도 확장하면서 유연하게 동작합니다.</p>
+<p><code>-Xmx</code> 는 최대 예약 범위, <code>-Xms</code> 는 현재 committed 범위, G1GC는 필요 시 committed heap을 확장하면서 추가 Region을 활용할 수 있습니다.</p>
+<p><img src="/../../../img/JAVA/GC/G1GC-region/G1GC-region-6.png" alt="G1GC-region-6"></p>
+<p>여섯 번째 그림에서는 Region 8이 <strong>Old Region</strong> 으로 사용됩니다.</p>
+<ul>
+<li>Survivor에 있던 객체 중 충분히 오래 살아남은 객체 또는 Survivor에 다 담기 어려운 객체</li>
+<li>이런 객체들이 Region 8로 승격되어 Old Region이 됨</li>
+<li>Free List는 <code>9</code> 정도만 남게 됨</li>
+</ul>
+<p>이 장면은 G1GC에서 Old Region도 고정적으로 따로 존재하는 것이 아니라 <strong>필요할 때 Free List에서 Region을 하나 꺼내 Old 역할을 부여한다</strong>는 점을 보여줍니다.</p>
+<p>즉 Young &#x2F; Old 경계가 거대한 고정 경계로 미리 정해지는 것이 아니라 Region 단위로 조금씩 Old가 늘어날 수 있습니다.</p>
+<p>이것이 앞서 Serial GC, Parallel GC의 한계로 언급했던 <strong>고정된 Young&#x2F;Old 경계 문제를 완화하는 핵심 포인트</strong>입니다. Old 영역도 고정 덩어리가 아니라 Region 집합입니다. 살아남은 객체가 많아지면 Free Region이 Old Region으로 전환됩니다.</p>
+<p>정리하면 G1GC는 힙을 고정된 Young &#x2F; Old 두 구역으로 강하게 나누는 대신 <strong>동일 크기 Region들의 집합으로 보고 각 Region에 Eden &#x2F; Survivor &#x2F; Old 역할을 동적으로 부여하는 방식</strong>으로 동작합니다.</p>
+<p>이번 그림 흐름을 따라가면 G1GC의 핵심은 아래처럼 요약할 수 있습니다.</p>
+<ol>
+<li>Free Region을 준비한다</li>
+<li>일부를 Eden으로 쓴다</li>
+<li>살아남은 객체는 Survivor로 복사한다</li>
+<li>사용이 끝난 Eden은 다시 Free List로 돌린다</li>
+<li>필요하면 committed heap을 확장한다</li>
+<li>오래 살아남은 객체는 Old Region으로 승격한다</li>
+</ol>
+<p>즉 G1GC의 본질은 <strong>“힙을 고정 구획이 아니라 동적으로 역할이 바뀌는 Region 집합으로 다룬다”</strong> 는 데 있습니다.</p>
+<h2 id="G1GC는-왜-등장-했고-STW가-왜-문제이고-특히-Old-Generation-수집이-왜-부담일까"><a href="#G1GC는-왜-등장-했고-STW가-왜-문제이고-특히-Old-Generation-수집이-왜-부담일까" class="headerlink" title="G1GC는 왜 등장 했고, STW가 왜 문제이고, 특히 Old Generation 수집이 왜 부담일까"></a>G1GC는 왜 등장 했고, STW가 왜 문제이고, 특히 Old Generation 수집이 왜 부담일까</h2><p>GC가 문제로 느껴지는 가장 큰 이유는 <strong>GC가 동작하는 동안 애플리케이션이 멈출 수 있기 때문</strong>입니다. 특히 <code>Stop-The-World(STW)</code> 구간에서는 요청 처리, 비즈니스 로직, 사용자 응답이 모두 멈춥니다. G1도 일부 pause는 있지만, 다른 작업은 애플리케이션과 <strong>동시에(concurrently)</strong> 수행하도록 설계되어 긴 정지를 줄이려 합니다.</p>
+<h3 id="STW는-왜-Young-GC보다-Old-GC에서-더-부담일까"><a href="#STW는-왜-Young-GC보다-Old-GC에서-더-부담일까" class="headerlink" title="STW는 왜 Young GC보다 Old GC에서 더 부담일까?"></a>STW는 왜 Young GC보다 Old GC에서 더 부담일까?</h3><p>핵심은 <strong>“얼마나 많은 쓰레기가 있느냐”보다 “얼마나 많은 살아 있는 객체를 따라가고 옮겨야 하느냐”</strong> 입니다. Oracle 문서도 Minor GC 비용은 1차적으로 <strong>수집 대상 중 살아 있는 객체 수</strong>에 비례한다고 설명합니다. 대부분의 객체는 금방 죽기 때문에 young generation은 비교적 효율적으로 수집할 수 있지만, old generation이 차면 <code>major collection</code>이 필요하고 이때는 <strong>훨씬 더 많은 객체가 관여</strong>하므로 보통 minor collection보다 오래 걸립니다.</p>
+<h3 id="Young-GC는-왜-비교적-감당-가능한가"><a href="#Young-GC는-왜-비교적-감당-가능한가" class="headerlink" title="Young GC는 왜 비교적 감당 가능한가?"></a>Young GC는 왜 비교적 감당 가능한가?</h3><p>세대별 GC는 <strong>약한 세대 가설(weak generational hypothesis)</strong> 을 전제로 합니다. 즉 대부분의 객체는 짧게 살고 young generation에서 죽습니다. 그래서 young generation만 수집하는 minor GC는 보통 효율이 좋고, 살아남은 일부 객체만 survivor나 old 쪽으로 이동시키면 됩니다. Oracle 문서도 young generation은 대부분 garbage가 빨리 회수되기 때문에 minor collection이 최적화되기 쉽다고 설명합니다.</p>
+<h3 id="Old-Generation-수집은-왜-더-어렵나"><a href="#Old-Generation-수집은-왜-더-어렵나" class="headerlink" title="Old Generation 수집은 왜 더 어렵나?"></a>Old Generation 수집은 왜 더 어렵나?</h3><p>old generation에는 이미 오래 살아남은 객체가 많고, 영역도 상대적으로 큽니다. 그래서 old generation을 다루는 수집은 young보다 훨씬 무겁고, 특히 <strong>전체 old를 한 번에 크게 건드리는 방식</strong>은 긴 pause로 이어지기 쉽습니다.</p>
+<h3 id="G1GC는-이-문제를-어떻게-접근했을까"><a href="#G1GC는-이-문제를-어떻게-접근했을까" class="headerlink" title="G1GC는 이 문제를 어떻게 접근했을까?"></a>G1GC는 이 문제를 어떻게 접근했을까?</h3><p>G1GC의 방향은 세 가지로 요약할 수 있습니다.</p>
+<h4 id="1-Old-Generation-전체를-한-번에-다-수집하지-말자"><a href="#1-Old-Generation-전체를-한-번에-다-수집하지-말자" class="headerlink" title="1. Old Generation 전체를 한 번에 다 수집하지 말자"></a>1. Old Generation 전체를 한 번에 다 수집하지 말자</h4><p>G1GC은 힙을 region으로 나누고 old generation도 그 region들의 집합으로 관리합니다. 그리고 old가 꽉 찰 때까지 기다렸다가 전체를 크게 수집하기보다 <strong>garbage가 많은 region부터 우선 회수</strong>하려고 합니다. Oracle 문서도 G1은 heap을 동일 크기 region으로 나누고, <strong>가장 효율적인 영역부터 먼저 회수</strong>한다고 설명합니다. 또한 concurrent marking 이후에는 young-only 수집에서 mixed collection 단계로 넘어가 old region 일부를 함께 회수합니다.</p>
+<h4 id="2-Old-Generation-수집에도-evacuation-방식을-활용하자"><a href="#2-Old-Generation-수집에도-evacuation-방식을-활용하자" class="headerlink" title="2. Old Generation 수집에도 evacuation 방식을 활용하자"></a>2. Old Generation 수집에도 evacuation 방식을 활용하자</h4><p>G1GC은 공간 회수를 주로 <strong>evacuation</strong> 즉 살아 있는 객체를 다른 region으로 복사하는 방식으로 수행합니다. 이 방식은 복사 과정에서 자연스럽게 <strong>compaction 효과</strong>를 얻을 수 있어서, 조각난 공간을 다시 정리하기 유리합니다.</p>
+<h4 id="3-Old-Generation을-위한-marking-작업은-애플리케이션과-겹쳐서-수행하자"><a href="#3-Old-Generation을-위한-marking-작업은-애플리케이션과-겹쳐서-수행하자" class="headerlink" title="3. Old Generation을 위한 marking 작업은 애플리케이션과 겹쳐서 수행하자"></a>3. Old Generation을 위한 marking 작업은 애플리케이션과 겹쳐서 수행하자</h4><p>G1GC은 old generation의 live object를 찾는 <strong>global&#x2F;concurrent marking</strong> 작업의 큰 부분을 애플리케이션과 동시에 수행합니다.<br>즉 “모든 무거운 작업을 긴 STW 안에서 한 번에 끝내는 방식” 대신, marking은 <code>concurrent</code>하게 진행하고, 그 결과를 바탕으로 나중에 <strong>mixed GC에서 old region 일부를 조금씩 회수</strong>합니다. Oracle 문서도 whole-heap marking 같은 작업은 애플리케이션과 동시에 수행하고, space reclamation은 incremental하고 parallel하게 나눠 처리한다고 설명합니다.</p>
+<p>G1GC의 핵심은 단순합니다.</p>
+<ul>
+<li><strong>Young GC는 원래 효율적인 방식으로 유지</strong></li>
+<li><strong>Old는 전체를 한 번에 크게 멈추지 말고</strong></li>
+<li><strong>concurrent marking + region 단위 선택적 회수 + evacuation</strong> 으로 부담을 나누자</li>
+</ul>
+<p>즉 G1GC는 “왜 old generation 수집이 길어지는가?”라는 문제에 대해 <strong>전체를 한 번에 하지 말고, 더 잘게 나누고, 일부는 애플리케이션과 동시에 처리하자</strong>는 방향으로 접근한 collector라고 볼 수 있습니다.</p>
+<h3 id="Young-GC-vs-Old-GC-비교"><a href="#Young-GC-vs-Old-GC-비교" class="headerlink" title="Young GC vs Old GC 비교"></a>Young GC vs Old GC 비교</h3><table>
+<thead>
+<tr>
+<th>항목</th>
+<th>Young GC</th>
+<th>Old GC</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>수집 대상</td>
+<td>Young Generation (Eden, Survivor)</td>
+<td>Old Generation</td>
+</tr>
+<tr>
+<td>기본 전제</td>
+<td>대부분의 객체는 빨리 죽는다</td>
+<td>오래 살아남은 객체는 앞으로도 계속 살아남을 가능성이 크다</td>
+</tr>
+<tr>
+<td>영역 크기</td>
+<td>상대적으로 작음</td>
+<td>상대적으로 큼</td>
+</tr>
+<tr>
+<td>살아 있는 객체 비율</td>
+<td>보통 낮음</td>
+<td>보통 높음</td>
+</tr>
+<tr>
+<td>STW 영향</td>
+<td>비교적 짧은 편</td>
+<td>길어지기 쉬움</td>
+</tr>
+<tr>
+<td>수집 비용이 커지는 이유</td>
+<td>살아 있는 객체를 복사해야 해서</td>
+<td>살아 있는 객체가 많고 영역도 커서</td>
+</tr>
+<tr>
+<td>일반적인 체감</td>
+<td>자주 일어나도 비교적 감당 가능</td>
+<td>한 번 발생하면 서비스에 큰 부담이 될 수 있음</td>
+</tr>
+<tr>
+<td>대표 알고리즘 예시</td>
+<td>Mark-Copy &#x2F; Evacuation</td>
+<td>Mark-Sweep-Compact, Mark-Summary-Compact 등</td>
+</tr>
+<tr>
+<td>G1GC 관점</td>
+<td>기존처럼 evacuation 중심으로 처리</td>
+<td>전체를 한 번에 하지 않고 일부 region만 선택적으로 처리</td>
+</tr>
+<tr>
+<td>왜 문제인가</td>
+<td>pause는 있지만 보통 짧다</td>
+<td>긴 STW pause의 핵심 원인이 되기 쉽다</td>
+</tr>
+</tbody></table>
+<hr>
+<h3 id="정리하자면…"><a href="#정리하자면…" class="headerlink" title="정리하자면…"></a>정리하자면…</h3><ul>
+<li><strong>Young GC</strong> 는 보통 영역이 작고, 대부분의 객체가 빨리 죽기 때문에 비교적 빠르게 끝난다.</li>
+<li><strong>Old GC</strong> 는 영역이 크고 살아 있는 객체 비율도 높아서, STW 시간이 길어지기 쉽다.</li>
+<li>그래서 G1GC는 <strong>Old Generation 전체를 한 번에 수집하지 않고</strong> <strong>garbage가 많은 region만 선택적으로 회수</strong>하는 방향으로 접근한다.</li>
+</ul>
+<hr>
+<blockquote>
+<p>GC가 오래 걸리는 핵심 원인은 단순히 garbage가 많아서가 아니라 <strong>살아 있는 객체가 많고 그 객체들을 추적·복사·정리해야 하기 때문</strong> 입니다.</p>
+</blockquote>
+<hr>
+<h2 id="G1GC-핵심-동작-정리-Young-Only-Phase와-Mixed-Collection은-어떻게-이어질까"><a href="#G1GC-핵심-동작-정리-Young-Only-Phase와-Mixed-Collection은-어떻게-이어질까" class="headerlink" title="G1GC 핵심 동작 정리 - Young-Only Phase와 Mixed Collection은 어떻게 이어질까?"></a>G1GC 핵심 동작 정리 - Young-Only Phase와 Mixed Collection은 어떻게 이어질까?</h2><p>G1GC를 이해할 때 가장 중요한 포인트 중 하나는 <strong>Old Generation 전체를 한 번에 크게 수집하지 않는다는 점</strong>입니다.</p>
+<p>기존 GC에서 가장 부담이 컸던 부분은 보통 <strong>Old Generation 수집 시 발생하는 긴 Stop-The-World(STW)</strong> 였습니다. G1GC는 이 문제를 완화하기 위해 평소에는 <strong>Young GC 중심</strong>으로 동작하다가 필요할 때만 <strong>Old Region 일부를 점진적으로 회수</strong>하는 방식을 사용합니다.</p>
+<p>즉 G1GC의 핵심 전략은 다음 한 문장으로 요약할 수 있습니다.</p>
+<blockquote>
+<p><strong>Young GC는 계속 수행하되, 필요한 순간에는 Old Region 일부를 Young GC에 얹어서 같이 처리하자.</strong></p>
+</blockquote>
+<hr>
+<h3 id="G1GC-전체-흐름-한눈에-보기"><a href="#G1GC-전체-흐름-한눈에-보기" class="headerlink" title="G1GC 전체 흐름 한눈에 보기"></a>G1GC 전체 흐름 한눈에 보기</h3><p><img src="/../../../img/JAVA/GC/G1GC/GarbageCollectionCycle.png" alt="GarbageCollectionCycle"></p>
+<p>G1GC의 큰 흐름은 보통 다음 두 단계로 나눠 볼 수 있습니다.</p>
+<ol>
+<li><strong>Young-Only Phase</strong></li>
+<li><strong>Space-Reclamation Phase (Mixed Collection Phase)</strong></li>
+</ol>
+<p>그림을 보면 원형 사이클 형태로 표현되어 있는데 평소에는 Young-Only 단계로 돌다가, Old 영역 사용량이 일정 임계치를 넘으면 <code>Concurrent Marking</code>을 시작하고 이후 <code>Mixed Collection</code> 단계로 넘어갑니다.</p>
+<hr>
+<h4 id="1-Young-Only-Phase"><a href="#1-Young-Only-Phase" class="headerlink" title="1. Young-Only Phase"></a>1. Young-Only Phase</h4><p>이 단계에서는 말 그대로 <strong>Young GC만 수행</strong>합니다.</p>
+<ul>
+<li>Eden이 차면 Young GC 발생</li>
+<li>살아남은 객체는 Survivor 또는 Old 쪽으로 이동</li>
+<li>이 과정은 일반적인 G1의 Young evacuation 방식으로 처리</li>
+</ul>
+<p>즉 애플리케이션이 평소 동작하는 대부분의 시간에는 G1GC도 “Young Generation 중심”으로 동작한다고 이해하면 됩니다.</p>
+<p>그런데 시간이 지나면서 <code>Old Generation</code>에 객체가 점점 쌓이게 됩니다. 그리고 Old 영역 점유율이 일정 임계치를 넘으면 G1GC는 다음 단계를 준비합니다.</p>
+<ul>
+<li>평소에는 Young GC 위주로 동작</li>
+<li>Old가 어느 정도 차면 <strong>Concurrent Start</strong> 발생</li>
+<li>Mixed Collection을 위한 marking 작업이 시작됨</li>
+</ul>
+<hr>
+<h4 id="2-Concurrent-Marking-시작"><a href="#2-Concurrent-Marking-시작" class="headerlink" title="2. Concurrent Marking 시작"></a>2. Concurrent Marking 시작</h4><p>Old Generation 점유율이 임계치를 넘으면 G1GC는 <strong>Mixed Collection을 준비하기 위한 marking</strong> 을 시작합니다.</p>
+<p>이 단계의 핵심은 다음입니다.</p>
+<blockquote>
+<p><strong>어떤 Old Region에 garbage가 많이 쌓였는지 먼저 파악하자</strong></p>
+</blockquote>
+<p>즉 Old 전체를 무작정 수집하는 것이 아니라 먼저 <strong>“어디를 회수하면 효율이 좋은가?”</strong> 를 찾는 단계라고 보면 됩니다. 여기서 중요한 점은 이 marking 작업의 큰 부분이 <strong>애플리케이션과 동시에(concurrently)</strong> 진행된다는 것입니다.</p>
+<p>즉, 예전처럼 “무거운 Old 작업을 전부 긴 STW 안에서 처리”하는 방식이 아니라 가능한 부분은 애플리케이션 실행과 겹쳐서 수행합니다.</p>
+<hr>
+<h4 id="3-Remark-Cleanup"><a href="#3-Remark-Cleanup" class="headerlink" title="3. Remark &#x2F; Cleanup"></a>3. Remark &#x2F; Cleanup</h4><p>Concurrent Marking이 끝나갈 즈음, G1GC는 <strong>Remark</strong> 와 <strong>Cleanup</strong> 단계를 거칩니다.</p>
+<h5 id="Remark"><a href="#Remark" class="headerlink" title="Remark"></a>Remark</h5><p>Concurrent하게 marking 하는 동안 놓칠 수 있는 변경 사항을 최종적으로 정리하는 단계입니다.</p>
+<h5 id="Cleanup"><a href="#Cleanup" class="headerlink" title="Cleanup"></a>Cleanup</h5><p>Marking 결과를 바탕으로 <strong>어떤 Old Region을 Mixed Collection 대상으로 삼을지 확정</strong>하는 단계입니다.</p>
+<p>즉 Cleanup 단계가 끝나면 G1GC는 이제 다음 질문에 답할 수 있게 됩니다.</p>
+<ul>
+<li>어떤 Old Region에 garbage가 많은가?</li>
+<li>어떤 Region부터 회수하는 것이 효율적인가?</li>
+<li>Mixed Collection에서 어떤 Region들을 대상으로 삼을 것인가?</li>
+</ul>
+<p>정리하자면</p>
+<ul>
+<li>marking 결과를 마무리한다</li>
+<li>회수 가치가 높은 Old Region들을 선별한다</li>
+<li>Mixed Collection 대상이 확정된다</li>
+</ul>
+<hr>
+<h4 id="4-Space-Reclamation-Phase-Mixed-Collection"><a href="#4-Space-Reclamation-Phase-Mixed-Collection" class="headerlink" title="4. Space-Reclamation Phase &#x3D; Mixed Collection"></a>4. Space-Reclamation Phase &#x3D; Mixed Collection</h4><p>이제 G1GC는 <strong>Space-Reclamation Phase</strong>, 즉 <strong>Mixed Collection 단계</strong>로 들어갑니다. 이 단계가 G1GC의 핵심입니다.</p>
+<p>Mixed Collection에서는 <strong>Young GC가 발생할 때마다</strong> Young Region만 처리하는 것이 아니라 <strong>선별된 Old Region 일부도 함께 evacuation</strong> 합니다.</p>
+<p>즉</p>
+<ul>
+<li>Young GC는 원래 자주 발생하고</li>
+<li>그 pause 안에</li>
+<li>garbage가 많은 Old Region 몇 개를 같이 처리하는 방식입니다</li>
+</ul>
+<p>이걸 쉽게 표현하면</p>
+<blockquote>
+<p><strong>Young GC에 Old Region 회수를 슬쩍 얹어서 같이 처리하는 전략</strong></p>
+</blockquote>
+<p>이라고 볼 수 있습니다.</p>
+<hr>
+<h3 id="이런-방식으로-해서-이점은"><a href="#이런-방식으로-해서-이점은" class="headerlink" title="이런 방식으로 해서 이점은?"></a>이런 방식으로 해서 이점은?</h3><p>기존 방식에서는 Old Generation 전체를 크게 한 번 건드리면 pause가 길어지기 쉬웠습니다. 반면 G1GC는 다음처럼 접근합니다.</p>
+<ul>
+<li>어차피 Young GC는 자주 발생한다</li>
+<li>그렇다면 그 pause 안에서</li>
+<li>garbage가 많은 Old Region 일부도 같이 처리하자</li>
+<li>그러면 Old 전체를 한 번에 크게 멈추지 않아도 된다</li>
+</ul>
+<p>즉 G1GC는</p>
+<ul>
+<li><strong>Throughput</strong></li>
+<li><strong>Pause Time</strong></li>
+</ul>
+<p>두 목표를 동시에 어느 정도 만족시키기 위해 Old 처리 작업을 잘게 나눠서 Young GC와 함께 분산시키는 전략을 사용합니다.</p>
+<hr>
+<h2 id="Mixed-Collection의-핵심"><a href="#Mixed-Collection의-핵심" class="headerlink" title="Mixed Collection의 핵심"></a>Mixed Collection의 핵심</h2><p>Mixed Collection의 핵심은 아주 간단합니다.</p>
+<h3 id="1-Young-GC-때-Old-Region-일부도-같이-처리한다"><a href="#1-Young-GC-때-Old-Region-일부도-같이-처리한다" class="headerlink" title="1. Young GC 때 Old Region 일부도 같이 처리한다"></a>1. Young GC 때 Old Region 일부도 같이 처리한다</h3><p>Old 전체를 다루지 않고 <strong>garbage가 많은 일부 region만 선택적</strong>으로 회수합니다.</p>
+<h3 id="2-점진적으로-evacuation-한다"><a href="#2-점진적으로-evacuation-한다" class="headerlink" title="2. 점진적으로 evacuation 한다"></a>2. 점진적으로 evacuation 한다</h3><p>한 번에 다 끝내는 것이 아니라 여러 번의 Young GC에 나눠서 조금씩 처리합니다.</p>
+<h3 id="3-의미가-줄어들면-다시-Young-Only로-돌아간다"><a href="#3-의미가-줄어들면-다시-Young-Only로-돌아간다" class="headerlink" title="3. 의미가 줄어들면 다시 Young-Only로 돌아간다"></a>3. 의미가 줄어들면 다시 Young-Only로 돌아간다</h3><p>Old Region을 계속 Mixed Collection 대상으로 넣어도 회수 효율이 크지 않다고 판단되면, 다시 <strong>Young-Only Phase</strong> 로 전환합니다.</p>
+<p>즉, Mixed Collection은 무한정 계속되는 단계가 아니라, <strong>효율 좋은 Old Region을 어느 정도 회수하면 종료되는 단계</strong>입니다.</p>
+<hr>
+<h3 id="marking의-핵심은-무엇일까"><a href="#marking의-핵심은-무엇일까" class="headerlink" title="marking의 핵심은 무엇일까?"></a>marking의 핵심은 무엇일까?</h3><p>Mixed Collection을 하려면 먼저 알아야 할 것이 있습니다.</p>
+<blockquote>
+<p><strong>어떤 Old 객체가 살아 있고, 어떤 Region에 garbage가 많이 쌓였는가?</strong></p>
+</blockquote>
+<p>그래서 marking이 필요합니다. 여기서 G1GC의 생각은 이렇습니다.</p>
+<ul>
+<li>어차피 Young GC 때 살아 있는 객체를 계속 추적한다</li>
+<li>그렇다면 그 흐름을 활용해서</li>
+<li>Old 쪽도 같이 보고</li>
+<li>가능하면 concurrent하게 marking 하자</li>
+</ul>
+<p>marking이 끝나면 각 Old Region마다 <strong>얼마나 많은 garbage가 있는지 계산</strong>할 수 있습니다.</p>
+<p>그러면 G1GC는 그 정보를 바탕으로 “회수 효율이 높은 Old Region” 을 골라서 Mixed Collection 대상에 넣을 수 있습니다.</p>
+<p>즉 marking의 핵심은 단순히 live object를 찾는 것이 아니라</p>
+<blockquote>
+<p><strong>어떤 Old Region을 회수해야 가장 이득이 큰지 판단할 수 있게 만드는 것</strong></p>
+</blockquote>
+<p>입니다.</p>
+<hr>
+<h3 id="G1GC-전체-Flow-한-번에-이해하기-Young-Only-Concurrent-Marking-Mixed-GC는-어떻게-이어지는-알아보자"><a href="#G1GC-전체-Flow-한-번에-이해하기-Young-Only-Concurrent-Marking-Mixed-GC는-어떻게-이어지는-알아보자" class="headerlink" title="G1GC 전체 Flow 한 번에 이해하기 - Young-Only, Concurrent Marking, Mixed GC는 어떻게 이어지는 알아보자"></a>G1GC 전체 Flow 한 번에 이해하기 - Young-Only, Concurrent Marking, Mixed GC는 어떻게 이어지는 알아보자</h3><p>G1GC를 이해할 때 가장 중요한 포인트는 하나입니다.</p>
+<blockquote>
+<p><strong>Old Generation 전체를 한 번에 크게 수집하지 않고 Young GC 흐름에 일부 Old Region 회수를 조금씩 얹어서 처리한다.</strong></p>
+</blockquote>
+<p>즉 G1GC는 평소에는 <strong>Young-Only phase</strong> 로 동작하다가 Old Generation에 객체가 어느 정도 쌓이면 <strong>Concurrent Marking</strong> 을 시작하고 그 결과를 바탕으로 <strong>Mixed GC(Space-Reclamation phase)</strong> 로 넘어갑니다.</p>
+<p>이번 글에서는 제공된 이미지 15장을 순서대로 따라가면서 G1GC의 전체 흐름을 짧고 핵심만 정리해보겠습니다.</p>
+<hr>
+<h3 id="전체-흐름-먼저-보기"><a href="#전체-흐름-먼저-보기" class="headerlink" title="전체 흐름 먼저 보기"></a>전체 흐름 먼저 보기</h3><p>G1GC의 큰 흐름은 아래처럼 이해하면 됩니다.</p>
+<ol>
+<li>평소에는 <strong>Young GC만 수행</strong></li>
+<li>Old 점유율이 임계치를 넘으면 <strong>Concurrent Start</strong></li>
+<li>Young GC와 연결된 흐름 속에서 <strong>Concurrent Marking 준비</strong></li>
+<li><strong>Root Region Scanning</strong> 수행</li>
+<li><strong>Concurrent Marking</strong> 으로 살아 있는 Old 객체 탐색</li>
+<li><strong>Remark &#x2F; Cleanup</strong> 으로 마무리</li>
+<li>회수 가치가 높은 Old Region을 골라 <strong>Mixed GC</strong> 수행</li>
+<li>더 이상 의미가 크지 않으면 다시 <strong>Young-Only phase</strong> 로 복귀</li>
+</ol>
+<hr>
+<h2 id="보통의-Young-GC-Young-Only-phase"><a href="#보통의-Young-GC-Young-Only-phase" class="headerlink" title="보통의 Young GC - Young-Only phase"></a>보통의 Young GC - Young-Only phase</h2><p><img src="/../../../img/JAVA/GC/G1GC/G1GC-FLOW-1.png" alt="G1GC-FLOW-1"></p>
+<p>이 단계는 평소의 Young GC입니다.</p>
+<ul>
+<li>Eden &#x2F; Survivor 중심으로 Young 객체만 처리</li>
+<li>marking 중에 young 객체가 old 객체를 참조하고 있어도</li>
+<li><strong>그 old 객체까지 따라가지 않고</strong></li>
+<li>그냥 다음 young 객체로 넘어갑니다</li>
+</ul>
+<p>즉 아직은 <strong>Old Generation을 본격적으로 수집할 시점이 아니기 때문</strong>입니다.</p>
+<hr>
+<h3 id="Concurrent-Start"><a href="#Concurrent-Start" class="headerlink" title="Concurrent Start"></a>Concurrent Start</h3><p><img src="/../../../img/JAVA/GC/G1GC/G1GC-FLOW-2.png" alt="G1GC-FLOW-2"></p>
+<p>Old Generation에 객체가 어느 정도 쌓이면 Young GC 중에 <strong>Concurrent Start</strong> 가 발생합니다.</p>
+<p>이때 중요한 변화가 있습니다.</p>
+<ul>
+<li>marking 중에 만난 GC Root가</li>
+<li><strong>Old 객체를 직접 참조</strong>하고 있으면</li>
+<li>그 old 객체를 <strong>mark stack에 push</strong></li>
+<li>그리고 다음 young 객체로 넘어갑니다</li>
+</ul>
+<p>즉 이제부터는 “Old를 어떻게 회수할지”를 준비하기 시작한 것입니다.</p>
+<hr>
+<h3 id="Young-GC-후-evacuation"><a href="#Young-GC-후-evacuation" class="headerlink" title="Young GC 후 evacuation"></a>Young GC 후 evacuation</h3><p><img src="/../../../img/JAVA/GC/G1GC/G1GC-FLOW-3.png" alt="G1GC-FLOW-3"></p>
+<p>Young GC가 발생하면<br>Eden 영역은 비워지고, 살아남은 Young 객체는 <strong>Survivor Region</strong> 으로 복사됩니다.</p>
+<p>즉, 일반적인 G1 Young evacuation 과정입니다.</p>
+<ul>
+<li>Eden → Free Region</li>
+<li>살아 있는 young 객체 → Survivor Region 이동</li>
+</ul>
+<h3 id="핵심"><a href="#핵심" class="headerlink" title="핵심"></a>핵심</h3><ul>
+<li>Young는 기존처럼 <strong>mark-copy &#x2F; evacuation</strong></li>
+<li>Eden은 회수되고 Survivor에 살아남은 객체만 남음</li>
+</ul>
+<hr>
+<h3 id="Root-Region-Scanning"><a href="#Root-Region-Scanning" class="headerlink" title="Root Region Scanning"></a>Root Region Scanning</h3><p><img src="/../../../img/JAVA/GC/G1GC/G1GC-FLOW-4.png" alt="G1GC-FLOW-4"></p>
+<p>Young GC가 끝난 뒤 Survivor Region에는 <strong>살아 있는 young 객체만 존재</strong>하게 됩니다.</p>
+<p>이 Survivor Region들을 <strong>Root Regions</strong> 라고 보고 여기서 직접 참조되는 Old 객체를 다시 찾아 <strong>mark stack에 push</strong> 합니다.</p>
+<p>이 과정을 <strong>Root Region Scanning</strong> 이라고 합니다.</p>
+<p>그리고 중요한 점은</p>
+<ul>
+<li>이 과정이 <strong>다음 Young GC 전까지 concurrently</strong> 진행된다는 것입니다.</li>
+</ul>
+<hr>
+<h3 id="Concurrent-Marking"><a href="#Concurrent-Marking" class="headerlink" title="Concurrent Marking"></a>Concurrent Marking</h3><p>이제부터는 <code>mark stack</code>을 이용해 살아 있는 Old 객체를 찾는 <strong>Concurrent Marking</strong> 단계입니다. 중요한 점은 이 과정이 <strong>애플리케이션과 동시에(concurrently)</strong> 진행된다는 것입니다.</p>
+<p><img src="/../../../img/JAVA/GC/G1GC/G1GC-FLOW-5.png" alt="G1GC-FLOW-5"></p>
+<ul>
+<li><strong>18번 객체 pop</strong></li>
+<li>참조되는 객체 없음</li>
+<li>추가 push 없음</li>
+</ul>
+<p><img src="/../../../img/JAVA/GC/G1GC/G1GC-FLOW-6.png" alt="G1GC-FLOW-6"></p>
+<ul>
+<li><strong>7번 객체 pop</strong></li>
+<li>참조하던 <strong>14번 old 객체 발견</strong></li>
+<li><strong>14번 push</strong></li>
+</ul>
+<p><img src="/../../../img/JAVA/GC/G1GC/G1GC-FLOW-7.png" alt="G1GC-FLOW-7"></p>
+<ul>
+<li><strong>14번 객체 pop</strong></li>
+<li>참조되는 객체 없음</li>
+<li>추가 push 없음</li>
+</ul>
+<p><img src="/../../../img/JAVA/GC/G1GC/G1GC-FLOW-8.png" alt="G1GC-FLOW-8"></p>
+<ul>
+<li><strong>12번 객체 pop</strong></li>
+<li>참조 대상이 <strong>4번 young 객체</strong></li>
+<li>young 객체이므로 별도 old marking 진행 안 함</li>
+</ul>
+<p><img src="/../../../img/JAVA/GC/G1GC/G1GC-FLOW-9.png" alt="G1GC-FLOW-9"></p>
+<ul>
+<li><strong>6번 객체 pop</strong></li>
+<li>참조 대상이 <strong>3번 young 객체</strong></li>
+<li>마찬가지로 old marking 대상은 아님</li>
+</ul>
+<p><img src="/../../../img/JAVA/GC/G1GC/G1GC-FLOW-10.png" alt="G1GC-FLOW-10"></p>
+<ul>
+<li><strong>8번 객체 pop</strong></li>
+<li>참조하던 <strong>15번 old 객체 발견</strong></li>
+<li><strong>15번 push</strong></li>
+</ul>
+<p><img src="/../../../img/JAVA/GC/G1GC/G1GC-FLOW-11.png" alt="G1GC-FLOW-11"></p>
+<ul>
+<li><strong>15번 객체 pop</strong></li>
+<li>참조되는 객체 없음</li>
+<li>marking 종료 방향으로 진행</li>
+</ul>
+<p>정리하자면</p>
+<ul>
+<li>mark stack에서 old 객체를 꺼내며 탐색</li>
+<li>old → old 참조만 따라가며 확장</li>
+<li>young 객체를 만나도 굳이 young 전체를 다시 탐색하지 않음</li>
+<li>이 전체 흐름이 concurrent 하게 수행됨</li>
+</ul>
+<hr>
+<h3 id="Remark-Cleanup"><a href="#Remark-Cleanup" class="headerlink" title="Remark &#x2F; Cleanup"></a>Remark &#x2F; Cleanup</h3><p><img src="/../../../img/JAVA/GC/G1GC/G1GC-FLOW-12.png" alt="G1GC-FLOW-12"></p>
+<p><code>Concurrent Marking</code>이 끝나면 이제 <strong>Remark 단계</strong>로 들어갑니다.</p>
+<h3 id="Remark-1"><a href="#Remark-1" class="headerlink" title="Remark"></a>Remark</h3><ul>
+<li>별도의 <strong>STW</strong></li>
+<li>concurrent marking 동안 남은 작업 마무리</li>
+<li>예: <strong>drain SATB buffer</strong></li>
+<li>완전히 비었다고 판단된 old region은 바로 회수 가능</li>
+</ul>
+<p>그 다음은 <strong>Cleanup 단계</strong>입니다.</p>
+<h3 id="Cleanup-1"><a href="#Cleanup-1" class="headerlink" title="Cleanup"></a>Cleanup</h3><ul>
+<li>별도의 <strong>STW</strong></li>
+<li><strong>CSet(Collection Set) candidate regions 확정</strong></li>
+<li>이후 <strong>Space-Reclamation(mixed collection)</strong> 을 실제로 진행할지 결정</li>
+</ul>
+<p>이미지의 검정 점선 원으로 표시된 Region들이 바로 <strong>CSet candidate regions</strong> 입니다.</p>
+<h2 id="핵심-1"><a href="#핵심-1" class="headerlink" title="핵심"></a>핵심</h2><ul>
+<li>Remark: marking 마무리</li>
+<li>Cleanup: 어떤 old region을 mixed GC 대상으로 삼을지 확정</li>
+</ul>
+<hr>
+<h3 id="Space-Reclamation-phase-시작"><a href="#Space-Reclamation-phase-시작" class="headerlink" title="Space-Reclamation phase 시작"></a>Space-Reclamation phase 시작</h3><p><img src="/../../../img/JAVA/GC/G1GC/G1GC-FLOW-13.png" alt="G1GC-FLOW-13"></p>
+<p>이제 <strong>Mixed GC</strong> 단계입니다. 이 단계의 핵심은 다음 한 문장으로 정리할 수 있습니다.</p>
+<blockquote>
+<p><strong>Young GC가 발생할 때, CSet candidate old region 일부도 같이 회수한다.</strong></p>
+</blockquote>
+<p>즉 Young GC에 Old Region 회수를 얹는 방식입니다. 이미지에서는 Young GC가 발생했고 Eden에서 살아남은 young 객체 <strong>1, 2, 3, 5</strong> 만 새로운 <code>Survivor Region</code>으로 옮겨집니다.</p>
+<p>정리하자면</p>
+<ul>
+<li>Mixed GC도 Young GC 흐름 안에서 진행</li>
+<li>Young만 처리하는 것이 아니라 selected old region도 같이 처리</li>
+</ul>
+<hr>
+<h3 id="선택된-Old-Region-회수"><a href="#선택된-Old-Region-회수" class="headerlink" title="선택된 Old Region 회수"></a>선택된 Old Region 회수</h3><p><img src="/../../../img/JAVA/GC/G1GC/G1GC-FLOW-14.png" alt="G1GC-FLOW-14"></p>
+<p>이제 CSet candidate old region들을 회수합니다.</p>
+<ul>
+<li>새로운 Old Region을 만들고</li>
+<li>살아 있는 old 객체들을 그쪽으로 <strong>evacuation</strong></li>
+<li>이번 예시에서는 mixed GC 한 번에 <strong>3개의 region 회수</strong>라고 가정</li>
+</ul>
+<p>이때 G1GC의 중요한 특징 중 하나가 나옵니다.</p>
+<ul>
+<li><strong>Old Region도 자신만의 Remembered Set을 가짐</strong></li>
+<li>이를 바탕으로 이동 후 참조 위치를 갱신할 수 있음</li>
+</ul>
+<p>즉 old도 region 단위로 독립적으로 다룰 수 있습니다.</p>
+<p>정리하자면</p>
+<ul>
+<li>old region 회수도 evacuation 기반</li>
+<li>compact를 직접 하지 않고 살아 있는 객체만 다른 region으로 대피</li>
+<li>remembered set으로 참조 갱신 가능</li>
+</ul>
+<hr>
+<h3 id="모든-garbage가-한-번에-사라지는-것은-아니다"><a href="#모든-garbage가-한-번에-사라지는-것은-아니다" class="headerlink" title="모든 garbage가 한 번에 사라지는 것은 아니다"></a>모든 garbage가 한 번에 사라지는 것은 아니다</h3><p><img src="/../../../img/JAVA/GC/G1GC/G1GC-FLOW-15.png" alt="G1GC-FLOW-15"></p>
+<p>마지막 이미지는 Mixed GC의 현실적인 특징을 잘 보여줍니다.</p>
+<p>예를 들어 <strong>7번 old region</strong> 을 보면 이미 garbage가 되었더라도 이번 cycle의 회수 대상에 <strong>포함되지 않을 수 있습니다</strong>.</p>
+<p>즉</p>
+<ul>
+<li>이번 cycle에서는 건너뛸 수 있고</li>
+<li>다음 cycle에서 다시 candidate가 될 수 있습니다</li>
+</ul>
+<p>이것이 바로 G1GC의 특징입니다.</p>
+<blockquote>
+<p><strong>Old 전체를 한 번에 다 치우는 것이 아니라 회수 효율이 높은 region부터 점진적으로 처리한다.</strong></p>
+</blockquote>
+<ul>
+<li>garbage라고 해서 무조건 이번 cycle에 다 회수되는 것은 아님</li>
+<li>회수 우선순위는 region 단위로 결정</li>
+<li>다음 cycle에 다시 대상이 될 수 있음</li>
+</ul>
+<hr>
+<h2 id="흐름-핵심을-정리"><a href="#흐름-핵심을-정리" class="headerlink" title="흐름 핵심을 정리"></a>흐름 핵심을 정리</h2><p>앞써 설명한 15장의 이미지가 보여주는 G1GC의 핵심은 아래와 같습니다.</p>
+<h3 id="1-평소에는-Young-GC-중심으로-간다"><a href="#1-평소에는-Young-GC-중심으로-간다" class="headerlink" title="1) 평소에는 Young GC 중심으로 간다"></a>1) 평소에는 Young GC 중심으로 간다</h3><p>Young-Only phase에서는 Young 객체만 빠르게 처리합니다.</p>
+<h3 id="2-Old가-쌓이면-Concurrent-Marking을-시작한다"><a href="#2-Old가-쌓이면-Concurrent-Marking을-시작한다" class="headerlink" title="2) Old가 쌓이면 Concurrent Marking을 시작한다"></a>2) Old가 쌓이면 Concurrent Marking을 시작한다</h3><p>Old 전체를 당장 멈춰서 처리하지 않고,<br>먼저 살아 있는 Old 객체와 garbage 비율을 계산합니다.</p>
+<h3 id="3-marking은-concurrent-하게-진행한다"><a href="#3-marking은-concurrent-하게-진행한다" class="headerlink" title="3) marking은 concurrent 하게 진행한다"></a>3) marking은 concurrent 하게 진행한다</h3><p>애플리케이션을 완전히 멈추는 시간을 줄이기 위해<br>가능한 작업은 concurrent 하게 수행합니다.</p>
+<h3 id="4-Mixed-GC에서는-old-일부만-회수한다"><a href="#4-Mixed-GC에서는-old-일부만-회수한다" class="headerlink" title="4) Mixed GC에서는 old 일부만 회수한다"></a>4) Mixed GC에서는 old 일부만 회수한다</h3><p>young GC가 발생할 때 selected old region도 함께 evacuation 합니다.</p>
+<h3 id="5-old-전체를-한-번에-다-치우지-않는다"><a href="#5-old-전체를-한-번에-다-치우지-않는다" class="headerlink" title="5) old 전체를 한 번에 다 치우지 않는다"></a>5) old 전체를 한 번에 다 치우지 않는다</h3><p>가장 회수 효율이 좋은 region부터 점진적으로 처리합니다.</p>
+<blockquote>
+<p><strong>G1GC는 평소에는 Young GC만 수행하다가, Old Generation 점유율이 높아지면 concurrent marking으로 회수 가치가 높은 old region을 찾고, 이후 Young GC에 일부 old region 회수를 얹는 Mixed GC 방식으로 점진적으로 공간을 회수한다.</strong></p>
+</blockquote>
+<h2 id="G1GC-Concurrent-Mark-문제점"><a href="#G1GC-Concurrent-Mark-문제점" class="headerlink" title="G1GC Concurrent Mark 문제점"></a>G1GC Concurrent Mark 문제점</h2><p>G1GC는 <code>Old Generation</code>을 한 번에 길게 멈추지 않고 애플리케이션과 <strong>동시에(concurrently)</strong> marking을 수행하려고 합니다. 그런데 <code>concurrent marking</code>에는 본질적인 어려움이 있습니다.</p>
+<blockquote>
+<p><strong>GC가 객체 그래프를 따라가며 marking하는 동안 애플리케이션이 참조 관계를 계속 바꿔버릴 수 있다.</strong></p>
+</blockquote>
+<p>GC는 “지금 보이는 객체 그래프”를 따라가고 있는데 애플리케이션은 그 순간에도 객체 참조를 추가하거나 삭제합니다. 이 때문에 <strong>살아 있는 객체를 죽었다고 잘못 판단</strong>하거나 반대로 <strong>이미 죽은 객체를 살아 있다고 잘못 판단</strong>할 수 있습니다.</p>
+<p>이번 글에서는 제공된 그림 흐름을 기준으로 이 문제가 어떻게 발생하는지 정리해보겠습니다.</p>
+<hr>
+<h3 id="이미지-보기-전-marking-처리-관련-설명"><a href="#이미지-보기-전-marking-처리-관련-설명" class="headerlink" title="이미지 보기 전 marking 처리 관련 설명"></a>이미지 보기 전 marking 처리 관련 설명</h3><p><code>Concurrent Mark</code>를 설명할 때는 보통 객체를 3가지 색으로 구분 해보았습니다.</p>
+<ul>
+<li><strong>White</strong>: 아직 marking되지 않은 객체</li>
+<li><strong>Grey</strong>: marking은 되었지만, 아직 이 객체가 참조하는 다른 객체들을 다 탐색하지 않은 상태</li>
+<li><strong>Black</strong>: marking도 되었고, 이 객체가 참조하는 다른 객체 탐색까지 끝난 상태</li>
+</ul>
+<p>이번 그림에서도 색 의미를 이렇게 이해하면 됩니다.</p>
+<ul>
+<li>연한 색: 아직 미탐색 또는 탐색 전</li>
+<li>진한 회색: 탐색 완료</li>
+<li>중간색: mark는 되었지만 아직 탐색 전</li>
+</ul>
+<p><code>Concurrent Mark</code>가 올바르게 끝나려면 최종적으로 <strong>도달 가능한 객체는 모두 black으로 수렴</strong>해야 합니다.</p>
+<hr>
+<h3 id="1-시작-상태"><a href="#1-시작-상태" class="headerlink" title="1. 시작 상태"></a>1. 시작 상태</h3><p><img src="/../../../img/JAVA/GC/Concurrent-Mark-Problem/Concurrent-Mark-Problem-1.png" alt="Concurrent-Mark-Problem-1"></p>
+<p>처음 상태에서는 <code>GC Root</code>에서 시작해 객체 <code>1 -&gt; 3 -&gt; 4 -&gt; 5</code> 와 <code>1 -&gt; 2</code> 같은 참조 관계가 보입니다.</p>
+<p>아직 아무 객체도 <code>marking</code> 되지 않았습니다. 이 상태는 단순히 <strong>“GC가 이제 Root부터 탐색을 시작하려고 한다”</strong> 정도로 이해하면 됩니다.</p>
+<hr>
+<h3 id="2-GC-Root에서-1번-객체를-먼저-본다"><a href="#2-GC-Root에서-1번-객체를-먼저-본다" class="headerlink" title="2. GC Root에서 1번 객체를 먼저 본다"></a>2. GC Root에서 1번 객체를 먼저 본다</h3><p><img src="/../../../img/JAVA/GC/Concurrent-Mark-Problem/Concurrent-Mark-Problem-2.png" alt="Concurrent-Mark-Problem-2"></p>
+<p><code>GC Root</code>가 가리키는 <code>1</code> 번 객체를 먼저 mark 합니다. 이 시점의 <code>1</code> 은 <strong>mark는 되었지만, 아직 그 내부 참조(3, 2)를 다 따라가진 않은 상태</strong>이므로 grey로 볼 수 있습니다.</p>
+<ul>
+<li><code>1</code> 은 탐색 대상이 되었고</li>
+<li>다음에는 <code>1</code> 이 가리키는 객체들을 따라가야 합니다</li>
+</ul>
+<hr>
+<h3 id="3-1번-탐색-완료-3번과-2번-mark"><a href="#3-1번-탐색-완료-3번과-2번-mark" class="headerlink" title="3. 1번 탐색 완료, 3번과 2번 mark"></a>3. 1번 탐색 완료, 3번과 2번 mark</h3><p><img src="/../../../img/JAVA/GC/Concurrent-Mark-Problem/Concurrent-Mark-Problem-3.png" alt="Concurrent-Mark-Problem-3"></p>
+<p>이제 <code>1</code> 의 참조를 따라가며 <code>3</code>, <code>2</code> 를 mark 합니다. 그리고 <code>1</code> 은 자식 탐색을 끝냈기 때문에 black으로 바뀝니다.</p>
+<ul>
+<li><code>1</code> &#x3D; black</li>
+<li><code>2</code>, <code>3</code> &#x3D; grey 또는 mark 되었지만 아직 완전 탐색 전</li>
+</ul>
+<p>이 단계까지는 문제가 없습니다. GC는 정상적으로 객체 그래프를 따라가고 있습니다.</p>
+<hr>
+<h3 id="4-2번-객체-탐색-완료"><a href="#4-2번-객체-탐색-완료" class="headerlink" title="4. 2번 객체 탐색 완료"></a>4. 2번 객체 탐색 완료</h3><p><img src="/../../../img/JAVA/GC/Concurrent-Mark-Problem/Concurrent-Mark-Problem-4.png" alt="Concurrent-Mark-Problem-4"></p>
+<p>이번에는 <code>2</code> 객체를 탐색하고 완료합니다. <code>2</code> 는 더 이상 따라갈 참조가 없으므로 black이 됩니다. 이제 남아 있는 주요 grey 객체는 <code>3</code> 입니다.</p>
+<hr>
+<h3 id="5-3번-객체-탐색-완료-직전"><a href="#5-3번-객체-탐색-완료-직전" class="headerlink" title="5. 3번 객체 탐색 완료 직전"></a>5. 3번 객체 탐색 완료 직전</h3><p><img src="/../../../img/JAVA/GC/Concurrent-Mark-Problem/Concurrent-Mark-Problem-5.png" alt="Concurrent-Mark-Problem-5"></p>
+<p>이제 <code>3</code> 도 탐색 대상입니다. <code>3</code> 이 가리키는 <code>4</code> 를 mark 하게 되고 점점 아래 방향으로 그래프 탐색이 진행됩니다.</p>
+<p>이 시점까지도 GC는 “현재 보이는 참조 그래프”를 기준으로 옳게 동작하고 있습니다.</p>
+<hr>
+<h3 id="6-애플리케이션이-참조를-바꾼다"><a href="#6-애플리케이션이-참조를-바꾼다" class="headerlink" title="6. 애플리케이션이 참조를 바꾼다"></a>6. 애플리케이션이 참조를 바꾼다</h3><p><img src="/../../../img/JAVA/GC/Concurrent-Mark-Problem/Concurrent-Mark-Problem-6.png" alt="Concurrent-Mark-Problem-6"></p>
+<p>이제 <code>concurrent marking의 핵심 문제</code>가 등장합니다. 애플리케이션이 실행되면서 원래 있던 참조 관계를 바꿉니다. 그림에서는 다음 변화가 일어납니다.</p>
+<ul>
+<li><code>1 -&gt; 5</code> 라는 <strong>새로운 참조가 추가</strong></li>
+<li><code>1 -&gt; 2</code> 라는 <strong>참조가 삭제</strong></li>
+<li><code>4 -&gt; 5</code> 라는 <strong>참조가 삭제</strong></li>
+</ul>
+<p>GC가 marking을 진행하는 도중에 객체 그래프가 바뀌고 있습니다. 바로 이 지점이 concurrent marking이 어려운 이유입니다.</p>
+<hr>
+<h3 id="7-4번-탐색-완료"><a href="#7-4번-탐색-완료" class="headerlink" title="7. 4번 탐색 완료"></a>7. 4번 탐색 완료</h3><p><img src="/../../../img/JAVA/GC/Concurrent-Mark-Problem/Concurrent-Mark-Problem-7.png" alt="Concurrent-Mark-Problem-7"></p>
+<p>GC는 자신의 시점에서 <code>4</code> 까지 정상적으로 탐색 완료합니다. 문제는 GC가 보고 있는 그래프와 애플리케이션이 실제로 바꿔 놓은 최신 그래프 사이에 차이가 생길 수 있다는 점입니다.</p>
+<p>즉 GC 입장에서는 <code>원래 경로를 따라 탐색하고 있다고 생각하지만</code> 실제 런타임에서는</p>
+<ul>
+<li>참조가 이미 삭제되었거나</li>
+<li>새 참조가 생겼을 수 있습니다</li>
+</ul>
+<hr>
+<h3 id="8-최종적으로-발생할-수-있는-잘못된-판단"><a href="#8-최종적으로-발생할-수-있는-잘못된-판단" class="headerlink" title="8. 최종적으로 발생할 수 있는 잘못된 판단"></a>8. 최종적으로 발생할 수 있는 잘못된 판단</h3><p><img src="/../../../img/JAVA/GC/Concurrent-Mark-Problem/Concurrent-Mark-Problem-8.png" alt="Concurrent-Mark-Problem-8"></p>
+<p>그림 마지막은 concurrent marking 문제를 아주 직관적으로 보여줍니다.</p>
+<p>예를 들면</p>
+<ul>
+<li>원래는 <strong>garbage 대상이 아니었는데 살아 있다고 판단하지 못하는 경우</strong></li>
+<li>반대로 <strong>garbage 대상인데도 살아 있다고 판단하는 경우</strong></li>
+</ul>
+<p>즉 concurrent marking 중 참조 변경이 겹치면 GC가 <strong>도달 가능성(reachability)</strong> 을 잘못 판단할 수 있습니다.</p>
+<hr>
+<h2 id="이-문제가-발생하기-위한-두-가지-조건"><a href="#이-문제가-발생하기-위한-두-가지-조건" class="headerlink" title="이 문제가 발생하기 위한 두 가지 조건"></a>이 문제가 발생하기 위한 두 가지 조건</h2><p>이 문제는 아무 때나 생기는 것이 아니라 보통 아래 <strong>두 조건이 동시에 맞아야</strong> 발생합니다.</p>
+<h3 id="1-Black-객체가-White-객체를-향한-새로운-참조를-추가한다"><a href="#1-Black-객체가-White-객체를-향한-새로운-참조를-추가한다" class="headerlink" title="1. Black 객체가 White 객체를 향한 새로운 참조를 추가한다"></a>1. Black 객체가 White 객체를 향한 새로운 참조를 추가한다</h3><p>이미 탐색이 끝난 black 객체가 아직 marking되지 않은 white 객체를 새롭게 가리키게 되는 경우입니다.</p>
+<p>GC 입장에서는 “black 객체는 이미 다 처리했으니 다시 안 봐도 된다”고 생각하는데 그 black 객체 안에 <strong>새 참조가 뒤늦게 생겨버린 상황</strong>입니다.</p>
+<hr>
+<h3 id="2-그-White-객체를-원래-참조하던-Grey-객체-또는-결국-Grey가-될-White-객체가-그-참조를-삭제한다"><a href="#2-그-White-객체를-원래-참조하던-Grey-객체-또는-결국-Grey가-될-White-객체가-그-참조를-삭제한다" class="headerlink" title="2. 그 White 객체를 원래 참조하던 Grey 객체 또는 결국 Grey가 될 White 객체가 그 참조를 삭제한다"></a>2. 그 White 객체를 원래 참조하던 Grey 객체 또는 결국 Grey가 될 White 객체가 그 참조를 삭제한다</h3><p>원래는 어떤 경로를 통해 그 white 객체에 도달할 수 있었는데, 그 참조가 지워져 버리면 GC는 그 객체를 놓칠 수 있습니다.</p>
+<p>원래 추적하던 경로는 사라지고 새로운 경로는 black 객체에 추가되었는데 그 black 객체는 이미 다시 스캔하지 않기 때문에 결국 그 white 객체를 marking하지 못하게 됩니다.</p>
+<hr>
+<h3 id="왜-이-두-조건이-같이-있어야-문제일까"><a href="#왜-이-두-조건이-같이-있어야-문제일까" class="headerlink" title="왜 이 두 조건이 같이 있어야 문제일까?"></a>왜 이 두 조건이 같이 있어야 문제일까?</h3><p>조금 더 쉽게 말하면 이렇습니다.</p>
+<p>어떤 white 객체가 살아 있으려면 최소한 한 경로를 따라 GC가 도달할 수 있어야 합니다. 그런데 concurrent 환경에서는</p>
+<ul>
+<li><strong>새 경로는 이미 탐색이 끝난 black 객체 안에 생기고</strong></li>
+<li><strong>옛 경로는 아직 탐색 중이던 쪽에서 사라지면</strong></li>
+</ul>
+<p>GC는 그 white 객체를 결국 발견하지 못할 수 있습니다.</p>
+<blockquote>
+<p><strong>살아 있는 객체인데도 marking에서 빠질 수 있다</strong></p>
+</blockquote>
+<p>는 것이 concurrent marking의 대표적인 위험입니다.</p>
+<hr>
+<h2 id="G1GC는-이-문제를-어떻게-해결하려고-할까"><a href="#G1GC는-이-문제를-어떻게-해결하려고-할까" class="headerlink" title="G1GC는 이 문제를 어떻게 해결하려고 할까?"></a>G1GC는 이 문제를 어떻게 해결하려고 할까?</h2><p>질문에서 정리해주신 핵심이 바로 이것입니다.</p>
+<blockquote>
+<p><strong>G1GC는 2번 조건이 성립하지 않도록 해서 이 문제를 완화하려고 한다.</strong></p>
+</blockquote>
+<p>G1GC는 “원래 white 객체를 가리키던 참조가 사라져버리는 문제”를 그냥 없던 일처럼 보지 않도록 처리합니다. 이 아이디어는 <strong>SATB(Snapshot-At-The-Beginning)</strong> 관점으로 이해하면 쉽습니다.</p>
+<hr>
+<h3 id="SATB-관점에서-보면"><a href="#SATB-관점에서-보면" class="headerlink" title="SATB 관점에서 보면"></a>SATB 관점에서 보면</h3><p>G1GC의 <code>concurrent marking</code>은 “marking 시작 시점의 객체 그래프 스냅샷”을 기준으로 살아 있는 객체를 찾으려는 방향에 가깝습니다.</p>
+<p>즉</p>
+<ul>
+<li>marking 도중 참조가 삭제되더라도</li>
+<li><strong>그 삭제되기 전의 참조를 기록해 두어</strong></li>
+<li>GC가 나중에라도 그 객체를 다시 볼 수 있게 만듭니다</li>
+</ul>
+<p>쉽게 말하면</p>
+<blockquote>
+<p><strong>참조가 끊기기 전에, 그 이전 값을 따로 기억해 두는 방식</strong> 입니다. 그러면 위의 2번 조건 “원래 따라가야 했던 경로가 완전히 사라져서 white 객체를 놓치는 상황”을 막을 수 있습니다.</p>
+</blockquote>
+<hr>
+<h3 id="G1GC에서-SATB-Buffer와-Mark-Stack은-왜-필요할까-Concurrent-Mark-중-참조-변경이-있어도-객체를-놓치지-않는-방법"><a href="#G1GC에서-SATB-Buffer와-Mark-Stack은-왜-필요할까-Concurrent-Mark-중-참조-변경이-있어도-객체를-놓치지-않는-방법" class="headerlink" title="G1GC에서 SATB Buffer와 Mark Stack은 왜 필요할까? - Concurrent Mark 중 참조 변경이 있어도 객체를 놓치지 않는 방법"></a>G1GC에서 <code>SATB Buffer</code>와 <code>Mark Stack</code>은 왜 필요할까? - <code>Concurrent Mark</code> 중 참조 변경이 있어도 객체를 놓치지 않는 방법</h3><p>G1GC의 <code>Concurrent Mark</code>는 애플리케이션과 동시에 동작합니다. GC가 객체 그래프를 탐색하는 동안에도 <code>애플리케이션 스레드(mutator thread)</code>는 참조를 계속 바꿀 수 있습니다.</p>
+<p>문제는 여기서 발생합니다.</p>
+<blockquote>
+<p><strong>GC가 아직 보지 못한 객체를, 애플리케이션이 참조 관계 변경 때문에 놓칠 수 있다.</strong></p>
+</blockquote>
+<p>G1GC는 이 문제를 줄이기 위해 <strong>SATB(Snapshot-At-The-Beginning)</strong> 방식과 <strong>SATB Buffer</strong>, <strong>Mark Stack</strong> 을 함께 사용합니다.</p>
+<p>핵심은 단순합니다.</p>
+<ul>
+<li>평소에는 <strong>Mark Stack</strong> 으로 그래프를 따라가며 marking 하고</li>
+<li>concurrent marking 중 참조가 끊어질 때는</li>
+<li><strong>예전 참조값(old reference)</strong> 을 <strong>SATB Buffer</strong> 에 기록해 둔 뒤</li>
+<li>나중에 remark 단계에서 다시 mark stack으로 가져와 놓친 객체가 없는지 보완합니다</li>
+</ul>
+<p>즉 SATB Buffer는 <strong>“concurrent marking 중 변경된 참조를 임시로 기록하는 보조 장치”</strong> 이고 Mark Stack은 <strong>“실제로 탐색할 객체 주소를 쌓아 두는 작업 스택”</strong> 이라고 이해하면 됩니다.</p>
+<hr>
+<h3 id="설명-전-용어-정리-해보자"><a href="#설명-전-용어-정리-해보자" class="headerlink" title="설명 전 용어 정리 해보자"></a>설명 전 용어 정리 해보자</h3><h4 id="Mark-Stack"><a href="#Mark-Stack" class="headerlink" title="Mark Stack"></a>Mark Stack</h4><p>GC가 앞으로 탐색할 객체 주소를 담아 두는 스택입니다. <code>GC thread</code>는 여기서 객체를 pop 하며 그래프를 탐색합니다.</p>
+<h4 id="Local-SATB-Buffer"><a href="#Local-SATB-Buffer" class="headerlink" title="Local SATB Buffer"></a>Local SATB Buffer</h4><p>각 <code>mutator thread</code>가 참조 변경 시 <strong>삭제되기 전(old value)</strong> 참조를 잠시 기록하는 로컬 버퍼입니다.</p>
+<h4 id="Global-SATB-Buffer"><a href="#Global-SATB-Buffer" class="headerlink" title="Global SATB Buffer"></a>Global SATB Buffer</h4><p>Remark 단계에서 <code>Local SATB Buffer</code>에 있던 값들을 모아 두는 전역 큐&#x2F;버퍼 개념입니다.</p>
+<h4 id="old-value를-기록할까"><a href="#old-value를-기록할까" class="headerlink" title="old value를 기록할까?"></a>old value를 기록할까?</h4><p>SATB의 핵심은 <strong>“marking 시작 시점에 살아 있던 객체는 끝까지 살아 있다고 보자”</strong> 라는 관점입니다. 그래서 concurrent marking 도중 참조가 끊어져도 끊기기 전 참조값을 따로 기억해 두었다가 다시 확인합니다.</p>
+<hr>
+<h3 id="전체-흐름-확인-해보기"><a href="#전체-흐름-확인-해보기" class="headerlink" title="전체 흐름 확인 해보기"></a>전체 흐름 확인 해보기</h3><p>이번 그림 흐름은 아래처럼 이해하면 됩니다.</p>
+<ol>
+<li>Concurrent Mark 시작</li>
+<li>Root에서 시작해 Mark Stack으로 객체 탐색</li>
+<li>애플리케이션이 참조를 변경</li>
+<li>pre-write barrier가 old reference를 Local SATB Buffer에 기록</li>
+<li>Remark 단계에서 Local SATB Buffer 내용을 처리</li>
+<li>조건에 맞는 객체만 Mark Stack으로 다시 넣음</li>
+<li>최종적으로 놓칠 수 있었던 객체까지 marking 완료</li>
+</ol>
+<p>즉 SATB Buffer는 <strong>Concurrent Mark 도중 참조 변경으로 인해 marking 누락이 생기지 않도록 보완하는 장치</strong>입니다.</p>
+<hr>
+<h3 id="1-Marking-시작"><a href="#1-Marking-시작" class="headerlink" title="1. Marking 시작"></a>1. Marking 시작</h3><p><img src="/../../../img/JAVA/GC/SATB-buffer&mark-stack/SATB-buffer&mark-stack-1.png" alt="SATB-buffer&amp;mark-stack-1"></p>
+<p><code>Concurrent Mark</code>가 시작됩니다. 이 시점부터 <strong>애플리케이션도 동시에 실행</strong>됩니다. 아직 mark stack은 비어 있고 SATB Buffer도 비어 있습니다.</p>
+<hr>
+<h3 id="2-Concurrent-Start"><a href="#2-Concurrent-Start" class="headerlink" title="2. Concurrent Start"></a>2. Concurrent Start</h3><p><img src="/../../../img/JAVA/GC/SATB-buffer&mark-stack/SATB-buffer&mark-stack-2.png" alt="SATB-buffer&amp;mark-stack-2"></p>
+<p>Young GC에 맞춰 <strong>Concurrent Start(STW)</strong> 가 발생합니다. 이때 <code>GC Root</code>에서 시작해 <strong>1번 객체를 mark stack에 push</strong> 합니다. 즉 본격적인 그래프 탐색의 시작점이 stack에 들어간 것입니다.</p>
+<ul>
+<li>GC Root가 가리키는 시작 객체를 mark stack에 넣음</li>
+<li>이후부터 mark stack 기반 탐색 시작</li>
+</ul>
+<hr>
+<h3 id="3-Root-Region-Scan-이후-1번-pop"><a href="#3-Root-Region-Scan-이후-1번-pop" class="headerlink" title="3. Root Region Scan 이후 1번 pop"></a>3. Root Region Scan 이후 1번 pop</h3><p><img src="/../../../img/JAVA/GC/SATB-buffer&mark-stack/SATB-buffer&mark-stack-3.png" alt="SATB-buffer&amp;mark-stack-3"></p>
+<p>이번 예제에서는 <strong>Young Region이 없다고 가정</strong>하므로 <code>Root Region Scan</code>은 특별한 추가 작업 없이 넘어갑니다. 그 다음 concurrent marking 단계로 진입하고 mark stack에 있던 <strong>1번 객체를 pop</strong> 해서 탐색합니다.</p>
+<hr>
+<h3 id="4-2번-3번-push"><a href="#4-2번-3번-push" class="headerlink" title="4. 2번, 3번 push"></a>4. 2번, 3번 push</h3><p><img src="/../../../img/JAVA/GC/SATB-buffer&mark-stack/SATB-buffer&mark-stack-4.png" alt="SATB-buffer&amp;mark-stack-4"></p>
+<p>1번 객체가 참조하는 객체를 보니 <strong>2번, 3번 객체</strong>가 있습니다. 따라서 이 둘을 <strong>mark stack에 push</strong> 합니다.</p>
+<ul>
+<li>1번은 탐색 완료 방향으로 가고</li>
+<li>다음 탐색 대상은 2, 3번이 됩니다</li>
+</ul>
+<hr>
+<h3 id="5-2번-pop"><a href="#5-2번-pop" class="headerlink" title="5. 2번 pop"></a>5. 2번 pop</h3><p><img src="/../../../img/JAVA/GC/SATB-buffer&mark-stack/SATB-buffer&mark-stack-5.png" alt="SATB-buffer&amp;mark-stack-5"></p>
+<p>이제 <strong>2번 객체를 pop</strong> 해서 탐색합니다. 하지만 2번이 참조하는 <code>reachable 객체</code>는 더 이상 없습니다. 추가 push 없이 끝납니다.</p>
+<hr>
+<h3 id="6-3번-pop-4번-push"><a href="#6-3번-pop-4번-push" class="headerlink" title="6. 3번 pop, 4번 push"></a>6. 3번 pop, 4번 push</h3><p><img src="/../../../img/JAVA/GC/SATB-buffer&mark-stack/SATB-buffer&mark-stack-6.png" alt="SATB-buffer&amp;mark-stack-6"></p>
+<p>다음은 <strong>3번 객체를 pop</strong> 합니다. 3번은 <strong>4번 객체를 참조</strong>하고 있으므로 <strong>4번 객체를 mark stack에 push</strong> 합니다.</p>
+<h3 id="7-애플리케이션이-참조를-바꿈"><a href="#7-애플리케이션이-참조를-바꿈" class="headerlink" title="7. 애플리케이션이 참조를 바꿈"></a>7. 애플리케이션이 참조를 바꿈</h3><p><img src="/../../../img/JAVA/GC/SATB-buffer&mark-stack/SATB-buffer&mark-stack-7.png" alt="SATB-buffer&amp;mark-stack-7"></p>
+<p>여기서 concurrent marking의 핵심 상황이 나옵니다. 애플리케이션이 실행되면서 참조 관계를 바꿉니다.</p>
+<ul>
+<li><code>1 -&gt; 2</code> 참조를 끊음</li>
+<li><code>4 -&gt; 5</code> 참조를 끊음</li>
+<li>대신 <code>1 -&gt; 5</code> 참조를 새로 추가함</li>
+</ul>
+<p>이때 <strong>pre-write barrier</strong> 가 동작합니다. 중요한 점은, G1GC는 <strong>새 참조(new value)</strong> 가 아니라 <strong>끊기기 전 참조(old value)</strong> 를 기록한다는 것입니다.</p>
+<p>그래서</p>
+<ul>
+<li>끊긴 old reference인 <strong>2</strong></li>
+<li>끊긴 old reference인 <strong>5</strong></li>
+</ul>
+<p>이 두 객체 주소를 <strong>Local SATB Buffer</strong> 에 넣습니다.</p>
+<h4 id="핵심-2"><a href="#핵심-2" class="headerlink" title="핵심"></a>핵심</h4><ul>
+<li>참조 변경이 생김</li>
+<li>pre-write barrier가 old value를 Local SATB Buffer에 기록</li>
+<li>이번 예시에서는 2, 5가 기록됨</li>
+</ul>
+<hr>
+<h3 id="8-4번-pop"><a href="#8-4번-pop" class="headerlink" title="8. 4번 pop"></a>8. 4번 pop</h3><p><img src="/../../../img/JAVA/GC/SATB-buffer&mark-stack/SATB-buffer&mark-stack-8.png" alt="SATB-buffer&amp;mark-stack-8"></p>
+<p>이제 GC는 <code>mark stack</code>에 있던 <strong>4번 객체를 pop</strong> 합니다. 그런데 이미 애플리케이션이 참조를 바꿨기 때문에 4번은 더 이상 참조하는 객체가 없습니다. GC 입장에서는 여기서 탐색이 끝난 것처럼 보일 수 있습니다.</p>
+<p>바로 이런 상황 때문에 <code>SATB Buffer</code>가 필요합니다. 원래는 4가 5를 가리키고 있었지만 그 참조가 끊겨서 그냥 현재 그래프만 보면 5를 놓칠 수도 있기 때문입니다.</p>
+<h4 id="핵심-3"><a href="#핵심-3" class="headerlink" title="핵심"></a>핵심</h4><ul>
+<li>현재 시점의 그래프만 보면 5를 놓칠 수 있음</li>
+<li>그래서 old reference 기록이 필요함</li>
+</ul>
+<hr>
+<h3 id="9-Remark-단계-진입"><a href="#9-Remark-단계-진입" class="headerlink" title="9. Remark 단계 진입"></a>9. Remark 단계 진입</h3><p><img src="/../../../img/JAVA/GC/SATB-buffer&mark-stack/SATB-buffer&mark-stack-9.png" alt="SATB-buffer&amp;mark-stack-9"></p>
+<p>이제 <strong>Remark 단계(STW)</strong> 로 들어갑니다.</p>
+<p><code>Remark</code> 에서는 <code>concurrent marking</code> 도중 남아 있던 작업을 마무리하는데 그중 중요한 것이 바로 <strong>SATB Buffer 처리</strong>입니다.</p>
+<p>이 단계에서</p>
+<ul>
+<li>특정 mutator thread의 <strong>Local SATB Buffer</strong> 에 있던 값들</li>
+<li>예: <strong>5, 2</strong></li>
+<li>을 <strong>Global SATB Buffer</strong> 쪽으로 enqueue 합니다</li>
+</ul>
+<p>즉 concurrent 중에 임시로 기록해 둔 <code>old reference</code>들을 이제 GC가 정식으로 처리할 수 있는 단계로 넘기는 것입니다.</p>
+<h4 id="핵심-4"><a href="#핵심-4" class="headerlink" title="핵심"></a>핵심</h4><ul>
+<li>Remark는 STW</li>
+<li>Local SATB Buffer의 주소들을 GC가 처리 가능한 위치로 넘김</li>
+</ul>
+<hr>
+<h3 id="10-SATB-Buffer-→-Mark-Stack-이동-시-필터링"><a href="#10-SATB-Buffer-→-Mark-Stack-이동-시-필터링" class="headerlink" title="10. SATB Buffer → Mark Stack 이동 시 필터링"></a>10. SATB Buffer → Mark Stack 이동 시 필터링</h3><p><img src="/../../../img/JAVA/GC/SATB-buffer&mark-stack/SATB-buffer&mark-stack-10.png" alt="SATB-buffer&amp;mark-stack-10"></p>
+<p>이제 SATB Buffer에 있던 주소들을 다시 <strong>mark stack</strong> 으로 가져오려 합니다. 하지만 무조건 다 넣지는 않습니다. 가져올 때 아래 조건으로 <strong>필터링(discard)</strong> 합니다.</p>
+<h4 id="discard-조건"><a href="#discard-조건" class="headerlink" title="discard 조건"></a>discard 조건</h4><ol>
+<li><strong>TAMS 포인터 이후에 할당된 객체</strong></li>
+<li><strong>이미 marking된 객체</strong></li>
+<li><strong>young 객체</strong></li>
+</ol>
+<p>즉 SATB Buffer에 들어 있다고 해서 무조건 <code>mark stack</code>으로 보내는 것은 아니고 정말 다시 볼 필요가 있는 객체만 남깁니다.</p>
+<h4 id="핵심-5"><a href="#핵심-5" class="headerlink" title="핵심"></a>핵심</h4><ul>
+<li>SATB Buffer는 보조 자료구조</li>
+<li>mark stack으로 다시 넣기 전에 필요 없는 값은 걸러냄</li>
+</ul>
+<hr>
+<h3 id="11-5번만-mark-stack에-들어감"><a href="#11-5번만-mark-stack에-들어감" class="headerlink" title="11. 5번만 mark stack에 들어감"></a>11. 5번만 mark stack에 들어감</h3><p><img src="/../../../img/JAVA/GC/SATB-buffer&mark-stack/SATB-buffer&mark-stack-11.png" alt="SATB-buffer&amp;mark-stack-11"></p>
+<p>이번 예제에서는 Local SATB Buffer에 있던 <code>5</code>, <code>2</code> 중에서 조건에 맞는 것은 <strong>5번 객체만</strong> 남습니다. 따라서 <strong>5번 객체만 mark stack에 dequeue</strong> 됩니다.</p>
+<ul>
+<li>2번은 이미 marking 되었거나, 다시 볼 필요가 없다고 판단</li>
+<li>5번은 아직 marking 누락 가능성이 있으므로 <code>mark stack</code>으로 보냄</li>
+</ul>
+<hr>
+<h3 id="12-5번-pop-후-최종-marking"><a href="#12-5번-pop-후-최종-marking" class="headerlink" title="12. 5번 pop 후 최종 marking"></a>12. 5번 pop 후 최종 marking</h3><p><img src="/../../../img/JAVA/GC/SATB-buffer&mark-stack/SATB-buffer&mark-stack-12.png" alt="SATB-buffer&amp;mark-stack-12"></p>
+<p>마지막으로 <code>mark stack</code>에 올라간 <strong>5번 객체를 pop</strong> 해서 marking 처리합니다.</p>
+<p>이렇게 하면 concurrent marking 중 참조가 끊겼더라도 원래 살아 있었어야 할 객체를 놓치지 않고 최종적으로 marking 할 수 있습니다.</p>
+<p>SATB Buffer와 Mark Stack이 함께 동작해서 <strong>concurrent 환경에서도 marking 누락을 줄이는 것</strong>입니다.</p>
+<h4 id="핵심-6"><a href="#핵심-6" class="headerlink" title="핵심"></a>핵심</h4><ul>
+<li>5번 객체를 최종적으로 marking</li>
+<li>concurrent 중 참조 변경이 있어도 reachable 객체 누락 방지</li>
+</ul>
+<hr>
+<h2 id="이-흐름의-핵심-의미-설명"><a href="#이-흐름의-핵심-의미-설명" class="headerlink" title="이 흐름의 핵심 의미 설명"></a>이 흐름의 핵심 의미 설명</h2><p>이번 12장의 그림이 보여주는 핵심은 아래와 같습니다.</p>
+<h3 id="1-Mark-Stack은-“탐색-작업용”"><a href="#1-Mark-Stack은-“탐색-작업용”" class="headerlink" title="1. Mark Stack은 “탐색 작업용”"></a>1. Mark Stack은 “탐색 작업용”</h3><p>GC thread가 실제로 따라갈 객체를 쌓아 두는 곳입니다.</p>
+<h3 id="2-SATB-Buffer는-“참조-변경-보완용”"><a href="#2-SATB-Buffer는-“참조-변경-보완용”" class="headerlink" title="2. SATB Buffer는 “참조 변경 보완용”"></a>2. SATB Buffer는 “참조 변경 보완용”</h3><p>애플리케이션이 concurrent 중 참조를 끊으면<br>그 <strong>old reference</strong> 를 잠시 저장하는 버퍼입니다.</p>
+<h3 id="3-pre-write-barrier가-old-value를-기록한다"><a href="#3-pre-write-barrier가-old-value를-기록한다" class="headerlink" title="3. pre-write barrier가 old value를 기록한다"></a>3. pre-write barrier가 old value를 기록한다</h3><p>새 참조가 아니라, <strong>끊기기 전 참조값</strong> 을 기록합니다.</p>
+<h3 id="4-Remark에서-SATB-Buffer를-비운다"><a href="#4-Remark에서-SATB-Buffer를-비운다" class="headerlink" title="4. Remark에서 SATB Buffer를 비운다"></a>4. Remark에서 SATB Buffer를 비운다</h3><p>Local &#x2F; Global SATB Buffer의 내용을 정리하고,<br>필요한 객체만 다시 mark stack에 넣습니다.</p>
+<h3 id="5-최종적으로-reachable-객체를-놓치지-않는다"><a href="#5-최종적으로-reachable-객체를-놓치지-않는다" class="headerlink" title="5. 최종적으로 reachable 객체를 놓치지 않는다"></a>5. 최종적으로 reachable 객체를 놓치지 않는다</h3><p>즉, concurrent marking의 약점을<br>SATB Buffer + Remark + Mark Stack 보완 과정으로 해결합니다.</p>
+<ul>
+<li><strong>Mark Stack</strong>: GC가 지금부터 탐색할 객체 목록</li>
+<li><strong>Local SATB Buffer</strong>: mutator thread가 old reference를 임시 저장</li>
+<li><strong>Global SATB Buffer</strong>: remark 때 GC가 가져갈 버퍼</li>
+<li><strong>pre-write barrier</strong>: 참조 변경 전 old value 기록</li>
+<li><strong>remark</strong>: SATB Buffer를 비우고 필요한 객체를 다시 mark stack에 적재</li>
+<li><strong>결과</strong>: concurrent 중 참조가 끊겨도 객체를 놓치지 않음</li>
+</ul>
+<hr>
+<h3 id="정리해자면"><a href="#정리해자면" class="headerlink" title="정리해자면?"></a>정리해자면?</h3><blockquote>
+<p><strong>G1GC는 concurrent marking 중 참조가 바뀌어도 reachable 객체를 놓치지 않기 위해, pre-write barrier로 old reference를 SATB Buffer에 기록하고 remark 단계에서 이를 mark stack으로 다시 옮겨 최종 marking한다.</strong></p>
+</blockquote>
+<hr>
+<h2 id="G1GC-Mixed-GC에서-Remembered-Set이-왜-필요할까"><a href="#G1GC-Mixed-GC에서-Remembered-Set이-왜-필요할까" class="headerlink" title="G1GC Mixed GC에서 Remembered Set이 왜 필요할까?"></a>G1GC Mixed GC에서 Remembered Set이 왜 필요할까?</h2><h3 id="수집-대상-Old-Region-안의-살아-있는-객체를-놓치지-않는-방법"><a href="#수집-대상-Old-Region-안의-살아-있는-객체를-놓치지-않는-방법" class="headerlink" title="수집 대상 Old Region 안의 살아 있는 객체를 놓치지 않는 방법"></a>수집 대상 Old Region 안의 살아 있는 객체를 놓치지 않는 방법</h3><p><code>G1GC의 Mixed GC</code>는 <strong>Young Generation 전체 + 일부 Selected Old Region</strong> 만 골라서 수집합니다. Old Generation 전체를 한 번에 수집하지 않고 <strong>Collection Set(CSet)</strong> 으로 <code>선택된 Region</code>만 대상으로 삼습니다.</p>
+<p>이 방식은 pause time을 줄이는 데 유리하지만 한 가지 문제가 생깁니다.</p>
+<blockquote>
+<p><strong>수집 대상 Region 안의 살아 있는 객체가 수집 대상이 아닌 다른 Old Region을 통해서만 도달 가능하다면 어떻게 할까?</strong></p>
+</blockquote>
+<p>이 문제를 해결하는 장치가 바로 <strong>Remembered Set</strong> 입니다. 9장의 이미지 통해 흐름을 따라가며 <code>Mixed GC</code> 에서 <code>Remembered Set</code>이 왜 필요한지 정리해보겠습니다.</p>
+<hr>
+<p>Mixed GC는 다음처럼 동작합니다.</p>
+<ul>
+<li><strong>Young &#x2F; Survivor Region</strong> 은 당연히 수집 대상</li>
+<li>여기에 <strong>Garbage가 많다고 판단된 일부 Old Region</strong> 을 추가로 선택</li>
+<li>선택된 Region(CSet)에 있는 살아 있는 객체는 다른 Region으로 <strong>evacuation</strong></li>
+<li>이후 비워진 Region은 회수</li>
+</ul>
+<p>그런데 문제는 선택된 Old Region 안에 있는 객체가 <strong>선택되지 않은 다른 Old Region을 통해서만 참조</strong>되고 있다면 그 객체를 놓칠 수 있다는 점입니다.</p>
+<p>그래서 G1GC는 <strong>각 Region마다 외부에서 자신을 참조하는 정보</strong>를 <code>Remembered Set</code>으로 따로 관리합니다.</p>
+<hr>
+<h4 id="1-Mixed-GC의-기본-대상"><a href="#1-Mixed-GC의-기본-대상" class="headerlink" title="1. Mixed GC의 기본 대상"></a>1. Mixed GC의 기본 대상</h4><p><img src="/../../../img/JAVA/GC/MixedGC%E2%80%93RememberedSet/MixedGC%E2%80%93RememberedSet-1.png" alt="MixedGC–RememberedSet-1"></p>
+<p>Mixed GC는 기본적으로 다음을 수집합니다.</p>
+<ul>
+<li><strong>Young Generation</strong></li>
+<li><strong>Survivor Region</strong></li>
+<li>그리고 <strong>일부 Selected Old Region</strong></li>
+</ul>
+<p>그냥 Young GC가 아니라 Young에 Old Region 일부를 얹어서 같이 처리하는 방식입니다.</p>
+<p>이미지에서는 각 Region 안에 객체 참조 관계가 그려져 있고 이제 이 중 일부 Region이 <code>CSet</code> 으로 선택될 준비를 하고 있습니다.</p>
+<hr>
+<h4 id="2-이번-Mixed-GC에서-수집할-Region-선택"><a href="#2-이번-Mixed-GC에서-수집할-Region-선택" class="headerlink" title="2. 이번 Mixed GC에서 수집할 Region 선택"></a>2. 이번 Mixed GC에서 수집할 Region 선택</h4><p><img src="/../../../img/JAVA/GC/MixedGC%E2%80%93RememberedSet/MixedGC%E2%80%93RememberedSet-2.png" alt="MixedGC–RememberedSet-2"></p>
+<p>노란색 박스로 표시된 Region이 이번 Mixed GC의 <strong>수집 대상 Region(Collection Set)</strong> 입니다.</p>
+<p>여기서 중요한 점은 두 가지입니다.</p>
+<ol>
+<li>Young &#x2F; Survivor Region은 기본적으로 수집 대상</li>
+<li>Old Region도 일부만 선택적으로 수집 대상이 됨</li>
+</ol>
+<p>이번 cycle에서는 <strong>선택된 Region 안에 있는 객체들만 evacuation 대상</strong>이 됩니다.</p>
+<hr>
+<h4 id="3-1번-객체-evacuation"><a href="#3-1번-객체-evacuation" class="headerlink" title="3. 1번 객체 evacuation"></a>3. 1번 객체 evacuation</h4><p><img src="/../../../img/JAVA/GC/MixedGC%E2%80%93RememberedSet/MixedGC%E2%80%93RememberedSet-3.png" alt="MixedGC–RememberedSet-3"></p>
+<p>이제 실제 <code>evacuation</code>이 시작됩니다. GC Root가 직접 참조하는 <strong>1번 객체</strong>가 있고 1번 객체는 이번 Mixed GC에서 수집 대상 Region 안에 있습니다.</p>
+<p>따라서 1번 객체는 다른 Region에 새로 마련된 <strong>Survivor Region</strong> 으로 이동합니다. (1번 객체는 새 Survivor Region으로 evacuation) 즉 Mixed GC도 기본적으로는 <strong>살아 있는 객체를 새 위치로 복사(evacuation)</strong> 하는 방식입니다.</p>
+<hr>
+<h4 id="4-5-6번-객체도-수집-대상이므로-이동"><a href="#4-5-6번-객체도-수집-대상이므로-이동" class="headerlink" title="4. 5, 6번 객체도 수집 대상이므로 이동"></a>4. 5, 6번 객체도 수집 대상이므로 이동</h4><p><img src="/../../../img/JAVA/GC/MixedGC%E2%80%93RememberedSet/MixedGC%E2%80%93RememberedSet-4.png" alt="MixedGC–RememberedSet-4"></p>
+<p>이제 1번 객체가 참조하는 객체를 따라갑니다. 1번 객체는 <strong>5번 객체</strong>를 참조하고 있고 5번 객체는 다시 <strong>6번 객체</strong>를 참조합니다.</p>
+<p>그리고 중요한 점은</p>
+<ul>
+<li>5번, 6번이 속한 Region이 <strong>이번 Mixed GC의 수집 대상 Region</strong> 이라는 것입니다.</li>
+</ul>
+<p>그래서 5번 객체만 보는 것이 아니라 그와 연결된 6번 객체까지 포함해서 <strong>새로운 Old Region</strong> 으로 함께 이동시킵니다.</p>
+<p>평소 Young GC였다면 Old Region은 보통 그대로 두었겠지만 이번에는 <strong>Mixed GC</strong> 이기 때문에 선택된 Old Region도 진짜 수집 대상으로 다뤄집니다.</p>
+<hr>
+<h4 id="5-Young-Generation-Remembered-Set을-통해-4번-객체-이동"><a href="#5-Young-Generation-Remembered-Set을-통해-4번-객체-이동" class="headerlink" title="5. Young Generation Remembered Set을 통해 4번 객체 이동"></a>5. Young Generation Remembered Set을 통해 4번 객체 이동</h4><p><img src="/../../../img/JAVA/GC/MixedGC%E2%80%93RememberedSet/MixedGC%E2%80%93RememberedSet-5.png" alt="MixedGC–RememberedSet-5"></p>
+<p>이제 <strong>Young Generation Remembered Set</strong> 을 봅니다. 그 정보를 따라가면 <strong>2번 객체</strong>, 그리고 이어서 <strong>4번 객체(Survivor Region)</strong> 를 찾을 수 있습니다.</p>
+<p>그리고 4번 객체가 속한 Region 역시 이번 수집 대상이기 때문에 4번 객체도 <code>새로 생성된 Survivor Region</code>으로 이동합니다.</p>
+<p>Mixed GC는 단순히 Root만 보는 것이 아니라 Young 쪽에서 들어오는 cross-region 참조도 함께 고려해야 합니다.</p>
+<hr>
+<h4 id="6-8번-Region이-수집-대상이-아니면-어떤-문제가-생길까"><a href="#6-8번-Region이-수집-대상이-아니면-어떤-문제가-생길까" class="headerlink" title="6. 8번 Region이 수집 대상이 아니면 어떤 문제가 생길까?"></a>6. 8번 Region이 수집 대상이 아니면 어떤 문제가 생길까?</h4><p><img src="/../../../img/JAVA/GC/MixedGC%E2%80%93RememberedSet/MixedGC%E2%80%93RememberedSet-6.png" alt="MixedGC–RememberedSet-6"></p>
+<p>여기서 문제가 드러납니다. 1번 객체는 <strong>8번 객체</strong>를 참조합니다. 그런데 8번 객체가 속한 Region은 <strong>이번 Mixed GC의 수집 대상이 아닙니다.</strong> 그러면 GC는 보통 이렇게 생각할 수 있습니다.</p>
+<ul>
+<li>8번 객체는 이번에 건드리지 않음</li>
+<li>그 뒤는 더 깊게 안 봄</li>
+</ul>
+<p>그런데 이 경우 문제가 생깁니다.</p>
+<p>실제 참조 흐름은 다음과 같을 수 있습니다.</p>
+<ul>
+<li><code>GC Root -&gt; 1 -&gt; 8 -&gt; 3 -&gt; 7</code></li>
+</ul>
+<p>즉 <strong>7번 객체가 이번 수집 대상 Region 안에 있는데도</strong> 중간의 8번 Region이 수집 대상이 아니라는 이유로 그 경로를 제대로 따라가지 않으면 <strong>7번 객체를 살아 있는 객체로 찾지 못할 수 있습니다.</strong></p>
+<p>결국 7번 객체가 살아 있음에도 잘못 회수될 위험이 생깁니다.</p>
+<hr>
+<h4 id="7-해결책-Region마다-Remembered-Set"><a href="#7-해결책-Region마다-Remembered-Set" class="headerlink" title="7. 해결책 - Region마다 Remembered Set"></a>7. 해결책 - Region마다 Remembered Set</h4><p><img src="/../../../img/JAVA/GC/MixedGC%E2%80%93RememberedSet/MixedGC%E2%80%93RememberedSet-7.png" alt="MixedGC–RememberedSet-7"></p>
+<p>이 문제를 해결하기 위해 G1GC는 <strong>각 Region마다 자신을 참조하는 외부 참조 정보</strong>를 Remembered Set으로 유지합니다.</p>
+<p>이미지에서 <code>Remembered Set of 7</code> 을 주목하면 이 정보 덕분에 <strong>7번 객체로 들어오는 외부 참조가 있다</strong>는 사실을 알 수 있습니다.</p>
+<p>즉 GC가 굳이 전체 Old Generation을 전부 다시 스캔하지 않아도 <strong>“누가 이 Region을 참조하고 있는지”</strong> 를 Remembered Set을 통해 빠르게 찾을 수 있습니다.</p>
+<hr>
+<h4 id="8-7번-객체를-정상적으로-evacuation"><a href="#8-7번-객체를-정상적으로-evacuation" class="headerlink" title="8. 7번 객체를 정상적으로 evacuation"></a>8. 7번 객체를 정상적으로 evacuation</h4><p><img src="/../../../img/JAVA/GC/MixedGC%E2%80%93RememberedSet/MixedGC%E2%80%93RememberedSet-8.png" alt="MixedGC–RememberedSet-8"></p>
+<p>이제 <code>Remembered Set of 7</code> 정보를 통해 7번 객체가 외부 Region에서 참조되고 있다는 사실을 알게 됩니다.</p>
+<p>그리고 7번 객체가 속한 Region은 이번 Mixed GC의 수집 대상이므로  7번 객체도 <strong>이전에 생성된 새 Old Region</strong> 으로 정상적으로 이동시킵니다.</p>
+<p>아까 이미지 6에서 생길 수 있었던 문제를 Remembered Set 덕분에 해결한 것입니다.</p>
+<hr>
+<h4 id="9-수집-대상-Region을-안전하게-회수"><a href="#9-수집-대상-Region을-안전하게-회수" class="headerlink" title="9. 수집 대상 Region을 안전하게 회수"></a>9. 수집 대상 Region을 안전하게 회수</h4><p><img src="/../../../img/JAVA/GC/MixedGC%E2%80%93RememberedSet/MixedGC%E2%80%93RememberedSet-9.png" alt="MixedGC–RememberedSet-9"></p>
+<p>이제 수집 대상 Region 안의 살아 있는 객체들이 필요한 곳으로 모두 이동했습니다.</p>
+<p>그 결과</p>
+<ul>
+<li>선택된 Region 내부는 비워지고</li>
+<li>안전하게 reclaim 가능해집니다</li>
+<li>그리고 무엇보다 <strong>7번 객체를 잘못 가비지로 처리하는 문제도 발생하지 않습니다</strong></li>
+</ul>
+<p>즉 Mixed GC에서 Remembered Set은 단순 최적화가 아니라 <strong>정확성을 지키기 위해 꼭 필요한 장치</strong>입니다.</p>
+<hr>
+<h3 id="왜-Remembered-Set이-꼭-필요할까"><a href="#왜-Remembered-Set이-꼭-필요할까" class="headerlink" title="왜 Remembered Set이 꼭 필요할까?"></a>왜 Remembered Set이 꼭 필요할까?</h3><p>이 글의 핵심은 사실 한 문장으로 정리할 수 있습니다.</p>
+<blockquote>
+<p><strong>Mixed GC는 Old 전체를 다 스캔하지 않기 때문에 수집 대상 Region 안으로 들어오는 외부 참조를 Remembered Set으로 따로 알고 있어야 한다.</strong></p>
+</blockquote>
+<p>만약 Remembered Set이 없다면</p>
+<ul>
+<li>수집 대상이 아닌 Old Region을 통해 들어오는 경로를 놓칠 수 있고</li>
+<li>그 결과 수집 대상 Region 안의 살아 있는 객체를 못 찾을 수 있으며</li>
+<li>결국 살아 있는 객체를 잘못 회수할 수 있습니다</li>
+</ul>
+<p>즉 Remembered Set은 <strong>“부분 수집(partial collection)을 안전하게 가능하게 만드는 핵심 장치”</strong> 입니다.</p>
+<hr>
+<h2 id="G1GC에서-Humongous-Object-거대-객체-란"><a href="#G1GC에서-Humongous-Object-거대-객체-란" class="headerlink" title="G1GC에서 Humongous Object(거대 객체)란?"></a>G1GC에서 Humongous Object(거대 객체)란?</h2><h3 id="왜-특별-취급되고-왜-eager-reclamation이-필요한가"><a href="#왜-특별-취급되고-왜-eager-reclamation이-필요한가" class="headerlink" title="왜 특별 취급되고, 왜 eager reclamation이 필요한가"></a>왜 특별 취급되고, 왜 eager reclamation이 필요한가</h3><p>G1GC에서 <strong>Humongous Object</strong> 는 <strong>Region 크기의 1&#x2F;2 이상인 객체</strong>를 말합니다. 이 객체들은 일반적인 객체와 다르게 취급되는데, 이유는 크기가 너무 커서 일반적인 evacuation 흐름에 자연스럽게 녹여 넣기 어렵고, 힙 단편화와 pause time 문제에도 더 직접적인 영향을 줄 수 있기 때문 입니다.</p>
+<hr>
+<h3 id="Humongous-Object는-왜-특별할까"><a href="#Humongous-Object는-왜-특별할까" class="headerlink" title="Humongous Object는 왜 특별할까?"></a>Humongous Object는 왜 특별할까?</h3><p><img src="/../../../img/JAVA/GC/Humongous-Object/Humongous-Object-1.png" alt="Humongous-Object-1"></p>
+<p><code>Humongous Object</code>는 크기 자체가 크기 때문에, 보통의 작은 객체처럼 region 안에 자연스럽게 들어가지 못할 수 있습니다. 이런 객체는 <strong>연속된(contiguous) region들</strong>에 할당되며 배치 위치는 <strong>old generation</strong> 으로 취급 됩니다.</p>
+<p>또한 객체의 시작은 첫 번째 region의 시작점에 놓이고 마지막 region에 남는 자투리 공간은 그 객체가 회수될 때까지 다른 할당에 쓰지 못 합니다.</p>
+<p>즉 <code>Humongous Object</code>는 단순히 “큰 객체”가 아니라, <strong>여러 region을 한 번에 잡아먹고 마지막 region의 일부 공간도 버리게 만들 수 있는 객체</strong> 입니다. 그래서 힙 효율과 단편화 측면에서 부담이 커질 수 있습니다.</p>
+<hr>
+<h3 id="Humongous-Object가-실제로-할당되는-방식"><a href="#Humongous-Object가-실제로-할당되는-방식" class="headerlink" title="Humongous Object가 실제로 할당되는 방식"></a>Humongous Object가 실제로 할당되는 방식</h3><p><img src="/../../../img/JAVA/GC/Humongous-Object/Humongous-Object-2.png" alt="Humongous-Object-2"></p>
+<p>두번째 그림처럼 Humongous Object가 하나의 region에 다 들어가지 않으면 G1GC는 <strong>여러 개의 연속된 region</strong> 을 확보해서 그 객체를 배치 됩니다. 그리고 이 객체는 young가 아니라 <strong>old 쪽 문맥</strong>으로 취급 됩니다.</p>
+<p>또 한 가지 중요한 점은 <strong>Humongous Object가 할당될 때마다 G1은 IHOP(initiating heap occupancy) 조건을 확인</strong> 한다는 것 입니다. 현재 old 쪽 점유율이 임계치를 넘었고 아직 marking 중이 아니라면 G1GC는 <strong>즉시 initial-mark young collection(concurrent start pause)</strong> 를 유발할 수 있습니다. 즉 큰 객체를 여러 번 할당하는 패턴은 marking cycle을 더 일찍 시작하게 만들 수 있습니다.</p>
+<hr>
+<h3 id="Humongous-Object는-GC-중에-항상-이동할까"><a href="#Humongous-Object는-GC-중에-항상-이동할까" class="headerlink" title="Humongous Object는 GC 중에 항상 이동할까?"></a>Humongous Object는 GC 중에 항상 이동할까?</h3><p>보통은 아닙니다. humongous object는 <strong>대체로 end-of-marking의 Cleanup pause</strong> 나 <strong>Full GC</strong> 에서만 회수 대상이 되며 <strong>이동(move)</strong> 자체는 훨씬 더 제한적으로 일어납니다.</p>
+<p>특히 G1은 humongous object를 일반 객체처럼 자주 <code>evacuation</code> 하지 않고 정말 마지막 수단에 가까운 Full GC 상황에서만 이동을 시도할 수 있는데 이 과정은 <strong>매우 느릴 수 있습니다.</strong></p>
+<p>즉 Humongous Object는 “살아 있으면 일단 거기 둔다”에 가깝고 그래서 한 번 차지한 공간이 꽤 오랫동안 힙에 남을 수 있습니다. 바로 이 점 때문에 humongous object가 많으면 G1이 불리해질 수 있습니다.</p>
+<hr>
+<h3 id="Humongous-Object가-garbage가-되면-언제-회수될까"><a href="#Humongous-Object가-garbage가-되면-언제-회수될까" class="headerlink" title="Humongous Object가 garbage가 되면 언제 회수될까?"></a>Humongous Object가 garbage가 되면 언제 회수될까?</h3><p>기본적으로는 <strong>marking 종료 시점의 Cleanup pause</strong> 나 <strong>Full GC</strong> 에서 회수될 수 있습니다. humongous object는 일반적으로 <strong>Cleanup pause 또는 Full GC</strong> 에서 reclaim 됩니다.</p>
+<p>하지만 G1GC 는 일부 humongous object에 대해서는 <strong>더 일찍 회수(eager reclamation)</strong> 하려는 최적화도 보입니다.</p>
+<hr>
+<h3 id="eager-reclamation-for-humongous-objects"><a href="#eager-reclamation-for-humongous-objects" class="headerlink" title="eager reclamation for humongous objects"></a>eager reclamation for humongous objects</h3><p><img src="/../../../img/JAVA/GC/Humongous-Object/Humongous-Object-3.png" alt="Humongous-Object-3"></p>
+<p>G1GC 는 모든 humongous object를 무조건 remark&#x2F;full GC까지 기다리지 않고 <strong>primitive type 배열</strong> 형태의 humongous object (예: <code>bool[]</code>, 각종 정수 배열, 부동소수점 배열)은 <strong>“any kind of garbage collection pause”</strong> 에서도 opportunistically reclaim을 시도할 수 있습니다.</p>
+<p>즉 경우에 따라 <strong>young GC pause 중에도 old generation 쪽 humongous object가 회수될 수 있습니다.</strong></p>
+<p>이 최적화가 필요한 이유를 설명 하자면 Humongous Object는 여러 region을 차지하고 자투리 공간까지 남길 수 있기 때문에, 빨리 회수되지 않으면 힙 일부를 계속 점유해 <strong>GC를 더 자주 유발</strong>할 수 있기 때문입니다.</p>
+<p>humongous object가 많으면 예상보다 더 많은 메모리를 차지할 수 있고 Full GC나 allocation pressure 문제를 악화시킬 수 있습니다.</p>
+<hr>
+<h3 id="Remembered-Set이-왜-여기서-다시-나오나"><a href="#Remembered-Set이-왜-여기서-다시-나오나" class="headerlink" title="Remembered Set이 왜 여기서 다시 나오나?"></a>Remembered Set이 왜 여기서 다시 나오나?</h3><p><code>eager reclamation</code>을 하려면 그 humongous object가 <strong>정말 외부에서 거의 참조되지 않거나 이미 죽었는지</strong>를 빨리 판단할 수 있어야 합니다. G1GC 가 <strong>참조가 많지 않은 humongous object</strong> 를 대상으로 opportunistic reclaim을 시도 합니다.</p>
+<p>이 판단을 위해 G1GC 는 region 단위 메타데이터와 <code>remembered-set 계열 정보</code>를 활용하는데 즉 humongous region도 평소 참조 관계를 전혀 모르는 상태로 방치되는 것이 아니라 필요할 때 빠르게 회수 가능성을 판단할 수 있도록 관리 됩니다.</p>
+<hr>
+<h3 id="primitive-배열만-우선-대상으로-본-이유"><a href="#primitive-배열만-우선-대상으로-본-이유" class="headerlink" title="primitive 배열만 우선 대상으로 본 이유"></a>primitive 배열만 우선 대상으로 본 이유</h3><p>eager reclamation 대상을 <strong>primitive type 배열</strong> 예시 중심으로 우선 대상으로 보는데, eager reclaim 의 대표 대상이 primitive 배열 보다 reference 배열이 더 오래 살 가능성이 높다고 봐서 더 보수적으로 봤다는 것이 추측 됩니다.</p>
+<hr>
+<h3 id="정리-해보자"><a href="#정리-해보자" class="headerlink" title="정리 해보자"></a>정리 해보자</h3><p>Humongous Object의 핵심 특징은 아래처럼 정리할 수 있습니다.</p>
+<ul>
+<li><strong>Region 크기의 1&#x2F;2 이상</strong>이면 humongous object다.</li>
+<li>하나의 region에 안 들어가면 <strong>연속된 old regions</strong> 에 할당된다.</li>
+<li>마지막 region의 남는 공간은 보통 <strong>버려진다.</strong></li>
+<li>할당 때마다 <strong>IHOP</strong> 를 확인하고 필요하면 marking 시작이 앞당겨질 수 있다.</li>
+<li>일반적으로는 <strong>Cleanup pause &#x2F; Full GC</strong> 에서 회수되며, 이동은 매우 제한적이고 느릴 수 있다.</li>
+<li>다만 일부, 특히 <strong>primitive 배열</strong> humongous object는 <strong>eager reclamation</strong> 으로 더 빨리 회수될 수 있다.</li>
+</ul>
+<hr>
+<h3 id="Humongous-Object-vs-일반-Old-Object-비교"><a href="#Humongous-Object-vs-일반-Old-Object-비교" class="headerlink" title="Humongous Object vs 일반 Old Object 비교"></a>Humongous Object vs 일반 Old Object 비교</h3><table>
+<thead>
+<tr>
+<th>항목</th>
+<th>일반 Old Object</th>
+<th>Humongous Object</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>크기 기준</td>
+<td>일반적인 Old 영역 객체</td>
+<td><strong>Region 크기의 1&#x2F;2 이상</strong>인 객체</td>
+</tr>
+<tr>
+<td>할당 위치</td>
+<td>Old Region에 일반 방식으로 배치</td>
+<td><strong>연속된(contiguous) Old Region들</strong>에 배치</td>
+</tr>
+<tr>
+<td>객체 시작 위치</td>
+<td>일반적인 객체 배치 규칙 따름</td>
+<td>항상 <strong>첫 번째 Humongous Region의 시작점</strong>에 위치</td>
+</tr>
+<tr>
+<td>마지막 Region 잔여 공간</td>
+<td>다른 객체 할당에 재활용 가능</td>
+<td><strong>남는 공간은 객체 전체가 회수될 때까지 사용 불가</strong></td>
+</tr>
+<tr>
+<td>세대 관점</td>
+<td>Old Generation 객체</td>
+<td>G1에서 <strong>Old Generation 쪽으로 특별 취급</strong></td>
+</tr>
+<tr>
+<td>Mixed&#x2F;Young GC 중 처리</td>
+<td>선택된 Collection Set이면 evacuation 가능</td>
+<td>보통 <strong>이동하지 않음</strong>, 주로 <strong>살아있는지만 확인</strong></td>
+</tr>
+<tr>
+<td>이동 시점</td>
+<td>Mixed GC나 Full GC 등에서 evacuation 가능</td>
+<td><strong>매우 제한적</strong>, 사실상 <strong>마지막 수단의 Full GC</strong> 에서만 이동 시도</td>
+</tr>
+<tr>
+<td>회수 시점</td>
+<td>일반적인 marking &#x2F; mixed GC &#x2F; full GC 흐름에 따라 회수</td>
+<td>보통 <strong>Cleanup pause</strong> 또는 <strong>Full GC</strong> 에서 회수</td>
+</tr>
+<tr>
+<td>조기 회수(eager reclamation)</td>
+<td>일반적으로 별도 개념 없음</td>
+<td>일부, 특히 <strong>primitive 배열 humongous object</strong> 는 더 이른 GC pause에서도 회수 시도 가능</td>
+</tr>
+<tr>
+<td>할당이 GC에 미치는 영향</td>
+<td>일반적인 Old 점유율 증가</td>
+<td>할당 때마다 <strong>IHOP</strong> 를 확인하고 필요하면 <strong>Concurrent Start pause</strong> 를 앞당길 수 있음</td>
+</tr>
+<tr>
+<td>성능&#x2F;운영상 부담</td>
+<td>일반적인 Old 객체 관리 비용</td>
+<td>큰 연속 공간 필요, 자투리 공간 손실 가능, 이동도 느려서 <strong>힙 압박과 단편화 부담이 큼</strong></td>
+</tr>
+</tbody></table>
+<hr>
+<h3 id="핵심-차이-요약"><a href="#핵심-차이-요약" class="headerlink" title="핵심 차이 요약"></a>핵심 차이 요약</h3><ul>
+<li><strong>일반 Old Object</strong> 는 Old Region 안에서 일반적인 evacuation&#x2F;회수 흐름에 비교적 자연스럽게 들어간다.</li>
+<li><strong>Humongous Object</strong> 는 크기가 너무 커서 <strong>연속된 Region</strong> 을 차지하고, 마지막 Region의 남는 공간도 낭비될 수 있다.</li>
+<li>Humongous Object는 보통 <strong>이동하지 않고</strong>, 주로 <strong>Cleanup pause &#x2F; Full GC</strong> 에서 회수된다.</li>
+<li>다만 일부 <strong>primitive 배열</strong> 형태의 humongous object는 <strong>eager reclamation</strong> 으로 더 빨리 회수될 수 있다.</li>
+</ul>
+<hr>
+<h2 id="G1GC의-Evacuation-Failure란"><a href="#G1GC의-Evacuation-Failure란" class="headerlink" title="G1GC의 Evacuation Failure란?"></a>G1GC의 Evacuation Failure란?</h2><h3 id="살아-있는-객체를-옮기지-못하면-무슨-일이-벌어질까"><a href="#살아-있는-객체를-옮기지-못하면-무슨-일이-벌어질까" class="headerlink" title="살아 있는 객체를 옮기지 못하면 무슨 일이 벌어질까"></a>살아 있는 객체를 옮기지 못하면 무슨 일이 벌어질까</h3><p>G1GC의 기본 아이디어는 간단합니다. GC pause 동안 Collection Set(CSet)에 포함된 region의 <strong>살아 있는 객체를 다른 region으로 복사(evacuation)</strong> 하고 원래 region은 비워서 회수합니다. G1GC 의 pause에서는 live object를 source region에서 destination region으로 옮기고 참조를 다시 맞춥니다.</p>
+<p>그런데 이 복사가 항상 성공하는 것은 아닙니다. G1GC의 GC 도중 객체를 옮기려 했지만 끝내 옮기지 못한 상황을 <strong>Evacuation Failure</strong> 라고 부릅니다.</p>
+<hr>
+<h3 id="Evacuation-Failure가-발생하는-대표-원인-2가지"><a href="#Evacuation-Failure가-발생하는-대표-원인-2가지" class="headerlink" title="Evacuation Failure가 발생하는 대표 원인 2가지"></a>Evacuation Failure가 발생하는 대표 원인 2가지</h3><h4 id="1-Allocation-실패"><a href="#1-Allocation-실패" class="headerlink" title="1. Allocation 실패"></a>1. Allocation 실패</h4><p>가장 흔한 경우는 <strong>옮겨 갈 목적지(to-space)</strong> 에 충분한 공간이 없는 경우입니다.</p>
+<h4 id="2-Pinned-객체"><a href="#2-Pinned-객체" class="headerlink" title="2. Pinned 객체"></a>2. Pinned 객체</h4><p>또 다른 경우는 <strong>Pinned 객체</strong> 입니다.<br>OpenJDK의 Region Pinning 관련 JEP 이슈는, G1에서 pinned region은 evacuate하지 않으며, 특히 young pinned region은 <strong>failed evacuation처럼 취급되어 old로 승격</strong>된니다. 즉 native&#x2F;JNI 쪽 이유로 현재 위치를 유지해야 하는 객체가 있으면 evacuation이 막힐 수 있습니다.</p>
+<hr>
+<h3 id="Evacuation-Failure가-나면-G1은-어떻게-처리할까"><a href="#Evacuation-Failure가-나면-G1은-어떻게-처리할까" class="headerlink" title="Evacuation Failure가 나면 G1은 어떻게 처리할까?"></a>Evacuation Failure가 나면 G1은 어떻게 처리할까?</h3><p><code>evacuation failure</code>가 발생하면 G1GC은 <strong>이미 이동한 객체는 새 위치에 그대로 두고</strong>, 아직 이동하지 못한 객체는 <strong>제자리(in-place)</strong> 에 남긴 채 현재 GC를 마무리 하려고 합니다. 즉 실패가 났다고 해서 그 pause가 바로 중단되는 것은 아니고 가능한 범위까지 마무리합니다.</p>
+<p>또한 OpenJDK 이슈에서는 <code>evacuation failure</code>가 난 region을 <strong>old이면서 거의 꽉 찬 것으로 취급</strong>한다고 설명합니다. 그래서 직관적으로 보면, 이번에 비우지 못한 region은 이후 GC에서 다시 정리해야 할 부담으로 넘어간다고 이해하면 됩니다. 다만 “정확히 다음 GC에서 반드시 바로 회수된다”고까지 일반화하는 것은 버전&#x2F;상황에 따라 조심할 필요가 있습니다.</p>
+<hr>
+<h3 id="이미지-흐름으로-보는-Evacuation-Failure"><a href="#이미지-흐름으로-보는-Evacuation-Failure" class="headerlink" title="이미지 흐름으로 보는 Evacuation Failure"></a>이미지 흐름으로 보는 Evacuation Failure</h3><h4 id="이미지-1"><a href="#이미지-1" class="headerlink" title="이미지 1"></a>이미지 1</h4><p><img src="/../../../img/JAVA/GC/Evacuation-Failure/Evacuation-Failure-1.png" alt="Evacuation-Failure-1"></p>
+<p>현재 상태에서 <strong>Mixed GC</strong> 가 시작되었다고 가정합니다.</p>
+<p>예제를 단순화하기 위해, <strong>5번과 6번 객체가 있는 old region</strong> 이 이번 Mixed GC의 <code>CSet candidate region</code>으로 선택된 상황입니다. Mixed GC는 young generation 전체와 일부 old region만 골라서 수집합니다.</p>
+<h4 id="이미지-2"><a href="#이미지-2" class="headerlink" title="이미지 2"></a>이미지 2</h4><p><img src="/../../../img/JAVA/GC/Evacuation-Failure/Evacuation-Failure-2.png" alt="Evacuation-Failure-2"></p>
+<p>상단 GC Root가 가리키는 <strong>1번 객체</strong>를 스캔하고, 바로 옆 free region을 survivor region으로 바꿔 그쪽으로 <strong>1번 객체를 evacuation</strong> 합니다. 이것이 G1의 정상적인 복사형 수집 흐름입니다.</p>
+<h4 id="이미지-3"><a href="#이미지-3" class="headerlink" title="이미지 3"></a>이미지 3</h4><p><img src="/../../../img/JAVA/GC/Evacuation-Failure/Evacuation-Failure-3.png" alt="Evacuation-Failure-3"></p>
+<p>이어서 <strong>2번 객체</strong>도 새 survivor region으로 이동합니다. 아직은 evacuation이 정상적으로 진행되는 상태입니다.</p>
+<h4 id="이미지-4"><a href="#이미지-4" class="headerlink" title="이미지 4"></a>이미지 4</h4><p><img src="/../../../img/JAVA/GC/Evacuation-Failure/Evacuation-Failure-4.png" alt="Evacuation-Failure-4"></p>
+<p>다음으로 <strong>3번 객체</strong>도 새 survivor region으로 이동합니다. 즉 young 쪽 live object는 문제 없이 복사되고 있습니다.</p>
+<h4 id="이미지-5"><a href="#이미지-5" class="headerlink" title="이미지 5"></a>이미지 5</h4><p><img src="/../../../img/JAVA/GC/Evacuation-Failure/Evacuation-Failure-5.png" alt="Evacuation-Failure-5"></p>
+<p>이제 왼쪽 GC Root가 가리키는 <strong>5번 객체</strong>를 보고, 이를 담기 위해 <strong>새 old region</strong> 을 확보해 이동시킵니다. Mixed GC에서는 선택된 old region도 evacuation 대상이므로, old 객체도 새 old region으로 복사될 수 있습니다.</p>
+<h4 id="이미지-6"><a href="#이미지-6" class="headerlink" title="이미지 6"></a>이미지 6</h4><p><img src="/../../../img/JAVA/GC/Evacuation-Failure/Evacuation-Failure-6.png" alt="Evacuation-Failure-6"></p>
+<p>이어서 <strong>6번 객체</strong>도 새 old region으로 이동합니다. 여기까지는 selected old region 정리가 정상적으로 이루어지고 있는 모습입니다.</p>
+<h4 id="이미지-7"><a href="#이미지-7" class="headerlink" title="이미지 7"></a>이미지 7</h4><p><img src="/../../../img/JAVA/GC/Evacuation-Failure/Evacuation-Failure-7.png" alt="Evacuation-Failure-7"></p>
+<p>이제 <strong>4번 객체</strong>를 다른 region으로 이동시키려는데, 더 이상 destination으로 쓸 region이 없습니다. 이 경우가 전형적인 <strong>Allocation 기반 Evacuation Failure</strong> 입니다.</p>
+<h4 id="이미지-8"><a href="#이미지-8" class="headerlink" title="이미지 8"></a>이미지 8</h4><p><img src="/../../../img/JAVA/GC/Evacuation-Failure/Evacuation-Failure-8.png" alt="Evacuation-Failure-8"></p>
+<p>이번에는 <strong>Pinned 객체</strong> 를 생각해볼 수 있습니다. 공간이 남아 있어도 pinned object가 들어 있는 region은 evacuate하기 어렵기 때문에, 이 경우도 evacuation failure처럼 처리될 수 있습니다.</p>
+<h4 id="이미지-9"><a href="#이미지-9" class="headerlink" title="이미지 9"></a>이미지 9</h4><p><img src="/../../../img/JAVA/GC/Evacuation-Failure/Evacuation-Failure-9.png" alt="Evacuation-Failure-9"></p>
+<p>GC 이후 free space가 일부 다시 확보된 상태를 생각해볼 수 있습니다. 하지만 <strong>4번 객체가 남아 있는 region</strong> 이나 <strong>Pinned 객체가 있던 region</strong> 은 이번에 깨끗하게 비워지지 못했기 때문에 후속 GC에서 다시 부담이 됩니다. OpenJDK 이슈 설명처럼 failed region은 old이면서 거의 꽉 찬 것처럼 남기 쉬워, 뒤따르는 GC가 이를 다시 정리해야 하는 상황이 생깁니다.</p>
+<hr>
+<h3 id="실패한-young-region은-왜-old처럼-보일까"><a href="#실패한-young-region은-왜-old처럼-보일까" class="headerlink" title="실패한 young region은 왜 old처럼 보일까?"></a>실패한 young region은 왜 old처럼 보일까?</h3><p>Pinned young region에 대해서는 OpenJDK JEP 이슈가 비교적 직접적으로 설명합니다.</p>
+<p><strong>Minor collection 중 pinned young region은 failed evacuation처럼 취급되어 old generation으로 승격</strong>됩니다. 즉 evacuation에 실패한 young 쪽 공간은 더 이상 “잘 정리된 young”로 남지 못하고, old 쪽 부담으로 넘어갈 수 있습니다.</p>
+<p>일반 evacuation failure에 대해서도 OpenJDK 측 설명은 failed region을 <strong>old이면서 거의 꽉 찬 상태</strong>처럼 다루는 경향을 보여줍니다. 그래서 evacuation failure가 누적되면 old pressure가 빠르게 높아질 수 있습니다.</p>
+<hr>
+<h3 id="Free-space가-전혀-생기지-않으면"><a href="#Free-space가-전혀-생기지-않으면" class="headerlink" title="Free space가 전혀 생기지 않으면?"></a>Free space가 전혀 생기지 않으면?</h3><p>가장 나쁜 경우는 <strong>GC를 했는데도 공간을 거의 못 비우는 경우</strong>입니다. 최악의 경우 GC가 전혀 공간을 확보하지 못하면 G1이 <strong>Full GC를 스케줄링</strong> 됩니다. 이 Full GC는 <strong>entire heap in-place compaction</strong> 을 수행하므로 매우 느릴 수 있습니다.</p>
+<p>또한 <strong>Full GC가 발생하기 전에 evacuation failure, 특히 <code>to-space exhausted</code> 로그가 먼저 보이는 경우가 많다</strong>고 설명합니다. 즉 실무에서는 긴 Full GC가 갑자기 튀어나오는 것이 아니라, 그 전에 evacuation failure 징후가 선행되는 경우가 흔합니다.</p>
+<hr>
+<h3 id="정리"><a href="#정리" class="headerlink" title="정리"></a>정리</h3><p>Evacuation Failure는 G1GC가 <strong>살아 있는 객체를 다른 region으로 복사하지 못한 상황</strong>입니다.</p>
+<p>대표 원인은 두 가지입니다.</p>
+<ul>
+<li><strong>Allocation 실패</strong>: destination region 공간 부족</li>
+<li><strong>Pinned 객체</strong>: 객체가 현재 위치에 계속 있어야 해서 이동 불가</li>
+</ul>
+<p>이 상황이 발생하면 G1은 이미 옮긴 객체는 그대로 두고, 옮기지 못한 객체는 제자리에 남긴 채 GC를 마무리하려고 합니다. 하지만 failed region은 old pressure를 키우고 후속 GC 부담으로 이어질 수 있습니다. 그리고 이 문제가 심해져 GC가 free space를 거의 만들지 못하면 결국 <strong>Full GC</strong> 로 이어질 수 있습니다.</p>
+<hr>
+
+      
+       <hr><span style="font-style: italic;color: gray;"> Copyright 201- syh8088. 무단 전재 및 재배포 금지. 출처 표기 시 인용 가능. </span>
+    </div>
+</article>
+
+
+<p>
+    <a  class="dashang" onclick="dashangToggle()">버튼</a>
+</p>
+
+
+
+
+
+
+    
+
+
+
+
+    </div>
+    <div class="copyright">
+        <p class="footer-entry">
+    ©2017 Seo Yang Hun
+</p>
+<p class="footer-entry">Built with <a href="https://hexo.io/" target="_blank">Hexo</a> and <a href="https://github.com/yelog/hexo-theme-3-hexo" target="_blank">3-hexo</a> theme</p>
+
+    </div>
+    <div class="full-toc">
+        <button class="full" data-title="切换全屏 快捷键 s"><span class="min "></span></button>
+<a class="" id="rocket" ></a>
+
+    </div>
+</div>
+
+<div class="hide_box" onclick="dashangToggle()"></div>
+<div class="shang_box">
+    <a class="shang_close"  onclick="dashangToggle()">×</a>
+    <div class="shang_tit">
+        <p>喜欢就点赞,疼爱就打赏</p>
+    </div>
+    <div class="shang_payimg">
+        <div class="pay_img">
+            <img src="/img/alipay.jpg" class="alipay" title="扫码支持">
+            <img src="/img/weixin.jpg" class="weixin" title="扫码支持">
+        </div>
+    </div>
+    <div class="shang_payselect">
+        <span><label><input type="radio" name="pay" checked value="alipay">支付宝</label></span><span><label><input type="radio" name="pay" value="weixin">微信</label></span>
+    </div>
+</div>
+
+
+</body>
+<script src="/js/jquery.pjax.js?v=1.1.0" ></script>
+
+<script src="/js/script.js?v=1.1.0" ></script>
+<script>
+    var img_resize = 'default';
+    function initArticle() {
+        /*渲染对应的表格样式*/
+        
+            $("#post .pjax table").addClass("green_title");
+        
+
+        /*渲染打赏样式*/
+        
+        $("input[name=pay]").on("click", function () {
+            if($("input[name=pay]:checked").val()=="weixin"){
+                $(".shang_box .shang_payimg .pay_img").addClass("weixin_img");
+            } else {
+                $(".shang_box .shang_payimg .pay_img").removeClass("weixin_img");
+            }
+        })
+        
+
+        /*高亮代码块行号*/
+        
+
+        /*访问数量*/
+        
+        $.getScript("//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js");
+        
+
+        /*代码高亮，行号对齐*/
+        $('.pre-numbering').css('line-height',$('.has-numbering').css('line-height'));
+
+        
+        
+    }
+
+    /*打赏页面隐藏与展示*/
+    
+    function dashangToggle() {
+        $(".shang_box").fadeToggle();
+        $(".hide_box").fadeToggle();
+    }
+    
+
+</script>
+
+<!--加入行号的高亮代码块样式-->
+
+<!--自定义样式设置-->
+<style>
+    
+    
+    .nav {
+        width: 542px;
+    }
+    .nav.fullscreen {
+        margin-left: -542px;
+    }
+    .nav-left {
+        width: 120px;
+    }
+    
+    
+    @media screen and (max-width: 1468px) {
+        .nav {
+            width: 492px;
+        }
+        .nav.fullscreen {
+            margin-left: -492px;
+        }
+        .nav-left {
+            width: 100px;
+        }
+    }
+    
+    
+    @media screen and (max-width: 1024px) {
+        .nav {
+            width: 492px;
+            margin-left: -492px
+        }
+        .nav.fullscreen {
+            margin-left: 0;
+        }
+    }
+    
+    @media screen and (max-width: 426px) {
+        .nav {
+            width: 100%;
+        }
+        .nav-left {
+            width: 100%;
+        }
+    }
+    
+    
+    .nav-right .title-list nav a .post-title, .nav-right .title-list #local-search-result a .post-title {
+        color: #383636;
+    }
+    
+    
+    .nav-right .title-list nav a .post-date, .nav-right .title-list #local-search-result a .post-date {
+        color: #5e5e5f;
+    }
+    
+    
+    .nav-right nav a.hover, #local-search-result a.hover{
+        background-color: #e2e0e0;
+    }
+    
+    
+
+    /*列表样式*/
+    
+
+    /* 背景图样式 */
+    
+    
+
+
+    /*引用块样式*/
+    
+
+    /*文章列表背景图*/
+    
+
+    
+</style>
+
+
+
+
+
+
+
+</html>

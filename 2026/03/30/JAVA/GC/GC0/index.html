@@ -1,0 +1,2344 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>JAVA GC - JVM 알아보기 | Seo Yang Hun Blog</title>
+  <meta name="keywords" content="">
+  <meta name="description" content="JAVA GC - JVM 알아보기 | Seo Yang Hun Blog">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="description" content="JVM 가상 주소 공간(Virtual Address Space) 구조 설명가상 주소 공간은 크게 JVM이 직접 관리하는 영역 과 OS 프로세스 레지스터 수준에서 관리되는 영역 으로 나뉩니다. JVM 런타임 데이터 영역 (JVM Managed)자바 프로그램이 실행되면서 동적으로 사용하는 메모리 공간입니다.  Stack (스택): 각 스레드마다 개별적으로 할당">
+<meta property="og:type" content="article">
+<meta property="og:title" content="JAVA GC - JVM 알아보기">
+<meta property="og:url" content="https://syh8088.github.io/2026/03/30/JAVA/GC/GC0/index.html">
+<meta property="og:site_name" content="Seo Yang Hun Blog">
+<meta property="og:description" content="JVM 가상 주소 공간(Virtual Address Space) 구조 설명가상 주소 공간은 크게 JVM이 직접 관리하는 영역 과 OS 프로세스 레지스터 수준에서 관리되는 영역 으로 나뉩니다. JVM 런타임 데이터 영역 (JVM Managed)자바 프로그램이 실행되면서 동적으로 사용하는 메모리 공간입니다.  Stack (스택): 각 스레드마다 개별적으로 할당">
+<meta property="og:locale">
+<meta property="article:published_time" content="2026-03-29T22:47:42.000Z">
+<meta property="article:modified_time" content="2026-05-31T11:18:53.606Z">
+<meta property="article:author" content="Seo Yang Hun">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="icon" href="/img/avatar.jpg">
+
+<link href="/css/style.css?v=1.1.0" rel="stylesheet">
+
+<link href="/css/hl_theme/atom-light.css?v=1.1.0" rel="stylesheet">
+
+<link href="//cdn.jsdelivr.net/npm/animate.css@4.1.0/animate.min.css" rel="stylesheet">
+
+<script src="//cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"></script>
+<script src="/js/titleTip.js?v=1.1.0" ></script>
+
+<script src="//cdn.jsdelivr.net/npm/highlightjs@9.16.2/highlight.pack.min.js"></script>
+<script>
+    hljs.initHighlightingOnLoad();
+</script>
+
+<script src="//cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.js"></script>
+
+
+
+<script src="//cdn.jsdelivr.net/npm/jquery.cookie@1.4.1/jquery.cookie.min.js" ></script>
+
+<script src="/js/iconfont.js?v=1.1.0" ></script>
+
+<meta name="generator" content="Hexo 7.2.0"></head>
+<div style="display: none">
+  <input class="theme_disqus_on" value="false">
+  <input class="theme_preload_comment" value="">
+  <input class="theme_blog_path" value="">
+  <input id="theme_shortcut" value="true" />
+  <input id="theme_highlight_on" value="true" />
+  <input id="theme_code_copy" value="true" />
+</div>
+
+
+
+<body>
+<aside class="nav">
+    <div class="nav-left">
+        <a href="/"
+   class="avatar_target">
+    <img class="avatar"
+         src="/img/avatar.jpg"/>
+</a>
+<div class="author">
+    <span>Seo Yang Hun</span>
+</div>
+
+<div class="icon">
+    
+        
+            <a title="rss"
+               href="/atom.xml"
+               target="_blank">
+                
+                    <svg class="iconfont-svg" aria-hidden="true">
+                        <use xlink:href="#icon-rss"></use>
+                    </svg>
+                
+            </a>
+        
+    
+        
+            <a title="github"
+               href="https://github.com/syh8088"
+               target="_blank">
+                
+                    <svg class="iconfont-svg" aria-hidden="true">
+                        <use xlink:href="#icon-github"></use>
+                    </svg>
+                
+            </a>
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+            <a title="email"
+               href="mailto:syh8088@gmail.com"
+               target="_blank">
+                
+                    <svg class="iconfont-svg" aria-hidden="true">
+                        <use xlink:href="#icon-email"></use>
+                    </svg>
+                
+            </a>
+        
+    
+        
+            <a title="qq"
+               href="http://wpa.qq.com/msgrd?v=3&uin=872336115&site=qq&menu=yes"
+               target="_blank">
+                
+                    <svg class="iconfont-svg" aria-hidden="true">
+                        <use xlink:href="#icon-qq"></use>
+                    </svg>
+                
+            </a>
+        
+    
+        
+    
+        
+    
+</div>
+
+
+
+
+
+<ul>
+    <li>
+        <div class="all active" data-rel="모든 글">모든 글
+            
+                <small>(73)</small>
+            
+        </div>
+    </li>
+    
+        
+            
+                
+    <li>
+        <div data-rel="Authentication">
+            <i class="fold iconfont icon-right"></i>
+            Authentication
+            <small>(2)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="Authentication&lt;---&gt;JWT">
+            
+            JWT
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="Authentication&lt;---&gt;Oauth">
+            
+            Oauth
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="AWS">
+            <i class="fold iconfont icon-right"></i>
+            AWS
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="AWS&lt;---&gt;Image Resizing">
+            
+            Image Resizing
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="CI-CD">
+            <i class="fold iconfont icon-right"></i>
+            CI-CD
+            <small>(10)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="CI-CD&lt;---&gt;AWS">
+            <i class="fold iconfont icon-right"></i>
+            AWS
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="CI-CD&lt;---&gt;AWS&lt;---&gt;EKS">
+            <i class="fold iconfont icon-right"></i>
+            EKS
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="CI-CD&lt;---&gt;AWS&lt;---&gt;EKS&lt;---&gt;Kubernetes">
+            <i class="fold iconfont icon-right"></i>
+            Kubernetes
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="CI-CD&lt;---&gt;AWS&lt;---&gt;EKS&lt;---&gt;Kubernetes&lt;---&gt;Docker">
+            
+            Docker
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="CI-CD&lt;---&gt;GitHubActions">
+            
+            GitHubActions
+            <small>(6)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="CI-CD&lt;---&gt;Jenkins">
+            
+            Jenkins
+            <small>(3)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="DB">
+            <i class="fold iconfont icon-right"></i>
+            DB
+            <small>(5)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="DB&lt;---&gt;Mysql">
+            <i class="fold iconfont icon-right"></i>
+            Mysql
+            <small>(4)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="DB&lt;---&gt;Mysql&lt;---&gt;DBCP">
+            
+            DBCP
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="DB&lt;---&gt;Mysql&lt;---&gt;optimizing">
+            
+            optimizing
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="DB&lt;---&gt;Mysql&lt;---&gt;Paging">
+            
+            Paging
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="DB&lt;---&gt;MySql">
+            <i class="fold iconfont icon-right"></i>
+            MySql
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="DB&lt;---&gt;MySql&lt;---&gt;Collation">
+            
+            Collation
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="Elastic Search">
+            
+            Elastic Search
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="Flink">
+            <i class="fold iconfont icon-right"></i>
+            Flink
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="Flink&lt;---&gt;Real Time">
+            <i class="fold iconfont icon-right"></i>
+            Real Time
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="Flink&lt;---&gt;Real Time&lt;---&gt;Kafka">
+            
+            Kafka
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="J">
+            <i class="fold iconfont icon-right"></i>
+            J
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="J&lt;---&gt;Jenkins">
+            
+            Jenkins
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="JAVA">
+            <i class="fold iconfont icon-right"></i>
+            JAVA
+            <small>(33)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;GC">
+            
+            GC
+            <small>(4)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;HTTP">
+            <i class="fold iconfont icon-right"></i>
+            HTTP
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;HTTP&lt;---&gt;FeignClient">
+            
+            FeignClient
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;JPA">
+            
+            JPA
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;Object">
+            
+            Object
+            <small>(2)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;Payment">
+            
+            Payment
+            <small>(5)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;Security">
+            
+            Security
+            <small>(4)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;Spring">
+            <i class="fold iconfont icon-right"></i>
+            Spring
+            <small>(2)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;Spring&lt;---&gt;Payment">
+            <i class="fold iconfont icon-right"></i>
+            Payment
+            <small>(2)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;Spring&lt;---&gt;Payment&lt;---&gt;junit5">
+            <i class="fold iconfont icon-right"></i>
+            junit5
+            <small>(2)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;Spring&lt;---&gt;Payment&lt;---&gt;junit5&lt;---&gt;Mockito">
+            
+            Mockito
+            <small>(2)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;SpringBatch">
+            
+            SpringBatch
+            <small>(5)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;SpringBootAndSecurityAndJWT">
+            
+            SpringBootAndSecurityAndJWT
+            <small>(3)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;SpringCloudConfig">
+            
+            SpringCloudConfig
+            <small>(4)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;Transaction">
+            
+            Transaction
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;Validator">
+            
+            Validator
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="JavaScript">
+            <i class="fold iconfont icon-right"></i>
+            JavaScript
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="JavaScript&lt;---&gt;Webpack">
+            
+            Webpack
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="Kafka">
+            <i class="fold iconfont icon-right"></i>
+            Kafka
+            <small>(2)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="Kafka&lt;---&gt;idempotent">
+            
+            idempotent
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="KUBERNETES">
+            
+            KUBERNETES
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="MSA">
+            <i class="fold iconfont icon-right"></i>
+            MSA
+            <small>(3)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="MSA&lt;---&gt;Payment">
+            <i class="fold iconfont icon-right"></i>
+            Payment
+            <small>(3)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="MSA&lt;---&gt;Payment&lt;---&gt;Kafka">
+            <i class="fold iconfont icon-right"></i>
+            Kafka
+            <small>(3)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="MSA&lt;---&gt;Payment&lt;---&gt;Kafka&lt;---&gt;EDA">
+            <i class="fold iconfont icon-right"></i>
+            EDA
+            <small>(3)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="MSA&lt;---&gt;Payment&lt;---&gt;Kafka&lt;---&gt;EDA&lt;---&gt;CQRS">
+            
+            CQRS
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="MSA&lt;---&gt;Payment&lt;---&gt;Kafka&lt;---&gt;EDA&lt;---&gt;Saga">
+            <i class="fold iconfont icon-right"></i>
+            Saga
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="MSA&lt;---&gt;Payment&lt;---&gt;Kafka&lt;---&gt;EDA&lt;---&gt;Saga&lt;---&gt;Axon">
+            
+            Axon
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="Network">
+            
+            Network
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="NoSQL">
+            <i class="fold iconfont icon-right"></i>
+            NoSQL
+            <small>(2)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="NoSQL&lt;---&gt;Redis">
+            <i class="fold iconfont icon-right"></i>
+            Redis
+            <small>(2)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="NoSQL&lt;---&gt;Redis&lt;---&gt;RateLimiter">
+            
+            RateLimiter
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="R">
+            
+            R
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="대용량 트래픽">
+            <i class="fold iconfont icon-right"></i>
+            대용량 트래픽
+            <small>(3)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="대용량 트래픽&lt;---&gt;EDA">
+            <i class="fold iconfont icon-right"></i>
+            EDA
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="대용량 트래픽&lt;---&gt;EDA&lt;---&gt;Payment">
+            <i class="fold iconfont icon-right"></i>
+            Payment
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="대용량 트래픽&lt;---&gt;EDA&lt;---&gt;Payment&lt;---&gt;Redis">
+            <i class="fold iconfont icon-right"></i>
+            Redis
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="대용량 트래픽&lt;---&gt;EDA&lt;---&gt;Payment&lt;---&gt;Redis&lt;---&gt;Kafka">
+            
+            Kafka
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="대용량 트래픽&lt;---&gt;Redis">
+            <i class="fold iconfont icon-right"></i>
+            Redis
+            <small>(2)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="대용량 트래픽&lt;---&gt;Redis&lt;---&gt;Kafka">
+            
+            Kafka
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="대용량 트래픽&lt;---&gt;Redis&lt;---&gt;WebFlux">
+            <i class="fold iconfont icon-right"></i>
+            WebFlux
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="대용량 트래픽&lt;---&gt;Redis&lt;---&gt;WebFlux&lt;---&gt;접근자 대기열">
+            
+            접근자 대기열
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+</ul>
+<div class="left-bottom">
+    <div class="menus">
+        
+            
+            
+            
+    </div>
+    <div>
+        
+            <a class="about  hasFriend  site_url"
+               
+               href="/about">about</a>
+        
+        <a style="width: 50%"
+                
+                                           class="friends">friends</a>
+        
+    </div>
+</div>
+<input type="hidden" id="yelog_site_posts_number" value="73">
+
+<div style="display: none">
+    <span id="busuanzi_value_site_uv"></span>
+    <span id="busuanzi_value_site_pv"></span>
+</div>
+
+    </div>
+    <div class="nav-right">
+        <div class="friends-area">
+    <div class="friends-title">
+        友情链接
+        <i class="iconfont icon-left"></i>
+    </div>
+    <div class="friends-content">
+        <ul>
+            
+            <li><a target="_blank" href="http://yelog.org/">叶落阁</a></li>
+            
+        </ul>
+    </div>
+</div>
+        <div class="title-list">
+    <div class="right-top">
+        <div id="default-panel">
+            <i class="iconfont icon-search" data-title="搜索 快捷键 i"></i>
+            <div class="right-title">모든 글</div>
+            <i class="iconfont icon-file-tree" data-title="切换到大纲视图 快捷键 w"></i>
+        </div>
+        <div id="search-panel">
+            <i class="iconfont icon-left" data-title="返回"></i>
+            <input id="local-search-input" autocomplete="off"/>
+            <label class="border-line" for="input"></label>
+            <i class="iconfont icon-case-sensitive" data-title="大小写敏感"></i>
+            <i class="iconfont icon-tag" data-title="标签"></i>
+        </div>
+        <div id="outline-panel" style="display: none">
+            <div class="right-title">大纲</div>
+            <i class="iconfont icon-list" data-title="切换到文章列表"></i>
+        </div>
+    </div>
+
+    <div class="tags-list">
+    <input id="tag-search" />
+    <div class="tag-wrapper">
+        
+    </div>
+
+</div>
+
+    
+    <nav id="title-list-nav">
+        
+        
+        <a  class="모든 글 JAVA GC "
+           href="/2026/03/30/JAVA/GC/GC0/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="JAVA GC - JVM 알아보기">JAVA GC - JVM 알아보기</span>
+            <span class="post-date" title="2026-03-30 07:47:42">2026/03/30</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA GC "
+           href="/2026/03/30/JAVA/GC/GC3/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="JAVA GC - G1GC">JAVA GC - G1GC</span>
+            <span class="post-date" title="2026-03-30 07:47:42">2026/03/30</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA GC "
+           href="/2026/03/30/JAVA/GC/GC1/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="JAVA GC - Serial GC">JAVA GC - Serial GC</span>
+            <span class="post-date" title="2026-03-30 07:47:42">2026/03/30</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA GC "
+           href="/2026/03/30/JAVA/GC/GC2/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="JAVA GC - Parallel GC">JAVA GC - Parallel GC</span>
+            <span class="post-date" title="2026-03-30 07:47:42">2026/03/30</span>
+        </a>
+        
+        
+        <a  class="모든 글 NoSQL Redis "
+           href="/2025/12/28/NoSQL/CACHE_STRATEGY/CacheStrategy/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="캐시 전략">캐시 전략</span>
+            <span class="post-date" title="2025-12-28 07:47:42">2025/12/28</span>
+        </a>
+        
+        
+        <a  class="모든 글 CI-CD AWS EKS Kubernetes Docker "
+           href="/2025/08/15/CI-CD/AWS_EKS_CICD/aws_eks_cicd/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="AWS EKS 서버 배포 - CI/CD">AWS EKS 서버 배포 - CI/CD</span>
+            <span class="post-date" title="2025-08-15 07:47:42">2025/08/15</span>
+        </a>
+        
+        
+        <a  class="모든 글 DB MySql Collation "
+           href="/2025/07/23/DB/Mysql/Collation/Collation/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Mysql - Collation">Mysql - Collation</span>
+            <span class="post-date" title="2025-07-23 07:47:42">2025/07/23</span>
+        </a>
+        
+        
+        <a  class="모든 글 Network "
+           href="/2025/07/15/NETWORK/introduction/Network-Introduction/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="네트워크 - 구조 및 공유기 원리">네트워크 - 구조 및 공유기 원리</span>
+            <span class="post-date" title="2025-07-15 07:47:42">2025/07/15</span>
+        </a>
+        
+        
+        <a  class="모든 글 Kafka "
+           href="/2025/07/06/KAFKA/introduction/kafka_introduction/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="카프카 개념 및 실전">카프카 개념 및 실전</span>
+            <span class="post-date" title="2025-07-06 07:47:42">2025/07/06</span>
+        </a>
+        
+        
+        <a  class="모든 글 "
+           href="/2025/06/27/AWS/ImageResizing/imageTest/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title=""></span>
+            <span class="post-date" title="2025-06-27 20:10:06">2025/06/27</span>
+        </a>
+        
+        
+        <a  class="모든 글 AWS Image Resizing "
+           href="/2025/06/26/AWS/ImageResizing/aws-image-resizing/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="AWS Image Resizing 구현하기">AWS Image Resizing 구현하기</span>
+            <span class="post-date" title="2025-06-26 07:47:42">2025/06/26</span>
+        </a>
+        
+        
+        <a  class="모든 글 Elastic Search "
+           href="/2025/06/16/ELASTIC_SEARCH/introduction/elasticsearch-introduction/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Elastic Search 검색 활용기">Elastic Search 검색 활용기</span>
+            <span class="post-date" title="2025-06-16 07:47:42">2025/06/16</span>
+        </a>
+        
+        
+        <a  class="모든 글 Flink Real Time Kafka "
+           href="/2025/04/05/FLINK/introduction/Flink-Introduction/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Flink 이용해서 실시간 데이터 스트림 처리 해보기">Flink 이용해서 실시간 데이터 스트림 처리 해보기</span>
+            <span class="post-date" title="2025-04-05 07:47:42">2025/04/05</span>
+        </a>
+        
+        
+        <a  class="모든 글 Kafka idempotent "
+           href="/2024/12/23/KAFKA/idempotent/Kafka_idempotent/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="카프카 멱등성 및 이벤트 일관성 보장하기">카프카 멱등성 및 이벤트 일관성 보장하기</span>
+            <span class="post-date" title="2024-12-23 07:47:42">2024/12/23</span>
+        </a>
+        
+        
+        <a  class="모든 글 MSA Payment Kafka EDA CQRS "
+           href="/2024/12/16/MSA/paymentMsa/MSA_Payment_Project_3/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="결제 시스템으로 알아보는 MSA 3 - 쿼리 문제">결제 시스템으로 알아보는 MSA 3 - 쿼리 문제</span>
+            <span class="post-date" title="2024-12-16 07:47:42">2024/12/16</span>
+        </a>
+        
+        
+        <a  class="모든 글 MSA Payment Kafka EDA Saga Axon "
+           href="/2024/12/15/MSA/paymentMsa/MSA_Payment_Project_2/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="결제 시스템으로 알아보는 MSA 2 - 분산 트랜잭션 구현">결제 시스템으로 알아보는 MSA 2 - 분산 트랜잭션 구현</span>
+            <span class="post-date" title="2024-12-15 07:47:42">2024/12/15</span>
+        </a>
+        
+        
+        <a  class="모든 글 MSA Payment Kafka EDA "
+           href="/2024/12/14/MSA/paymentMsa/MSA_Payment_Project_1/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="결제 시스템으로 알아보는 MSA 1 - 기본 설명">결제 시스템으로 알아보는 MSA 1 - 기본 설명</span>
+            <span class="post-date" title="2024-12-14 07:47:42">2024/12/14</span>
+        </a>
+        
+        
+        <a  class="모든 글 대용량 트래픽 EDA Payment Redis Kafka "
+           href="/2024/12/13/HIGH_VOLUME_TRAFFIC/PaymentEDA/PaymentEDA/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="결제 시스템으로 알아보는 EDA 시스템">결제 시스템으로 알아보는 EDA 시스템</span>
+            <span class="post-date" title="2024-12-13 07:47:42">2024/12/13</span>
+        </a>
+        
+        
+        <a  class="모든 글 DB Mysql optimizing "
+           href="/2024/12/06/DB/Mysql/optimizing/IndexDiveOptimizaiton/IndexDiveOptimizaiton/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Index Dive 최적화">Index Dive 최적화</span>
+            <span class="post-date" title="2024-12-06 07:47:42">2024/12/06</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA Spring Payment junit5 Mockito "
+           href="/2024/12/03/JAVA/TEST/PaymentTesting/PaymentTesting2/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="결제 Testing - 2">결제 Testing - 2</span>
+            <span class="post-date" title="2024-12-03 15:50:00">2024/12/03</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA Spring Payment junit5 Mockito "
+           href="/2024/12/02/JAVA/TEST/PaymentTesting/PaymentTesting1/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="결제 Testing - 1">결제 Testing - 1</span>
+            <span class="post-date" title="2024-12-02 15:50:00">2024/12/02</span>
+        </a>
+        
+        
+        <a  class="모든 글 대용량 트래픽 Redis WebFlux 접근자 대기열 "
+           href="/2024/11/28/HIGH_VOLUME_TRAFFIC/AccessorQueuingSystem/AccessorQueuingSystem/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="대용량 트래픽 - 접근자 대기열 시스템 만들기">대용량 트래픽 - 접근자 대기열 시스템 만들기</span>
+            <span class="post-date" title="2024-11-28 07:47:42">2024/11/28</span>
+        </a>
+        
+        
+        <a  class="모든 글 대용량 트래픽 Redis Kafka "
+           href="/2024/11/22/HIGH_VOLUME_TRAFFIC/CreateCoupon/CreateCoupon/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="대용량 트래픽 - 선착순 쿠폰 등록 With Kafka, Redis">대용량 트래픽 - 선착순 쿠폰 등록 With Kafka, Redis</span>
+            <span class="post-date" title="2024-11-22 07:47:42">2024/11/22</span>
+        </a>
+        
+        
+        <a  class="모든 글 NoSQL Redis RateLimiter "
+           href="/2024/11/19/NoSQL/Redis/RateLimiter/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Request Rate Limiter 구현하기">Request Rate Limiter 구현하기</span>
+            <span class="post-date" title="2024-11-19 07:47:42">2024/11/19</span>
+        </a>
+        
+        
+        <a  class="모든 글 CI-CD GitHubActions "
+           href="/2024/10/20/CI-CD/GitHunActions/GitHubActionsCICDWithSpringBoot6/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="GitHubActions CICD With SpringBoot - 6">GitHubActions CICD With SpringBoot - 6</span>
+            <span class="post-date" title="2024-10-20 07:47:42">2024/10/20</span>
+        </a>
+        
+        
+        <a  class="모든 글 CI-CD GitHubActions "
+           href="/2024/10/19/CI-CD/GitHunActions/GitHubActionsCICDWithSpringBoot5/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="GitHubActions CICD With SpringBoot - 5">GitHubActions CICD With SpringBoot - 5</span>
+            <span class="post-date" title="2024-10-19 07:47:42">2024/10/19</span>
+        </a>
+        
+        
+        <a  class="모든 글 CI-CD GitHubActions "
+           href="/2024/10/18/CI-CD/GitHunActions/GitHubActionsCICDWithSpringBoot4/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="GitHubActions CICD With SpringBoot - 4">GitHubActions CICD With SpringBoot - 4</span>
+            <span class="post-date" title="2024-10-18 07:47:42">2024/10/18</span>
+        </a>
+        
+        
+        <a  class="모든 글 CI-CD GitHubActions "
+           href="/2024/10/17/CI-CD/GitHunActions/GitHubActionsCICDWithSpringBoot3/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="GitHubActions CICD With SpringBoot - 3">GitHubActions CICD With SpringBoot - 3</span>
+            <span class="post-date" title="2024-10-17 07:47:42">2024/10/17</span>
+        </a>
+        
+        
+        <a  class="모든 글 CI-CD GitHubActions "
+           href="/2024/10/14/CI-CD/GitHunActions/GitHubActionsCICDWithSpringBoot2/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="GitHubActions CICD With SpringBoot - 2">GitHubActions CICD With SpringBoot - 2</span>
+            <span class="post-date" title="2024-10-14 07:47:42">2024/10/14</span>
+        </a>
+        
+        
+        <a  class="모든 글 CI-CD GitHubActions "
+           href="/2024/10/14/CI-CD/GitHunActions/GitHubActionsCICDWithSpringBoot1/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="GitHubActions CICD With SpringBoot - 1">GitHubActions CICD With SpringBoot - 1</span>
+            <span class="post-date" title="2024-10-14 07:47:42">2024/10/14</span>
+        </a>
+        
+        
+        <a  class="모든 글 DB Mysql Paging "
+           href="/2024/10/06/DB/Mysql/PagingQuery/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Paging Query 성능 개선 및 처리 방법 - 튜닝편">Paging Query 성능 개선 및 처리 방법 - 튜닝편</span>
+            <span class="post-date" title="2024-10-06 07:47:42">2024/10/06</span>
+        </a>
+        
+        
+        <a  class="모든 글 DB Mysql DBCP "
+           href="/2024/10/02/DB/Mysql/mysqlDBCP/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="DBCP 설정 방법">DBCP 설정 방법</span>
+            <span class="post-date" title="2024-10-02 07:47:42">2024/10/02</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA Object "
+           href="/2024/08/24/JAVA/Object/InheritanceComposition2/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="상속과 합성 이야기-2">상속과 합성 이야기-2</span>
+            <span class="post-date" title="2024-08-24 15:50:00">2024/08/24</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA Object "
+           href="/2024/08/23/JAVA/Object/InheritanceComposition1/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="상속과 합성 이야기-1">상속과 합성 이야기-1</span>
+            <span class="post-date" title="2024-08-23 15:50:00">2024/08/23</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA Payment "
+           href="/2024/08/06/JAVA/Payment/PaymentTransactionalOutboxpattern/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="결제 시스템 구축 - 5">결제 시스템 구축 - 5</span>
+            <span class="post-date" title="2024-08-06 15:50:00">2024/08/06</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA Payment "
+           href="/2024/08/05/JAVA/Payment/PaymentRetry/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="결제 시스템 구축 - 4">결제 시스템 구축 - 4</span>
+            <span class="post-date" title="2024-08-05 15:50:00">2024/08/05</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA Payment "
+           href="/2024/07/28/JAVA/Payment/BuildingPaymentSystem/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="결제 시스템 구축 - 1">결제 시스템 구축 - 1</span>
+            <span class="post-date" title="2024-07-28 15:50:00">2024/07/28</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA Payment "
+           href="/2024/07/28/JAVA/Payment/PaymentCheckOut/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="결제 시스템 구축 - 2">결제 시스템 구축 - 2</span>
+            <span class="post-date" title="2024-07-28 15:50:00">2024/07/28</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA Payment "
+           href="/2024/07/28/JAVA/Payment/PaymentConfirm/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="결제 시스템 구축 - 3">결제 시스템 구축 - 3</span>
+            <span class="post-date" title="2024-07-28 15:50:00">2024/07/28</span>
+        </a>
+        
+        
+        <a  class="모든 글 "
+           href="/2024/05/31/hello-world/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Hello World">Hello World</span>
+            <span class="post-date" title="2024-05-31 22:32:19">2024/05/31</span>
+        </a>
+        
+        
+        <a  class="모든 글 "
+           href="/2024/05/31/README/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title=""></span>
+            <span class="post-date" title="2024-05-31 22:32:19">2024/05/31</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA Security "
+           href="/2024/05/30/JAVA/Security/AnonymousAuthenticationFilter/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="AnonymousAuthenticationFilter">AnonymousAuthenticationFilter</span>
+            <span class="post-date" title="2024-05-30 10:04:43">2024/05/30</span>
+        </a>
+        
+        
+        <a  class="모든 글 "
+           href="/2024/02/01/HIGH_VOLUME_TRAFFIC/AccessorQueuingSystem2/AccessorQueuingSystem/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="패스트캠퍼스 9개 프로젝트로 경험하는 대용량 트래픽 &amp; 데이터 처리 초격차 패키지 Online. 수강">패스트캠퍼스 9개 프로젝트로 경험하는 대용량 트래픽 &amp; 데이터 처리 초격차 패키지 Online. 수강</span>
+            <span class="post-date" title="2024-02-01 00:00:00">2024/02/01</span>
+        </a>
+        
+        
+        <a  class="모든 글 Authentication JWT "
+           href="/2021/11/27/AUTHTICATION/JWT/jwt/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="JWT (JSON Web Token) 이해하기">JWT (JSON Web Token) 이해하기</span>
+            <span class="post-date" title="2021-11-27 07:47:42">2021/11/27</span>
+        </a>
+        
+        
+        <a  class="모든 글 Authentication Oauth "
+           href="/2021/11/27/AUTHTICATION/OAUTH/oauth/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="OAUTH 2.0 이해하기">OAUTH 2.0 이해하기</span>
+            <span class="post-date" title="2021-11-27 07:47:42">2021/11/27</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA HTTP FeignClient "
+           href="/2021/11/08/JAVA/HTTP/FeignClient/FeignClient/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="FeignClient 활용도">FeignClient 활용도</span>
+            <span class="post-date" title="2021-11-08 10:04:43">2021/11/08</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA SpringBatch "
+           href="/2021/11/04/JAVA/Batch/SpringBatch5/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Batch - Chunk 5">Spring Batch - Chunk 5</span>
+            <span class="post-date" title="2021-11-04 07:47:42">2021/11/04</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA SpringBatch "
+           href="/2021/10/30/JAVA/Batch/SpringBatch4/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Batch - Flow 4">Spring Batch - Flow 4</span>
+            <span class="post-date" title="2021-10-30 07:47:42">2021/10/30</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA SpringBatch "
+           href="/2021/10/24/JAVA/Batch/SpringBatch3/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Batch - 메타데이터 스키마 3">Spring Batch - 메타데이터 스키마 3</span>
+            <span class="post-date" title="2021-10-24 07:47:42">2021/10/24</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA SpringBatch "
+           href="/2021/10/19/JAVA/Batch/SpringBatch2/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Batch - Job, Step 2">Spring Batch - Job, Step 2</span>
+            <span class="post-date" title="2021-10-19 07:47:42">2021/10/19</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA SpringBatch "
+           href="/2021/10/17/JAVA/Batch/SpringBatch1/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Batch 1">Spring Batch 1</span>
+            <span class="post-date" title="2021-10-17 07:47:42">2021/10/17</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA SpringCloudConfig "
+           href="/2021/09/13/JAVA/SpringCloudConfig/spring-cloud-config4/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="비대칭키를 이용한 application.yml 설정값 암호화">비대칭키를 이용한 application.yml 설정값 암호화</span>
+            <span class="post-date" title="2021-09-13 07:47:45">2021/09/13</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA SpringCloudConfig "
+           href="/2021/09/13/JAVA/SpringCloudConfig/spring-cloud-config3/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Cloud Bus">Spring Cloud Bus</span>
+            <span class="post-date" title="2021-09-13 07:47:44">2021/09/13</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA SpringCloudConfig "
+           href="/2021/09/13/JAVA/SpringCloudConfig/spring-cloud-config2/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Boot Actuator">Spring Boot Actuator</span>
+            <span class="post-date" title="2021-09-13 07:47:43">2021/09/13</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA SpringCloudConfig "
+           href="/2021/09/13/JAVA/SpringCloudConfig/spring-cloud-config/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Cloud Config">Spring Cloud Config</span>
+            <span class="post-date" title="2021-09-13 07:47:42">2021/09/13</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA Transaction "
+           href="/2021/03/14/JAVA/Transaction/multi-transaction/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Java Multi-Transaction 관리">Java Multi-Transaction 관리</span>
+            <span class="post-date" title="2021-03-14 07:47:42">2021/03/14</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA Validator "
+           href="/2020/12/18/JAVA/VALIDATOR/validator/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Java Validator 관리">Java Validator 관리</span>
+            <span class="post-date" title="2020-12-18 07:47:42">2020/12/18</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA Security "
+           href="/2020/11/19/JAVA/Security/SessionManagementFilterAndConcurrentSessionFilter/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="SessionManagementFilterAndConcurrentSessionFilter">SessionManagementFilterAndConcurrentSessionFilter</span>
+            <span class="post-date" title="2020-11-19 18:02:23">2020/11/19</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA Security "
+           href="/2020/11/14/JAVA/Security/RememberMeAuthenticationFilter/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="RememberMeAuthenticationFilter">RememberMeAuthenticationFilter</span>
+            <span class="post-date" title="2020-11-14 07:40:06">2020/11/14</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA Security "
+           href="/2020/11/13/JAVA/Security/UsernamePasswordAuthenticationFilter/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="UsernamePasswordAuthenticationFilter">UsernamePasswordAuthenticationFilter</span>
+            <span class="post-date" title="2020-11-13 08:51:13">2020/11/13</span>
+        </a>
+        
+        
+        <a  class="모든 글 CI-CD Jenkins "
+           href="/2020/11/09/CI-CD/Jenkins/JenkinsGitLabConnect/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Jenkins_GitLab_연동">Jenkins_GitLab_연동</span>
+            <span class="post-date" title="2020-11-09 07:47:42">2020/11/09</span>
+        </a>
+        
+        
+        <a  class="모든 글 CI-CD Jenkins "
+           href="/2020/11/08/CI-CD/Jenkins/JenkinsGitLabSshConnect/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="젠킨스와 GitLab ssh 연동하기">젠킨스와 GitLab ssh 연동하기</span>
+            <span class="post-date" title="2020-11-08 07:47:42">2020/11/08</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA JPA "
+           href="/2020/11/08/JAVA/JPA/eagerJpqlNplus1/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="eagerJpqlNplus1">eagerJpqlNplus1</span>
+            <span class="post-date" title="2020-11-08 07:47:42">2020/11/08</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA SpringBootAndSecurityAndJWT "
+           href="/2020/11/08/JAVA/SpringBootAndSecurityAndJWT/spring-boot-security-jwt-social/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Boot 를 이용해 JWT + Social 로그인 처리 - Authorization Server (일반 로그인)">Spring Boot 를 이용해 JWT + Social 로그인 처리 - Authorization Server (일반 로그인)</span>
+            <span class="post-date" title="2020-11-08 07:47:42">2020/11/08</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA SpringBootAndSecurityAndJWT "
+           href="/2020/11/08/JAVA/SpringBootAndSecurityAndJWT/spring-boot-security-jwt-social2/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Boot 를 이용해 JWT + Social 로그인 처리 - Authorization Server (Social 로그인)">Spring Boot 를 이용해 JWT + Social 로그인 처리 - Authorization Server (Social 로그인)</span>
+            <span class="post-date" title="2020-11-08 07:47:42">2020/11/08</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA SpringBootAndSecurityAndJWT "
+           href="/2020/11/08/JAVA/SpringBootAndSecurityAndJWT/spring-boot-security-jwt-social3/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Boot 를 이용해 JWT + Social 로그인 처리 - Resource Server">Spring Boot 를 이용해 JWT + Social 로그인 처리 - Resource Server</span>
+            <span class="post-date" title="2020-11-08 07:47:42">2020/11/08</span>
+        </a>
+        
+        
+        <a  class="모든 글 J Jenkins "
+           href="/2020/11/07/JAVA/Security/JKSGenerate/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="JKSGenerate">JKSGenerate</span>
+            <span class="post-date" title="2020-11-07 13:46:21">2020/11/07</span>
+        </a>
+        
+        
+        <a  class="모든 글 CI-CD Jenkins "
+           href="/2020/11/07/CI-CD/Jenkins/JenkinsInstall/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="쿠버네티스 환경 구성">쿠버네티스 환경 구성</span>
+            <span class="post-date" title="2020-11-07 07:47:42">2020/11/07</span>
+        </a>
+        
+        
+        <a  class="모든 글 DB Mysql "
+           href="/2020/11/07/DB/Mysql/mysqlReplicationSetting/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Mysql_Replication_설정">Mysql_Replication_설정</span>
+            <span class="post-date" title="2020-11-07 07:47:42">2020/11/07</span>
+        </a>
+        
+        
+        <a  class="모든 글 KUBERNETES "
+           href="/2020/11/07/KUBERNETES/%EC%89%BD%EA%B2%8C_%EC%8B%9C%EC%9E%91%ED%95%98%EB%8A%94_%EC%BF%A0%EB%B2%84%EB%84%A4%ED%8B%B0%EC%8A%A4/%EC%BF%A0%EB%B2%84%EB%84%A4%ED%8B%B0%EC%8A%A4_%ED%99%98%EA%B2%BD_%EA%B5%AC%EC%84%B1/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Jenkins_설치">Jenkins_설치</span>
+            <span class="post-date" title="2020-11-07 07:47:42">2020/11/07</span>
+        </a>
+        
+        
+        <a  class="모든 글 R "
+           href="/2020/10/17/R/RServerInstall/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="RServer 설치">RServer 설치</span>
+            <span class="post-date" title="2020-10-17 07:47:42">2020/10/17</span>
+        </a>
+        
+        
+        <a  class="모든 글 JavaScript Webpack "
+           href="/2020/10/17/JAVASCRIPT/Webpack/devtool/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="WebPack - DevTool">WebPack - DevTool</span>
+            <span class="post-date" title="2020-10-17 07:47:42">2020/10/17</span>
+        </a>
+        
+        
+        <a  class="모든 글 "
+           href="/2018/12/02/%EB%A9%B4%EC%A0%91%EC%A4%80%EB%B9%84/test/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="그냥... 잡다한 지식 모음집">그냥... 잡다한 지식 모음집</span>
+            <span class="post-date" title="2018-12-02 15:50:00">2018/12/02</span>
+        </a>
+        
+        <div id="no-item-tips">
+
+        </div>
+    </nav>
+    <div id="outline-list">
+    </div>
+</div>
+
+    </div>
+    <div class="hide-list">
+        <div class="semicircle" data-title="切换全屏 快捷键 s">
+            <div class="brackets first"><</div>
+            <div class="brackets">&gt;</div>
+        </div>
+    </div>
+</aside>
+<div id="post">
+    <div class="pjax">
+        <article id="post-JAVA/GC/GC0" class="article article-type-post" itemscope itemprop="blogPost">
+    
+        <h1 class="article-title">JAVA GC - JVM 알아보기</h1>
+    
+    <div class="article-meta">
+        
+        
+        
+        <span class="book">
+            <i class="iconfont icon-category"></i>
+            
+            
+            <a  data-rel="JAVA">JAVA</a> > 
+            
+            <a  data-rel="JAVA&lt;---&gt;GC">GC</a>
+            
+        </span>
+        
+        
+    </div>
+    <div class="article-meta">
+        
+            작성일 : <time class="date" title='수정일: 2026-05-31 20:18:53'>2026-03-30 07:47</time>
+        
+    </div>
+    <div class="article-meta">
+        
+        
+        <span id="busuanzi_container_page_pv">
+            조회수 :<span id="busuanzi_value_page_pv">
+                <span class="count-comment">
+                    <span class="spinner">
+                      <div class="cube1"></div>
+                      <div class="cube2"></div>
+                    </span>
+                </span>
+            </span>
+        </span>
+        
+        
+    </div>
+    
+    <div class="toc-ref">
+    
+        <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#JVM-%EA%B0%80%EC%83%81-%EC%A3%BC%EC%86%8C-%EA%B3%B5%EA%B0%84-Virtual-Address-Space-%EA%B5%AC%EC%A1%B0-%EC%84%A4%EB%AA%85"><span class="toc-text">JVM 가상 주소 공간(Virtual Address Space) 구조 설명</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#JVM-%EB%9F%B0%ED%83%80%EC%9E%84-%EB%8D%B0%EC%9D%B4%ED%84%B0-%EC%98%81%EC%97%AD-JVM-Managed"><span class="toc-text">JVM 런타임 데이터 영역 (JVM Managed)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%EB%84%A4%EC%9D%B4%ED%8B%B0%EB%B8%8C-%EB%B0%8F-%ED%94%84%EB%A1%9C%EC%84%B8%EC%8A%A4-%EC%98%81%EC%97%AD-Native-OS-Level"><span class="toc-text">네이티브 및 프로세스 영역 (Native &#x2F; OS Level)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#JVM-%ED%9E%99-Heap-%EB%A9%94%EB%AA%A8%EB%A6%AC-%EB%8F%99%EC%A0%81-%EA%B4%80%EB%A6%AC-%EA%B3%BC%EC%A0%95"><span class="toc-text">JVM 힙(Heap) 메모리 동적 관리 과정</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#GC-%EC%84%A0%ED%83%9D%EA%B3%BC-%ED%8A%9C%EB%8B%9D-%EC%A4%91%EC%9A%94%EC%84%B1"><span class="toc-text">GC 선택과 튜닝 중요성</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%EC%97%90%EB%A5%B4%EA%B3%A0%EB%85%B8%EB%AF%B9%EC%8A%A4-Ergonomics-%EB%9E%80"><span class="toc-text">에르고노믹스(Ergonomics) 란?</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%EC%99%9C-%ED%8A%9C%EB%8B%9D%EC%9D%B4-%ED%95%84%EC%9A%94%ED%95%9C%EA%B0%80"><span class="toc-text">왜 튜닝이 필요한가?</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Maximum-Pause-Time-goal-XX-MaxGCPauseMillis-nnn"><span class="toc-text">Maximum Pause-Time goal (-XX:MaxGCPauseMillis&#x3D;nnn)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Throughput-goal-XX-GCTimeRatio-nnn"><span class="toc-text">Throughput goal (-XX:GCTimeRatio&#x3D;nnn)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Minimum-Footprint"><span class="toc-text">Minimum Footprint</span></a></li></ol></li></ol>
+    
+<style>
+    .left-col .switch-btn,
+    .left-col .switch-area {
+        display: none;
+    }
+    .toc-level-3 i,
+    .toc-level-3 ol {
+        display: none !important;
+    }
+</style>
+</div>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h3 id="JVM-가상-주소-공간-Virtual-Address-Space-구조-설명"><a href="#JVM-가상-주소-공간-Virtual-Address-Space-구조-설명" class="headerlink" title="JVM 가상 주소 공간(Virtual Address Space) 구조 설명"></a>JVM 가상 주소 공간(Virtual Address Space) 구조 설명</h3><p>가상 주소 공간은 크게 <code>JVM이 직접 관리하는 영역</code> 과 <code>OS 프로세스 레지스터 수준에서 관리되는 영역</code> 으로 나뉩니다.</p>
+<h4 id="JVM-런타임-데이터-영역-JVM-Managed"><a href="#JVM-런타임-데이터-영역-JVM-Managed" class="headerlink" title="JVM 런타임 데이터 영역 (JVM Managed)"></a>JVM 런타임 데이터 영역 (JVM Managed)</h4><p>자바 프로그램이 실행되면서 동적으로 사용하는 메모리 공간입니다.</p>
+<ul>
+<li><code>Stack (스택)</code>: 각 스레드마다 개별적으로 할당됩니다. 메서드 호출 시 생성되는 ‘스택 프레임’을 저장하며, 지역 변수, 매개변수, 리턴 값 등이 잠시 머물다 가는 공간입니다.</li>
+<li><code>JVM Heap (JVM 힙)</code>: JVM이 관리하는 가장 큰 메모리 영역입니다. new 키워드로 생성된 모든 객체(인스턴스)와 배열이 여기에 저장되며, 가비지 컬렉터(GC)의 주요 관리 대상입니다.</li>
+<li><code>Metaspace (메타스페이스)</code>: Java 8부터 도입된 영역으로, 과거의 PermGen을 대체합니다. 클래스의 메타데이터(클래스 구조, 메서드 정보 등)를 저장하며, Native Memory를 사용해 크기가 유연하게 조절됩니다.</li>
+<li><code>Code Cache (코드 캐시)</code>: JIT(Just-In-Time) 컴파일러가 컴파일한 네이티브 기계어 코드를 저장하는 공간입니다. 바이트 코드 중 자주 실행되는 코드를 최적화 해서 기계어로 블락으로 컴파일 하고 캐싱하여 실행 속도를 높입니다.</li>
+</ul>
+<h4 id="네이티브-및-프로세스-영역-Native-OS-Level"><a href="#네이티브-및-프로세스-영역-Native-OS-Level" class="headerlink" title="네이티브 및 프로세스 영역 (Native &#x2F; OS Level)"></a>네이티브 및 프로세스 영역 (Native &#x2F; OS Level)</h4><p>자바 코드 외에 시스템 운영이나 외부 라이브러리 실행을 위한 공간입니다.</p>
+<ul>
+<li><code>Native Library</code>: 자바가 아닌 C&#x2F;C++ 등으로 작성된 네이티브 라이브러리가 로드되는 공간입니다. 예를들어 (JNI 등을 통해 호출)</li>
+<li><code>Heap (네이티브 힙)</code>: JVM 힙과는 별개로, C 수준의 라이브러리나 JVM 자체의 구동을 위해 OS로부터 직접 할당받는 메모리 영역입니다.</li>
+<li><code>Data (+BSS)</code>: 프로그램의 전역 변수와 정적(static) 변수가 저장되는 영역입니다. 초기화된 변수는 Data에, 초기화되지 않은 변수는 BSS 영역에 위치합니다.</li>
+<li><code>Code (Text)</code>: 실행할 프로그램의 제어 명령(기계어 코드) 자체가 기입되는 영역입니다. CPU가 이 영역의 명령어를 하나씩 읽어 처리를 수행하며, 읽기 전용입니다.</li>
+</ul>
+<h4 id="JVM-힙-Heap-메모리-동적-관리-과정"><a href="#JVM-힙-Heap-메모리-동적-관리-과정" class="headerlink" title="JVM 힙(Heap) 메모리 동적 관리 과정"></a>JVM 힙(Heap) 메모리 동적 관리 과정</h4><p>JVM은 시스템 자원을 효율적으로 사용하기 위해 처음부터 모든 메모리를 점유하지 않고, 상황에 따라 늘리거나 줄이는 유연한 전략을 사용합니다.</p>
+<p>1단계: 메모리 예약 (Initial Reservation)<br>전체 가상 주소 공간(노란색) 중 JVM이 사용할 영역(파란색)을 찜해두는 단계입니다.<br>JVM이 시작될 때 -Xms(초기 힙 크기)만큼의 메모리를 OS로부터 실제로 할당(Commit)받고, -Xmx(최대 힙 크기)까지의 나머지 공간은 다른 프로세스가 쓰지 못하도록 ‘예약(Reserve)’만 해둡니다.</p>
+<p>2단계: 객체 할당 (Object Allocation)<br>그림 설명: 비어있던 힙 영역에 Obj들이 하나씩 들어차기 시작합니다.<br>상세 내용: 자바 코드에서 new 키워드로 객체를 생성하면, JVM은 활성화된 힙 영역에 차곡차곡 데이터를 쌓습니다.</p>
+<p>3단계: 힙 영역 확장 (Heap Expansion)<br>그림 설명: 할당된 파란색 영역이 꽉 차자, 예약해두었던 노란색 영역을 파란색(사용 영역)으로 바꿉니다.<br>상세 내용: 현재 할당된 메모리가 부족해지면 JVM은 OS에 추가 메모리를 요청합니다. 이때 미리 예약해둔 가상 주소 범위 내에서 실제 메모리 점유율을 높여갑니다.</p>
+<p>4단계: 가비지 컬렉션 - 회수 (GC: Mark &amp; Sweep)<br>그림 설명: 회수 화살표와 함께 사용하지 않는 Obj들이 사라지는 단계입니다.<br>상세 내용: Garbage Collector(GC)가 작동하는 시점입니다. 더 이상 참조되지 않는 ‘쓰레기 객체’들을 찾아내어 메모리에서 삭제합니다. 그림에서는 중간중간 비어있는 공간이 생기는 모습을 볼 수 있습니다.</p>
+<p>5단계: 메모리 반납 (Memory Release &#x2F; Uncommit)<br>그림 설명: GC 이후 사용량이 줄어들자, 오른쪽 끝의 파란색 영역이 다시 노란색으로 변하며 반납이라고 표시됩니다.<br>상세 내용: GC가 끝난 후에도 메모리에 여유가 많이 남는다면, JVM은 OS의 효율적인 자원 배분을 위해 사용 중이던 메모리를 다시 ‘예약 상태’로 돌려줍니다. (이를 통해 다른 프로세스가 해당 메모리를 쓸 수 있게 됩니다.)</p>
+<h3 id="GC-선택과-튜닝-중요성"><a href="#GC-선택과-튜닝-중요성" class="headerlink" title="GC 선택과 튜닝 중요성"></a>GC 선택과 튜닝 중요성</h3><p>자바는 메모리 관리를 JVM이 알아서 해주지만, <code>어떻게</code> 비우느냐에 따라 애플리케이션의 성격이 완전히 달라집니다.</p>
+<p>보통 중 소규모 시스템에서는 자바 5부터 도입된 <code>에르고노믹스(Ergonomics)</code> 기능 덕분에 JVM은 실행 환경 (OS, CPU 코어 수, 메모리 크기 등)을 감지하여 스스로 최적의 GC와 힙 설정을 선택합니다. 하지만 대규모 시스템에서는 <code>에르고노믹스</code> 도 만능은 아니기 때문에,</p>
+<p>JVM이 설정한 자동값이 서비스의 예측 불가능한 트래픽 패턴과 맞지 않을 때, 혹은 너무 보수적으로 메모리를 잡을 때 성능 저하가 발생합니다.</p>
+<h4 id="에르고노믹스-Ergonomics-란"><a href="#에르고노믹스-Ergonomics-란" class="headerlink" title="에르고노믹스(Ergonomics) 란?"></a>에르고노믹스(Ergonomics) 란?</h4><p><code>에르고노믹스(Ergonomics)</code> 는 자바 5부터 도입된 기능으로 JVM 이 주어진 환경 속에서 GC 와 메모리 관련 설정을 스스로 최적화 하도록 합니다.</p>
+<p>아래 두 가지 목표를 맞춰서 JVM 이 목표 중심 설정 통해 동적으로 조정 하도록 합니다.</p>
+<ul>
+<li><code>Maximum Pause-Time goal (-XX:MaxGCPauseMillis=nnn)</code></li>
+<li><code>Throughput goal (-XX:GCTimeRatio=nnn)</code></li>
+</ul>
+<p>이 설정된 두가지 값으로 인해 JVM 이 내부적으로 힙 영역의 크기를 늘리거나 줄이며 그 목표를 맞추려 노력 하도록 합니다.<br>참고로 위 두 가지 목표가 모두 충족되는 동안 <code>Minimum Footprint</code> 를 추구하며 동작 되도록 설계 되어 있습니다.</p>
+<h4 id="왜-튜닝이-필요한가"><a href="#왜-튜닝이-필요한가" class="headerlink" title="왜 튜닝이 필요한가?"></a>왜 튜닝이 필요한가?</h4><p>앞써 이야기 한대로 <code>에르고노믹스</code> 는 만능이 아닙니다. JVM 이 설정한 자동값이 서비스의 예측 불가능한 트래픽 패턴과 맞지 않을 때, 혹은 너무 보수적으로 메모리를 잡을 때 성능 저하가 발생합니다.</p>
+<p>JVM은 <code>에르고노믹스</code> 를 통해 다음 세 가지 목표를 달성하려고 노력합니다. 하지만 이들은 서로 <code>트레이드오프 (Trade-off)</code> 관계에 있기 때문에 서비스의 성격에 맞춰 우선순위를 정하는 것이 튜닝의 핵심입니다.</p>
+<h4 id="Maximum-Pause-Time-goal-XX-MaxGCPauseMillis-nnn"><a href="#Maximum-Pause-Time-goal-XX-MaxGCPauseMillis-nnn" class="headerlink" title="Maximum Pause-Time goal (-XX:MaxGCPauseMillis&#x3D;nnn)"></a>Maximum Pause-Time goal (-XX:MaxGCPauseMillis&#x3D;nnn)</h4><p>GC로 인해 애플리케이션이 <code>멈추는 시간(Stop-the-world)</code> 을 특정 밀리초(ms) 이하로 제한하는 것이 목표입니다. 작동 방식은 JVM 이 이 시간을 맞추기 위해 <code>Young 영역</code> 의 크기를 줄이거나 GC를 더 자주 수행합니다.</p>
+<h4 id="Throughput-goal-XX-GCTimeRatio-nnn"><a href="#Throughput-goal-XX-GCTimeRatio-nnn" class="headerlink" title="Throughput goal (-XX:GCTimeRatio&#x3D;nnn)"></a>Throughput goal (-XX:GCTimeRatio&#x3D;nnn)</h4><p>전체 애플리케이션 실행 시간 대비 GC에 소비되는 시간의 비율을 최소화하는 목표입니다. 즉 “얼마나 빨리 끝내느냐” 보다는 “얼마나 많은 일을 처리하느냐”에 집중합니다. <code>처리량을 높이기 위해 힙 메모리를 크게 잡고 GC 횟수를 줄입니다.</code> 한 번 GC가 돌 때 시간은 길어질 수 있지만, 전체적인 작업 효율은 올라갑니다.</p>
+<h4 id="Minimum-Footprint"><a href="#Minimum-Footprint" class="headerlink" title="Minimum Footprint"></a>Minimum Footprint</h4><p>애플리케이션이 돌아가는 데 필요한 최소한의 물리적 메모리(Heap)만 사용하는 것을 목표로 합니다. 앞선 두 목표 (<code>Pause-time</code>, <code>Throughput</code>)가 달성되면, JVM은 힙 크기를 서서히 줄여서 운영체제에 메모리를 반환하려고 시도합니다.</p>
+
+      
+       <hr><span style="font-style: italic;color: gray;"> Copyright 201- syh8088. 무단 전재 및 재배포 금지. 출처 표기 시 인용 가능. </span>
+    </div>
+</article>
+
+
+<p>
+    <a  class="dashang" onclick="dashangToggle()">버튼</a>
+</p>
+
+
+
+
+
+
+    
+
+
+
+
+    </div>
+    <div class="copyright">
+        <p class="footer-entry">
+    ©2017 Seo Yang Hun
+</p>
+<p class="footer-entry">Built with <a href="https://hexo.io/" target="_blank">Hexo</a> and <a href="https://github.com/yelog/hexo-theme-3-hexo" target="_blank">3-hexo</a> theme</p>
+
+    </div>
+    <div class="full-toc">
+        <button class="full" data-title="切换全屏 快捷键 s"><span class="min "></span></button>
+<a class="" id="rocket" ></a>
+
+    </div>
+</div>
+
+<div class="hide_box" onclick="dashangToggle()"></div>
+<div class="shang_box">
+    <a class="shang_close"  onclick="dashangToggle()">×</a>
+    <div class="shang_tit">
+        <p>喜欢就点赞,疼爱就打赏</p>
+    </div>
+    <div class="shang_payimg">
+        <div class="pay_img">
+            <img src="/img/alipay.jpg" class="alipay" title="扫码支持">
+            <img src="/img/weixin.jpg" class="weixin" title="扫码支持">
+        </div>
+    </div>
+    <div class="shang_payselect">
+        <span><label><input type="radio" name="pay" checked value="alipay">支付宝</label></span><span><label><input type="radio" name="pay" value="weixin">微信</label></span>
+    </div>
+</div>
+
+
+</body>
+<script src="/js/jquery.pjax.js?v=1.1.0" ></script>
+
+<script src="/js/script.js?v=1.1.0" ></script>
+<script>
+    var img_resize = 'default';
+    function initArticle() {
+        /*渲染对应的表格样式*/
+        
+            $("#post .pjax table").addClass("green_title");
+        
+
+        /*渲染打赏样式*/
+        
+        $("input[name=pay]").on("click", function () {
+            if($("input[name=pay]:checked").val()=="weixin"){
+                $(".shang_box .shang_payimg .pay_img").addClass("weixin_img");
+            } else {
+                $(".shang_box .shang_payimg .pay_img").removeClass("weixin_img");
+            }
+        })
+        
+
+        /*高亮代码块行号*/
+        
+
+        /*访问数量*/
+        
+        $.getScript("//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js");
+        
+
+        /*代码高亮，行号对齐*/
+        $('.pre-numbering').css('line-height',$('.has-numbering').css('line-height'));
+
+        
+        
+    }
+
+    /*打赏页面隐藏与展示*/
+    
+    function dashangToggle() {
+        $(".shang_box").fadeToggle();
+        $(".hide_box").fadeToggle();
+    }
+    
+
+</script>
+
+<!--加入行号的高亮代码块样式-->
+
+<!--自定义样式设置-->
+<style>
+    
+    
+    .nav {
+        width: 542px;
+    }
+    .nav.fullscreen {
+        margin-left: -542px;
+    }
+    .nav-left {
+        width: 120px;
+    }
+    
+    
+    @media screen and (max-width: 1468px) {
+        .nav {
+            width: 492px;
+        }
+        .nav.fullscreen {
+            margin-left: -492px;
+        }
+        .nav-left {
+            width: 100px;
+        }
+    }
+    
+    
+    @media screen and (max-width: 1024px) {
+        .nav {
+            width: 492px;
+            margin-left: -492px
+        }
+        .nav.fullscreen {
+            margin-left: 0;
+        }
+    }
+    
+    @media screen and (max-width: 426px) {
+        .nav {
+            width: 100%;
+        }
+        .nav-left {
+            width: 100%;
+        }
+    }
+    
+    
+    .nav-right .title-list nav a .post-title, .nav-right .title-list #local-search-result a .post-title {
+        color: #383636;
+    }
+    
+    
+    .nav-right .title-list nav a .post-date, .nav-right .title-list #local-search-result a .post-date {
+        color: #5e5e5f;
+    }
+    
+    
+    .nav-right nav a.hover, #local-search-result a.hover{
+        background-color: #e2e0e0;
+    }
+    
+    
+
+    /*列表样式*/
+    
+
+    /* 背景图样式 */
+    
+    
+
+
+    /*引用块样式*/
+    
+
+    /*文章列表背景图*/
+    
+
+    
+</style>
+
+
+
+
+
+
+
+</html>
