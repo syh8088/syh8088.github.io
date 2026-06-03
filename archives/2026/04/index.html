@@ -2,21 +2,85 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>JAVA GC - Parallel GC | Seo Yang Hun Blog</title>
+  <title>Seo Yang Hun Blog</title>
   <meta name="keywords" content="">
-  <meta name="description" content="JAVA GC - Parallel GC | Seo Yang Hun Blog">
+  <meta name="description" content="Seo Yang Hun Blog">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-<meta name="description" content="JVM 가상 주소 공간(Virtual Address Space) 구조 설명가상 주소 공간은 크게 JVM이 직접 관리하는 영역 과 OS 프로세스 레지스터 수준에서 관리되는 영역 으로 나뉩니다. JVM 런타임 데이터 영역 (JVM Managed)자바 프로그램이 실행되면서 동적으로 사용하는 메모리 공간입니다.  Stack (스택): 각 스레드마다 개별적으로 할당">
+<meta name="description" content="G1GCG1GC를 이해하기 전에 Serial GC, Parallel GC의 한계부터 보기JVM GC를 공부하다 보면 보통 Serial GC, Parallel GC부터 먼저 접하게 됩니다. 이 두 GC는 구조가 비교적 직관적이고, Young &#x2F; Old Generation 기반 동작을 이해하는 데도 도움이 됩니다. 하지만 실제 서비스 환경, 특히 응답">
 <meta property="og:type" content="article">
-<meta property="og:title" content="JAVA GC - JVM 알아보기">
-<meta property="og:url" content="https://syh8088.github.io/2026/03/30/JAVA/GC/GC0/index.html">
+<meta property="og:title" content="JAVA GC - G1GC">
+<meta property="og:url" content="https://syh8088.github.io/2026/05/08/JAVA/GC/GC3/index.html">
 <meta property="og:site_name" content="Seo Yang Hun Blog">
-<meta property="og:description" content="JVM 가상 주소 공간(Virtual Address Space) 구조 설명가상 주소 공간은 크게 JVM이 직접 관리하는 영역 과 OS 프로세스 레지스터 수준에서 관리되는 영역 으로 나뉩니다. JVM 런타임 데이터 영역 (JVM Managed)자바 프로그램이 실행되면서 동적으로 사용하는 메모리 공간입니다.  Stack (스택): 각 스레드마다 개별적으로 할당">
+<meta property="og:description" content="G1GCG1GC를 이해하기 전에 Serial GC, Parallel GC의 한계부터 보기JVM GC를 공부하다 보면 보통 Serial GC, Parallel GC부터 먼저 접하게 됩니다. 이 두 GC는 구조가 비교적 직관적이고, Young &#x2F; Old Generation 기반 동작을 이해하는 데도 도움이 됩니다. 하지만 실제 서비스 환경, 특히 응답">
 <meta property="og:locale">
-<meta property="article:published_time" content="2026-03-29T22:47:42.000Z">
-<meta property="article:modified_time" content="2026-05-31T11:18:53.606Z">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/G1GC-region/G1GC-region-1.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/G1GC-region/G1GC-region-2.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/G1GC-region/G1GC-region-3.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/G1GC-region/G1GC-region-4.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/G1GC-region/G1GC-region-5.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/G1GC-region/G1GC-region-6.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/G1GC/GarbageCollectionCycle.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/G1GC/G1GC-FLOW-1.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/G1GC/G1GC-FLOW-2.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/G1GC/G1GC-FLOW-3.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/G1GC/G1GC-FLOW-4.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/G1GC/G1GC-FLOW-5.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/G1GC/G1GC-FLOW-6.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/G1GC/G1GC-FLOW-7.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/G1GC/G1GC-FLOW-8.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/G1GC/G1GC-FLOW-9.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/G1GC/G1GC-FLOW-10.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/G1GC/G1GC-FLOW-11.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/G1GC/G1GC-FLOW-12.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/G1GC/G1GC-FLOW-13.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/G1GC/G1GC-FLOW-14.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/G1GC/G1GC-FLOW-15.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/Concurrent-Mark-Problem/Concurrent-Mark-Problem-1.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/Concurrent-Mark-Problem/Concurrent-Mark-Problem-2.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/Concurrent-Mark-Problem/Concurrent-Mark-Problem-3.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/Concurrent-Mark-Problem/Concurrent-Mark-Problem-4.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/Concurrent-Mark-Problem/Concurrent-Mark-Problem-5.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/Concurrent-Mark-Problem/Concurrent-Mark-Problem-6.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/Concurrent-Mark-Problem/Concurrent-Mark-Problem-7.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/Concurrent-Mark-Problem/Concurrent-Mark-Problem-8.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/SATB-buffer&mark-stack/SATB-buffer&mark-stack-1.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/SATB-buffer&mark-stack/SATB-buffer&mark-stack-2.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/SATB-buffer&mark-stack/SATB-buffer&mark-stack-3.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/SATB-buffer&mark-stack/SATB-buffer&mark-stack-4.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/SATB-buffer&mark-stack/SATB-buffer&mark-stack-5.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/SATB-buffer&mark-stack/SATB-buffer&mark-stack-6.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/SATB-buffer&mark-stack/SATB-buffer&mark-stack-7.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/SATB-buffer&mark-stack/SATB-buffer&mark-stack-8.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/SATB-buffer&mark-stack/SATB-buffer&mark-stack-9.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/SATB-buffer&mark-stack/SATB-buffer&mark-stack-10.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/SATB-buffer&mark-stack/SATB-buffer&mark-stack-11.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/SATB-buffer&mark-stack/SATB-buffer&mark-stack-12.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/MixedGC%E2%80%93RememberedSet/MixedGC%E2%80%93RememberedSet-1.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/MixedGC%E2%80%93RememberedSet/MixedGC%E2%80%93RememberedSet-2.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/MixedGC%E2%80%93RememberedSet/MixedGC%E2%80%93RememberedSet-3.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/MixedGC%E2%80%93RememberedSet/MixedGC%E2%80%93RememberedSet-4.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/MixedGC%E2%80%93RememberedSet/MixedGC%E2%80%93RememberedSet-5.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/MixedGC%E2%80%93RememberedSet/MixedGC%E2%80%93RememberedSet-6.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/MixedGC%E2%80%93RememberedSet/MixedGC%E2%80%93RememberedSet-7.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/MixedGC%E2%80%93RememberedSet/MixedGC%E2%80%93RememberedSet-8.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/MixedGC%E2%80%93RememberedSet/MixedGC%E2%80%93RememberedSet-9.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/Humongous-Object/Humongous-Object-1.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/Humongous-Object/Humongous-Object-2.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/Humongous-Object/Humongous-Object-3.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/Evacuation-Failure/Evacuation-Failure-1.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/Evacuation-Failure/Evacuation-Failure-2.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/Evacuation-Failure/Evacuation-Failure-3.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/Evacuation-Failure/Evacuation-Failure-4.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/Evacuation-Failure/Evacuation-Failure-5.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/Evacuation-Failure/Evacuation-Failure-6.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/Evacuation-Failure/Evacuation-Failure-7.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/Evacuation-Failure/Evacuation-Failure-8.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/Evacuation-Failure/Evacuation-Failure-9.png">
+<meta property="article:published_time" content="2026-05-07T22:47:42.000Z">
+<meta property="article:modified_time" content="2026-06-03T06:19:04.315Z">
 <meta property="article:author" content="Seo Yang Hun">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://syh8088.github.io/img/JAVA/GC/G1GC-region/G1GC-region-1.png">
 
 
 <link rel="icon" href="/img/avatar.jpg">
@@ -56,7 +120,7 @@
 
 
 <body>
-<aside class="nav">
+<aside class="nav mobile">
     <div class="nav-left">
         <a href="/"
    class="avatar_target">
@@ -1381,37 +1445,37 @@
         
         
         <a  class="모든 글 JAVA GC "
+           href="/2026/05/08/JAVA/GC/GC3/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="JAVA GC - G1GC">JAVA GC - G1GC</span>
+            <span class="post-date" title="2026-05-08 07:47:42">2026/05/08</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA GC "
+           href="/2026/05/02/JAVA/GC/GC2/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="JAVA GC - Parallel GC">JAVA GC - Parallel GC</span>
+            <span class="post-date" title="2026-05-02 07:47:42">2026/05/02</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA GC "
+           href="/2026/04/12/JAVA/GC/GC1/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="JAVA GC - Serial GC">JAVA GC - Serial GC</span>
+            <span class="post-date" title="2026-04-12 07:47:42">2026/04/12</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA GC "
            href="/2026/03/30/JAVA/GC/GC0/"
            data-tag=""
            data-author="" >
             <span class="post-title" title="JAVA GC - JVM 알아보기">JAVA GC - JVM 알아보기</span>
-            <span class="post-date" title="2026-03-30 07:47:42">2026/03/30</span>
-        </a>
-        
-        
-        <a  class="모든 글 JAVA GC "
-           href="/2026/03/30/JAVA/GC/GC3/"
-           data-tag=""
-           data-author="" >
-            <span class="post-title" title="JAVA GC - G1GC">JAVA GC - G1GC</span>
-            <span class="post-date" title="2026-03-30 07:47:42">2026/03/30</span>
-        </a>
-        
-        
-        <a  class="모든 글 JAVA GC "
-           href="/2026/03/30/JAVA/GC/GC1/"
-           data-tag=""
-           data-author="" >
-            <span class="post-title" title="JAVA GC - Serial GC">JAVA GC - Serial GC</span>
-            <span class="post-date" title="2026-03-30 07:47:42">2026/03/30</span>
-        </a>
-        
-        
-        <a  class="모든 글 JAVA GC "
-           href="/2026/03/30/JAVA/GC/GC2/"
-           data-tag=""
-           data-author="" >
-            <span class="post-title" title="JAVA GC - Parallel GC">JAVA GC - Parallel GC</span>
             <span class="post-date" title="2026-03-30 07:47:42">2026/03/30</span>
         </a>
         
@@ -2052,53 +2116,12 @@
         </div>
     </div>
 </aside>
-<div id="post">
+<div id="post" class="index">
     <div class="pjax">
-        <article id="post-JAVA/GC/GC2" class="article article-type-post" itemscope itemprop="blogPost">
+        <article class="index">
+            <div class="toc-ref">
     
-        <h1 class="article-title">JAVA GC - Parallel GC</h1>
-    
-    <div class="article-meta">
-        
-        
-        
-        <span class="book">
-            <i class="iconfont icon-category"></i>
-            
-            
-            <a  data-rel="JAVA">JAVA</a> > 
-            
-            <a  data-rel="JAVA&lt;---&gt;GC">GC</a>
-            
-        </span>
-        
-        
-    </div>
-    <div class="article-meta">
-        
-            작성일 : <time class="date" title='수정일: 2026-05-31 20:18:53'>2026-03-30 07:47</time>
-        
-    </div>
-    <div class="article-meta">
-        
-        
-        <span id="busuanzi_container_page_pv">
-            조회수 :<span id="busuanzi_value_page_pv">
-                <span class="count-comment">
-                    <span class="spinner">
-                      <div class="cube1"></div>
-                      <div class="cube2"></div>
-                    </span>
-                </span>
-            </span>
-        </span>
-        
-        
-    </div>
-    
-    <div class="toc-ref">
-    
-        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Parallel-GC%EB%9E%80"><span class="toc-text">Parallel GC란?</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%EC%B2%98%EB%A6%AC%EB%9F%89-Throughput-%EC%A4%91%EC%8B%AC%EC%9C%BC%EB%A1%9C-%EB%8F%99%EC%9E%91%ED%95%98%EB%8A%94-JVM-GC"><span class="toc-text">처리량(Throughput) 중심으로 동작하는 JVM GC</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Parallel-GC%EC%9D%98-%EA%B8%B0%EB%B3%B8-%EA%B0%9C%EB%85%90"><span class="toc-text">Parallel GC의 기본 개념</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#UseParallelOldGC-%EB%8A%94-%EC%99%9C-%EA%B0%99%EC%9D%B4-%EC%96%B8%EA%B8%89%EB%90%A0%EA%B9%8C"><span class="toc-text">UseParallelOldGC 는 왜 같이 언급될까?</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Parallel-GC%EB%8A%94-%EC%99%9C-Throughput-%EC%97%90-%EA%B0%95%ED%95%A0%EA%B9%8C"><span class="toc-text">Parallel GC는 왜 Throughput 에 강할까?</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Parallel-GC%EC%9D%98-GC-Threads%EB%8A%94-%EC%96%B4%EB%96%BB%EA%B2%8C-%EA%B2%B0%EC%A0%95%EB%90%A0%EA%B9%8C"><span class="toc-text">Parallel GC의 GC Threads는 어떻게 결정될까?</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%EB%A8%B8%EC%8B%A0-%EC%8A%A4%ED%8E%99%EC%97%90-%EB%94%B0%EB%9D%BC-Parallel-GC-%EC%84%B1%EB%8A%A5%EC%9D%80-%EC%96%B4%EB%96%BB%EA%B2%8C-%EB%8B%AC%EB%9D%BC%EC%A7%88%EA%B9%8C"><span class="toc-text">머신 스펙에 따라 Parallel GC 성능은 어떻게 달라질까?</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-Single-core-%ED%99%98%EA%B2%BD"><span class="toc-text">1. Single-core 환경</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-Dual-core-%ED%99%98%EA%B2%BD"><span class="toc-text">2. Dual-core 환경</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-Multi-core-%ED%99%98%EA%B2%BD"><span class="toc-text">3. Multi-core 환경</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Parallel-GC%EB%8A%94-%EC%96%B4%EB%96%A4-%EC%95%A0%ED%94%8C%EB%A6%AC%EC%BC%80%EC%9D%B4%EC%85%98%EC%97%90-%EC%9E%98-%EB%A7%9E%EC%9D%84%EA%B9%8C"><span class="toc-text">Parallel GC는 어떤 애플리케이션에 잘 맞을까?</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%EC%A0%95%EB%A6%AC-%ED%95%B4%EB%B3%B4%EC%9E%90"><span class="toc-text">정리 해보자</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Parallel-GC%EC%9D%98-PLAB"><span class="toc-text">Parallel GC의 PLAB</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#PLAB%EA%B0%80-%EC%99%9C-%ED%95%84%EC%9A%94%ED%95%A0%EA%B9%8C"><span class="toc-text">PLAB가 왜 필요할까?</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#TLAB%EC%99%80-%EB%B9%84%EC%8A%B7%ED%95%98%EC%A7%80%EB%A7%8C-%EB%8C%80%EC%83%81%EC%9D%B4-%EB%8B%A4%EB%A6%85%EB%8B%88%EB%8B%A4"><span class="toc-text">TLAB와 비슷하지만 대상이 다릅니다.</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Parallel-GC%EC%97%90%EC%84%9C-PLAB%EB%8A%94-%EC%96%B4%EB%94%94%EC%97%90-%EC%82%AC%EC%9A%A9%EB%90%A0%EA%B9%8C"><span class="toc-text">Parallel GC에서 PLAB는 어디에 사용될까?</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%EA%B0%9D%EC%B2%B4%EB%A5%BC-%EB%B3%B5%EC%82%AC%ED%95%A0-%EB%95%8C-%EC%96%B4%EB%96%A4-%EB%B0%A9%EC%8B%9D%EC%9D%B4-%EA%B0%80%EB%8A%A5%ED%95%A0%EA%B9%8C"><span class="toc-text">객체를 복사할 때 어떤 방식이 가능할까?</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#to-survivor%EB%A1%9C-%EB%B3%B5%EC%82%AC%ED%95%98%EB%8A%94-%EA%B2%BD%EC%9A%B0"><span class="toc-text">to-survivor로 복사하는 경우</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#old-generation-%EC%9C%BC%EB%A1%9C-promotion-%EB%90%98%EB%8A%94-%EA%B2%BD%EC%9A%B0"><span class="toc-text">old generation 으로 promotion 되는 경우</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Parallel-Collector-Ergonomics"><span class="toc-text">Parallel Collector Ergonomics</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%EB%AA%A9%ED%91%9C-%EC%9A%B0%EC%84%A0%EC%88%9C%EC%9C%84-%EC%9A%94%EC%95%BD"><span class="toc-text">목표 우선순위 요약</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Parallel-GC%EA%B0%80-%EC%9A%B0%EC%84%A0%EC%A0%81%EC%9C%BC%EB%A1%9C-%EB%A7%9E%EC%B6%94%EB%A0%A4%EB%8A%94-3%EA%B0%80%EC%A7%80-%EB%AA%A9%ED%91%9C"><span class="toc-text">Parallel GC가 우선적으로 맞추려는 3가지 목표</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%EB%AA%A9%ED%91%9C%EC%9D%98-%EC%9A%B0%EC%84%A0%EC%88%9C%EC%9C%84%EB%8A%94-%EC%96%B4%EB%96%BB%EA%B2%8C-%EB%90%A0%EA%B9%8C"><span class="toc-text">목표의 우선순위는 어떻게 될까?</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%EC%99%9C-generation-size%EB%A5%BC-%EC%9E%90%EB%8F%99%EC%9C%BC%EB%A1%9C-%EC%A1%B0%EC%A0%95%ED%95%A0%EA%B9%8C"><span class="toc-text">왜 generation size를 자동으로 조정할까?</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Parallel-GC-Generation-Size-%EC%9E%AC%EC%A1%B0%EC%A0%95"><span class="toc-text">Parallel GC - Generation Size 재조정</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Generation-Size-%EC%9E%AC%EC%A1%B0%EC%A0%95-%EA%B4%80%EB%A0%A8-%EC%A3%BC%EC%9A%94-%EC%98%B5%EC%85%98"><span class="toc-text">Generation Size 재조정 관련 주요 옵션</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%EC%B6%95%EC%86%8C-%EB%B9%84%EC%9C%A8%EC%9D%80-%EC%96%B4%EB%96%BB%EA%B2%8C-%EA%B3%84%EC%82%B0%EB%90%A0%EA%B9%8C"><span class="toc-text">축소 비율은 어떻게 계산될까?</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%EC%99%9C-%ED%99%95%EC%9E%A5%EA%B3%BC-%EC%B6%95%EC%86%8C-%EB%B9%84%EC%9C%A8%EC%9D%84-%EB%8B%A4%EB%A5%B4%EA%B2%8C-%EB%91%98%EA%B9%8C"><span class="toc-text">왜 확장과 축소 비율을 다르게 둘까?</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Parallel-GC-Generation-Size%EB%A5%BC-%EC%A4%84%EC%9D%BC-%EB%95%8C%EC%99%80-%EB%8A%98%EB%A6%B4-%EB%95%8C"><span class="toc-text">Parallel GC - Generation Size를 줄일 때와 늘릴 때</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Generation-size%EB%A5%BC-%EA%B0%90%EC%86%8C%EC%8B%9C%ED%82%AC-%EB%95%8C"><span class="toc-text">Generation size를 감소시킬 때</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%EA%B7%B8%EB%9F%BC-%EC%96%B4%EB%96%BB%EA%B2%8C-%EC%A4%84%EC%9D%BC%EA%B9%8C"><span class="toc-text">그럼 어떻게 줄일까?</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#Young-generation%EB%A7%8C-%EC%A4%84%EC%9D%B4%EB%8A%94-%EA%B2%BD%EC%9A%B0"><span class="toc-text">Young generation만 줄이는 경우</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%EB%91%98-%EB%8B%A4-%EB%AA%A9%ED%91%9C%EB%A5%BC-%EB%AA%BB-%EB%A7%9E%EC%B7%84%EC%9D%84-%EB%95%8C"><span class="toc-text">둘 다 목표를 못 맞췄을 때</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Generation-size%EB%A5%BC-%EC%A6%9D%EA%B0%80%EC%8B%9C%ED%82%AC-%EB%95%8C"><span class="toc-text">Generation size를 증가시킬 때</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%EC%A6%9D%EA%B0%80-%EB%B9%84%EC%9C%A8%EC%9D%80-%EC%96%B4%EB%96%BB%EA%B2%8C-%EA%B2%B0%EC%A0%95%EB%90%A0%EA%B9%8C"><span class="toc-text">증가 비율은 어떻게 결정될까?</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#young-old-GC-time-1-3"><span class="toc-text">young : old GC time &#x3D; 1 : 3</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#young-old-GC-time-3-1"><span class="toc-text">young : old GC time &#x3D; 3 : 1</span></a></li></ol></li></ol></li></ol></li></ol></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Seo-Yang-Hun-Blog"><span class="toc-text">Seo Yang Hun Blog</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%EB%B0%98%EA%B0%91%EC%8A%B5%EB%8B%88%EB%8B%A4"><span class="toc-text">반갑습니다!</span></a></li></ol></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -2111,369 +2134,14 @@
     }
 </style>
 </div>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h1 id="Parallel-GC란"><a href="#Parallel-GC란" class="headerlink" title="Parallel GC란?"></a>Parallel GC란?</h1><h2 id="처리량-Throughput-중심으로-동작하는-JVM-GC"><a href="#처리량-Throughput-중심으로-동작하는-JVM-GC" class="headerlink" title="처리량(Throughput) 중심으로 동작하는 JVM GC"></a>처리량(Throughput) 중심으로 동작하는 JVM GC</h2><p><code>JVM</code>의 여러 <code>Garbage Collector</code> 중에서 <code>Parallel GC</code>는 대표적인 <code>처리량(Throughput) 중심 collector</code> 입니다. 즉, GC로 인한 애플리케이션 중단 시간을 아주 짧게 만드는 것보다는, <code>전체적으로 애플리케이션이 더 많은 일을 처리하도록 돕는 것</code>에 초점이 맞춰져 있습니다. 그래서 Parallel GC는 흔히 <code>Throughput GC</code> 라고도 불립니다.</p>
-<p>특히 사용자 응답 속도보다 <strong>전체 작업량</strong>이 더 중요한 환경, 예를 들어 <code>배치 작업</code>이나 <code>대량 데이터 처리</code> 같은 워크로드에서 잘 어울립니다.</p>
-<h2 id="Parallel-GC의-기본-개념"><a href="#Parallel-GC의-기본-개념" class="headerlink" title="Parallel GC의 기본 개념"></a>Parallel GC의 기본 개념</h2><p>Parallel GC는 구조적으로는 Serial GC와 비슷하지만, 큰 차이점이 하나 있습니다. 바로 GC 작업을 <code>여러 개의 GC 스레드로 병렬 수행</code> 한다는 점입니다.</p>
-<p>즉, <code>Minor GC(Young GC)</code> 도 병렬로 수행하고 <code>Major GC(Full GC)</code> 도 병렬로 수행할 수 있습니다. 이 때문에 단일 GC 스레드로 동작하는 <code>Serial GC</code> 보다 CPU 코어 수가 충분한 환경에서는 더 높은 처리량을 기대할 수 있습니다.</p>
-<p>Parallel GC를 사용하려면 다음 옵션을 명시하면 됩니다.</p>
-<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">-XX:+UseParallelGC</span><br></pre></td></tr></table></figure>
-
-<p>JDK 8까지는 server-class machine 에서 기본 GC로 사용되던 시기도 있었습니다.</p>
-<h2 id="UseParallelOldGC-는-왜-같이-언급될까"><a href="#UseParallelOldGC-는-왜-같이-언급될까" class="headerlink" title="UseParallelOldGC 는 왜 같이 언급될까?"></a><code>UseParallelOldGC</code> 는 왜 같이 언급될까?</h2><p>Parallel GC를 설명할 때 자주 같이 나오는 옵션이 있습니다.</p>
-<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">-XX:+UseParallelOldGC</span><br></pre></td></tr></table></figure>
-
-<p>초기에는 <code>-XX:+UseParallelGC</code> 를 사용하더라도 Young Generation 수집만 병렬로 수행하고 <code>Old Generation 수집은 Serial 방식으로 처리</code> 하던 시기가 있었습니다. 그래서 <code>Old Generation 까지 병렬로 수집</code>하려면<br>별도로 <code>-XX:+UseParallelOldGC</code> 옵션을 함께 지정해야 했습니다.</p>
-<p>하지만 이후 <code>JDK 7u4</code> 부터는 <code>-XX:+UseParallelGC</code> 만 지정해도<code>-XX:+UseParallelOldGC</code> 가 함께 활성화되도록 바뀌었습니다. 즉, 현대적인 관점에서는 Parallel GC를 사용할 때 Old 영역 병렬 수집까지 하나의 동작으로 이해해도 큰 무리는 없습니다.</p>
-<p>다만 이 옵션은 이후 버전에서 deprecated, obsoleted, expired 과정을 거쳤기 때문에 <code>JDK 버전에 따라 의미가 다를 수 있다는 점</code>은 같이 적어두면 좋습니다.</p>
-<h2 id="Parallel-GC는-왜-Throughput-에-강할까"><a href="#Parallel-GC는-왜-Throughput-에-강할까" class="headerlink" title="Parallel GC는 왜 Throughput 에 강할까?"></a>Parallel GC는 왜 <code>Throughput</code> 에 강할까?</h2><p>Parallel GC의 핵심은 간단합니다.</p>
-<blockquote>
-<p>GC 작업을 하나의 스레드가 처리하지 않고, 여러 GC 스레드가 나눠서 처리한다.</p>
-</blockquote>
-<p>예를 들어 힙이 크고 정리해야 할 객체도 많다면 GC 작업을 여러 스레드가 동시에 수행하는 편이 전체 수집 시간을 줄이는 데 유리할 수 있습니다.</p>
-<p>이 방식은 특히 다음과 같은 상황에서 효과적입니다.</p>
-<ul>
-<li>힙이 비교적 큰 경우</li>
-<li>객체 생성과 정리가 많이 발생하는 경우</li>
-<li>멀티코어 CPU를 충분히 활용할 수 있는 경우</li>
-</ul>
-<p>즉 Parallel GC는 <code>CPU 자원을 더 적극적으로 써서 GC 처리량을 높이는 collector</code>라고 볼 수 있습니다.</p>
-<h2 id="Parallel-GC의-GC-Threads는-어떻게-결정될까"><a href="#Parallel-GC의-GC-Threads는-어떻게-결정될까" class="headerlink" title="Parallel GC의 GC Threads는 어떻게 결정될까?"></a>Parallel GC의 GC Threads는 어떻게 결정될까?</h2><p>Parallel GC는 이름 그대로 여러 GC 스레드를 사용합니다. 그렇다면 이 스레드 수는 어떻게 정해질까요?</p>
-<p>기본적으로는 <code>Ergonomics</code> 가 시스템 환경을 보고 자동으로 결정합니다. 즉, JVM이 머신의 CPU 코어 수 또는 하드웨어 스레드 수를 기준으로 GC 스레드 수를 잡습니다.</p>
-<p>예를 들어:</p>
-<ul>
-<li>물리 코어가 6개</li>
-<li>하이퍼스레딩으로 12개의 h&#x2F;w thread 제공</li>
-</ul>
-<p>이라면 JVM은 보통 <code>12를 기준으로 판단</code>할 수 있습니다. 또한 컨테이너 환경에서는 호스트 전체 CPU가 아니라 <code>컨테이너에 할당된 CPU 수</code>를 기준으로 동작할 수 있습니다.</p>
-<p>GC 스레드 수를 계산하는 대표적인 방식은 다음과 같습니다.</p>
-<ul>
-<li><code>N &lt;= 8</code> 이면 GC threads &#x3D; <code>N</code></li>
-<li><code>N &gt; 8</code> 이면 GC threads &#x3D; <code>8 + (N - 8) * 5 / 8</code></li>
-</ul>
-<p>일부 시스템에서는 조금 다른 계산식이 적용될 수 있습니다. 그리고 필요하다면 다음 옵션으로 직접 지정할 수도 있습니다.</p>
-<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">-XX:ParallelGCThreads=M</span><br></pre></td></tr></table></figure>
-
-<p>이 옵션을 사용하면 JVM의 자동 판단 대신 GC 스레드 수를 명시적으로 고정할 수 있습니다.</p>
-<p>특히 <code>한 대의 장비에서 여러 Java 프로세스를 함께 실행하는 경우</code>에는 GC 스레드 수를 직접 조정해서 CPU 경쟁을 줄이는 것이 도움이 될 수 있습니다.</p>
-<h2 id="머신-스펙에-따라-Parallel-GC-성능은-어떻게-달라질까"><a href="#머신-스펙에-따라-Parallel-GC-성능은-어떻게-달라질까" class="headerlink" title="머신 스펙에 따라 Parallel GC 성능은 어떻게 달라질까?"></a>머신 스펙에 따라 Parallel GC 성능은 어떻게 달라질까?</h2><p>Parallel GC는 <code>멀티스레드 기반 collector</code> 이기 때문에 CPU 환경에 따라 효과가 꽤 다르게 나타납니다.</p>
-<h3 id="1-Single-core-환경"><a href="#1-Single-core-환경" class="headerlink" title="1. Single-core 환경"></a>1. Single-core 환경</h3><p>단일 코어 환경에서는 Parallel GC의 장점이 거의 드러나지 않을 수 있습니다. 오히려 GC 스레드 간 동기화 오버헤드 때문에 Serial GC보다 불리할 수도 있습니다.</p>
-<p>즉, 병렬 처리를 위한 구조는 갖고 있지만 실제로 병렬로 돌릴 CPU 자원이 부족하면 이점이 줄어듭니다.</p>
-<h3 id="2-Dual-core-환경"><a href="#2-Dual-core-환경" class="headerlink" title="2. Dual-core 환경"></a>2. Dual-core 환경</h3><p>듀얼 코어 정도의 환경에서는 중간 크기 이상 힙을 사용하는 애플리케이션에서 Serial GC보다 조금 더 나은 성능을 보일 수 있습니다.</p>
-<p>아주 큰 차이는 아닐 수 있지만, GC 작업을 나눠 처리할 수 있는 최소한의 여건이 갖춰지기 시작하는 구간이라고 볼 수 있습니다.</p>
-<h3 id="3-Multi-core-환경"><a href="#3-Multi-core-환경" class="headerlink" title="3. Multi-core 환경"></a>3. Multi-core 환경</h3><p>멀티코어 환경에서는 Parallel GC의 장점이 훨씬 뚜렷해집니다. GC 작업을 여러 스레드가 동시에 수행할 수 있기 때문에, Serial GC보다 훨씬 더 높은 처리량을 기대할 수 있습니다.</p>
-<p>즉, Parallel GC는 본질적으로 <code>코어 수가 충분한 환경에서 힘을 발휘하는 collector</code> 입니다.</p>
-<h2 id="Parallel-GC는-어떤-애플리케이션에-잘-맞을까"><a href="#Parallel-GC는-어떤-애플리케이션에-잘-맞을까" class="headerlink" title="Parallel GC는 어떤 애플리케이션에 잘 맞을까?"></a>Parallel GC는 어떤 애플리케이션에 잘 맞을까?</h2><p>Parallel GC는 <code>Latency(짧은 멈춤 시간)</code> 보다는<code>Throughput(전체 처리량)</code>을 더 중요하게 보는 환경에 적합합니다.</p>
-<p>예를 들면 다음과 같습니다.</p>
-<ul>
-<li>배치 프로그램</li>
-<li>로그&#x2F;통계 집계 작업</li>
-<li>대량 데이터 처리</li>
-<li>사용자 응답 속도보다 전체 작업 완료 시간이 더 중요한 시스템</li>
-</ul>
-<p>반대로, 사용자 요청마다 응답 시간이 매우 민감한 시스템에서는 Parallel GC의 긴 <code>Stop-The-World pause가 부담</code>이 될 수 있습니다.</p>
-<p>즉, Parallel GC는 좋은 GC라기보다 <code>어떤 목표를 우선하느냐에 따라 적합성이 갈리는 GC</code> 라고 보는 것이 더 정확합니다.</p>
-<h2 id="정리-해보자"><a href="#정리-해보자" class="headerlink" title="정리 해보자"></a>정리 해보자</h2><p>Parallel GC는 JVM의 <code>대표적인 처리량 중심 GC</code>입니다. Young 영역뿐 아니라 Old 영역까지 병렬로 수집할 수 있으며, 여러 GC 스레드를 활용해 전체 작업 효율을 높이는 데 강점이 있습니다.</p>
-<p>핵심만 정리하면 이렇습니다.</p>
-<ul>
-<li>Parallel GC는 Throughput 중심 collector다</li>
-<li><code>-XX:+UseParallelGC</code> 로 사용할 수 있다</li>
-<li>여러 GC 스레드로 Minor GC &#x2F; Major GC를 병렬 수행한다</li>
-<li>CPU 코어가 많을수록 장점이 커진다</li>
-<li>배치, 데이터 처리처럼 전체 처리량이 중요한 환경에 잘 맞는다</li>
-<li>짧은 pause time이 중요한 시스템에서는 다른 collector가 더 적합할 수 있다</li>
-</ul>
-<p>결국 Parallel GC는 <code>“GC pause를 얼마나 짧게 만들까?”</code> 보다<code>“전체적으로 얼마나 많은 일을 처리할까?”</code> 를 우선하는 collector라고 이해하면 됩니다.</p>
-<h2 id="Parallel-GC의-PLAB"><a href="#Parallel-GC의-PLAB" class="headerlink" title="Parallel GC의 PLAB"></a>Parallel GC의 <code>PLAB</code></h2><p>Parallel GC의 <code>PLAB</code> 란 GC 스레드 간 할당 충돌을 줄이기 위한 버퍼 입니다.</p>
-<p>Parallel GC를 보면 애플리케이션 스레드용 버퍼인 TLAB 외에도 GC 자체가 사용하는 <code>PLAB(Promotion Local Allocation Buffer)</code> 이라는 개념이 나옵니다.</p>
-<p>이름만 보면 조금 낯설 수 있지만, 핵심은 단순합니다. Parallel GC의 각 <code>GC 스레드</code>가 <code>survivor</code> 또는 <code>old generation</code> 으로 객체를 복사할 때, 서로 같은 메모리 영역을 두고 경쟁하지 않도록 쓰는 전용 버퍼 즉, PLAB는 GC 과정에서 발생할 수 있는 GC thread 간 동기화 병목을 줄이기 위한 장치라고 보면 됩니다.</p>
-<h3 id="PLAB가-왜-필요할까"><a href="#PLAB가-왜-필요할까" class="headerlink" title="PLAB가 왜 필요할까?"></a>PLAB가 왜 필요할까?</h3><p>Parallel GC는 이름 그대로 <code>여러 개의 GC 스레드</code>가 동시에 동작합니다. Young GC가 발생하면 각 <code>GC 스레드는 자신이 맡은 GC root부터 시작해서</code> 살아 있는 객체를 추적하고, 살아 있는 객체를 다른 영역으로 복사합니다.</p>
-<p>이때 문제가 생길 수 있습니다. 여러 GC 스레드가 동시에 survivor 영역에 객체를 복사하거나 old generation으로 promotion 하려고 하면 결국 같은 목적지 메모리 공간에 동시에 객체를 배치하려는 상황이 발생할 수 있습니다.</p>
-<p>이걸 매번 전역 동기화로 해결할 수도 있지만 그렇게 되면 Parallel GC의 장점인 병렬성이 크게 줄어듭니다. 그래서 Parallel GC는 각 GC 스레드에게 자기만 사용하는 작은 복사 버퍼, 즉 PLAB 를 줍니다.</p>
-<h3 id="TLAB와-비슷하지만-대상이-다릅니다"><a href="#TLAB와-비슷하지만-대상이-다릅니다" class="headerlink" title="TLAB와 비슷하지만 대상이 다릅니다."></a>TLAB와 비슷하지만 대상이 다릅니다.</h3><p>PLAB는 개념적으로 TLAB와 꽤 비슷합니다.</p>
-<ul>
-<li><code>TLAB</code>: 애플리케이션 스레드가 Eden에 객체를 빠르게 할당하기 위한 버퍼</li>
-<li><code>PLAB</code>: GC 스레드가 survivor &#x2F; old 영역에 객체를 빠르게 복사하기 위한 버퍼</li>
-</ul>
-<p>즉, 둘 다 <code>“경합을 줄이기 위한 thread-local 성격의 버퍼”</code> 라는 점에서는 비슷합니다. 하지만 차이점은 분명합니다.</p>
-<ul>
-<li><code>TLAB</code>는 application thread 에게 할당됨</li>
-<li><code>PLAB</code>는 GC thread 에게 할당됨</li>
-</ul>
-<p>이 차이를 한 문장으로 정리하면 이렇습니다.</p>
-<p><code>TLAB</code>는 객체 생성 시점의 병목을 줄이기 위한 버퍼이고, <code>PLAB</code>는 GC 중 객체 복사 시점의 병목을 줄이기 위한 버퍼다.</p>
-<h3 id="Parallel-GC에서-PLAB는-어디에-사용될까"><a href="#Parallel-GC에서-PLAB는-어디에-사용될까" class="headerlink" title="Parallel GC에서 PLAB는 어디에 사용될까?"></a>Parallel GC에서 PLAB는 어디에 사용될까?</h3><p>Parallel GC의 각 GC 스레드는 보통 다음 두 경우에 PLAB를 사용합니다.</p>
-<p>to-survivor 복사<br>Young GC 중 살아남은 객체가 survivor 영역으로 이동할 때 사용됩니다. 즉, <code>Eden</code> 또는 <code>from-survivor</code>에 있던 살아 있는 객체가 <code>to-survivor</code>로 복사될 때 GC 스레드는 자기 PLAB를 활용할 수 있습니다.</p>
-<p>old generation promotion</p>
-<p>객체의 age가 다 찼거나, survivor에 더 이상 공간이 부족한 경우 해당 객체는 <code>old generation으로 promotion</code> 됩니다. 이때도 각 GC 스레드는 old generation 쪽 PLAB를 활용해 promotion 대상을 복사할 수 있습니다.</p>
-<p>즉, PLAB는 단순히 <code>promotion 전용</code> 이라기보다, GC 중 복사(copy)가 필요한 대상 영역에서 GC 스레드가 충돌 없이 빠르게 할당할 수 있게 해주는 버퍼라고 이해하면 됩니다.</p>
-<h3 id="객체를-복사할-때-어떤-방식이-가능할까"><a href="#객체를-복사할-때-어떤-방식이-가능할까" class="headerlink" title="객체를 복사할 때 어떤 방식이 가능할까?"></a>객체를 복사할 때 어떤 방식이 가능할까?</h3><p>GC 스레드가 객체를 <code>survivor</code> 또는 <code>old generation</code>으로 복사할 때는 대체로 다음과 같은 흐름으로 생각할 수 있습니다.</p>
-<h4 id="to-survivor로-복사하는-경우"><a href="#to-survivor로-복사하는-경우" class="headerlink" title="to-survivor로 복사하는 경우"></a>to-survivor로 복사하는 경우</h4><p>살아 있는 객체를 <code>to-survivor</code>로 옮길 때는 다음 중 하나로 처리될 수 있습니다.</p>
-<ul>
-<li>현재 GC thread의 PLAB 안에 바로 할당</li>
-<li>direct 할당</li>
-<li>PLAB 공간이 부족하면 refill 후 할당</li>
-</ul>
-<p>즉, 가장 이상적인 경우는 자기 PLAB 안에 바로 넣는 것이고, 그게 안 되면 다른 경로를 사용하게 됩니다.</p>
-<h4 id="old-generation-으로-promotion-되는-경우"><a href="#old-generation-으로-promotion-되는-경우" class="headerlink" title="old generation 으로 promotion 되는 경우"></a>old generation 으로 promotion 되는 경우</h4><p>객체가 <code>old generation</code> 으로 가야 하는 상황은 보통 다음과 같습니다. 객체 age가 임계치에 도달한 경우 survivor 공간이 부족한 경우 이때도 처리 방식은 비슷합니다.</p>
-<ul>
-<li>old용 PLAB 안에 할당</li>
-<li>direct 할당</li>
-<li>공간이 부족하면 refill 후 할당</li>
-</ul>
-<p>즉 survivor든 old든 핵심은 같습니다. 가능하면 각 GC 스레드가 자기 PLAB 안에서 처리하고 안 되면 direct allocation 또는 refill 과정을 거치게 됩니다.</p>
-<p><img src="/../../../img/JAVA/GC/Parallel-GC_PLAB/Parallel-GC_PLAB.png" alt="Parallel-GC_PLAB"></p>
-<p>위 그림은 Parallel GC에서 PLAB가 어떻게 쓰이는지를 이해하는 데 도움이 됩니다.</p>
-<p>전체 힙 안에 <code>young generation</code>과 <code>old generation</code>이 존재 합니다. 각 GC thread는 survivor &#x2F; old 쪽에 자기만의 PLAB 를 가질 수 있습니다.</p>
-<p>Young GC 중 객체가 이동할 때 각 GC thread는 자기 PLAB를 우선 사용 되고, 이렇게 하면 여러 GC 스레드가 같은 survivor 또는 old 영역에 동시에 직접 할당하려고 하면서 생기는 경쟁을 줄일 수 있습니다.</p>
-<h2 id="Parallel-Collector-Ergonomics"><a href="#Parallel-Collector-Ergonomics" class="headerlink" title="Parallel Collector Ergonomics"></a>Parallel Collector Ergonomics</h2><p>Parallel GC는 단순히 Young&#x2F;Old 크기를 고정해서 사용하는 방식이 아니라, <strong>행동(behavior) 기반 목표</strong>를 기준으로 JVM이 heap size와 generation size를 자동 조정하는 collector입니다.</p>
-<p>Ergonomics는 보통 아래 3가지 목표를 우선순위에 따라 고려합니다.</p>
-<h3 id="목표-우선순위-요약"><a href="#목표-우선순위-요약" class="headerlink" title="목표 우선순위 요약"></a>목표 우선순위 요약</h3><table>
-<thead>
-<tr>
-<th>우선순위</th>
-<th>목표</th>
-<th>의미</th>
-<th>관련 옵션</th>
-<th>기본값</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>1</td>
-<td>Maximum pause-time goal</td>
-<td>GC로 인한 최대 STW 시간을 가능한 목표 이하로 맞추려는 것</td>
-<td><code>-XX:MaxGCPauseMillis=N</code></td>
-<td>제한 없음</td>
-</tr>
-<tr>
-<td>2</td>
-<td>Throughput goal</td>
-<td>전체 실행 시간 중 GC 시간이 너무 커지지 않도록 조정</td>
-<td><code>-XX:GCTimeRatio=N</code></td>
-<td><code>99</code></td>
-</tr>
-<tr>
-<td>3</td>
-<td>Minimum footprint goal</td>
-<td>다른 목표를 만족하는 범위 안에서 heap을 가능한 작게 유지</td>
-<td><code>-XmxN</code></td>
-<td>물리 메모리(또는 컨테이너 메모리)의 대략 1&#x2F;4 수준에서 시작</td>
-</tr>
-</tbody></table>
-<hr>
-<h3 id="Parallel-GC가-우선적으로-맞추려는-3가지-목표"><a href="#Parallel-GC가-우선적으로-맞추려는-3가지-목표" class="headerlink" title="Parallel GC가 우선적으로 맞추려는 3가지 목표"></a>Parallel GC가 우선적으로 맞추려는 3가지 목표</h3><p>Parallel Collector ergonomics는 대표적으로 다음 3가지 목표를 다룹니다.</p>
-<ol>
-<li>Maximum GC pause time</li>
-</ol>
-<p>가장 먼저 보는 것은 최대 pause time 목표입니다. 이 목표는 -XX:MaxGCPauseMillis&#x3D;N 으로 지정합니다. 중요한 점은 이 값이 <code>“반드시 지켜지는 절대 보장”</code>이 아니라, 그 이하로 맞추고 싶다는 <code>힌트(hint)</code> 라는 점입니다.</p>
-<p>즉, <code>-XX:MaxGCPauseMillis=200</code> 을 줬다고 해서 항상 모든 <code>STW</code> 가 200ms 이하가 된다고 단정하면 안 됩니다. Parallel GC는 그 목표에 맞추기 위해 힙 크기와 다른 파라미터를 조정해보지만, 애플리케이션 특성상 못 맞출 수도 있습니다.</p>
-<ol start="2">
-<li>Throughput</li>
-</ol>
-<p>두 번째 목표는 Throughput 입니다. 이 목표는 <code>-XX:GCTimeRatio=N</code> 으로 지정하며, GC 시간과 <code>application time의 비율을 1 / (1 + N)</code> 으로 해석합니다. 예를 들어 -XX:GCTimeRatio&#x3D;19 면 전체 시간 중 GC 시간 목표가 5%라는 뜻입니다. Parallel Collector 문서에서는 <code>기본값이 99</code> 이고, 이는 <code>GC 시간 1%, application time 99% 목표</code>에 해당한다고 설명합니다.</p>
-<p>즉, Parallel GC는 throughput 관점에서 <code>“GC에 너무 많은 시간을 쓰지 말고 애플리케이션이 일하는 시간을 최대한 확보하자”</code> 라는 방향으로 동작합니다. 그래서 Parallel GC가 흔히 Throughput Collector 로 불리는 이유도 여기와 연결됩니다.</p>
-<ol start="3">
-<li>Footprint</li>
-</ol>
-<p>세 번째는 <code>Footprint</code> 즉 힙 크기 자체를 가능한 작게 유지하려는 목표입니다.</p>
-<p>쉽게 말하면 <code>pause time 목표도 만족</code>하고 <code>throughput 목표도 만족</code>한다면 그 다음에는 굳이 <code>힙을 크게 유지하지 말고 줄일 수 있는지</code> 를 본다는 뜻입니다.</p>
-<h3 id="목표의-우선순위는-어떻게-될까"><a href="#목표의-우선순위는-어떻게-될까" class="headerlink" title="목표의 우선순위는 어떻게 될까?"></a>목표의 우선순위는 어떻게 될까?</h3><p><code>Parallel Collector ergonomics</code>에서 중요한 포인트 하나는 이 세 목표를 동시에 같은 비중으로 맞추는 것이 아니라 우선순위를 가지고 본다는 점입니다.</p>
-<p>우선순위는 다음과 같습니다.</p>
-<ol>
-<li>Maximum pause-time goal</li>
-<li>Throughput goal</li>
-<li>Minimum footprint goal</li>
-</ol>
-<p>즉, 먼저 pause 목표를 맞추려 하고, 그 다음에 throughput을 보고, 마지막으로 footprint를 줄이려 합니다.</p>
-<p>이 순서를 이해하면 왜 heap size가 오르락내리락하는지도 설명이 됩니다. 어떤 시점에는 throughput을 맞추기 위해 힙을 키우고, 다른 시점에는 footprint를 줄이기 위해 힙을 줄이려 하기 때문입니다.</p>
-<h3 id="왜-generation-size를-자동으로-조정할까"><a href="#왜-generation-size를-자동으로-조정할까" class="headerlink" title="왜 generation size를 자동으로 조정할까?"></a>왜 generation size를 자동으로 조정할까?</h3><p>Parallel GC는 각 <code>GC가 끝날 때마다 평균 pause time 같은 통계값을 업데이트</code> 하고, 그 결과 목표를 만족하지 못하면 generation 크기를 조정합니다. 예를 들어 pause 목표를 못 맞추면 세대 크기를 줄이는 쪽으로, throughput 목표를 못 맞추면 세대 크기를 키우는 쪽으로 움직일 수 있습니다.</p>
-<h3 id="Parallel-GC-Generation-Size-재조정"><a href="#Parallel-GC-Generation-Size-재조정" class="headerlink" title="Parallel GC - Generation Size 재조정"></a>Parallel GC - Generation Size 재조정</h3><p>Parallel Collector는 매 collection 이 끝날 때마다 <code>평균 pause time 같은 통계를 갱신</code>한다. 그 뒤 현재 목표들이 달성되었는지 검사하고 <code>필요하면 young generation과 old generation의 크기를 다시 조정</code> 한다. 단 <code>System.gc()</code> 같은 <strong>명시적 GC</strong>는 이런 통계 갱신과 세대 크기 조정 판단에서 제외 됩니다.</p>
-<p>또한 Parallel Collector는 generation 크기를 한 번에 크게 바꾸지 않고, 현재 크기의 일정 비율만큼 <strong>단계적으로 증가&#x2F;감소</strong>시키는 방식으로 desired size에 가까워지도록 조정 합니다.</p>
-<hr>
-<h4 id="Generation-Size-재조정-관련-주요-옵션"><a href="#Generation-Size-재조정-관련-주요-옵션" class="headerlink" title="Generation Size 재조정 관련 주요 옵션"></a>Generation Size 재조정 관련 주요 옵션</h4><table>
-<thead>
-<tr>
-<th>항목</th>
-<th>설명</th>
-<th>VM 옵션</th>
-<th>디폴트 값</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>young generation increment (%)</td>
-<td>young generation이 확장할 때 한 번에 몇 % 증가할지 결정</td>
-<td><code>-XX:YoungGenerationSizeIncrement=N</code></td>
-<td><code>20%</code></td>
-</tr>
-<tr>
-<td>old generation increment (%)</td>
-<td>old generation이 확장할 때 한 번에 몇 % 증가할지 결정</td>
-<td><code>-XX:TenuredGenerationSizeIncrement=N</code></td>
-<td><code>20%</code></td>
-</tr>
-<tr>
-<td>decrement scale factor</td>
-<td>generation 확장 비율 대비 축소 비율을 얼마로 할지 결정하는 scale factor</td>
-<td><code>-XX:AdaptiveSizeDecrementScaleFactor=N</code></td>
-<td><code>4</code></td>
-</tr>
-<tr>
-<td>young generation decrement (%)</td>
-<td>young generation이 축소될 때 한 번에 몇 % 감소할지 결정</td>
-<td>위 옵션들로 계산</td>
-<td><code>5%</code></td>
-</tr>
-<tr>
-<td>old generation decrement (%)</td>
-<td>old generation이 축소될 때 한 번에 몇 % 감소할지 결정</td>
-<td>위 옵션들로 계산</td>
-<td><code>5%</code></td>
-</tr>
-</tbody></table>
-<hr>
-<h3 id="축소-비율은-어떻게-계산될까"><a href="#축소-비율은-어떻게-계산될까" class="headerlink" title="축소 비율은 어떻게 계산될까?"></a>축소 비율은 어떻게 계산될까?</h3><p>Parallel Collector는 <strong>확장(grow)</strong> 과 <strong>축소(shrink)</strong> 를 같은 비율로 하지 않는다. 기본적으로 generation은 <strong>20%씩 확장</strong>하고, <strong>5%씩 축소</strong> 합니다.</p>
-<p>축소 비율은 아래 식으로 이해할 수 있습니다.</p>
-<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">decrement(%) = increment(%) / AdaptiveSizeDecrementScaleFactor</span><br></pre></td></tr></table></figure>
-
-<p>기본값을 넣으면 다음과 같다.</p>
-<p>20 &#x2F; 4 &#x3D; 5(%)</p>
-<p>즉,</p>
-<ul>
-<li>Young 확장: 20%</li>
-<li>Old 확장: 20%</li>
-<li>Young 축소: 5%</li>
-<li>Old 축소: 5%</li>
-</ul>
-<p>로 이해하면 됩니다.</p>
-<h5 id="왜-확장과-축소-비율을-다르게-둘까"><a href="#왜-확장과-축소-비율을-다르게-둘까" class="headerlink" title="왜 확장과 축소 비율을 다르게 둘까?"></a>왜 확장과 축소 비율을 다르게 둘까?</h5><p>Parallel Collector는 목표에 맞지 않으면 generation을 더 키워볼 수 있고, 반대로 heap이 너무 크다고 판단되면 줄이기도 한다. <code>그런데 확장과 축소를 같은 폭으로 반복하면 힙 크기가 너무 급하게 흔들릴 수 있다.</code> 그래서 기본적으로는 확장은 비교적 빠르게, 축소는 더 완만하게 진행되도록 설계되어 있다.</p>
-<p>즉, Parallel Collector는 다음처럼 동작한다고 이해하면 됩니다.</p>
-<ul>
-<li>목표 미달 시: generation을 상대적으로 빠르게 키움</li>
-<li>여유가 생긴 경우: generation을 천천히 줄임</li>
-</ul>
-<h3 id="Parallel-GC-Generation-Size를-줄일-때와-늘릴-때"><a href="#Parallel-GC-Generation-Size를-줄일-때와-늘릴-때" class="headerlink" title="Parallel GC - Generation Size를 줄일 때와 늘릴 때"></a>Parallel GC - Generation Size를 줄일 때와 늘릴 때</h3><p>Parallel GC의 <code>Ergonomics</code>는 매 collection이 끝날 때마다 <code>pause time, throughput 같은 통계를 갱신</code>한 뒤 현재 목표를 만족하고 있는지 확인하고 필요하면 <strong>young generation</strong> 과 <strong>old generation</strong> 의 크기를 다시 조정 합니다.</p>
-<p>한마리로 정리 하자면</p>
-<ul>
-<li><strong>pause-time goal을 못 맞추면</strong> generation size를 <strong>줄이는 방향</strong></li>
-<li><strong>throughput goal을 못 맞추면</strong> generation size를 <strong>늘리는 방향</strong></li>
-</ul>
-<p>즉, Parallel GC는 상황에 따라 generation 크기를 자동으로 줄이거나 늘리면서 pause time과 throughput 사이의 균형점을 찾으려고 합니다.</p>
-<hr>
-<table>
-<thead>
-<tr>
-<th>상황</th>
-<th>실패한 목표</th>
-<th>Ergonomics 동작</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>GC pause time이 너무 길다</td>
-<td>Maximum pause-time goal</td>
-<td>generation size를 줄인다</td>
-</tr>
-<tr>
-<td>GC에 소비되는 시간이 너무 많다</td>
-<td>Throughput goal</td>
-<td>generation size를 늘린다</td>
-</tr>
-</tbody></table>
-<hr>
-<h4 id="Generation-size를-감소시킬-때"><a href="#Generation-size를-감소시킬-때" class="headerlink" title="Generation size를 감소시킬 때"></a>Generation size를 감소시킬 때</h4><p><code>Maximum pause-time goal</code> 을 달성하지 못하면 Ergonomics가 generation size를 줄입니다.</p>
-<p>즉, 사용자가 다음과 같이 pause time 목표를 줬을떄</p>
-<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">-XX:MaxGCPauseMillis=200</span><br></pre></td></tr></table></figure>
-
-<p>실제 GC pause time이 이 목표를 자주 넘는다면 JVM은 <code>pause time</code>을 줄이기 위해 generation size를 재조정하려고 합니다.</p>
-<h5 id="그럼-어떻게-줄일까"><a href="#그럼-어떻게-줄일까" class="headerlink" title="그럼 어떻게 줄일까?"></a>그럼 어떻게 줄일까?</h5><p>generation size를 줄일 때는 다음 특징이 있습니다.</p>
-<ul>
-<li>young과 old를 동시에 줄이지 않는다.</li>
-<li>한 번에 하나의 generation만 줄인다.</li>
-<li>young과 old 둘 다 pause-time goal을 달성하지 못했다면,</li>
-<li>pause time이 더 길었던 generation부터 먼저 줄인다.</li>
-</ul>
-<p>Parallel GC는 <code>throughput collector</code>이기 때문에, generation size를 줄일 때는 꽤 신중하게 움직입니다. 한 번에 둘 다 줄여버리면 GC 빈도가 급격히 증가해서 전체 처리량이 크게 흔들릴 수 있기 때문 입니다.</p>
-<h5 id="Young-generation만-줄이는-경우"><a href="#Young-generation만-줄이는-경우" class="headerlink" title="Young generation만 줄이는 경우"></a>Young generation만 줄이는 경우</h5><p>다음 상황을 가정 해보도록 하겠습니다.</p>
-<ul>
-<li>목표 pause time: 200ms</li>
-<li>Young GC pause time: 280ms</li>
-<li>Full GC pause time: 130ms</li>
-</ul>
-<p>이 경우 문제는 주로 Young GC 쪽에 있습니다. Old generation 쪽은 아직 목표를 크게 넘지 않았기 때문에, Ergonomics는 먼저 young generation을 줄이는 방향으로 움직일 가능성이 높다.</p>
-<p>즉, 이런 흐름으로 이해할 수 있습니다.</p>
-<ul>
-<li>MaxGCPauseMillis&#x3D;200 목표 확인</li>
-<li>Young GC가 280ms로 목표 초과</li>
-<li>Old GC는 130ms로 상대적으로 양호</li>
-<li>Young generation size 축소</li>
-</ul>
-<h5 id="둘-다-목표를-못-맞췄을-때"><a href="#둘-다-목표를-못-맞췄을-때" class="headerlink" title="둘 다 목표를 못 맞췄을 때"></a>둘 다 목표를 못 맞췄을 때</h5><p>이번에는 다음 상황을 가정 해보도록 하겠습니다.</p>
-<ul>
-<li>목표 pause time: 200ms</li>
-<li>Young GC pause time: 260ms</li>
-<li>Full GC pause time: 420ms</li>
-</ul>
-<p>이 경우 young과 old 둘 다 목표를 만족하지 못했다. 하지만 pause가 더 긴 쪽은 Old generation 입니다. 이때는 JVM은 먼저 <code>old generation 쪽을</code> 줄이는 방향으로 조정 합니다. 즉, 둘 다 문제가 있어도 아무거나 줄이는 것이 아니라 <code>더 긴 pause를 만든 generation부터 줄인다</code>고 이해하면 됩니다.</p>
-<h4 id="Generation-size를-증가시킬-때"><a href="#Generation-size를-증가시킬-때" class="headerlink" title="Generation size를 증가시킬 때"></a>Generation size를 증가시킬 때</h4><p><code>Throughput goal</code> 을 달성하지 못하면 <code>Ergonomics</code>가 <code>generation size</code>를 늘립니다. Parallel GC에서 throughput goal은 보통 다음 옵션과 연결해서 이해할 수 있습니다.</p>
-<p>generation size를 늘릴 때는 감소시킬 때와 다르게 동작 합니다. <code>young generation</code>과 <code>old generation</code>을 둘 다 동시에 늘립니다. 다만, 무조건 같은 비율로 늘리는 것은 아니고 각 generation을 collection하는 데 사용된 시간 비율에 따라 최종 증가 폭이 달라집니다.</p>
-<h5 id="증가-비율은-어떻게-결정될까"><a href="#증가-비율은-어떻게-결정될까" class="headerlink" title="증가 비율은 어떻게 결정될까?"></a>증가 비율은 어떻게 결정될까?</h5><p>기본 증가 폭은 아래 옵션으로 정합니다.</p>
-<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">-XX:YoungGenerationSizeIncrement=20</span><br><span class="line">-XX:TenuredGenerationSizeIncrement=20</span><br></pre></td></tr></table></figure>
-
-<p>이 값은 기본 증가 후보 폭이라고 생각하면 됩니다. 하지만 실제로는 <code>young generation time : old generation time 비율에 따라</code> 각 generation에 적용되는 최종 증가율이 달라집니다.</p>
-<h5 id="young-old-GC-time-1-3"><a href="#young-old-GC-time-1-3" class="headerlink" title="young : old GC time &#x3D; 1 : 3"></a>young : old GC time &#x3D; 1 : 3</h5><p>다음과 같은 상황을 가정 합니다.</p>
-<ul>
-<li>throughput goal 미달</li>
-<li>Young generation GC time : Old generation GC time &#x3D; 1 : 3</li>
-<li>-XX:YoungGenerationSizeIncrement&#x3D;20</li>
-<li>-XX:TenuredGenerationSizeIncrement&#x3D;20</li>
-</ul>
-<p>전체 GC time을 4라고 보면</p>
-<ul>
-<li>Young generation 비중 &#x3D; 1&#x2F;4 &#x3D; 25%</li>
-<li>Old generation 비중 &#x3D; 3&#x2F;4 &#x3D; 75%</li>
-</ul>
-<p>따라서 개념적으로는 다음처럼 이해할 수 있습니다.</p>
-<p>Young generation 증가율 &#x3D; 20% × 25% &#x3D; 5%<br>Old generation 증가율 &#x3D; 20% × 75% &#x3D; 15%</p>
-<p>즉, GC 시간에 더 많이 기여한 쪽인 old generation이 더 크게 증가한다.</p>
-<h5 id="young-old-GC-time-3-1"><a href="#young-old-GC-time-3-1" class="headerlink" title="young : old GC time &#x3D; 3 : 1"></a>young : old GC time &#x3D; 3 : 1</h5><ul>
-<li>throughput goal 미달</li>
-<li>Young generation GC time : Old generation GC time &#x3D; 3 : 1</li>
-<li>증가 옵션은 동일하게 20%</li>
-</ul>
-<p>이 경우 전체 비중은:</p>
-<ul>
-<li>Young generation 비중 &#x3D; 75%</li>
-<li>Old generation 비중 &#x3D; 25%</li>
-</ul>
-<p>따라서 개념적으로는 다음처럼 볼 수 있다.</p>
-<ul>
-<li>Young generation 증가율 ≈ 15%</li>
-<li>Old generation 증가율 ≈ 5%</li>
-</ul>
-<p>즉, 이번에는 young generation이 더 큰 비중으로 늘어난다. 결국 JVM은 <strong>“어디에서 GC 시간이 더 많이 소비되고 있는가?”</strong>를 보고 그에 맞게 generation size 증가 폭을 분배한다고 이해하면 됩니다.</p>
-<hr>
-
-      
-       <hr><span style="font-style: italic;color: gray;"> Copyright 201- syh8088. 무단 전재 및 재배포 금지. 출처 표기 시 인용 가능. </span>
-    </div>
-</article>
-
-
-<p>
-    <a  class="dashang" onclick="dashangToggle()">버튼</a>
-</p>
-
-
-
-
-
-
-    
-
-
-
-
+            <h1 id="Seo-Yang-Hun-Blog"><a href="#Seo-Yang-Hun-Blog" class="headerlink" title="Seo Yang Hun Blog"></a>Seo Yang Hun Blog</h1><h2 id="반갑습니다"><a href="#반갑습니다" class="headerlink" title="반갑습니다!"></a>반갑습니다!</h2>
+        </article>
+        
+        <p>
+            <a  class="dashang" onclick="dashangToggle()">赏</a>
+        </p>
+        
+        
     </div>
     <div class="copyright">
         <p class="footer-entry">
@@ -2482,11 +2150,11 @@
 <p class="footer-entry">Built with <a href="https://hexo.io/" target="_blank">Hexo</a> and <a href="https://github.com/yelog/hexo-theme-3-hexo" target="_blank">3-hexo</a> theme</p>
 
     </div>
-    <div class="full-toc">
-        <button class="full" data-title="切换全屏 快捷键 s"><span class="min "></span></button>
+</div>
+<div class="full-toc">
+    <button class="full" data-title="切换全屏 快捷键 s"><span class="min "></span></button>
 <a class="" id="rocket" ></a>
 
-    </div>
 </div>
 
 <div class="hide_box" onclick="dashangToggle()"></div>

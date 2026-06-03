@@ -6,17 +6,81 @@
   <meta name="keywords" content="">
   <meta name="description" content="Jenkins_설치 | Seo Yang Hun Blog">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-<meta name="description" content="JVM 가상 주소 공간(Virtual Address Space) 구조 설명가상 주소 공간은 크게 JVM이 직접 관리하는 영역 과 OS 프로세스 레지스터 수준에서 관리되는 영역 으로 나뉩니다. JVM 런타임 데이터 영역 (JVM Managed)자바 프로그램이 실행되면서 동적으로 사용하는 메모리 공간입니다.  Stack (스택): 각 스레드마다 개별적으로 할당">
+<meta name="description" content="G1GCG1GC를 이해하기 전에 Serial GC, Parallel GC의 한계부터 보기JVM GC를 공부하다 보면 보통 Serial GC, Parallel GC부터 먼저 접하게 됩니다. 이 두 GC는 구조가 비교적 직관적이고, Young &#x2F; Old Generation 기반 동작을 이해하는 데도 도움이 됩니다. 하지만 실제 서비스 환경, 특히 응답">
 <meta property="og:type" content="article">
-<meta property="og:title" content="JAVA GC - JVM 알아보기">
-<meta property="og:url" content="https://syh8088.github.io/2026/03/30/JAVA/GC/GC0/index.html">
+<meta property="og:title" content="JAVA GC - G1GC">
+<meta property="og:url" content="https://syh8088.github.io/2026/05/08/JAVA/GC/GC3/index.html">
 <meta property="og:site_name" content="Seo Yang Hun Blog">
-<meta property="og:description" content="JVM 가상 주소 공간(Virtual Address Space) 구조 설명가상 주소 공간은 크게 JVM이 직접 관리하는 영역 과 OS 프로세스 레지스터 수준에서 관리되는 영역 으로 나뉩니다. JVM 런타임 데이터 영역 (JVM Managed)자바 프로그램이 실행되면서 동적으로 사용하는 메모리 공간입니다.  Stack (스택): 각 스레드마다 개별적으로 할당">
+<meta property="og:description" content="G1GCG1GC를 이해하기 전에 Serial GC, Parallel GC의 한계부터 보기JVM GC를 공부하다 보면 보통 Serial GC, Parallel GC부터 먼저 접하게 됩니다. 이 두 GC는 구조가 비교적 직관적이고, Young &#x2F; Old Generation 기반 동작을 이해하는 데도 도움이 됩니다. 하지만 실제 서비스 환경, 특히 응답">
 <meta property="og:locale">
-<meta property="article:published_time" content="2026-03-29T22:47:42.000Z">
-<meta property="article:modified_time" content="2026-05-31T11:18:53.606Z">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/G1GC-region/G1GC-region-1.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/G1GC-region/G1GC-region-2.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/G1GC-region/G1GC-region-3.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/G1GC-region/G1GC-region-4.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/G1GC-region/G1GC-region-5.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/G1GC-region/G1GC-region-6.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/G1GC/GarbageCollectionCycle.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/G1GC/G1GC-FLOW-1.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/G1GC/G1GC-FLOW-2.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/G1GC/G1GC-FLOW-3.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/G1GC/G1GC-FLOW-4.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/G1GC/G1GC-FLOW-5.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/G1GC/G1GC-FLOW-6.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/G1GC/G1GC-FLOW-7.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/G1GC/G1GC-FLOW-8.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/G1GC/G1GC-FLOW-9.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/G1GC/G1GC-FLOW-10.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/G1GC/G1GC-FLOW-11.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/G1GC/G1GC-FLOW-12.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/G1GC/G1GC-FLOW-13.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/G1GC/G1GC-FLOW-14.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/G1GC/G1GC-FLOW-15.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/Concurrent-Mark-Problem/Concurrent-Mark-Problem-1.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/Concurrent-Mark-Problem/Concurrent-Mark-Problem-2.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/Concurrent-Mark-Problem/Concurrent-Mark-Problem-3.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/Concurrent-Mark-Problem/Concurrent-Mark-Problem-4.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/Concurrent-Mark-Problem/Concurrent-Mark-Problem-5.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/Concurrent-Mark-Problem/Concurrent-Mark-Problem-6.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/Concurrent-Mark-Problem/Concurrent-Mark-Problem-7.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/Concurrent-Mark-Problem/Concurrent-Mark-Problem-8.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/SATB-buffer&mark-stack/SATB-buffer&mark-stack-1.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/SATB-buffer&mark-stack/SATB-buffer&mark-stack-2.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/SATB-buffer&mark-stack/SATB-buffer&mark-stack-3.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/SATB-buffer&mark-stack/SATB-buffer&mark-stack-4.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/SATB-buffer&mark-stack/SATB-buffer&mark-stack-5.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/SATB-buffer&mark-stack/SATB-buffer&mark-stack-6.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/SATB-buffer&mark-stack/SATB-buffer&mark-stack-7.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/SATB-buffer&mark-stack/SATB-buffer&mark-stack-8.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/SATB-buffer&mark-stack/SATB-buffer&mark-stack-9.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/SATB-buffer&mark-stack/SATB-buffer&mark-stack-10.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/SATB-buffer&mark-stack/SATB-buffer&mark-stack-11.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/SATB-buffer&mark-stack/SATB-buffer&mark-stack-12.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/MixedGC%E2%80%93RememberedSet/MixedGC%E2%80%93RememberedSet-1.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/MixedGC%E2%80%93RememberedSet/MixedGC%E2%80%93RememberedSet-2.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/MixedGC%E2%80%93RememberedSet/MixedGC%E2%80%93RememberedSet-3.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/MixedGC%E2%80%93RememberedSet/MixedGC%E2%80%93RememberedSet-4.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/MixedGC%E2%80%93RememberedSet/MixedGC%E2%80%93RememberedSet-5.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/MixedGC%E2%80%93RememberedSet/MixedGC%E2%80%93RememberedSet-6.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/MixedGC%E2%80%93RememberedSet/MixedGC%E2%80%93RememberedSet-7.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/MixedGC%E2%80%93RememberedSet/MixedGC%E2%80%93RememberedSet-8.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/MixedGC%E2%80%93RememberedSet/MixedGC%E2%80%93RememberedSet-9.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/Humongous-Object/Humongous-Object-1.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/Humongous-Object/Humongous-Object-2.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/Humongous-Object/Humongous-Object-3.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/Evacuation-Failure/Evacuation-Failure-1.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/Evacuation-Failure/Evacuation-Failure-2.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/Evacuation-Failure/Evacuation-Failure-3.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/Evacuation-Failure/Evacuation-Failure-4.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/Evacuation-Failure/Evacuation-Failure-5.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/Evacuation-Failure/Evacuation-Failure-6.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/Evacuation-Failure/Evacuation-Failure-7.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/Evacuation-Failure/Evacuation-Failure-8.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/Evacuation-Failure/Evacuation-Failure-9.png">
+<meta property="article:published_time" content="2026-05-07T22:47:42.000Z">
+<meta property="article:modified_time" content="2026-06-03T06:19:04.315Z">
 <meta property="article:author" content="Seo Yang Hun">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://syh8088.github.io/img/JAVA/GC/G1GC-region/G1GC-region-1.png">
 
 
 <link rel="icon" href="/img/avatar.jpg">
@@ -1381,37 +1445,37 @@
         
         
         <a  class="모든 글 JAVA GC "
+           href="/2026/05/08/JAVA/GC/GC3/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="JAVA GC - G1GC">JAVA GC - G1GC</span>
+            <span class="post-date" title="2026-05-08 07:47:42">2026/05/08</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA GC "
+           href="/2026/05/02/JAVA/GC/GC2/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="JAVA GC - Parallel GC">JAVA GC - Parallel GC</span>
+            <span class="post-date" title="2026-05-02 07:47:42">2026/05/02</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA GC "
+           href="/2026/04/12/JAVA/GC/GC1/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="JAVA GC - Serial GC">JAVA GC - Serial GC</span>
+            <span class="post-date" title="2026-04-12 07:47:42">2026/04/12</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA GC "
            href="/2026/03/30/JAVA/GC/GC0/"
            data-tag=""
            data-author="" >
             <span class="post-title" title="JAVA GC - JVM 알아보기">JAVA GC - JVM 알아보기</span>
-            <span class="post-date" title="2026-03-30 07:47:42">2026/03/30</span>
-        </a>
-        
-        
-        <a  class="모든 글 JAVA GC "
-           href="/2026/03/30/JAVA/GC/GC3/"
-           data-tag=""
-           data-author="" >
-            <span class="post-title" title="JAVA GC - G1GC">JAVA GC - G1GC</span>
-            <span class="post-date" title="2026-03-30 07:47:42">2026/03/30</span>
-        </a>
-        
-        
-        <a  class="모든 글 JAVA GC "
-           href="/2026/03/30/JAVA/GC/GC1/"
-           data-tag=""
-           data-author="" >
-            <span class="post-title" title="JAVA GC - Serial GC">JAVA GC - Serial GC</span>
-            <span class="post-date" title="2026-03-30 07:47:42">2026/03/30</span>
-        </a>
-        
-        
-        <a  class="모든 글 JAVA GC "
-           href="/2026/03/30/JAVA/GC/GC2/"
-           data-tag=""
-           data-author="" >
-            <span class="post-title" title="JAVA GC - Parallel GC">JAVA GC - Parallel GC</span>
             <span class="post-date" title="2026-03-30 07:47:42">2026/03/30</span>
         </a>
         

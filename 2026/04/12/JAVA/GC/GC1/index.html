@@ -1,0 +1,2685 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>JAVA GC - Serial GC | Seo Yang Hun Blog</title>
+  <meta name="keywords" content="">
+  <meta name="description" content="JAVA GC - Serial GC | Seo Yang Hun Blog">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="description" content="G1GCG1GC를 이해하기 전에 Serial GC, Parallel GC의 한계부터 보기JVM GC를 공부하다 보면 보통 Serial GC, Parallel GC부터 먼저 접하게 됩니다. 이 두 GC는 구조가 비교적 직관적이고, Young &#x2F; Old Generation 기반 동작을 이해하는 데도 도움이 됩니다. 하지만 실제 서비스 환경, 특히 응답">
+<meta property="og:type" content="article">
+<meta property="og:title" content="JAVA GC - G1GC">
+<meta property="og:url" content="https://syh8088.github.io/2026/05/08/JAVA/GC/GC3/index.html">
+<meta property="og:site_name" content="Seo Yang Hun Blog">
+<meta property="og:description" content="G1GCG1GC를 이해하기 전에 Serial GC, Parallel GC의 한계부터 보기JVM GC를 공부하다 보면 보통 Serial GC, Parallel GC부터 먼저 접하게 됩니다. 이 두 GC는 구조가 비교적 직관적이고, Young &#x2F; Old Generation 기반 동작을 이해하는 데도 도움이 됩니다. 하지만 실제 서비스 환경, 특히 응답">
+<meta property="og:locale">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/G1GC-region/G1GC-region-1.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/G1GC-region/G1GC-region-2.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/G1GC-region/G1GC-region-3.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/G1GC-region/G1GC-region-4.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/G1GC-region/G1GC-region-5.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/G1GC-region/G1GC-region-6.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/G1GC/GarbageCollectionCycle.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/G1GC/G1GC-FLOW-1.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/G1GC/G1GC-FLOW-2.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/G1GC/G1GC-FLOW-3.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/G1GC/G1GC-FLOW-4.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/G1GC/G1GC-FLOW-5.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/G1GC/G1GC-FLOW-6.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/G1GC/G1GC-FLOW-7.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/G1GC/G1GC-FLOW-8.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/G1GC/G1GC-FLOW-9.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/G1GC/G1GC-FLOW-10.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/G1GC/G1GC-FLOW-11.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/G1GC/G1GC-FLOW-12.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/G1GC/G1GC-FLOW-13.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/G1GC/G1GC-FLOW-14.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/G1GC/G1GC-FLOW-15.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/Concurrent-Mark-Problem/Concurrent-Mark-Problem-1.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/Concurrent-Mark-Problem/Concurrent-Mark-Problem-2.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/Concurrent-Mark-Problem/Concurrent-Mark-Problem-3.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/Concurrent-Mark-Problem/Concurrent-Mark-Problem-4.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/Concurrent-Mark-Problem/Concurrent-Mark-Problem-5.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/Concurrent-Mark-Problem/Concurrent-Mark-Problem-6.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/Concurrent-Mark-Problem/Concurrent-Mark-Problem-7.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/Concurrent-Mark-Problem/Concurrent-Mark-Problem-8.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/SATB-buffer&mark-stack/SATB-buffer&mark-stack-1.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/SATB-buffer&mark-stack/SATB-buffer&mark-stack-2.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/SATB-buffer&mark-stack/SATB-buffer&mark-stack-3.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/SATB-buffer&mark-stack/SATB-buffer&mark-stack-4.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/SATB-buffer&mark-stack/SATB-buffer&mark-stack-5.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/SATB-buffer&mark-stack/SATB-buffer&mark-stack-6.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/SATB-buffer&mark-stack/SATB-buffer&mark-stack-7.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/SATB-buffer&mark-stack/SATB-buffer&mark-stack-8.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/SATB-buffer&mark-stack/SATB-buffer&mark-stack-9.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/SATB-buffer&mark-stack/SATB-buffer&mark-stack-10.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/SATB-buffer&mark-stack/SATB-buffer&mark-stack-11.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/SATB-buffer&mark-stack/SATB-buffer&mark-stack-12.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/MixedGC%E2%80%93RememberedSet/MixedGC%E2%80%93RememberedSet-1.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/MixedGC%E2%80%93RememberedSet/MixedGC%E2%80%93RememberedSet-2.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/MixedGC%E2%80%93RememberedSet/MixedGC%E2%80%93RememberedSet-3.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/MixedGC%E2%80%93RememberedSet/MixedGC%E2%80%93RememberedSet-4.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/MixedGC%E2%80%93RememberedSet/MixedGC%E2%80%93RememberedSet-5.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/MixedGC%E2%80%93RememberedSet/MixedGC%E2%80%93RememberedSet-6.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/MixedGC%E2%80%93RememberedSet/MixedGC%E2%80%93RememberedSet-7.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/MixedGC%E2%80%93RememberedSet/MixedGC%E2%80%93RememberedSet-8.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/MixedGC%E2%80%93RememberedSet/MixedGC%E2%80%93RememberedSet-9.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/Humongous-Object/Humongous-Object-1.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/Humongous-Object/Humongous-Object-2.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/Humongous-Object/Humongous-Object-3.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/Evacuation-Failure/Evacuation-Failure-1.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/Evacuation-Failure/Evacuation-Failure-2.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/Evacuation-Failure/Evacuation-Failure-3.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/Evacuation-Failure/Evacuation-Failure-4.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/Evacuation-Failure/Evacuation-Failure-5.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/Evacuation-Failure/Evacuation-Failure-6.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/Evacuation-Failure/Evacuation-Failure-7.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/Evacuation-Failure/Evacuation-Failure-8.png">
+<meta property="og:image" content="https://syh8088.github.io/img/JAVA/GC/Evacuation-Failure/Evacuation-Failure-9.png">
+<meta property="article:published_time" content="2026-05-07T22:47:42.000Z">
+<meta property="article:modified_time" content="2026-06-03T06:19:04.315Z">
+<meta property="article:author" content="Seo Yang Hun">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://syh8088.github.io/img/JAVA/GC/G1GC-region/G1GC-region-1.png">
+
+
+<link rel="icon" href="/img/avatar.jpg">
+
+<link href="/css/style.css?v=1.1.0" rel="stylesheet">
+
+<link href="/css/hl_theme/atom-light.css?v=1.1.0" rel="stylesheet">
+
+<link href="//cdn.jsdelivr.net/npm/animate.css@4.1.0/animate.min.css" rel="stylesheet">
+
+<script src="//cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"></script>
+<script src="/js/titleTip.js?v=1.1.0" ></script>
+
+<script src="//cdn.jsdelivr.net/npm/highlightjs@9.16.2/highlight.pack.min.js"></script>
+<script>
+    hljs.initHighlightingOnLoad();
+</script>
+
+<script src="//cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.js"></script>
+
+
+
+<script src="//cdn.jsdelivr.net/npm/jquery.cookie@1.4.1/jquery.cookie.min.js" ></script>
+
+<script src="/js/iconfont.js?v=1.1.0" ></script>
+
+<meta name="generator" content="Hexo 7.2.0"></head>
+<div style="display: none">
+  <input class="theme_disqus_on" value="false">
+  <input class="theme_preload_comment" value="">
+  <input class="theme_blog_path" value="">
+  <input id="theme_shortcut" value="true" />
+  <input id="theme_highlight_on" value="true" />
+  <input id="theme_code_copy" value="true" />
+</div>
+
+
+
+<body>
+<aside class="nav">
+    <div class="nav-left">
+        <a href="/"
+   class="avatar_target">
+    <img class="avatar"
+         src="/img/avatar.jpg"/>
+</a>
+<div class="author">
+    <span>Seo Yang Hun</span>
+</div>
+
+<div class="icon">
+    
+        
+            <a title="rss"
+               href="/atom.xml"
+               target="_blank">
+                
+                    <svg class="iconfont-svg" aria-hidden="true">
+                        <use xlink:href="#icon-rss"></use>
+                    </svg>
+                
+            </a>
+        
+    
+        
+            <a title="github"
+               href="https://github.com/syh8088"
+               target="_blank">
+                
+                    <svg class="iconfont-svg" aria-hidden="true">
+                        <use xlink:href="#icon-github"></use>
+                    </svg>
+                
+            </a>
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+            <a title="email"
+               href="mailto:syh8088@gmail.com"
+               target="_blank">
+                
+                    <svg class="iconfont-svg" aria-hidden="true">
+                        <use xlink:href="#icon-email"></use>
+                    </svg>
+                
+            </a>
+        
+    
+        
+            <a title="qq"
+               href="http://wpa.qq.com/msgrd?v=3&uin=872336115&site=qq&menu=yes"
+               target="_blank">
+                
+                    <svg class="iconfont-svg" aria-hidden="true">
+                        <use xlink:href="#icon-qq"></use>
+                    </svg>
+                
+            </a>
+        
+    
+        
+    
+        
+    
+</div>
+
+
+
+
+
+<ul>
+    <li>
+        <div class="all active" data-rel="모든 글">모든 글
+            
+                <small>(73)</small>
+            
+        </div>
+    </li>
+    
+        
+            
+                
+    <li>
+        <div data-rel="Authentication">
+            <i class="fold iconfont icon-right"></i>
+            Authentication
+            <small>(2)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="Authentication&lt;---&gt;JWT">
+            
+            JWT
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="Authentication&lt;---&gt;Oauth">
+            
+            Oauth
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="AWS">
+            <i class="fold iconfont icon-right"></i>
+            AWS
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="AWS&lt;---&gt;Image Resizing">
+            
+            Image Resizing
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="CI-CD">
+            <i class="fold iconfont icon-right"></i>
+            CI-CD
+            <small>(10)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="CI-CD&lt;---&gt;AWS">
+            <i class="fold iconfont icon-right"></i>
+            AWS
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="CI-CD&lt;---&gt;AWS&lt;---&gt;EKS">
+            <i class="fold iconfont icon-right"></i>
+            EKS
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="CI-CD&lt;---&gt;AWS&lt;---&gt;EKS&lt;---&gt;Kubernetes">
+            <i class="fold iconfont icon-right"></i>
+            Kubernetes
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="CI-CD&lt;---&gt;AWS&lt;---&gt;EKS&lt;---&gt;Kubernetes&lt;---&gt;Docker">
+            
+            Docker
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="CI-CD&lt;---&gt;GitHubActions">
+            
+            GitHubActions
+            <small>(6)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="CI-CD&lt;---&gt;Jenkins">
+            
+            Jenkins
+            <small>(3)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="DB">
+            <i class="fold iconfont icon-right"></i>
+            DB
+            <small>(5)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="DB&lt;---&gt;Mysql">
+            <i class="fold iconfont icon-right"></i>
+            Mysql
+            <small>(4)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="DB&lt;---&gt;Mysql&lt;---&gt;DBCP">
+            
+            DBCP
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="DB&lt;---&gt;Mysql&lt;---&gt;optimizing">
+            
+            optimizing
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="DB&lt;---&gt;Mysql&lt;---&gt;Paging">
+            
+            Paging
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="DB&lt;---&gt;MySql">
+            <i class="fold iconfont icon-right"></i>
+            MySql
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="DB&lt;---&gt;MySql&lt;---&gt;Collation">
+            
+            Collation
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="Elastic Search">
+            
+            Elastic Search
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="Flink">
+            <i class="fold iconfont icon-right"></i>
+            Flink
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="Flink&lt;---&gt;Real Time">
+            <i class="fold iconfont icon-right"></i>
+            Real Time
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="Flink&lt;---&gt;Real Time&lt;---&gt;Kafka">
+            
+            Kafka
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="J">
+            <i class="fold iconfont icon-right"></i>
+            J
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="J&lt;---&gt;Jenkins">
+            
+            Jenkins
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="JAVA">
+            <i class="fold iconfont icon-right"></i>
+            JAVA
+            <small>(33)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;GC">
+            
+            GC
+            <small>(4)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;HTTP">
+            <i class="fold iconfont icon-right"></i>
+            HTTP
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;HTTP&lt;---&gt;FeignClient">
+            
+            FeignClient
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;JPA">
+            
+            JPA
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;Object">
+            
+            Object
+            <small>(2)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;Payment">
+            
+            Payment
+            <small>(5)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;Security">
+            
+            Security
+            <small>(4)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;Spring">
+            <i class="fold iconfont icon-right"></i>
+            Spring
+            <small>(2)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;Spring&lt;---&gt;Payment">
+            <i class="fold iconfont icon-right"></i>
+            Payment
+            <small>(2)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;Spring&lt;---&gt;Payment&lt;---&gt;junit5">
+            <i class="fold iconfont icon-right"></i>
+            junit5
+            <small>(2)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;Spring&lt;---&gt;Payment&lt;---&gt;junit5&lt;---&gt;Mockito">
+            
+            Mockito
+            <small>(2)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;SpringBatch">
+            
+            SpringBatch
+            <small>(5)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;SpringBootAndSecurityAndJWT">
+            
+            SpringBootAndSecurityAndJWT
+            <small>(3)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;SpringCloudConfig">
+            
+            SpringCloudConfig
+            <small>(4)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;Transaction">
+            
+            Transaction
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="JAVA&lt;---&gt;Validator">
+            
+            Validator
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="JavaScript">
+            <i class="fold iconfont icon-right"></i>
+            JavaScript
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="JavaScript&lt;---&gt;Webpack">
+            
+            Webpack
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="Kafka">
+            <i class="fold iconfont icon-right"></i>
+            Kafka
+            <small>(2)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="Kafka&lt;---&gt;idempotent">
+            
+            idempotent
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="KUBERNETES">
+            
+            KUBERNETES
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="MSA">
+            <i class="fold iconfont icon-right"></i>
+            MSA
+            <small>(3)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="MSA&lt;---&gt;Payment">
+            <i class="fold iconfont icon-right"></i>
+            Payment
+            <small>(3)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="MSA&lt;---&gt;Payment&lt;---&gt;Kafka">
+            <i class="fold iconfont icon-right"></i>
+            Kafka
+            <small>(3)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="MSA&lt;---&gt;Payment&lt;---&gt;Kafka&lt;---&gt;EDA">
+            <i class="fold iconfont icon-right"></i>
+            EDA
+            <small>(3)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="MSA&lt;---&gt;Payment&lt;---&gt;Kafka&lt;---&gt;EDA&lt;---&gt;CQRS">
+            
+            CQRS
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="MSA&lt;---&gt;Payment&lt;---&gt;Kafka&lt;---&gt;EDA&lt;---&gt;Saga">
+            <i class="fold iconfont icon-right"></i>
+            Saga
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="MSA&lt;---&gt;Payment&lt;---&gt;Kafka&lt;---&gt;EDA&lt;---&gt;Saga&lt;---&gt;Axon">
+            
+            Axon
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="Network">
+            
+            Network
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="NoSQL">
+            <i class="fold iconfont icon-right"></i>
+            NoSQL
+            <small>(2)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="NoSQL&lt;---&gt;Redis">
+            <i class="fold iconfont icon-right"></i>
+            Redis
+            <small>(2)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="NoSQL&lt;---&gt;Redis&lt;---&gt;RateLimiter">
+            
+            RateLimiter
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="R">
+            
+            R
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+        
+    
+        
+            
+                
+    <li>
+        <div data-rel="대용량 트래픽">
+            <i class="fold iconfont icon-right"></i>
+            대용량 트래픽
+            <small>(3)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="대용량 트래픽&lt;---&gt;EDA">
+            <i class="fold iconfont icon-right"></i>
+            EDA
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="대용량 트래픽&lt;---&gt;EDA&lt;---&gt;Payment">
+            <i class="fold iconfont icon-right"></i>
+            Payment
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="대용량 트래픽&lt;---&gt;EDA&lt;---&gt;Payment&lt;---&gt;Redis">
+            <i class="fold iconfont icon-right"></i>
+            Redis
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="대용량 트래픽&lt;---&gt;EDA&lt;---&gt;Payment&lt;---&gt;Redis&lt;---&gt;Kafka">
+            
+            Kafka
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="대용량 트래픽&lt;---&gt;Redis">
+            <i class="fold iconfont icon-right"></i>
+            Redis
+            <small>(2)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="대용량 트래픽&lt;---&gt;Redis&lt;---&gt;Kafka">
+            
+            Kafka
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+                    
+    <li>
+        <div data-rel="대용량 트래픽&lt;---&gt;Redis&lt;---&gt;WebFlux">
+            <i class="fold iconfont icon-right"></i>
+            WebFlux
+            <small>(1)</small>
+        </div>
+        
+            <ul class="sub hide">
+                
+                    
+    <li>
+        <div data-rel="대용량 트래픽&lt;---&gt;Redis&lt;---&gt;WebFlux&lt;---&gt;접근자 대기열">
+            
+            접근자 대기열
+            <small>(1)</small>
+        </div>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+                
+            </ul>
+        
+    </li>
+
+            
+        
+    
+        
+            
+        
+    
+</ul>
+<div class="left-bottom">
+    <div class="menus">
+        
+            
+            
+            
+    </div>
+    <div>
+        
+            <a class="about  hasFriend  site_url"
+               
+               href="/about">about</a>
+        
+        <a style="width: 50%"
+                
+                                           class="friends">friends</a>
+        
+    </div>
+</div>
+<input type="hidden" id="yelog_site_posts_number" value="73">
+
+<div style="display: none">
+    <span id="busuanzi_value_site_uv"></span>
+    <span id="busuanzi_value_site_pv"></span>
+</div>
+
+    </div>
+    <div class="nav-right">
+        <div class="friends-area">
+    <div class="friends-title">
+        友情链接
+        <i class="iconfont icon-left"></i>
+    </div>
+    <div class="friends-content">
+        <ul>
+            
+            <li><a target="_blank" href="http://yelog.org/">叶落阁</a></li>
+            
+        </ul>
+    </div>
+</div>
+        <div class="title-list">
+    <div class="right-top">
+        <div id="default-panel">
+            <i class="iconfont icon-search" data-title="搜索 快捷键 i"></i>
+            <div class="right-title">모든 글</div>
+            <i class="iconfont icon-file-tree" data-title="切换到大纲视图 快捷键 w"></i>
+        </div>
+        <div id="search-panel">
+            <i class="iconfont icon-left" data-title="返回"></i>
+            <input id="local-search-input" autocomplete="off"/>
+            <label class="border-line" for="input"></label>
+            <i class="iconfont icon-case-sensitive" data-title="大小写敏感"></i>
+            <i class="iconfont icon-tag" data-title="标签"></i>
+        </div>
+        <div id="outline-panel" style="display: none">
+            <div class="right-title">大纲</div>
+            <i class="iconfont icon-list" data-title="切换到文章列表"></i>
+        </div>
+    </div>
+
+    <div class="tags-list">
+    <input id="tag-search" />
+    <div class="tag-wrapper">
+        
+    </div>
+
+</div>
+
+    
+    <nav id="title-list-nav">
+        
+        
+        <a  class="모든 글 JAVA GC "
+           href="/2026/05/08/JAVA/GC/GC3/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="JAVA GC - G1GC">JAVA GC - G1GC</span>
+            <span class="post-date" title="2026-05-08 07:47:42">2026/05/08</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA GC "
+           href="/2026/05/02/JAVA/GC/GC2/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="JAVA GC - Parallel GC">JAVA GC - Parallel GC</span>
+            <span class="post-date" title="2026-05-02 07:47:42">2026/05/02</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA GC "
+           href="/2026/04/12/JAVA/GC/GC1/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="JAVA GC - Serial GC">JAVA GC - Serial GC</span>
+            <span class="post-date" title="2026-04-12 07:47:42">2026/04/12</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA GC "
+           href="/2026/03/30/JAVA/GC/GC0/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="JAVA GC - JVM 알아보기">JAVA GC - JVM 알아보기</span>
+            <span class="post-date" title="2026-03-30 07:47:42">2026/03/30</span>
+        </a>
+        
+        
+        <a  class="모든 글 NoSQL Redis "
+           href="/2025/12/28/NoSQL/CACHE_STRATEGY/CacheStrategy/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="캐시 전략">캐시 전략</span>
+            <span class="post-date" title="2025-12-28 07:47:42">2025/12/28</span>
+        </a>
+        
+        
+        <a  class="모든 글 CI-CD AWS EKS Kubernetes Docker "
+           href="/2025/08/15/CI-CD/AWS_EKS_CICD/aws_eks_cicd/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="AWS EKS 서버 배포 - CI/CD">AWS EKS 서버 배포 - CI/CD</span>
+            <span class="post-date" title="2025-08-15 07:47:42">2025/08/15</span>
+        </a>
+        
+        
+        <a  class="모든 글 DB MySql Collation "
+           href="/2025/07/23/DB/Mysql/Collation/Collation/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Mysql - Collation">Mysql - Collation</span>
+            <span class="post-date" title="2025-07-23 07:47:42">2025/07/23</span>
+        </a>
+        
+        
+        <a  class="모든 글 Network "
+           href="/2025/07/15/NETWORK/introduction/Network-Introduction/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="네트워크 - 구조 및 공유기 원리">네트워크 - 구조 및 공유기 원리</span>
+            <span class="post-date" title="2025-07-15 07:47:42">2025/07/15</span>
+        </a>
+        
+        
+        <a  class="모든 글 Kafka "
+           href="/2025/07/06/KAFKA/introduction/kafka_introduction/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="카프카 개념 및 실전">카프카 개념 및 실전</span>
+            <span class="post-date" title="2025-07-06 07:47:42">2025/07/06</span>
+        </a>
+        
+        
+        <a  class="모든 글 "
+           href="/2025/06/27/AWS/ImageResizing/imageTest/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title=""></span>
+            <span class="post-date" title="2025-06-27 20:10:06">2025/06/27</span>
+        </a>
+        
+        
+        <a  class="모든 글 AWS Image Resizing "
+           href="/2025/06/26/AWS/ImageResizing/aws-image-resizing/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="AWS Image Resizing 구현하기">AWS Image Resizing 구현하기</span>
+            <span class="post-date" title="2025-06-26 07:47:42">2025/06/26</span>
+        </a>
+        
+        
+        <a  class="모든 글 Elastic Search "
+           href="/2025/06/16/ELASTIC_SEARCH/introduction/elasticsearch-introduction/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Elastic Search 검색 활용기">Elastic Search 검색 활용기</span>
+            <span class="post-date" title="2025-06-16 07:47:42">2025/06/16</span>
+        </a>
+        
+        
+        <a  class="모든 글 Flink Real Time Kafka "
+           href="/2025/04/05/FLINK/introduction/Flink-Introduction/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Flink 이용해서 실시간 데이터 스트림 처리 해보기">Flink 이용해서 실시간 데이터 스트림 처리 해보기</span>
+            <span class="post-date" title="2025-04-05 07:47:42">2025/04/05</span>
+        </a>
+        
+        
+        <a  class="모든 글 Kafka idempotent "
+           href="/2024/12/23/KAFKA/idempotent/Kafka_idempotent/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="카프카 멱등성 및 이벤트 일관성 보장하기">카프카 멱등성 및 이벤트 일관성 보장하기</span>
+            <span class="post-date" title="2024-12-23 07:47:42">2024/12/23</span>
+        </a>
+        
+        
+        <a  class="모든 글 MSA Payment Kafka EDA CQRS "
+           href="/2024/12/16/MSA/paymentMsa/MSA_Payment_Project_3/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="결제 시스템으로 알아보는 MSA 3 - 쿼리 문제">결제 시스템으로 알아보는 MSA 3 - 쿼리 문제</span>
+            <span class="post-date" title="2024-12-16 07:47:42">2024/12/16</span>
+        </a>
+        
+        
+        <a  class="모든 글 MSA Payment Kafka EDA Saga Axon "
+           href="/2024/12/15/MSA/paymentMsa/MSA_Payment_Project_2/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="결제 시스템으로 알아보는 MSA 2 - 분산 트랜잭션 구현">결제 시스템으로 알아보는 MSA 2 - 분산 트랜잭션 구현</span>
+            <span class="post-date" title="2024-12-15 07:47:42">2024/12/15</span>
+        </a>
+        
+        
+        <a  class="모든 글 MSA Payment Kafka EDA "
+           href="/2024/12/14/MSA/paymentMsa/MSA_Payment_Project_1/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="결제 시스템으로 알아보는 MSA 1 - 기본 설명">결제 시스템으로 알아보는 MSA 1 - 기본 설명</span>
+            <span class="post-date" title="2024-12-14 07:47:42">2024/12/14</span>
+        </a>
+        
+        
+        <a  class="모든 글 대용량 트래픽 EDA Payment Redis Kafka "
+           href="/2024/12/13/HIGH_VOLUME_TRAFFIC/PaymentEDA/PaymentEDA/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="결제 시스템으로 알아보는 EDA 시스템">결제 시스템으로 알아보는 EDA 시스템</span>
+            <span class="post-date" title="2024-12-13 07:47:42">2024/12/13</span>
+        </a>
+        
+        
+        <a  class="모든 글 DB Mysql optimizing "
+           href="/2024/12/06/DB/Mysql/optimizing/IndexDiveOptimizaiton/IndexDiveOptimizaiton/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Index Dive 최적화">Index Dive 최적화</span>
+            <span class="post-date" title="2024-12-06 07:47:42">2024/12/06</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA Spring Payment junit5 Mockito "
+           href="/2024/12/03/JAVA/TEST/PaymentTesting/PaymentTesting2/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="결제 Testing - 2">결제 Testing - 2</span>
+            <span class="post-date" title="2024-12-03 15:50:00">2024/12/03</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA Spring Payment junit5 Mockito "
+           href="/2024/12/02/JAVA/TEST/PaymentTesting/PaymentTesting1/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="결제 Testing - 1">결제 Testing - 1</span>
+            <span class="post-date" title="2024-12-02 15:50:00">2024/12/02</span>
+        </a>
+        
+        
+        <a  class="모든 글 대용량 트래픽 Redis WebFlux 접근자 대기열 "
+           href="/2024/11/28/HIGH_VOLUME_TRAFFIC/AccessorQueuingSystem/AccessorQueuingSystem/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="대용량 트래픽 - 접근자 대기열 시스템 만들기">대용량 트래픽 - 접근자 대기열 시스템 만들기</span>
+            <span class="post-date" title="2024-11-28 07:47:42">2024/11/28</span>
+        </a>
+        
+        
+        <a  class="모든 글 대용량 트래픽 Redis Kafka "
+           href="/2024/11/22/HIGH_VOLUME_TRAFFIC/CreateCoupon/CreateCoupon/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="대용량 트래픽 - 선착순 쿠폰 등록 With Kafka, Redis">대용량 트래픽 - 선착순 쿠폰 등록 With Kafka, Redis</span>
+            <span class="post-date" title="2024-11-22 07:47:42">2024/11/22</span>
+        </a>
+        
+        
+        <a  class="모든 글 NoSQL Redis RateLimiter "
+           href="/2024/11/19/NoSQL/Redis/RateLimiter/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Request Rate Limiter 구현하기">Request Rate Limiter 구현하기</span>
+            <span class="post-date" title="2024-11-19 07:47:42">2024/11/19</span>
+        </a>
+        
+        
+        <a  class="모든 글 CI-CD GitHubActions "
+           href="/2024/10/20/CI-CD/GitHunActions/GitHubActionsCICDWithSpringBoot6/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="GitHubActions CICD With SpringBoot - 6">GitHubActions CICD With SpringBoot - 6</span>
+            <span class="post-date" title="2024-10-20 07:47:42">2024/10/20</span>
+        </a>
+        
+        
+        <a  class="모든 글 CI-CD GitHubActions "
+           href="/2024/10/19/CI-CD/GitHunActions/GitHubActionsCICDWithSpringBoot5/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="GitHubActions CICD With SpringBoot - 5">GitHubActions CICD With SpringBoot - 5</span>
+            <span class="post-date" title="2024-10-19 07:47:42">2024/10/19</span>
+        </a>
+        
+        
+        <a  class="모든 글 CI-CD GitHubActions "
+           href="/2024/10/18/CI-CD/GitHunActions/GitHubActionsCICDWithSpringBoot4/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="GitHubActions CICD With SpringBoot - 4">GitHubActions CICD With SpringBoot - 4</span>
+            <span class="post-date" title="2024-10-18 07:47:42">2024/10/18</span>
+        </a>
+        
+        
+        <a  class="모든 글 CI-CD GitHubActions "
+           href="/2024/10/17/CI-CD/GitHunActions/GitHubActionsCICDWithSpringBoot3/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="GitHubActions CICD With SpringBoot - 3">GitHubActions CICD With SpringBoot - 3</span>
+            <span class="post-date" title="2024-10-17 07:47:42">2024/10/17</span>
+        </a>
+        
+        
+        <a  class="모든 글 CI-CD GitHubActions "
+           href="/2024/10/14/CI-CD/GitHunActions/GitHubActionsCICDWithSpringBoot2/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="GitHubActions CICD With SpringBoot - 2">GitHubActions CICD With SpringBoot - 2</span>
+            <span class="post-date" title="2024-10-14 07:47:42">2024/10/14</span>
+        </a>
+        
+        
+        <a  class="모든 글 CI-CD GitHubActions "
+           href="/2024/10/14/CI-CD/GitHunActions/GitHubActionsCICDWithSpringBoot1/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="GitHubActions CICD With SpringBoot - 1">GitHubActions CICD With SpringBoot - 1</span>
+            <span class="post-date" title="2024-10-14 07:47:42">2024/10/14</span>
+        </a>
+        
+        
+        <a  class="모든 글 DB Mysql Paging "
+           href="/2024/10/06/DB/Mysql/PagingQuery/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Paging Query 성능 개선 및 처리 방법 - 튜닝편">Paging Query 성능 개선 및 처리 방법 - 튜닝편</span>
+            <span class="post-date" title="2024-10-06 07:47:42">2024/10/06</span>
+        </a>
+        
+        
+        <a  class="모든 글 DB Mysql DBCP "
+           href="/2024/10/02/DB/Mysql/mysqlDBCP/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="DBCP 설정 방법">DBCP 설정 방법</span>
+            <span class="post-date" title="2024-10-02 07:47:42">2024/10/02</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA Object "
+           href="/2024/08/24/JAVA/Object/InheritanceComposition2/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="상속과 합성 이야기-2">상속과 합성 이야기-2</span>
+            <span class="post-date" title="2024-08-24 15:50:00">2024/08/24</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA Object "
+           href="/2024/08/23/JAVA/Object/InheritanceComposition1/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="상속과 합성 이야기-1">상속과 합성 이야기-1</span>
+            <span class="post-date" title="2024-08-23 15:50:00">2024/08/23</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA Payment "
+           href="/2024/08/06/JAVA/Payment/PaymentTransactionalOutboxpattern/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="결제 시스템 구축 - 5">결제 시스템 구축 - 5</span>
+            <span class="post-date" title="2024-08-06 15:50:00">2024/08/06</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA Payment "
+           href="/2024/08/05/JAVA/Payment/PaymentRetry/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="결제 시스템 구축 - 4">결제 시스템 구축 - 4</span>
+            <span class="post-date" title="2024-08-05 15:50:00">2024/08/05</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA Payment "
+           href="/2024/07/28/JAVA/Payment/BuildingPaymentSystem/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="결제 시스템 구축 - 1">결제 시스템 구축 - 1</span>
+            <span class="post-date" title="2024-07-28 15:50:00">2024/07/28</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA Payment "
+           href="/2024/07/28/JAVA/Payment/PaymentCheckOut/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="결제 시스템 구축 - 2">결제 시스템 구축 - 2</span>
+            <span class="post-date" title="2024-07-28 15:50:00">2024/07/28</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA Payment "
+           href="/2024/07/28/JAVA/Payment/PaymentConfirm/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="결제 시스템 구축 - 3">결제 시스템 구축 - 3</span>
+            <span class="post-date" title="2024-07-28 15:50:00">2024/07/28</span>
+        </a>
+        
+        
+        <a  class="모든 글 "
+           href="/2024/05/31/hello-world/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Hello World">Hello World</span>
+            <span class="post-date" title="2024-05-31 22:32:19">2024/05/31</span>
+        </a>
+        
+        
+        <a  class="모든 글 "
+           href="/2024/05/31/README/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title=""></span>
+            <span class="post-date" title="2024-05-31 22:32:19">2024/05/31</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA Security "
+           href="/2024/05/30/JAVA/Security/AnonymousAuthenticationFilter/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="AnonymousAuthenticationFilter">AnonymousAuthenticationFilter</span>
+            <span class="post-date" title="2024-05-30 10:04:43">2024/05/30</span>
+        </a>
+        
+        
+        <a  class="모든 글 "
+           href="/2024/02/01/HIGH_VOLUME_TRAFFIC/AccessorQueuingSystem2/AccessorQueuingSystem/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="패스트캠퍼스 9개 프로젝트로 경험하는 대용량 트래픽 &amp; 데이터 처리 초격차 패키지 Online. 수강">패스트캠퍼스 9개 프로젝트로 경험하는 대용량 트래픽 &amp; 데이터 처리 초격차 패키지 Online. 수강</span>
+            <span class="post-date" title="2024-02-01 00:00:00">2024/02/01</span>
+        </a>
+        
+        
+        <a  class="모든 글 Authentication JWT "
+           href="/2021/11/27/AUTHTICATION/JWT/jwt/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="JWT (JSON Web Token) 이해하기">JWT (JSON Web Token) 이해하기</span>
+            <span class="post-date" title="2021-11-27 07:47:42">2021/11/27</span>
+        </a>
+        
+        
+        <a  class="모든 글 Authentication Oauth "
+           href="/2021/11/27/AUTHTICATION/OAUTH/oauth/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="OAUTH 2.0 이해하기">OAUTH 2.0 이해하기</span>
+            <span class="post-date" title="2021-11-27 07:47:42">2021/11/27</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA HTTP FeignClient "
+           href="/2021/11/08/JAVA/HTTP/FeignClient/FeignClient/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="FeignClient 활용도">FeignClient 활용도</span>
+            <span class="post-date" title="2021-11-08 10:04:43">2021/11/08</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA SpringBatch "
+           href="/2021/11/04/JAVA/Batch/SpringBatch5/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Batch - Chunk 5">Spring Batch - Chunk 5</span>
+            <span class="post-date" title="2021-11-04 07:47:42">2021/11/04</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA SpringBatch "
+           href="/2021/10/30/JAVA/Batch/SpringBatch4/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Batch - Flow 4">Spring Batch - Flow 4</span>
+            <span class="post-date" title="2021-10-30 07:47:42">2021/10/30</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA SpringBatch "
+           href="/2021/10/24/JAVA/Batch/SpringBatch3/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Batch - 메타데이터 스키마 3">Spring Batch - 메타데이터 스키마 3</span>
+            <span class="post-date" title="2021-10-24 07:47:42">2021/10/24</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA SpringBatch "
+           href="/2021/10/19/JAVA/Batch/SpringBatch2/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Batch - Job, Step 2">Spring Batch - Job, Step 2</span>
+            <span class="post-date" title="2021-10-19 07:47:42">2021/10/19</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA SpringBatch "
+           href="/2021/10/17/JAVA/Batch/SpringBatch1/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Batch 1">Spring Batch 1</span>
+            <span class="post-date" title="2021-10-17 07:47:42">2021/10/17</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA SpringCloudConfig "
+           href="/2021/09/13/JAVA/SpringCloudConfig/spring-cloud-config4/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="비대칭키를 이용한 application.yml 설정값 암호화">비대칭키를 이용한 application.yml 설정값 암호화</span>
+            <span class="post-date" title="2021-09-13 07:47:45">2021/09/13</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA SpringCloudConfig "
+           href="/2021/09/13/JAVA/SpringCloudConfig/spring-cloud-config3/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Cloud Bus">Spring Cloud Bus</span>
+            <span class="post-date" title="2021-09-13 07:47:44">2021/09/13</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA SpringCloudConfig "
+           href="/2021/09/13/JAVA/SpringCloudConfig/spring-cloud-config2/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Boot Actuator">Spring Boot Actuator</span>
+            <span class="post-date" title="2021-09-13 07:47:43">2021/09/13</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA SpringCloudConfig "
+           href="/2021/09/13/JAVA/SpringCloudConfig/spring-cloud-config/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Cloud Config">Spring Cloud Config</span>
+            <span class="post-date" title="2021-09-13 07:47:42">2021/09/13</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA Transaction "
+           href="/2021/03/14/JAVA/Transaction/multi-transaction/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Java Multi-Transaction 관리">Java Multi-Transaction 관리</span>
+            <span class="post-date" title="2021-03-14 07:47:42">2021/03/14</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA Validator "
+           href="/2020/12/18/JAVA/VALIDATOR/validator/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Java Validator 관리">Java Validator 관리</span>
+            <span class="post-date" title="2020-12-18 07:47:42">2020/12/18</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA Security "
+           href="/2020/11/19/JAVA/Security/SessionManagementFilterAndConcurrentSessionFilter/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="SessionManagementFilterAndConcurrentSessionFilter">SessionManagementFilterAndConcurrentSessionFilter</span>
+            <span class="post-date" title="2020-11-19 18:02:23">2020/11/19</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA Security "
+           href="/2020/11/14/JAVA/Security/RememberMeAuthenticationFilter/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="RememberMeAuthenticationFilter">RememberMeAuthenticationFilter</span>
+            <span class="post-date" title="2020-11-14 07:40:06">2020/11/14</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA Security "
+           href="/2020/11/13/JAVA/Security/UsernamePasswordAuthenticationFilter/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="UsernamePasswordAuthenticationFilter">UsernamePasswordAuthenticationFilter</span>
+            <span class="post-date" title="2020-11-13 08:51:13">2020/11/13</span>
+        </a>
+        
+        
+        <a  class="모든 글 CI-CD Jenkins "
+           href="/2020/11/09/CI-CD/Jenkins/JenkinsGitLabConnect/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Jenkins_GitLab_연동">Jenkins_GitLab_연동</span>
+            <span class="post-date" title="2020-11-09 07:47:42">2020/11/09</span>
+        </a>
+        
+        
+        <a  class="모든 글 CI-CD Jenkins "
+           href="/2020/11/08/CI-CD/Jenkins/JenkinsGitLabSshConnect/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="젠킨스와 GitLab ssh 연동하기">젠킨스와 GitLab ssh 연동하기</span>
+            <span class="post-date" title="2020-11-08 07:47:42">2020/11/08</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA JPA "
+           href="/2020/11/08/JAVA/JPA/eagerJpqlNplus1/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="eagerJpqlNplus1">eagerJpqlNplus1</span>
+            <span class="post-date" title="2020-11-08 07:47:42">2020/11/08</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA SpringBootAndSecurityAndJWT "
+           href="/2020/11/08/JAVA/SpringBootAndSecurityAndJWT/spring-boot-security-jwt-social/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Boot 를 이용해 JWT + Social 로그인 처리 - Authorization Server (일반 로그인)">Spring Boot 를 이용해 JWT + Social 로그인 처리 - Authorization Server (일반 로그인)</span>
+            <span class="post-date" title="2020-11-08 07:47:42">2020/11/08</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA SpringBootAndSecurityAndJWT "
+           href="/2020/11/08/JAVA/SpringBootAndSecurityAndJWT/spring-boot-security-jwt-social2/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Boot 를 이용해 JWT + Social 로그인 처리 - Authorization Server (Social 로그인)">Spring Boot 를 이용해 JWT + Social 로그인 처리 - Authorization Server (Social 로그인)</span>
+            <span class="post-date" title="2020-11-08 07:47:42">2020/11/08</span>
+        </a>
+        
+        
+        <a  class="모든 글 JAVA SpringBootAndSecurityAndJWT "
+           href="/2020/11/08/JAVA/SpringBootAndSecurityAndJWT/spring-boot-security-jwt-social3/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Spring Boot 를 이용해 JWT + Social 로그인 처리 - Resource Server">Spring Boot 를 이용해 JWT + Social 로그인 처리 - Resource Server</span>
+            <span class="post-date" title="2020-11-08 07:47:42">2020/11/08</span>
+        </a>
+        
+        
+        <a  class="모든 글 J Jenkins "
+           href="/2020/11/07/JAVA/Security/JKSGenerate/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="JKSGenerate">JKSGenerate</span>
+            <span class="post-date" title="2020-11-07 13:46:21">2020/11/07</span>
+        </a>
+        
+        
+        <a  class="모든 글 CI-CD Jenkins "
+           href="/2020/11/07/CI-CD/Jenkins/JenkinsInstall/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="쿠버네티스 환경 구성">쿠버네티스 환경 구성</span>
+            <span class="post-date" title="2020-11-07 07:47:42">2020/11/07</span>
+        </a>
+        
+        
+        <a  class="모든 글 DB Mysql "
+           href="/2020/11/07/DB/Mysql/mysqlReplicationSetting/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Mysql_Replication_설정">Mysql_Replication_설정</span>
+            <span class="post-date" title="2020-11-07 07:47:42">2020/11/07</span>
+        </a>
+        
+        
+        <a  class="모든 글 KUBERNETES "
+           href="/2020/11/07/KUBERNETES/%EC%89%BD%EA%B2%8C_%EC%8B%9C%EC%9E%91%ED%95%98%EB%8A%94_%EC%BF%A0%EB%B2%84%EB%84%A4%ED%8B%B0%EC%8A%A4/%EC%BF%A0%EB%B2%84%EB%84%A4%ED%8B%B0%EC%8A%A4_%ED%99%98%EA%B2%BD_%EA%B5%AC%EC%84%B1/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="Jenkins_설치">Jenkins_설치</span>
+            <span class="post-date" title="2020-11-07 07:47:42">2020/11/07</span>
+        </a>
+        
+        
+        <a  class="모든 글 R "
+           href="/2020/10/17/R/RServerInstall/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="RServer 설치">RServer 설치</span>
+            <span class="post-date" title="2020-10-17 07:47:42">2020/10/17</span>
+        </a>
+        
+        
+        <a  class="모든 글 JavaScript Webpack "
+           href="/2020/10/17/JAVASCRIPT/Webpack/devtool/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="WebPack - DevTool">WebPack - DevTool</span>
+            <span class="post-date" title="2020-10-17 07:47:42">2020/10/17</span>
+        </a>
+        
+        
+        <a  class="모든 글 "
+           href="/2018/12/02/%EB%A9%B4%EC%A0%91%EC%A4%80%EB%B9%84/test/"
+           data-tag=""
+           data-author="" >
+            <span class="post-title" title="그냥... 잡다한 지식 모음집">그냥... 잡다한 지식 모음집</span>
+            <span class="post-date" title="2018-12-02 15:50:00">2018/12/02</span>
+        </a>
+        
+        <div id="no-item-tips">
+
+        </div>
+    </nav>
+    <div id="outline-list">
+    </div>
+</div>
+
+    </div>
+    <div class="hide-list">
+        <div class="semicircle" data-title="切换全屏 快捷键 s">
+            <div class="brackets first"><</div>
+            <div class="brackets">&gt;</div>
+        </div>
+    </div>
+</aside>
+<div id="post">
+    <div class="pjax">
+        <article id="post-JAVA/GC/GC1" class="article article-type-post" itemscope itemprop="blogPost">
+    
+        <h1 class="article-title">JAVA GC - Serial GC</h1>
+    
+    <div class="article-meta">
+        
+        
+        
+        <span class="book">
+            <i class="iconfont icon-category"></i>
+            
+            
+            <a  data-rel="JAVA">JAVA</a> > 
+            
+            <a  data-rel="JAVA&lt;---&gt;GC">GC</a>
+            
+        </span>
+        
+        
+    </div>
+    <div class="article-meta">
+        
+            작성일 : <time class="date" title='수정일: 2026-06-03 15:18:01'>2026-04-12 07:47</time>
+        
+    </div>
+    <div class="article-meta">
+        
+        
+        <span id="busuanzi_container_page_pv">
+            조회수 :<span id="busuanzi_value_page_pv">
+                <span class="count-comment">
+                    <span class="spinner">
+                      <div class="cube1"></div>
+                      <div class="cube2"></div>
+                    </span>
+                </span>
+            </span>
+        </span>
+        
+        
+    </div>
+    
+    <div class="toc-ref">
+    
+        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Serial-GC-%EC%86%8C%EA%B0%9C"><span class="toc-text">Serial GC 소개</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%EC%95%BD%ED%95%9C-%EC%84%B8%EB%8C%80-%EA%B0%80%EC%84%A4-Weak-Generational-Hypothesis"><span class="toc-text">약한 세대 가설 (Weak Generational Hypothesis)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%EB%8C%80%EB%B6%80%EB%B6%84%EC%9D%98-%EA%B0%9D%EC%B2%B4%EB%8A%94-%E2%80%98%EA%B8%88%EB%B0%A9-%EC%A3%BD%EB%8A%94%EB%8B%A4%E2%80%99-Weak-Generational-Hypothesis"><span class="toc-text">대부분의 객체는 ‘금방 죽는다’ (Weak Generational Hypothesis)</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Young-Generation-%EA%B8%88%EB%B0%A9-%EC%A3%BD%EB%8A%94-%EC%95%A0%EB%93%A4-%EB%AA%A8%EC%9E%84"><span class="toc-text">Young Generation (금방 죽는 애들 모임)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Old-Generation-%EC%A7%88%EA%B8%B4-%EC%95%A0%EB%93%A4-%EB%AA%A8%EC%9E%84"><span class="toc-text">Old Generation (질긴 애들 모임)</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Minor-GC-%EC%86%8C%EA%B0%9C"><span class="toc-text">Minor GC 소개</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Mark-Sweep-Compact"><span class="toc-text">Mark Sweep Compact</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%EC%99%9C-Compact%EA%B0%80-%ED%95%84%EC%9A%94%ED%95%9C%EA%B0%80"><span class="toc-text">왜 Compact가 필요한가?</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Mark-Sweep-Compact-%EC%9D%98-%EC%9E%A5%EB%8B%A8%EC%A0%90"><span class="toc-text">Mark-Sweep-Compact 의 장단점</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%EC%A0%95%EB%A6%AC%ED%95%B4%EB%B3%B4%EC%9E%90"><span class="toc-text">정리해보자</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%EC%9E%90%EB%B0%94-GC%EC%97%90%EC%84%9C-TLAB-%EC%95%8C%EC%95%84%EB%B3%B4%EA%B8%B0"><span class="toc-text">자바 GC에서 TLAB 알아보기</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#TLAB%EA%B0%80-%EC%97%86%EB%8B%A4%EB%A9%B4-%EB%AC%B4%EC%8A%A8-%EB%AC%B8%EC%A0%9C%EA%B0%80-%EC%83%9D%EA%B8%B8%EA%B9%8C"><span class="toc-text">TLAB가 없다면 무슨 문제가 생길까?</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%EA%B7%B8%EB%9F%BC-%EB%8F%99%EA%B8%B0%ED%99%94%EB%A1%9C-%ED%95%B4%EA%B2%B0%ED%95%98%EB%A9%B4-%EB%90%98%EC%A7%80-%EC%95%8A%EC%9D%84%EA%B9%8C"><span class="toc-text">그럼 동기화로 해결하면 되지 않을까?</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%EC%9D%B4%EB%9F%AC%ED%95%9C-%EB%AC%B8%EC%A0%9C%EB%A5%BC-%ED%95%B4%EA%B2%B0-%ED%95%98%EA%B8%B0-%EC%9C%84%ED%95%9C-TLAB"><span class="toc-text">이러한 문제를 해결 하기 위한 TLAB</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#TLAB-retire"><span class="toc-text">TLAB retire</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#TLAB-refill"><span class="toc-text">TLAB refill</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#TLAB-Resize"><span class="toc-text">TLAB Resize</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#TLAB-%ED%81%AC%EA%B8%B0-%EC%A1%B0%EC%A0%95%EC%97%90-%EC%98%81%ED%96%A5%EC%9D%84-%EC%A3%BC%EB%8A%94-%EC%9A%94%EC%86%8C"><span class="toc-text">TLAB 크기 조정에 영향을 주는 요소</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#JVM-GC-%EC%84%B1%EB%8A%A5-%EC%A7%80%ED%91%9C-Throughput%EA%B3%BC-Latency"><span class="toc-text">JVM GC 성능 지표 (Throughput과 Latency)</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Throughput-%EC%9D%B4%EB%9E%80"><span class="toc-text">Throughput 이란?</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Latency-%EB%9E%80"><span class="toc-text">Latency 란?</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Throughput%EA%B3%BC-Latency%EB%8A%94-%EC%99%9C-%EB%91%98-%EB%8B%A4-%EC%A4%91%EC%9A%94%ED%95%A0%EA%B9%8C"><span class="toc-text">Throughput과 Latency는 왜 둘 다 중요할까?</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Throughput%EA%B3%BC-Latency%EB%8A%94-trade-off-%EA%B4%80%EA%B3%84"><span class="toc-text">Throughput과 Latency는 trade-off 관계</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%EC%84%9C%EB%B2%84-%EC%95%A0%ED%94%8C%EB%A6%AC%EC%BC%80%EC%9D%B4%EC%85%98%EC%97%90%EC%84%9C%EB%8A%94-%EB%AC%B4%EC%97%87%EC%9D%B4-%EB%8D%94-%EC%A4%91%EC%9A%94%ED%95%A0%EA%B9%8C"><span class="toc-text">서버 애플리케이션에서는 무엇이 더 중요할까?</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#JVM-%EC%98%B5%EC%85%98-Xmx-%EC%99%80-Xms"><span class="toc-text">JVM 옵션 -Xmx 와 -Xms</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Xmx-%EC%99%80-Xms-%EB%A5%BC-%EA%B0%99%EA%B2%8C-%EC%A3%BC%EB%8A%94-%EA%B2%BD%EC%9A%B0"><span class="toc-text">-Xmx 와 -Xms 를 같게 주는 경우</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#XX-NewRatio-%EC%95%8C%EC%95%84%EB%B3%B4%EA%B8%B0"><span class="toc-text">-XX:NewRatio 알아보기</span></a></li></ol></li></ol></li></ol></li></ol>
+    
+<style>
+    .left-col .switch-btn,
+    .left-col .switch-area {
+        display: none;
+    }
+    .toc-level-3 i,
+    .toc-level-3 ol {
+        display: none !important;
+    }
+</style>
+</div>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="Serial-GC-소개"><a href="#Serial-GC-소개" class="headerlink" title="Serial GC 소개"></a>Serial GC 소개</h1><h2 id="약한-세대-가설-Weak-Generational-Hypothesis"><a href="#약한-세대-가설-Weak-Generational-Hypothesis" class="headerlink" title="약한 세대 가설 (Weak Generational Hypothesis)"></a>약한 세대 가설 (Weak Generational Hypothesis)</h2><p>자바 메모리 관리의 핵심인 <code>약한 세대 가설(Weak Generational Hypothesis)</code> 을 시각적으로 가장 잘 보여주는 자료 입니다. 그래프를 보면 대부분의 객체는 <code>금방 죽는다</code> 입니다. 하지만 오래 살아 남으면 그만큼 <code>오래 살아 남는다</code> 입니다.</p>
+<p>자바의 메모리 구조를 보면 <code>힙(Heap) 영역</code> 이 <code>Young Generation</code> 과 <code>Old Generation</code> 으로 나뉘어 있는 것을 볼 수 있습니다. “그냥 통째로 관리하면 편할 텐데 왜 굳이 복잡하게 나눠놓았을까?” 라는 의문이 들 수 있죠. 그 해답은 바로 객체의 수명 그래프에 있습니다.</p>
+<p><img src="/../../../img/JAVA/GC/LifetimesOfObjects.webp" alt="LifetimesOfObjects"></p>
+<h2 id="대부분의-객체는-‘금방-죽는다’-Weak-Generational-Hypothesis"><a href="#대부분의-객체는-‘금방-죽는다’-Weak-Generational-Hypothesis" class="headerlink" title="대부분의 객체는 ‘금방 죽는다’ (Weak Generational Hypothesis)"></a>대부분의 객체는 ‘금방 죽는다’ (Weak Generational Hypothesis)</h2><p>위 그래프를 보면 왼쪽 끝(객체가 막 생성된 시점)에 데이터가 폭발적으로 몰려 있는 것을 볼 수 있습니다.</p>
+<ul>
+<li>금방 죽는 객체: 루프 안에서 잠깐 쓰이는 변수, HTTP 요청 한 번에 응답하고 사라지는 객체 등이 여기 해당합니다. 90% 이상의 객체는 생성되자마자 곧바로 <code>쓰레기(Garbage)</code> 가 됩니다.</li>
+<li>오래 살아남는 객체: 반면, 이 고비를 넘기고 살아남은 소수의 객체는 애플리케이션이 종료될 때까지 유지될 가능성이 매우 높습니다. 캐시 데이터나 세션, 싱글톤 객체들이 대표적 입니다.</li>
+</ul>
+<p>이 극단적인 수명 차이 때문에 JVM은 <code>세대별 관리</code> 라는 전략을 선택했습니다.</p>
+<p><img src="/../../../img/JAVA/GC/JVMObject.png" alt="JVMObject"></p>
+<h3 id="Young-Generation-금방-죽는-애들-모임"><a href="#Young-Generation-금방-죽는-애들-모임" class="headerlink" title="Young Generation (금방 죽는 애들 모임)"></a>Young Generation (금방 죽는 애들 모임)</h3><p>객체가 태어나자마자 할당되는 곳입니다. 대부분 금방 죽기 때문에, 아주 자주 그리고 빠르게 청소합니다. 이를 <code>Minor GC</code> 라고 부릅니다. 살아있는 놈들만 쏙쏙 골라내고 나머지는 한꺼번에 날려버리는 방식이라 처리 속도가 매우 빠릅니다.</p>
+<h3 id="Old-Generation-질긴-애들-모임"><a href="#Old-Generation-질긴-애들-모임" class="headerlink" title="Old Generation (질긴 애들 모임)"></a>Old Generation (질긴 애들 모임)</h3><p>Young 영역에서 여러 번의 GC를 견디고 살아남은 ‘정예 객체’들이 이동해오는 곳입니다. 이곳은 덩치가 크고 잘 죽지 않는 객체들이 모여 있어, Young 영역처럼 자주 청소하면 오히려 시스템에 큰 부담이 됩니다. 그래서 이곳은 가끔씩만 청소하며, 이를 <code>Major GC(또는 Full GC)</code> 라고 부릅니다.</p>
+<p>결국 이유는 ‘성능’ 때문입니다. 만약 힙을 나누지 않고 통째로 관리한다면, 새로운 객체 하나를 위해 메모리를 비울 때마다 <code>힙 전체를 뒤져야 합니다.</code> 하지만 세대를 나누면? 금방 죽을 놈들이 모인 좁은 구역(Young)만 집중적으로 공략해서 메모리를 확보합니다. 이 덕분에 전체 애플리케이션이 멈추는 <code>Stop-the-world</code> 시간을 획기적으로 줄일 수 있습니다.</p>
+<h2 id="Minor-GC-소개"><a href="#Minor-GC-소개" class="headerlink" title="Minor GC 소개"></a>Minor GC 소개</h2><p><img src="/../../../img/JAVA/GC/MinorGC1.png" alt="MinorGC1"><br><img src="/../../../img/JAVA/GC/MinorGC2.png" alt="MinorGC2"><br><img src="/../../../img/JAVA/GC/MinorGC3.png" alt="MinorGC3"></p>
+<p><code>GC Root</code> 로부터 연결된 객체들을 추적하는 화살표가 있습니다. <code>GC Root</code> 와 연결된 객체 경우 아직 사용 중인 ‘살아있는 객체’ 입니다. 반대로 연결되지 않은 객체는 더 이상 필요 없는 <code>쓰레기(Garbage)</code> 입니다. JVM은 전체를 뒤지는 대신, 살아있는 객체만 골라내어 마킹합니다.</p>
+<p>추가적으로 검은색 영역 으로 표시된 <code>Remembered Set</code> 은 튜닝의 고급 정보입니다. 가끔 <code>Old 영역</code> 의 객체가 <code>Young 영역의 객체를 참조</code> 할 때가 있습니다. Young 영역만 청소(Minor GC)하고 싶은데, Old 영역 전체를 뒤져서 참조를 확인할 수는 없기 때문에 이때 <code>Remembered Set</code> 이라는 별도의 장부를 써서 “Old 영역의 누군가 얘를 쓰고 있다”는 것을 기록해 둡니다. 덕분에 Minor GC 속도가 훨씬 빨라집니다.<br><img src="/../../../img/JAVA/GC/MinorGC4.png" alt="MinorGC4"></p>
+<p><code>Survivor</code> 영역으로 데이터가 이동하는 장면입니다. 이것이 바로 <code>Mark-Copy</code> 방식입니다. 만약 쓰레기만 골라서 지우면 메모리 곳곳에 구멍이 뚫리는 <code>단편화(Fragmentation)</code> 가 발생합니다. 이러한 문제를 해결 하기 위해 <code>Young 영역(Eden)</code> 에서 살아남은 객체들을 <code>Survivor 영역</code> 으로 통째로 복사(Copy) 합니다.</p>
+<p>복사가 끝나면 기존 Eden 영역은 통째로 비워버립니다.</p>
+<p><img src="/../../../img/JAVA/GC/Promotion.png" alt="Promotion"></p>
+<p>우측의 <code>Old Generation 영역</code> 에서 파란색 화살표를 주목해주세요. <code>Survivor 영역</code> 에서 GC가 반복되어도 끝까지 살아남은 <code>장수 객체</code> 들은 결국 <code>Old 영역</code> 으로 옮겨집니다. 이를 <code>Promotion(승급)</code> 이라고 부릅니다. 이제 이 객체들은 웬만해서는 죽지 않는 ‘정예 요원’이 된 셈입니다.</p>
+<h2 id="Mark-Sweep-Compact"><a href="#Mark-Sweep-Compact" class="headerlink" title="Mark Sweep Compact"></a>Mark Sweep Compact</h2><p><code>Mark-Sweep-Compact</code> 는 크게 다음 순서로 이해할 수 있습니다.</p>
+<ol>
+<li>Mark</li>
+</ol>
+<ul>
+<li><code>GC Root</code> 에서부터 도달 가능한 객체를 찾아서 “이 객체는 아직 살아 있다”라고 표시합니다.</li>
+</ul>
+<ol start="2">
+<li>Sweep</li>
+</ol>
+<ul>
+<li>표시되지 않은 객체, 즉 더 이상 참조되지 않는 객체를 정리 대상이라고 판단합니다.</li>
+</ul>
+<ol start="3">
+<li>Compact</li>
+</ol>
+<ul>
+<li>살아 있는 객체들을 한쪽으로 밀어서 재배치하고, 중간중간 흩어져 있던 빈 공간을 하나의 큰 연속 공간으로 합칩니다.</li>
+</ul>
+<p>즉,</p>
+<ul>
+<li>Mark: 살아 있는 객체 찾기</li>
+<li>Sweep: 죽은 객체 구분</li>
+<li>Compact: 살아 있는 객체를 모아서 파편화 제거</li>
+</ul>
+<p>라고 보면 됩니다.</p>
+<h2 id="왜-Compact가-필요한가"><a href="#왜-Compact가-필요한가" class="headerlink" title="왜 Compact가 필요한가?"></a>왜 Compact가 필요한가?</h2><p><code>Mark-Sweep</code> 까지만 수행하면 죽은 객체는 정리되지만, 살아 있는 객체들 사이사이에 빈 공간이 남습니다.</p>
+<p>예를 들어,</p>
+<ul>
+<li>객체 A 살아 있음</li>
+<li>객체 B 죽음</li>
+<li>객체 C 살아 있음</li>
+<li>객체 D 죽음</li>
+</ul>
+<p>이렇게 되면 메모리에는 <code>[A][빈칸][C][빈칸]</code> 형태가 남게 됩니다.</p>
+<p>겉으로 보면 빈 공간이 많아 보이지만, 실제로는 연속된 큰 공간이 없어서 큰 객체를 배치하지 못할 수도 있습니다.</p>
+<p>이런 문제를 해결하기 위해 살아 있는 객체를 한쪽으로 붙여서 <code>[A][C][연속된 빈 공간]</code> 형태로 만드는 것이 <code>Compact</code> 의 핵심입니다.</p>
+<p><img src="/../../../img/JAVA/GC/Mark-Sweep-Compact/Mark-Sweep-Compact-1.png" alt="Mark-Sweep-Compact-1"></p>
+<p>파편화된 상태에서 Compact 준비 시작</p>
+<p>이 장면은 GC 이후 살아 있는 객체들만 남아 있지만, 메모리 곳곳에 빈 공간이 흩어져 있는 파편화 상태를 보여줍니다.</p>
+<p>아직 객체를 옮기지는 않았고, 이제부터 왼쪽부터 선형 탐색(linear scan) 하면서 살아 있는 객체가 compact 이후 어디로 이동할지 계산할 준비를 합니다. 즉, Compact의 출발점입니다.</p>
+<p><img src="/../../../img/JAVA/GC/Mark-Sweep-Compact/Mark-Sweep-Compact-2.png" alt="Mark-Sweep-Compact-2"></p>
+<p>첫 번째 살아 있는 객체에 새 주소 부여</p>
+<p>첫 번째 살아 있는 객체를 발견하면, compact 이후 이동해야 할 새 주소(forwarding address) 를 계산합니다. 그림의 fa 는 바로 그 의미이며, 이 값은 현재 객체 헤더 등에 임시 저장된 것으로 이해하면 됩니다.</p>
+<p>아직 객체를 옮긴 것은 아니고, “너는 나중에 이 위치로 이동할 예정이야” 라고 표시만 한 상태입니다.</p>
+<p><img src="/../../../img/JAVA/GC/Mark-Sweep-Compact/Mark-Sweep-Compact-3.png" alt="Mark-Sweep-Compact-3"></p>
+<p>두 번째 살아 있는 객체도 새 주소 계산</p>
+<p>다음 살아 있는 객체를 찾고, 앞에서 배정된 객체 바로 뒤 위치를 기준으로 두 번째 객체의 새 주소를 계산합니다.</p>
+<p>이 과정의 핵심은 살아 있는 객체들을 중간 빈 공간 없이 연속적으로 붙여 배치할 최종 주소를 계산한다는 점입니다.</p>
+<p><img src="/../../../img/JAVA/GC/Mark-Sweep-Compact/Mark-Sweep-Compact-4.png" alt="Mark-Sweep-Compact-4"></p>
+<p>세 번째 살아 있는 객체의 forwarding address 기록</p>
+<p>이제 세 번째 살아 있는 객체에도 fa 가 기록됩니다. 이 시점부터 보이는 흐름은 분명합니다.</p>
+<ul>
+<li>죽은 객체가 차지하던 공간은 건너뛰고</li>
+<li>살아 있는 객체만 순서대로 모아서</li>
+<li>compact 이후의 연속 메모리 배치를 미리 계산</li>
+</ul>
+<p>하는 단계입니다.</p>
+<p><img src="/../../../img/JAVA/GC/Mark-Sweep-Compact/Mark-Sweep-Compact-5.png" alt="Mark-Sweep-Compact-5"></p>
+<p>Young 영역의 살아 있는 객체들에 대한 새 주소 계산 완료</p>
+<p>Young Generation 안에서 살아 있는 객체들에 대해 새 주소를 차례대로 계산해 두는 작업이 거의 끝난 상태입니다.</p>
+<p>이 단계가 중요한 이유는, 뒤에서 참조를 새 주소로 바꿀 수 있으려면 먼저 모든 이동 대상 객체의 최종 위치가 정해져 있어야 하기 때문입니다.</p>
+<p>즉, 지금은 “복사 전 주소 설계도”를 만드는 단계라고 볼 수 있습니다.</p>
+<p><img src="/../../../img/JAVA/GC/Mark-Sweep-Compact/Mark-Sweep-Compact-6.png" alt="Mark-Sweep-Compact-6"></p>
+<p>이제 참조를 새 주소로 바꾸는 단계 시작</p>
+<p>여기서부터는 실제 복사가 아니라 참조 주소를 새 주소로 업데이트하는 단계입니다.</p>
+<p>그림 하단 설명처럼,</p>
+<ul>
+<li>GC Root</li>
+<li>Young 내부 객체 참조</li>
+<li>Old Generation 객체 참조</li>
+<li>Remembered Set 기반의 Old → Young 참조</li>
+</ul>
+<p>등을 모두 새 주소로 바꾸기 시작합니다.</p>
+<p>객체는 아직 원래 자리에 있지만, 참조부터 안전하게 새 위치를 바라보도록 변경하는 것입니다.</p>
+<p><img src="/../../../img/JAVA/GC/Mark-Sweep-Compact/Mark-Sweep-Compact-7.png" alt="Mark-Sweep-Compact-7"></p>
+<p>GC Root가 첫 번째 새 주소를 바라보도록 갱신</p>
+<p>GC Root가 가리키던 기존 주소를 이제 fa 가 가리키는 새 주소로 바꾸는 과정입니다.</p>
+<p>이 작업이 중요한 이유는 실제 객체가 이동한 뒤에도 루트 참조가 옛 주소를 보면 안 되기 때문입니다.</p>
+<p>즉, 루트 참조부터 새 위치를 정확히 인지하게 만드는 단계입니다.</p>
+<p><img src="/../../../img/JAVA/GC/Mark-Sweep-Compact/Mark-Sweep-Compact-8.png" alt="Mark-Sweep-Compact-8"></p>
+<p>객체 간 참조도 순차적으로 새 주소로 변경</p>
+<p>이제 GC Root뿐 아니라 객체 내부 필드가 가리키는 참조들도 하나씩 새 주소로 바뀝니다. 만약 객체 A가 객체 B를 참조하고 있었다면, 이제는 B의 원래 주소가 아니라 compact 후 B가 이동할 새 주소를 참조해야 합니다.</p>
+<p>이 단계는 객체 간 연결 관계를 compact 이후에도 그대로 유지하기 위한 필수 과정입니다.</p>
+<p><img src="/../../../img/JAVA/GC/Mark-Sweep-Compact/Mark-Sweep-Compact-9.png" alt="Mark-Sweep-Compact-9"></p>
+<p>Old → Young 참조까지 함께 갱신</p>
+<p>Young Generation 안의 참조만 바꾸면 끝이 아닙니다. Old Generation 객체가 Young Generation 객체를 참조하는 경우도 있기 때문입니다.</p>
+<p>이때 사용하는 것이 Remembered Set 입니다. 즉, Old 영역 전체를 무식하게 전부 뒤지지 않고, Young를 참조하는 Old 객체들만 추적해서 필요한 참조를 새 주소로 갱신하는 방식으로 이해할 수 있습니다.</p>
+<p><img src="/../../../img/JAVA/GC/Mark-Sweep-Compact/Mark-Sweep-Compact-10.png" alt="Mark-Sweep-Compact-10"></p>
+<p>모든 참조 주소 갱신 완료</p>
+<p>이제 살아 있는 객체를 가리키는 참조들은 모두 compact 이후의 새 주소를 바라보게 되었습니다. 이 상태가 되면 비로소 실제 객체를 옮겨도 참조 무결성이 깨지지 않습니다.</p>
+<p>즉, </p>
+<ul>
+<li>새 주소 계산 완료</li>
+<li>참조 갱신 완료</li>
+</ul>
+<p>이 되었으므로, 다음 단계에서 실제 객체 복사를 진행할 수 있습니다.</p>
+<p><img src="/../../../img/JAVA/GC/Mark-Sweep-Compact/Mark-Sweep-Compact-11.png" alt="Mark-Sweep-Compact-11"></p>
+<p>첫 번째 살아 있는 객체 실제 복사</p>
+<p>여기서부터는 실제로 객체를 새 주소 위치로 이동시키는 단계입니다. 첫 번째 살아 있는 객체가 미리 계산해 둔 compact 위치로 복사됩니다.</p>
+<p>이미 참조는 새 주소를 바라보게 수정되어 있으므로, 객체가 이동해도 참조 일관성이 유지됩니다.</p>
+<p><img src="/../../../img/JAVA/GC/Mark-Sweep-Compact/Mark-Sweep-Compact-12.png" alt="Mark-Sweep-Compact-12"></p>
+<p>두 번째 객체도 연속된 공간으로 이동</p>
+<p>두 번째 살아 있는 객체도 첫 번째 객체 바로 뒤의 연속 공간으로 복사됩니다.</p>
+<p>이 단계가 진행될수록 기존에 흩어져 있던 빈 공간은 점점 사라지고, 객체들이 한쪽으로 모이기 시작합니다.</p>
+<p>즉, 파편화가 눈에 띄게 해소되는 구간입니다.</p>
+<p><img src="/../../../img/JAVA/GC/Mark-Sweep-Compact/Mark-Sweep-Compact-13.png" alt="Mark-Sweep-Compact-13"></p>
+<p>나머지 살아 있는 객체들도 차례대로 압축 이동</p>
+<p>세 번째, 네 번째 객체도 같은 방식으로 계산된 새 주소로 순서대로 복사됩니다.</p>
+<p>여기서 중요한 점은 복사 순서가 제멋대로가 아니라 선형적으로 진행되면서 메모리를 연속 구간으로 재구성한다는 점입니다.</p>
+<p>이 과정을 통해 빈 공간이 여러 조각으로 나뉘어 있던 상태가 하나의 큰 빈 공간으로 정리됩니다.</p>
+<p><img src="/../../../img/JAVA/GC/Mark-Sweep-Compact/Mark-Sweep-Compact-14.png" alt="Mark-Sweep-Compact-14"></p>
+<p>Compact 완료, 연속된 빈 공간 확보</p>
+<p>마지막 장면은 Compact가 끝난 상태입니다. 살아 있는 객체들은 한쪽으로 붙어 배치되었고, 그 뒤에는 큰 연속 공간이 만들어졌습니다.</p>
+<p>이제 JVM은 새로운 객체를 할당할 때 중간중간 빈 칸을 찾아다닐 필요 없이 연속된 여유 공간을 효율적으로 사용할 수 있습니다.</p>
+<p>즉, 이 단계에서 파편화 문제가 실질적으로 해결됩니다.</p>
+<p>그림이 전달하는 핵심 정리 하자면 </p>
+<ul>
+<li>첫째, 살아 있는 객체를 바로 옮기지 않는다 먼저 새 주소를 계산하고 (fa 기록)</li>
+<li>둘째, 참조를 먼저 새 주소로 바꾼다 GC Root, 객체 간 참조, Old → Young 참조를 모두 수정한 뒤</li>
+<li>셋째, 마지막에 실제 객체를 이동한다 그래야 참조가 꼬이지 않고 안전하게 compact를 수행할 수 있습니다.</li>
+</ul>
+<p>즉, 이 그림은 단순히 <code>압축한다</code> 가 아니라 압축을 위해 필요한 내부 절차를 단계적으로 보여주는 좋은 예시입니다.</p>
+<h2 id="Mark-Sweep-Compact-의-장단점"><a href="#Mark-Sweep-Compact-의-장단점" class="headerlink" title="Mark-Sweep-Compact 의 장단점"></a><code>Mark-Sweep-Compact</code> 의 장단점</h2><p>다음은 <code>Mark-Sweep-Compact</code> 장단점을 말씀 드리겠습니다.</p>
+<p>장점</p>
+<ul>
+<li>메모리 파편화를 해소할 수 있음</li>
+<li>큰 연속 메모리 공간 확보 가능</li>
+<li>이후 객체 할당이 더 단순하고 빨라질 수 있음</li>
+</ul>
+<p>단점</p>
+<ul>
+<li>객체를 실제로 이동해야 하므로 비용이 큼</li>
+<li>참조 업데이트가 필요함</li>
+<li><code>Stop-The-World</code> 시간이 길어질 수 있음</li>
+</ul>
+<p>즉, 메모리를 깔끔하게 정리할 수 있는 대신 비용이 상대적으로 큰 GC 방식이라고 볼 수 있습니다.</p>
+<h2 id="정리해보자"><a href="#정리해보자" class="headerlink" title="정리해보자"></a>정리해보자</h2><p><code>Mark-Sweep-Compact</code> 는 단순히 “가비지를 치운다”를 넘어, GC 이후 남는 메모리 파편화까지 해결하는 방식입니다. 특히 이번 그림처럼 단계별로 보면 Compact는 다음 순서로 이해할 수 있습니다.</p>
+<ol>
+<li>살아 있는 객체의 새 주소 계산 </li>
+<li>모든 참조를 새 주소로 갱신 </li>
+<li>실제 객체를 새 위치로 복사 </li>
+<li>연속된 빈 공간 확보</li>
+</ol>
+<p>결국 이 과정의 목적은 하나입니다. “메모리를 다시 연속적이고 효율적으로 사용할 수 있게 만드는 것” 입니다.</p>
+<h2 id="자바-GC에서-TLAB-알아보기"><a href="#자바-GC에서-TLAB-알아보기" class="headerlink" title="자바 GC에서 TLAB 알아보기"></a>자바 GC에서 <code>TLAB</code> 알아보기</h2><p><code>TLAB</code> 는 여러 스레드가 동시에 객체를 만들 때 생기는 병목과 해결 방식 입니다.</p>
+<p>자바 애플리케이션은 보통 여러 스레드가 동시에 동작합니다. 웹 서버라면 요청마다 다른 스레드가 일하고, 백그라운드 작업도 별도 스레드에서 수행됩니다. 이때 공통적으로 자주 일어나는 일이 하나 있습니다. 바로 객체 생성입니다.</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">new User();</span><br><span class="line">new ArrayList&lt;&gt;();</span><br><span class="line">new StringBuilder();</span><br></pre></td></tr></table></figure>
+
+<p>이런 객체 생성은 매우 흔하고, <code>JVM</code> 은 이런 객체를 보통 <code>Young Generation</code> 의 <code>Eden</code> 영역에 먼저 할당합니다.</p>
+<p>문제는 여러 스레드가 동시에 <code>Eden</code> 에 객체를 할당하려고 하면 같은 메모리 공간을 서로 차지하려고 경쟁하게 된다는 점입니다. 이 경쟁을 줄이기 위해 등장한 개념이 바로 <code>TLAB(Thread Local Allocation Buffer)</code> 입니다.</p>
+<h3 id="TLAB가-없다면-무슨-문제가-생길까"><a href="#TLAB가-없다면-무슨-문제가-생길까" class="headerlink" title="TLAB가 없다면 무슨 문제가 생길까?"></a><code>TLAB</code>가 없다면 무슨 문제가 생길까?</h3><p><img src="/../../../img/JAVA/GC/TLAB/TLAB1.png" alt="TLAB1"></p>
+<p>객체를 메모리에 할당하는 가장 단순한 방식은 이런 식입니다.</p>
+<ul>
+<li><code>Eden</code> 의 현재 할당 시작 위치를 가리키는 포인터가 있음</li>
+<li>객체를 하나 만들 때마다 그 포인터를 앞으로 이동시킴</li>
+<li>그 사이 공간을 새 객체가 사용함</li>
+</ul>
+<p>이 방식 자체는 매우 빠릅니다. 보통 이를 <code>bump-the-pointer allocation</code> 이라고 이해하면 됩니다.</p>
+<p>예를 들면</p>
+<ol>
+<li>현재 <code>Eden</code>의 <code>free pointer</code>가 100번지</li>
+<li>32바이트짜리 객체 생성</li>
+<li>100~131 사용</li>
+<li><code>free pointer</code>를 132로 이동</li>
+</ol>
+<p>이 자체는 간단합니다. 하지만 문제는 멀티스레드 환경입니다.</p>
+<p>예를 들어</p>
+<ol>
+<li>Thread 1도 Eden에 객체를 만들고 싶고</li>
+<li>Thread 2도 Eden에 객체를 만들고 싶고</li>
+</ol>
+<p>둘 다 “현재 free pointer”를 기준으로 메모리를 잡으려 하면 동시에 같은 위치를 읽고, 같은 위치에 할당하려고 시도할 수 있습니다. 그러면 다음과 같은 문제가 생깁니다.</p>
+<ul>
+<li><p>같은 주소를 중복 할당할 수 있음</p>
+</li>
+<li><p>free pointer 갱신이 꼬일 수 있음</p>
+</li>
+<li><p>메모리 무결성이 깨질 수 있음</p>
+</li>
+<li><p>즉, 공유 메모리 할당 포인터에 대한 <code>경쟁(contention)</code> 이 생깁니다.</p>
+</li>
+</ul>
+<h3 id="그럼-동기화로-해결하면-되지-않을까"><a href="#그럼-동기화로-해결하면-되지-않을까" class="headerlink" title="그럼 동기화로 해결하면 되지 않을까?"></a>그럼 동기화로 해결하면 되지 않을까?</h3><p>예를 들어 <code>Eden</code> 의 할당 포인터를 갱신할 때마다 <code>lock</code> 을 걸거나 <code>원시적 연산(CAS)</code> 방식으로 충분히 정합성 문제 해결 할 수 있습니다. 하지만 객체는 자주 발생하기 때문에, 전체 처리량이 크게 떨어질 수 있습니다. 즉 정확성은 보장할 수 있어도, 성능을 너무 많이 희생하게 됩니다.</p>
+<h3 id="이러한-문제를-해결-하기-위한-TLAB"><a href="#이러한-문제를-해결-하기-위한-TLAB" class="headerlink" title="이러한 문제를 해결 하기 위한 TLAB"></a>이러한 문제를 해결 하기 위한 <code>TLAB</code></h3><p><img src="/../../../img/JAVA/GC/TLAB/TLAB2.png" alt="TLAB2"></p>
+<p>이 문제를 해결하기 위해 <code>JVM</code>은 <code>Eden</code> 전체를 모든 스레드가 직접 공유하도록 두지 않고, 그 안에서 각 스레드가 잠시 독점해서 사용할 수 있는 작은 영역을 따로 떼어 줍니다. 그게 바로 <code>TLAB(Thread Local Allocation Buffer)</code> 입니다.</p>
+<p>동작 개념을 설명하겠습니다.</p>
+<ul>
+<li><code>Eden</code>은 <code>Young Generation</code> 안에 있는 객체 생성의 기본 공간</li>
+<li><code>JVM</code>은 <code>Eden</code>의 일부를 잘라서 각 스레드에게 나눠 줌</li>
+<li>각 스레드는 자기 <code>TLAB</code> 안에서는 다른 스레드와 경쟁하지 않고 객체를 할당함</li>
+<li><code>TLAB</code> 가 다 차면 그때만 <code>JVM</code> 에 새 <code>TLAB</code> 를 요청하거나, 경우에 따라 직접 <code>Eden</code> 에 할당함</li>
+</ul>
+<p>즉, 매번 전체 <code>Eden</code> 에 대해 경쟁하지 않고 자기 버퍼 안에서는 락 없이 매우 빠르게 할당할 수 있게 됩니다.</p>
+<h3 id="TLAB-retire"><a href="#TLAB-retire" class="headerlink" title="TLAB retire"></a>TLAB retire</h3><p><code>TLAB</code> 에 남은 공간이 너무 적어서 더 이상 효율적으로 쓰기 어렵다고 판단되면, 현재 <code>TLAB</code>는 <code>은퇴(retire)</code> 됩니다. 여기서 <code>retire</code>란 “이 <code>TLAB</code>는 이제 더 이상 계속 쓰지 않고, 남은 자투리 공간은 포기하고 새 <code>TLAB</code> 를 받겠다”</p>
+<p>즉 기존 <code>TLAB</code> 의 끝부분에 애매하게 조금 남은 공간이 있더라도 그 공간이 충분히 유의미하지 않다면 <code>JVM</code>은 그 공간을 정리 대상으로 보고 새 <code>TLAB</code> 를 <code>Eden</code> 에서 다시 받아옵니다.</p>
+<h3 id="TLAB-refill"><a href="#TLAB-refill" class="headerlink" title="TLAB refill"></a>TLAB refill</h3><p>기존 <code>TLAB</code> 를 <code>retire</code> 하기로 결정하면, <code>JVM</code> 은 <code>Eden</code> 의 공유 영역에서 해당 스레드를 위한 새로운 <code>TLAB</code> 를 <code>할당(refill)</code> 합니다. 이때 중요한 점은 새 <code>TLAB</code>는 내 스레드 전용으로 사용되지만, 그 새 <code>TLAB</code> 자체를 받아오는 과정은 <code>Eden</code>의 공유 영역에서 일어난다는 것입니다.</p>
+<p>즉 평소 <code>TLAB</code> 내부에서 객체를 만드는 것은 <code>thread-local</code> <code>fast-path</code> 하지만 <code>TLAB</code>를 새로 받는 순간은 <code>Eden</code> 공유 영역을 건드려야 하므로 더 비쌈 이라는 차이가 있습니다.</p>
+<p><img src="/../../../img/JAVA/GC/TLAB/TLAB3.png" alt="TLAB3"><br>첫 번째 그림은 어떤 스레드가 이미 하나의 <code>TLAB</code>를 사용하고 있고, 그 안쪽에 여러 객체들이 할당되어 있는 상태를 보여줍니다. 하지만 이제 <code>TLAB</code> 끝부분에 남은 공간이 거의 없습니다. 이 상태에서 새 객체를 생성하려고 하면 <code>JVM</code>은 먼저 판단합니다.</p>
+<p>지금 남은 자투리 공간을 계속 써볼 가치가 있는가? 아니면 이 TLAB를 retire 시키고 새 <code>TLAB</code> 를 받아오는 게 더 나은가? 즉, 이 시점은 단순한 <code>fast-path</code> 가 끝나고 추가 판단이 필요한 경계 지점입니다.</p>
+<p><img src="/../../../img/JAVA/GC/TLAB/TLAB4.png" alt="TLAB4"></p>
+<p>두 번째 그림은 새 객체가 생성되려는 순간을 보여줍니다. 그런데 현재 <code>TLAB</code> 에는 이 객체를 담을 만한 충분한 공간이 없습니다. 이 경우 <code>JVM</code>은 기존 <code>TLAB</code>를 <code>retire</code> 시키고, <code>Eden</code>의 공유 영역에서 새로운 <code>TLAB</code>를 <code>refill</code> 받아야 합니다.</p>
+<p>중요한 점은 이 <code>refill</code> 과정은 <code>thread-local</code> 내부에서 끝나는 것이 아니라 <code>Eden</code>의 공유 자원을 대상으로 수행된다는 것입니다. 그래서 이 과정에는 동기화, JVM 로직, 포인터 갱신 등의 비용이 개입할 수 있고, 이 경로를 <code>slow-path</code>라고 부릅니다.</p>
+<h3 id="TLAB-Resize"><a href="#TLAB-Resize" class="headerlink" title="TLAB Resize"></a>TLAB Resize</h3><p><code>HotSpot/OpenJDK</code> 에서는 <code>-XX:+ResizeTLAB</code> 가 기본적으로 켜져 있으며, <code>TLAB</code> 크기를 고정하지 않고 동적으로 재조정할 수 있습니다. </p>
+<p>OpenJDK 쪽 설명 기준으로 <code>TLAB sizing policy</code>는 <code>GC cycle</code> 마다 리사이징 판단을 하고, 최근 할당 이력을 <code>TLABAllocationWeight</code> 비율로 반영합니다. 또한 <code>TLABWasteTargetPercent</code> 기본값은 1, <code>TLABAllocationWeight</code> 기본값은 35입니다.</p>
+<p>즉, <code>TLAB</code>는 “한 번 정하면 계속 같은 크기”가 아니라, 스레드별 객체 생성 패턴에 맞춰 앞으로 쓸 만한 적정 크기(<code>desired_size</code>) 를 <code>JVM</code>이 계속 조정하는 구조라고 보면 됩니다. TLAB 초기화&#x2F;리사이징 통계에서도 <code>desired_size</code> 개념이 실제로 사용됩니다.</p>
+<h3 id="TLAB-크기-조정에-영향을-주는-요소"><a href="#TLAB-크기-조정에-영향을-주는-요소" class="headerlink" title="TLAB 크기 조정에 영향을 주는 요소"></a>TLAB 크기 조정에 영향을 주는 요소</h3><p><code>TLAB</code>의 <code>desired_size</code> 는 보통 아래 요소들의 영향을 받습니다.</p>
+<ul>
+<li>Eden 크기</li>
+<li>동작 중인 스레드 수</li>
+<li>-XX:TLABWasteTargetPercent&#x3D;N</li>
+<li>스레드별 allocation rate</li>
+<li>-XX:TLABAllocationWeight&#x3D;M</li>
+</ul>
+<ol>
+<li><code>-XX:+ResizeTLAB</code></li>
+</ol>
+<p>이 옵션이 켜져 있으면 <code>JVM</code>은 스레드별 <code>TLAB</code> 크기를 <code>workload</code>에 맞게 계속 조정합니다. 객체 생성이 활발한 스레드는 더 큰 TLAB를 받을 가능성이 높고, 반대로 활동이 적은 스레드는 상대적으로 작은 <code>TLAB</code>를 받을 수 있습니다.</p>
+<ol start="2">
+<li><code>-XX:TLABWasteTargetPercent=N (default 1, 단위 %)</code></li>
+</ol>
+<p>이 값이 작으면 <code>Eden</code> 낭비를 더 엄격하게 보려는 방향이 되고, 값이 크면 <code>TLAB</code>를 조금 더 넉넉하게 가져갈 여지가 커집니다. 쉽게 말해 값이 클수록 <code>refill</code>은 줄 수 있지만, <code>TLAB</code> 단위 낭비는 커질 수 있다고 이해하면 됩니다.</p>
+<ol start="3">
+<li><code>-XX:TLABAllocationWeight=M (default 35, 단위 %)</code></li>
+</ol>
+<p>이 값은 직전 <code>allocation 패턴</code>을 얼마나 강하게 반영할지를 나타냅니다. 값이 클수록 최근 <code>allocation rate</code>를 더 빠르게 반영하고, 값이 작을수록 과거 이력까지 조금 더 완만하게 반영합니다.</p>
+<h2 id="JVM-GC-성능-지표-Throughput과-Latency"><a href="#JVM-GC-성능-지표-Throughput과-Latency" class="headerlink" title="JVM GC 성능 지표 (Throughput과 Latency)"></a>JVM GC 성능 지표 (<code>Throughput</code>과 <code>Latency</code>)</h2><p><code>Throughput</code> 과 <code>Latency</code> 는 무엇이 다를까? JVM GC를 공부하다 보면 가장 자주 보게 되는 성능 지표가 있습니다. 바로 <code>Throughput(처리량)</code> 과 <code>Latency(지연 시간)</code> 입니다.</p>
+<p>GC 튜닝을 할 때 많은 분들이 <code>“GC 횟수가 적으면 좋은 것 아닌가?”</code> <code>“Stop-The-World만 짧으면 끝 아닌가?”</code>라고 생각하기 쉬운데, 실제로는 그렇게 단순하지 않습니다.</p>
+<p>GC는 결국 애플리케이션 성능 전체와 연결된 문제이고, 그 중심에는 항상 <code>Throughput</code> 과 <code>Latency</code> 의 균형이 있습니다. 이번 글에서는 GC 관점에서 이 두 지표를 어떻게 이해해야 하는지 정리해보겠습니다.</p>
+<h3 id="Throughput-이란"><a href="#Throughput-이란" class="headerlink" title="Throughput 이란?"></a><code>Throughput</code> 이란?</h3><p>GC에서 Throughput 은<br>전체 실행 시간 중에서 GC에 사용된 시간을 제외하고, 실제로 애플리케이션이 일한 시간의 비율을 의미합니다. 즉, 쉽게 말하면 <code>프로그램이 멈추지 않고 실제 업무를 처리한 시간이 얼마나 되는가?</code> 라고 이해하면 됩니다.</p>
+<p>예를 들어 전체 실행 시간이 100초인데, GC가 5초 걸렸고 애플리케이션이 실제로 일한 시간이 95초라면 <code>Throughput</code> 은 높다고 볼 수 있습니다.</p>
+<p>여기서 중요한 점은 객체를 생성하고 사용하는 시간은 애플리케이션 실행 시간에 포함된다는 것입니다. 즉, 객체 할당이 많다고 해서 그 자체가 GC 시간이 되는 것은 아닙니다. GC가 실제로 개입해서 정리 작업을 수행하는 시간이 GC 시간입니다.</p>
+<h3 id="Latency-란"><a href="#Latency-란" class="headerlink" title="Latency 란?"></a><code>Latency</code> 란?</h3><p>GC에서 <code>Latency</code> 는 GC 때문에 애플리케이션이 멈추는 시간, 즉 <code>Stop-The-World 시간</code>을 의미합니다.</p>
+<p>쉽게 말하면 <code>사용자 입장에서 얼마나 오래 멈췄는가?</code> 입니다. 예를 들어 어떤 GC가 한 번 발생할 때마다 300ms씩 애플리케이션을 멈춘다면 이 GC는 <code>Throughput</code>이 괜찮더라도 <code>Latency</code> 측면에서는 좋지 않을 수 있습니다. 특히 다음과 같은 서비스에서는 <code>Latency</code>가 매우 중요합니다.</p>
+<p>실시간 응답이 중요한 API 서버 사용자 클릭에 빠르게 반응해야 하는 웹 서비스 지연에 민감한 거래 시스템 짧은 응답 시간을 요구하는 온라인 서비스 여기서도 중요한 점이 하나 있습니다. GC가 백그라운드에서 애플리케이션과 병렬로 일부 작업을 수행하더라도, 그 병렬 수행 시간 <code>전체를 Latency로 보지는 않습니다.</code> <code>Latency</code>는 어디까지나 애플리케이션이 실제로 멈춘 시간을 중심으로 봅니다.</p>
+<h3 id="Throughput과-Latency는-왜-둘-다-중요할까"><a href="#Throughput과-Latency는-왜-둘-다-중요할까" class="headerlink" title="Throughput과 Latency는 왜 둘 다 중요할까?"></a>Throughput과 Latency는 왜 둘 다 중요할까?</h3><p>GC를 평가할 때 <code>Throughput</code>과 <code>Latency</code>가 모두 중요한 이유는, 둘이 보는 관점이 다르기 때문입니다.</p>
+<p><code>Throughput</code>이 보는 것 전체적으로 얼마나 많은 일을 했는가 GC 때문에 전체 작업량이 얼마나 깎였는가 CPU 시간을 애플리케이션에 얼마나 많이 돌려줬는가 <code>Latency</code>가 보는 것 한 번 멈출 때 얼마나 오래 멈췄는가 사용자가 체감하는 끊김이 어느 정도인가 응답 시간 관점에서 서비스 품질이 어떤가</p>
+<p>즉 <code>Throughput</code>은 전체 효율 <code>Latency</code>는 순간 멈춤의 체감 이라고 이해하면 좋습니다.</p>
+<h3 id="Throughput과-Latency는-trade-off-관계"><a href="#Throughput과-Latency는-trade-off-관계" class="headerlink" title="Throughput과 Latency는 trade-off 관계"></a><code>Throughput</code>과 <code>Latency</code>는 <code>trade-off 관계</code></h3><p>GC에서 가장 자주 나오는 말 중 하나가 바로 이것입니다. <code>Throughput</code>과 <code>Latency</code>는 <code>trade-off</code> 관계다. 이 말은 한쪽을 극단적으로 좋게 만들면, 다른 한쪽은 손해를 볼 가능성이 크다는 뜻입니다.</p>
+<p>예를 들어 생각해보겠습니다. <code>Throughput</code>을 높이려는 방향 GC를 너무 자주 하지 않고, 한 번에 좀 더 많이 모아서 처리하면 전체적으로 애플리케이션이 일하는 시간이 늘어날 수 있습니다. 하지만 그 대신 한 번 GC가 발생했을 때 멈추는 시간이 길어질 수 있습니다.</p>
+<p>즉 </p>
+<ul>
+<li>GC 횟수는 줄 수 있음 </li>
+<li>전체 처리 효율은 좋아질 수 있음 </li>
+<li>하지만 한 번 멈출 때 오래 멈출 수 있음</li>
+</ul>
+<p><code>Latency</code>를 줄이려는 방향 GC가 오래 멈추지 않도록 작게 자주 나눠서 처리하면 한 번 멈추는 시간은 짧아질 수 있습니다.</p>
+<p>하지만 그 대신 GC가 더 자주 개입하면서 전체 애플리케이션 처리 시간 일부를 계속 가져가게 될 수 있습니다.</p>
+<p>즉</p>
+<ul>
+<li>Stop-The-World는 짧아질 수 있음</li>
+<li>사용자 체감은 좋아질 수 있음</li>
+<li>하지만 전체 처리량은 떨어질 수 있음</li>
+</ul>
+<h3 id="서버-애플리케이션에서는-무엇이-더-중요할까"><a href="#서버-애플리케이션에서는-무엇이-더-중요할까" class="headerlink" title="서버 애플리케이션에서는 무엇이 더 중요할까?"></a>서버 애플리케이션에서는 무엇이 더 중요할까?</h3><p>이 질문은 <code>무조건 Throughput이 중요하다</code> 또는 <code>무조건 Latency가 중요하다</code> 로 답하기 어렵습니다. 결국 서비스 특성에 따라 달라집니다.</p>
+<p><code>Throughput</code>이 더 중요한 경우</p>
+<ul>
+<li>배치 처리</li>
+<li>로그 집계</li>
+<li>대량 데이터 처리</li>
+<li>응답 시간보다 전체 처리량이 더 중요한 작업</li>
+</ul>
+<p>이런 경우에는 한 번 멈추는 시간이 조금 길더라도 전체적으로 더 많은 일을 처리하는 것이 중요할 수 있습니다.</p>
+<p><code>Latency</code>가 더 중요한 경우</p>
+<ul>
+<li>사용자 요청&#x2F;응답 API</li>
+<li>웹 서비스</li>
+<li>실시간 시스템</li>
+<li>짧은 응답 시간이 중요한 서비스</li>
+</ul>
+<p>이런 경우에는 전체 처리량이 조금 손해 보더라도 한 번의 멈춤 시간을 줄이는 것이 더 중요할 수 있습니다. 즉 서버 애플리케이션이라고 해서 항상 <code>Throughput</code>만 보는 것이 아니라, <code>이 서버가 어떤 서비스를 하는가?</code> 를 먼저 봐야 합니다.</p>
+<h3 id="JVM-옵션-Xmx-와-Xms"><a href="#JVM-옵션-Xmx-와-Xms" class="headerlink" title="JVM 옵션 -Xmx 와 -Xms"></a>JVM 옵션 <code>-Xmx</code> 와 <code>-Xms</code></h3><p><code>JVM 메모리 옵션</code>을 볼 때 가장 먼저 접하는 것이 <code>-Xmx</code> 와 <code>-Xms</code> 입니다. 둘 다 힙 크기와 관련된 옵션이지만 의미는 같지 않습니다. 핵심만 먼저 말하면 이렇습니다.</p>
+<ul>
+<li><code>-Xmx</code> 는 힙이 최대로 커질 수 있는 한도</li>
+<li><code>-Xms</code> 는 JVM이 시작할 때 잡아 둘 초기&#x2F;최소 힙 크기</li>
+</ul>
+<p>즉, <code>-Xmx</code> 는 “최대 어디까지 쓸 수 있나”를 정하고, <code>-Xms</code> 는 “시작할 때 최소 얼마를 실제 사용 가능하게 둘까”를 정하는 옵션입니다. Oracle Java 문서에서도 -Xms 는 minimum and initial size, -Xmx 는 <code>maximum size</code> 로 설명합니다. 또한 <code>-XX:InitialHeapSize</code> 는 초기 힙 크기, <code>-XX:MinHeapSize</code> 는 최소 힙 크기, <code>-XX:MaxHeapSize</code> 는 최대 힙 크기를 뜻합니다. <code>-XX:MaxHeapSize</code> 는 -Xmx 와 동등하다고 문서에 명시되어 있습니다.</p>
+<p><code>-Xmx</code> 는 <code>최대 힙 주소공간 예약</code> 으로 이해하면 쉽습니다. JVM은 시작 시 힙을 위해 최대 주소공간을 가상 주소 공간에 reserve 해둘 수 있습니다. Oracle 문서에서는 <code>초기화 시점에 최대 address space 가 virtual 하게 reserve 되지만, 필요해지기 전까지는 physical memory 로 할당되지 않는다</code> 고 설명합니다.</p>
+<p>예를 들어 다음과 같이 실행했다고 가정해보겠습니다.</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">java -Xms1500m -Xmx3g ...</span><br></pre></td></tr></table></figure>
+
+<p>이 경우 개념적으로는 JVM이 힙에 대해 최대 <code>3GB 까지</code> 사용할 수 있는 범위를 확보해 둡니다.<br>하지만 이 3GB가 시작하자마자 전부 물리 메모리로 사용되는 것은 아닙니다. Oracle의 진단 문서 예시도 -Xms100m -Xmx1000m 일 때 1000MB를 reserve 하고, <code>시작 시점에는 100MB만 committed</code> 된다고 설명합니다.</p>
+<p>즉, -Xmx3g 를 줬다고 해서 “처음부터 3GB를 다 먹는다”라고 이해하면 틀리고, 좀 더 정확히는 3GB 까지 커질 수 있는 힙 상한을 잡아 둔다고 보는 것이 맞습니다</p>
+<p><img src="/../../../img/JAVA/GC/-Xmx&-Xms/-Xmx&-Xms1.png" alt="-Xmx&amp;-Xms1"></p>
+<p>첫 번째 그림은 <code>-Xmx3g</code> 를 기준으로 최대 가상 주소공간을 먼저 예약해 둔 뒤 그 안에서 -Xms 값만큼만 초기&#x2F;최소 힙이 실제 <code>commit</code> 된 상태를 표현한 것으로 보면 됩니다.</p>
+<p><img src="/../../../img/JAVA/GC/-Xmx&-Xms/-Xmx&-Xms2.png" alt="-Xmx&amp;-Xms2"></p>
+<p>객체 사용량과 무관하게, JVM이 힙에 대해 최대 범위(-Xmx) 와 초기 확보량(-Xms) 을 어떻게 바라보는지 보여주는 개념도로 설명하면 좋습니다.</p>
+<p>즉 힙 안에 객체가 얼마나 차 있느냐와 별개로 JVM은 어디까지 커질 수 있는지 지금 당장 얼마를 <code>committed</code> 상태로 둘지 를 따로 관리합니다. 실제로 Oracle 문서도 <code>reserve</code> 와 <code>committed</code> 를 구분해서 설명하고 있습니다.</p>
+<h4 id="Xmx-와-Xms-를-같게-주는-경우"><a href="#Xmx-와-Xms-를-같게-주는-경우" class="headerlink" title="-Xmx 와 -Xms 를 같게 주는 경우"></a>-Xmx 와 -Xms 를 같게 주는 경우</h4><p>실무에서는 -Xms 와 -Xmx 를 같은 값으로 두는 경우가 많습니다.</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">java -Xms3g -Xmx3g ...</span><br></pre></td></tr></table></figure>
+
+<p>이렇게 주면 JVM은 시작할 때부터 힙을 3GB로 맞춰 두고, 실행 중 힙을 늘리거나 줄이는 비용을 줄일 수 있습니다.</p>
+<h4 id="XX-NewRatio-알아보기"><a href="#XX-NewRatio-알아보기" class="headerlink" title="-XX:NewRatio 알아보기"></a>-XX:NewRatio 알아보기</h4><p>이 옵션은 <code>Young 세대와 Old 세대의 비율</code>을 정합니다. Java 문서 기준으로 <code>기본값은 2</code> 이며 이는 Old 세대가 Young 세대보다 2배 크다는 뜻으로 이해하면 됩니다.</p>
+
+      
+       <hr><span style="font-style: italic;color: gray;"> Copyright 201- syh8088. 무단 전재 및 재배포 금지. 출처 표기 시 인용 가능. </span>
+    </div>
+</article>
+
+
+<p>
+    <a  class="dashang" onclick="dashangToggle()">버튼</a>
+</p>
+
+
+
+
+
+
+    
+
+
+
+
+    </div>
+    <div class="copyright">
+        <p class="footer-entry">
+    ©2017 Seo Yang Hun
+</p>
+<p class="footer-entry">Built with <a href="https://hexo.io/" target="_blank">Hexo</a> and <a href="https://github.com/yelog/hexo-theme-3-hexo" target="_blank">3-hexo</a> theme</p>
+
+    </div>
+    <div class="full-toc">
+        <button class="full" data-title="切换全屏 快捷键 s"><span class="min "></span></button>
+<a class="" id="rocket" ></a>
+
+    </div>
+</div>
+
+<div class="hide_box" onclick="dashangToggle()"></div>
+<div class="shang_box">
+    <a class="shang_close"  onclick="dashangToggle()">×</a>
+    <div class="shang_tit">
+        <p>喜欢就点赞,疼爱就打赏</p>
+    </div>
+    <div class="shang_payimg">
+        <div class="pay_img">
+            <img src="/img/alipay.jpg" class="alipay" title="扫码支持">
+            <img src="/img/weixin.jpg" class="weixin" title="扫码支持">
+        </div>
+    </div>
+    <div class="shang_payselect">
+        <span><label><input type="radio" name="pay" checked value="alipay">支付宝</label></span><span><label><input type="radio" name="pay" value="weixin">微信</label></span>
+    </div>
+</div>
+
+
+</body>
+<script src="/js/jquery.pjax.js?v=1.1.0" ></script>
+
+<script src="/js/script.js?v=1.1.0" ></script>
+<script>
+    var img_resize = 'default';
+    function initArticle() {
+        /*渲染对应的表格样式*/
+        
+            $("#post .pjax table").addClass("green_title");
+        
+
+        /*渲染打赏样式*/
+        
+        $("input[name=pay]").on("click", function () {
+            if($("input[name=pay]:checked").val()=="weixin"){
+                $(".shang_box .shang_payimg .pay_img").addClass("weixin_img");
+            } else {
+                $(".shang_box .shang_payimg .pay_img").removeClass("weixin_img");
+            }
+        })
+        
+
+        /*高亮代码块行号*/
+        
+
+        /*访问数量*/
+        
+        $.getScript("//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js");
+        
+
+        /*代码高亮，行号对齐*/
+        $('.pre-numbering').css('line-height',$('.has-numbering').css('line-height'));
+
+        
+        
+    }
+
+    /*打赏页面隐藏与展示*/
+    
+    function dashangToggle() {
+        $(".shang_box").fadeToggle();
+        $(".hide_box").fadeToggle();
+    }
+    
+
+</script>
+
+<!--加入行号的高亮代码块样式-->
+
+<!--自定义样式设置-->
+<style>
+    
+    
+    .nav {
+        width: 542px;
+    }
+    .nav.fullscreen {
+        margin-left: -542px;
+    }
+    .nav-left {
+        width: 120px;
+    }
+    
+    
+    @media screen and (max-width: 1468px) {
+        .nav {
+            width: 492px;
+        }
+        .nav.fullscreen {
+            margin-left: -492px;
+        }
+        .nav-left {
+            width: 100px;
+        }
+    }
+    
+    
+    @media screen and (max-width: 1024px) {
+        .nav {
+            width: 492px;
+            margin-left: -492px
+        }
+        .nav.fullscreen {
+            margin-left: 0;
+        }
+    }
+    
+    @media screen and (max-width: 426px) {
+        .nav {
+            width: 100%;
+        }
+        .nav-left {
+            width: 100%;
+        }
+    }
+    
+    
+    .nav-right .title-list nav a .post-title, .nav-right .title-list #local-search-result a .post-title {
+        color: #383636;
+    }
+    
+    
+    .nav-right .title-list nav a .post-date, .nav-right .title-list #local-search-result a .post-date {
+        color: #5e5e5f;
+    }
+    
+    
+    .nav-right nav a.hover, #local-search-result a.hover{
+        background-color: #e2e0e0;
+    }
+    
+    
+
+    /*列表样式*/
+    
+
+    /* 背景图样式 */
+    
+    
+
+
+    /*引用块样式*/
+    
+
+    /*文章列表背景图*/
+    
+
+    
+</style>
+
+
+
+
+
+
+
+</html>
